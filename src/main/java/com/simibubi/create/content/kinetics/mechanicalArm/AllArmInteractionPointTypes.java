@@ -1,5 +1,10 @@
 package com.simibubi.create.content.kinetics.mechanicalArm;
 
+import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.server.level.ServerLevel;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -519,26 +524,29 @@ public class AllArmInteractionPointTypes {
 			BlockEntity blockEntity = level.getBlockEntity(pos);
 			if (!(blockEntity instanceof CampfireBlockEntity campfireBE))
 				return stack;
-			Optional<RecipeHolder<CampfireCookingRecipe>> recipe = campfireBE.getCookableRecipe(stack);
-			if (recipe.isEmpty())
+			if (!(level instanceof ServerLevel serverLevel))
 				return stack;
-			if (simulate) {
-				boolean hasSpace = false;
-				for (ItemStack campfireStack : campfireBE.getItems()) {
-					if (campfireStack.isEmpty()) {
-						hasSpace = true;
-						break;
-					}
+
+			boolean hasSpace = false;
+			for (ItemStack campfireStack : campfireBE.getItems()) {
+				if (campfireStack.isEmpty()) {
+					hasSpace = true;
+					break;
 				}
-				if (!hasSpace)
-					return stack;
-				ItemStack remainder = stack.copy();
-				remainder.shrink(1);
-				return remainder;
 			}
+			if (!hasSpace)
+				return stack;
+
+			if (serverLevel.recipeAccess()
+				.getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(stack), serverLevel)
+				.isEmpty())
+				return stack;
+
 			ItemStack remainder = stack.copy();
-			campfireBE.placeFood(null, remainder, recipe.get().value()
-				.getCookingTime());
+			if (simulate)
+				remainder.shrink(1);
+			else
+				campfireBE.placeFood(serverLevel, null, remainder);
 			return remainder;
 		}
 	}
@@ -575,13 +583,13 @@ public class AllArmInteractionPointTypes {
 
 		@Override
 		public ItemStack insert(ArmBlockEntity armBlockEntity, ItemStack stack, boolean simulate) {
-			ResourceHandler<ItemResource> handler = new SidedInvWrapper(getContainer(), Direction.UP);
+			ResourceHandler<ItemResource> handler = new WorldlyContainerWrapper(getContainer(), Direction.UP);
 			return ItemHandlerHelpers.insertItem(handler, stack, simulate);
 		}
 
 		@Override
 		public ItemStack extract(ArmBlockEntity armBlockEntity, int slot, int amount, boolean simulate) {
-			ResourceHandler<ItemResource> handler = new SidedInvWrapper(getContainer(), Direction.DOWN);
+			ResourceHandler<ItemResource> handler = new WorldlyContainerWrapper(getContainer(), Direction.DOWN);
 			return ItemHandlerHelpers.extractItem(handler, slot, amount, simulate);
 		}
 

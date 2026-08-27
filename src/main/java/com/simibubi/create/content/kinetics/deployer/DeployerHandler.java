@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.util.TriState;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,6 +85,11 @@ public class DeployerHandler {
 		private final Direction face;
 		private final BlockPos pos;
 		boolean rayMode = false;
+
+		@Override
+		public DifficultyInstance getCurrentDifficultyAt(BlockPos at) {
+			return getLevel().getCurrentDifficultyAt(at);
+		}
 
 		private ItemUseWorld(ServerLevel level, Direction face, BlockPos pos) {
 			super(level);
@@ -176,13 +182,15 @@ public class DeployerHandler {
 
 			// Use on entity
 			if (mode == Mode.USE) {
-				InteractionResult cancelResult = CommonHooks.onInteractEntity(player, entity, hand);
+				Vec3 interactionLocation = entity.position();
+				InteractionResult cancelResult =
+					CommonHooks.onInteractEntity(player, entity, hand, interactionLocation);
 				if (cancelResult == InteractionResult.FAIL) {
 					entity.captureDrops(null);
 					return;
 				}
 				if (cancelResult == null) {
-					if (entity.interact(player, hand)
+					if (entity.interact(player, hand, interactionLocation)
 						.consumesAction()) {
 						if (entity instanceof AbstractVillager villager) {
 							if (villager.getTradingPlayer() instanceof DeployerFakePlayer)
@@ -195,7 +203,7 @@ public class DeployerHandler {
 				}
 				if (!success && entity instanceof Player playerEntity) {
 					if (stack.has(DataComponents.FOOD)) {
-						FoodProperties foodProperties = item.getFoodProperties(stack, player);
+						FoodProperties foodProperties = stack.get(DataComponents.FOOD);
 						if (foodProperties != null && playerEntity.canEat(foodProperties.canAlwaysEat())) {
 							ItemStack copy = stack.copy();
 							player.setItemInHand(hand, stack.finishUsingItem(level, playerEntity));
@@ -407,7 +415,8 @@ public class DeployerHandler {
 			world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
 			world.setBlock(posUp, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
 		} else {
-			if (!blockstate.onDestroyedByPlayer(world, pos, player, canHarvest, world.getFluidState(pos)))
+			if (!blockstate.onDestroyedByPlayer(world, pos, player, player.getMainHandItem(), canHarvest,
+				world.getFluidState(pos)))
 				return true;
 		}
 
