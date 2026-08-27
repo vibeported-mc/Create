@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -59,12 +60,12 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 				continue;
 			}
 
-			ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
+			ResourceHandler<FluidResource> capability = Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack));
 			if (capability == null)
 				continue;
 
 			ItemStack copy = stack.copy();
-			capability = copy.getCapability(Capabilities.Fluid.ITEM);
+			capability = Capabilities.Fluid.ITEM.getCapability(copy, ItemAccess.forStack(copy));
 			FluidStack extracted = FluidHandlerHelpers.drain(capability, 1000, false);
 			ItemStack result = capability.getContainer();
 			if (extracted.isEmpty())

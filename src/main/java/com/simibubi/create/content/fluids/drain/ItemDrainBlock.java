@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.drain;
 
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
@@ -44,7 +45,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, IBE<ItemDrainB
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-								 if (stack.getItem() instanceof BlockItem && stack.getCapability(Capabilities.Fluid.ITEM) == null)
+								 if (stack.getItem() instanceof BlockItem && Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack)) == null)
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		return onBlockEntityUseItemOn(level, pos, be -> {

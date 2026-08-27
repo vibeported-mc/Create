@@ -1,5 +1,8 @@
 package com.simibubi.create.content.fluids.transfer;
 
+import net.neoforged.neoforge.transfer.fluid.BucketResourceHandler;
+import com.simibubi.create.foundation.fluid.ItemFluidAccess;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -12,7 +15,6 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.MilkBucketItem;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
@@ -39,10 +41,10 @@ public class GenericItemFilling {
 	 */
 	public static boolean isFluidHandlerValid(ItemStack stack, ResourceHandler<FluidResource> fluidHandler) {
 		// Not instanceof in case a correct subclass is made
-		if (fluidHandler.getClass() == FluidBucketWrapper.class) {
+		if (fluidHandler.getClass() == BucketResourceHandler.class) {
 			Item item = stack.getItem();
-			// Forge does not patch the FluidBucketWrapper onto subclasses of BucketItem
-			if (item.getClass() != BucketItem.class && !(item instanceof MilkBucketItem)) {
+			// The bucket handler turns whatever it holds into a plain bucket, which is only right for one
+			if (item.getClass() != BucketItem.class && item != Items.MILK_BUCKET) {
 				return false;
 			}
 		}
@@ -55,7 +57,7 @@ public class GenericItemFilling {
 		if (stack.getItem() == Items.MILK_BUCKET)
 			return false;
 
-		ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
+		ResourceHandler<FluidResource> capability = Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack));
 		if (capability == null)
 			return false;
 		if (!isFluidHandlerValid(stack, capability))
@@ -74,15 +76,15 @@ public class GenericItemFilling {
 		if (stack.getItem() == Items.BUCKET && canFillBucketInternally(availableFluid))
 			return 1000;
 
-		ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
+		ResourceHandler<FluidResource> capability = Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack));
 		if (capability == null)
 			return -1;
-		if (capability instanceof FluidBucketWrapper) {
+		if (capability instanceof BucketResourceHandler) {
 			Item filledBucket = availableFluid.getFluid()
 				.getBucket();
 			if (filledBucket == null || filledBucket == Items.AIR)
 				return -1;
-			if (!((FluidBucketWrapper) capability).getFluid()
+			if (!FluidHandlerHelpers.getFluidInTank(capability, 0)
 				.isEmpty())
 				return -1;
 			return 1000;
@@ -127,11 +129,12 @@ public class GenericItemFilling {
 
 		ItemStack split = stack.copy();
 		split.setCount(1);
-		ResourceHandler<FluidResource> capability = split.getCapability(Capabilities.Fluid.ITEM);
+		ItemFluidAccess access = new ItemFluidAccess(split);
+		ResourceHandler<FluidResource> capability = access.handler();
 		if (capability == null)
 			return ItemStack.EMPTY;
 		FluidHandlerHelpers.fill(capability, toFill, false);
-		ItemStack container = capability.getContainer()
+		ItemStack container = access.result()
 			.copy();
 		stack.shrink(1);
 		return container;

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.fluids.transfer;
 
+import com.simibubi.create.foundation.fluid.ItemFluidAccess;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -28,7 +30,7 @@ public class GenericItemEmptying {
 			.isPresent())
 			return true;
 
-		ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
+		ResourceHandler<FluidResource> capability = Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack));
 		if (capability == null)
 			return false;
 		for (int i = 0; i < capability.size(); i++) {
@@ -59,11 +61,12 @@ public class GenericItemEmptying {
 
 		ItemStack split = stack.copy();
 		split.setCount(1);
-		ResourceHandler<FluidResource> capability = split.getCapability(Capabilities.Fluid.ITEM);
+		ItemFluidAccess access = new ItemFluidAccess(split);
+		ResourceHandler<FluidResource> capability = access.handler();
 		if (capability == null)
 			return Pair.of(resultingFluid, resultingItem);
 		resultingFluid = FluidHandlerHelpers.drain(capability, 1000, simulate);
-		resultingItem = capability.getContainer()
+		resultingItem = access.result()
 			.copy();
 		if (!simulate)
 			stack.shrink(1);

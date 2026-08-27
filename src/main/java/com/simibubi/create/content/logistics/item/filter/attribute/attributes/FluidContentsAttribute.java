@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.item.filter.attribute.attributes;
 
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -36,7 +37,7 @@ public record FluidContentsAttribute(@Nullable Fluid fluid) implements ItemAttri
 	private static List<Fluid> extractFluids(ItemStack stack) {
 		List<Fluid> fluids = new ArrayList<>();
 
-		ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
+		ResourceHandler<FluidResource> capability = Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack));
 
 		if (capability != null) {
 			for (int i = 0; i < capability.size(); i++) {

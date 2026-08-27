@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.item.filter.attribute;
 
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -42,7 +43,7 @@ public class AllItemAttributeTypes {
 	public static final ItemAttributeType
 		PLACEABLE = singleton("placeable", s -> s.getItem() instanceof BlockItem),
 		CONSUMABLE = singleton("consumable", s -> s.has(DataComponents.FOOD)),
-		FLUID_CONTAINER = singleton("fluid_container", s -> s.getCapability(Capabilities.Fluid.ITEM) != null),
+		FLUID_CONTAINER = singleton("fluid_container", s -> Capabilities.Fluid.ITEM.getCapability(s, ItemAccess.forStack(s)) != null),
 		ENCHANTED = singleton("enchanted", ItemStack::isEnchanted),
 		MAX_ENCHANTED = singleton("max_enchanted", AllItemAttributeTypes::maxEnchanted),
 		RENAMED = singleton("renamed", s -> s.has(DataComponents.CUSTOM_NAME)),

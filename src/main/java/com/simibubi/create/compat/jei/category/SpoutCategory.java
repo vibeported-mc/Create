@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -65,7 +66,7 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 				continue;
 			}
 
-			ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
+			ResourceHandler<FluidResource> capability = Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack));
 			if (capability == null)
 				continue;
 
@@ -79,7 +80,7 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 					continue;
 
 				ItemStack copy = stack.copy();
-				ResourceHandler<FluidResource> fhi = copy.getCapability(Capabilities.Fluid.ITEM);
+				ResourceHandler<FluidResource> fhi = Capabilities.Fluid.ITEM.getCapability(copy, ItemAccess.forStack(copy));
 				if (fhi != null) {
 					if (!GenericItemFilling.isFluidHandlerValid(copy, fhi))
 						continue;

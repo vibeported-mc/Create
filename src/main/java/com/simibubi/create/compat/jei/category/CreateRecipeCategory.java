@@ -31,6 +31,7 @@ import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotRichTooltipCallback;
@@ -40,6 +41,7 @@ import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -93,8 +95,13 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 	}
 
 	@Override
-	public IDrawable getBackground() {
-		return background;
+	public int getWidth() {
+		return background.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return background.getHeight();
 	}
 
 	@Override
@@ -113,8 +120,9 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 	}
 
 	@Override
-	public List<Component> getTooltipStrings(RecipeHolder<T> holder, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
-		return getTooltipStrings(holder.value(), recipeSlotsView, mouseX, mouseY);
+	public void getTooltip(ITooltipBuilder tooltip, RecipeHolder<T> holder, IRecipeSlotsView recipeSlotsView,
+		double mouseX, double mouseY) {
+		tooltip.addAll(getTooltipStrings(holder.value(), recipeSlotsView, mouseX, mouseY));
 	}
 
 	protected abstract void setRecipe(IRecipeLayoutBuilder builder, T recipe, IFocusGroup focuses);
@@ -130,7 +138,19 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 	}
 
 	public void registerCatalysts(IRecipeCatalystRegistration registration) {
-		catalysts.forEach(s -> registration.addRecipeCatalyst(s.get(), type));
+		catalysts.forEach(s -> registration.addRecipeCatalyst(s.get(), (IRecipeType<?>) type));
+	}
+
+	/**
+	 * The fluids a sized ingredient stands for. 26.2 dropped the pre-expanded array in favour of the
+	 * ingredient's own stream.
+	 */
+	private static List<FluidStack> fluidsOf(SizedFluidIngredient ingredient) {
+		return ingredient.ingredient()
+			.fluids()
+			.stream()
+			.map(fluid -> new FluidStack(fluid, ingredient.amount()))
+			.toList();
 	}
 
 	public static IDrawable getRenderedSlot() {
@@ -169,9 +189,9 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 		int amount = ingredient.amount();
 		return builder.addSlot(RecipeIngredientRole.INPUT, x, y)
 			.setBackground(getRenderedSlot(), -1, -1)
-			.addIngredients(NeoForgeTypes.FLUID_STACK, Arrays.asList(ingredient.getFluids()))
+			.addIngredients(NeoForgeTypes.FLUID_STACK, fluidsOf(ingredient))
 			.setFluidRenderer(amount, false, 16, 16) // make fluid take up the full slot
-			.addTooltipCallback(CreateRecipeCategory::addPotionTooltip);
+			.addRichTooltipCallback(CreateRecipeCategory::addPotionTooltip);
 	}
 
 	@SuppressWarnings("removal") // see below
@@ -180,13 +200,13 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 			.setBackground(getRenderedSlot(), -1, -1)
 			.addIngredient(NeoForgeTypes.FLUID_STACK, stack)
 			.setFluidRenderer(stack.getAmount(), false, 16, 16) // make fluid take up the full slot
-			.addTooltipCallback(CreateRecipeCategory::addPotionTooltip);
+			.addRichTooltipCallback(CreateRecipeCategory::addPotionTooltip);
 	}
 
-	// IRecipeSlotTooltipCallback is deprecated, but the replacement requires that all tooltip lines
-	// get added to the bottom. This looks terrible for potion fluids, and doesn't match how potion items look.
+	// The tooltip builder only appends, so a potion fluid's effects land below the rest of the
+	// tooltip rather than straight after the name the way a potion item's do.
 	// https://github.com/mezz/JustEnoughItems/issues/3931
-	private static void addPotionTooltip(IRecipeSlotView view, List<Component> tooltip) {
+	private static void addPotionTooltip(IRecipeSlotView view, ITooltipBuilder tooltip) {
 		Optional<FluidStack> displayed = view.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK);
 		if (displayed.isEmpty())
 			return;
@@ -196,8 +216,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 		if (fluidStack.getFluid().isSame(AllFluids.POTION.get())) {
 			List<Component> potionTooltip = new ArrayList<>();
 			PotionFluidHandler.addPotionTooltip(fluidStack, potionTooltip::add, 1);
-			// append after item name
-			tooltip.addAll(1, potionTooltip.stream().toList());
+			tooltip.addAll(potionTooltip);
 		}
 	}
 

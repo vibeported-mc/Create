@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.belt;
 
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import java.util.Map;
 
 import com.simibubi.create.AllTags.AllItemTags;
@@ -28,7 +29,7 @@ public class BeltHelper {
 		return uprightCache.computeIfAbsent(
 			stack.getItem(),
 			item -> {
-				boolean isFluidHandler = stack.getCapability(Capabilities.Fluid.ITEM) != null;
+				boolean isFluidHandler = Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack)) != null;
 				boolean useUpright = AllItemTags.UPRIGHT_ON_BELT.matches(stack);
 				boolean forceDisableUpright = !AllItemTags.NOT_UPRIGHT_ON_BELT.matches(stack);
 
