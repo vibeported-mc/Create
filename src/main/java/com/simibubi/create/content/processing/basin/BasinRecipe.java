@@ -1,5 +1,6 @@
 package com.simibubi.create.content.processing.basin;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -44,8 +45,7 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 		if (filter == null)
 			return false;
 
-		boolean filterTest = filter.test(recipe.getResultItem(basin.getLevel()
-			.registryAccess()));
+		boolean filterTest = filter.test(RecipeAccessors.result(recipe, basin.getLevel()));
 		if (recipe instanceof BasinRecipe basinRecipe) {
 			if (basinRecipe.getRollableResults()
 				.isEmpty()
@@ -103,7 +103,7 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 					if (!ingredient.test(extracted))
 						continue;
 					if (!simulate)
-						availableItems.extractItem(slot, 1, false);
+						ItemHandlerHelpers.extractItem(availableItems, slot, 1, false);
 					extractedItemsFromSlot[slot]++;
 					continue Ingredients;
 				}
@@ -151,18 +151,23 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 					.asCraftInput();
 
 				if (recipe instanceof BasinRecipe basinRecipe) {
-					recipeOutputItems.addAll(basinRecipe.rollResults(basin.getLevel().random));
+					recipeOutputItems.addAll(basinRecipe.rollResults(basin.getLevel()
+						.getRandom()));
 
 					for (FluidStack fluidStack : basinRecipe.getFluidResults())
 						if (!fluidStack.isEmpty())
 							recipeOutputFluids.add(fluidStack);
-					for (ItemStack stack : basinRecipe.getRemainingItems(remainderInput))
-						if (!stack.isEmpty())
-							recipeOutputItems.add(stack);
+					for (int i = 0; i < remainderInput.size(); i++) {
+						ItemStack stack = remainderInput.getItem(i);
+						if (!ItemHelper.hasCraftingRemainder(stack))
+							continue;
+						ItemStack remainder = ItemHelper.getCraftingRemainder(stack);
+						if (!remainder.isEmpty())
+							recipeOutputItems.add(remainder);
+					}
 
 				} else {
-					recipeOutputItems.add(recipe.getResultItem(basin.getLevel()
-						.registryAccess()));
+					recipeOutputItems.add(RecipeAccessors.result(recipe, basin.getLevel()));
 
 					if (recipe instanceof CraftingRecipe craftingRecipe) {
 						for (ItemStack stack : craftingRecipe.getRemainingItems(remainderInput))
@@ -180,9 +185,9 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 	}
 
 	public static RecipeHolder<BasinRecipe> convertShapeless(RecipeHolder<?> recipe) {
-		BasinRecipe basinRecipe =
-			new Builder<>(BasinRecipe::new, recipe.id()).withItemIngredients(RecipeAccessors.ingredients(recipe.value()))
-				.withSingleItemOutput(recipe.value().getResultItem(Minecraft.getInstance().level.registryAccess()))
+		BasinRecipe basinRecipe = new Builder<>(BasinRecipe::new, recipe.id()
+			.identifier()).withItemIngredients(RecipeAccessors.ingredients(recipe.value()))
+				.withSingleItemOutput(RecipeAccessors.result(recipe.value(), Minecraft.getInstance().level))
 				.build();
 		return new RecipeHolder<>(recipe.id(), basinRecipe);
 	}

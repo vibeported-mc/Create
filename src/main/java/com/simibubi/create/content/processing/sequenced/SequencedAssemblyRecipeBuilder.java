@@ -1,5 +1,9 @@
 package com.simibubi.create.content.processing.sequenced;
 
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -34,7 +38,7 @@ public class SequencedAssemblyRecipeBuilder {
 	public SequencedAssemblyRecipeBuilder(Identifier id) {
 		this.id = id;
 		recipeConditions = new ArrayList<>();
-		this.recipe = new SequencedAssemblyRecipe(AllRecipeTypes.SEQUENCED_ASSEMBLY.getSerializer());
+		this.recipe = new SequencedAssemblyRecipe(SequencedAssemblyRecipeSerializer.INSTANCE);
 	}
 
 	public <R extends StandardProcessingRecipe<?>> SequencedAssemblyRecipeBuilder addStep(
@@ -68,7 +72,7 @@ public class SequencedAssemblyRecipeBuilder {
 	}
 
 	public SequencedAssemblyRecipeBuilder require(TagKey<Item> tag) {
-		return require(Ingredient.of(tag));
+		return require(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(tag)));
 	}
 
 	public SequencedAssemblyRecipeBuilder require(Ingredient ingredient) {
@@ -96,14 +100,17 @@ public class SequencedAssemblyRecipeBuilder {
 	}
 
 	public RecipeHolder<SequencedAssemblyRecipe> build() {
-		return new RecipeHolder<>(id, recipe);
+		return new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, id), recipe);
 	}
 
 	public void build(RecipeOutput consumer) {
 		RecipeHolder<SequencedAssemblyRecipe> holder = build();
+		Identifier holderId = holder.id()
+			.identifier();
 
-		Identifier id = Identifier.fromNamespaceAndPath(holder.id().getNamespace(),
-				AllRecipeTypes.SEQUENCED_ASSEMBLY.getId().getPath() + "/" + holder.id().getPath());
+		ResourceKey<Recipe<?>> id = ResourceKey.create(Registries.RECIPE,
+			Identifier.fromNamespaceAndPath(holderId.getNamespace(), AllRecipeTypes.SEQUENCED_ASSEMBLY.getId()
+				.getPath() + "/" + holderId.getPath()));
 
 		consumer.accept(id, holder.value(), null, recipeConditions.toArray(new ICondition[0]));
 	}

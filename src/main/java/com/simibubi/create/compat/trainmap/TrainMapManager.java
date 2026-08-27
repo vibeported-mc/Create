@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.simibubi.create.CreateClient;
-import com.simibubi.create.compat.Mods;
 import com.simibubi.create.compat.trainmap.TrainMapSync.SignalState;
 import com.simibubi.create.compat.trainmap.TrainMapSync.TrainMapSyncEntry;
 import com.simibubi.create.compat.trainmap.TrainMapSync.TrainState;
@@ -48,8 +47,10 @@ import net.minecraft.world.phys.Vec3;
 public class TrainMapManager {
 
 	public static void tick() {
-		ResourceKey<Level> playerDimension = Minecraft.getInstance().level.dimension();
-
+		// TODO 26.2: this used to ask XaeroTrainMap which dimension its open map was showing and follow
+		// that instead of the player's. The Xaero adapter has no 26.2 build and is compiled out, so the
+		// player's dimension is all that is left to go on; restore the override with the adapter.
+		tick(Minecraft.getInstance().level.dimension());
 	}
 
 	public static void tick(ResourceKey<Level> dimension) {
@@ -285,7 +286,6 @@ public class TrainMapManager {
 				sprite.render(graphics, 0, 0);
 
 				if (highlight) {
-					pose.translate((float) (0), (float) (0));
 					highlightSprite.render(graphics, -1, -1);
 					hoveredElement = station;
 				}

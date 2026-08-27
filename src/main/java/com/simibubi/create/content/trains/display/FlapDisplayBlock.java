@@ -278,13 +278,15 @@ public class FlapDisplayBlock extends HorizontalKineticBlock
 	@Override
 	public BlockState updateShape(BlockState state, LevelReader pLevel, ScheduledTickAccess ticks,
 		BlockPos pCurrentPos, Direction pDirection, BlockPos pNeighborPos, BlockState pNeighborState, RandomSource random) {
-		return updatedShapeInner(state, pDirection, pNeighborState, pLevel, pCurrentPos);
+		return updatedShapeInner(state, pDirection, pNeighborState, pLevel, ticks, pCurrentPos);
 	}
 
+	// updateShape hands out a read-only LevelReader now, with scheduled ticks moved onto their own
+	// ScheduledTickAccess, so the shared helper takes both.
 	private BlockState updatedShapeInner(BlockState state, Direction pDirection, BlockState pNeighborState,
-										 LevelAccessor pLevel, BlockPos pCurrentPos) {
+										 LevelReader pLevel, ScheduledTickAccess ticks, BlockPos pCurrentPos) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED))
-			pLevel.scheduleTick(pCurrentPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
+			ticks.scheduleTick(pCurrentPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
 		if (!canConnect(state, pNeighborState))
 			return setConnection(state, pDirection, false);
 		if (pDirection.getAxis() == getConnectionAxis(state))

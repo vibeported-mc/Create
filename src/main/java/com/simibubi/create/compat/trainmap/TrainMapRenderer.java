@@ -233,7 +233,11 @@ public class TrainMapRenderer implements AutoCloseable {
 		}
 
 		public void close() {
-			texture.close();
+			// The section owns its texture through the manager now, so releasing the location is what
+			// both drops the registration and closes the texture.
+			Minecraft.getInstance()
+				.getTextureManager()
+				.release(location);
 		}
 
 	}

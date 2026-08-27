@@ -21,6 +21,13 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
  * pair of statics even though 26.2's {@link RecipeSerializer} is now a plain record.
  */
 public class SequencedAssemblyRecipeSerializer {
+
+	/**
+	 * The codecs are the whole of this class, so one is enough - and a recipe under construction
+	 * needs to reach the same one the registry holds.
+	 */
+	public static final SequencedAssemblyRecipeSerializer INSTANCE = new SequencedAssemblyRecipeSerializer();
+
 	private final MapCodec<SequencedAssemblyRecipe> CODEC = RecordCodecBuilder.mapCodec(
 		i -> i.group(
 			Ingredient.CODEC.fieldOf("ingredient").forGetter(SequencedAssemblyRecipe::getIngredient),

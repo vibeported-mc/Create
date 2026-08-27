@@ -1,5 +1,10 @@
 package com.simibubi.create.content.processing.recipe;
 
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,12 +53,20 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	public abstract S self();
 
 	public S withItemIngredients(Ingredient... ingredients) {
-		return withItemIngredients(NonNullList.of(Ingredient.EMPTY, ingredients));
+		NonNullList<Ingredient> list = NonNullList.createWithCapacity(ingredients.length);
+		Collections.addAll(list, ingredients);
+		return withItemIngredients(list);
 	}
 
 	public S withItemIngredients(NonNullList<Ingredient> ingredients) {
 		params.ingredients = ingredients;
 		return self();
+	}
+
+	public S withItemIngredients(List<Ingredient> ingredients) {
+		NonNullList<Ingredient> list = NonNullList.createWithCapacity(ingredients.size());
+		list.addAll(ingredients);
+		return withItemIngredients(list);
 	}
 
 	public S withSingleItemOutput(ItemStack output) {
@@ -70,7 +83,9 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	}
 
 	public S withFluidIngredients(SizedFluidIngredient... ingredients) {
-		return withFluidIngredients(NonNullList.of(new SizedFluidIngredient(FluidIngredient.empty(), 1000), ingredients));
+		NonNullList<SizedFluidIngredient> list = NonNullList.createWithCapacity(ingredients.length);
+		Collections.addAll(list, ingredients);
+		return withFluidIngredients(list);
 	}
 
 	public S withFluidIngredients(NonNullList<SizedFluidIngredient> ingredients) {
@@ -109,7 +124,8 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 		R recipe = build();
 		IRecipeTypeInfo recipeType = recipe.getTypeInfo();
 		Identifier typeId = recipeType.getId();
-		Identifier id = recipeId.withPrefix(typeId.getPath() + "/");
+		ResourceKey<Recipe<?>> id =
+			ResourceKey.create(Registries.RECIPE, recipeId.withPrefix(typeId.getPath() + "/"));
 		var errors = recipe.validate();
 		if (!errors.isEmpty()) {
 			errors.add(recipe.getClass().getSimpleName() + "with id " + id + " failed validation:");
@@ -121,7 +137,7 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	// Datagen shortcuts
 
 	public S require(TagKey<Item> tag) {
-		return require(Ingredient.of(tag));
+		return require(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(tag)));
 	}
 
 	public S require(ItemLike item) {
@@ -149,7 +165,8 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	}
 
 	public S require(TagKey<Fluid> fluidTag, int amount) {
-		return require(SizedFluidIngredient.of(fluidTag, amount));
+		return require(new SizedFluidIngredient(FluidIngredient.of(BuiltInRegistries.FLUID.getOrThrow(fluidTag)),
+			amount));
 	}
 
 	public S require(SizedFluidIngredient ingredient) {

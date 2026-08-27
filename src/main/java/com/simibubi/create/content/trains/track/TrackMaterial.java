@@ -42,8 +42,13 @@ public class TrackMaterial {
 	public final Identifier id;
 	public final String langName;
 	public final NonNullSupplier<NonNullSupplier<? extends TrackBlock>> trackBlock;
-	public final Ingredient sleeperIngredient;
-	public final Ingredient railsIngredient;
+	// Suppliers rather than ingredients: Ingredient now wraps a resolved HolderSet, so a tag-based
+	// one cannot exist while these materials are built at class-load. Null means the material opts
+	// out of recipe generation, which is what Ingredient.EMPTY used to signal here.
+	@Nullable
+	public final Supplier<Ingredient> sleeperIngredient;
+	@Nullable
+	public final Supplier<Ingredient> railsIngredient;
 	public final Identifier particle;
 	public final TrackType trackType;
 
@@ -59,13 +64,15 @@ public class TrackMaterial {
 	}
 
 	public TrackMaterial(Identifier id, String langName, NonNullSupplier<NonNullSupplier<? extends TrackBlock>> trackBlock,
-						 Identifier particle, Ingredient sleeperIngredient, Ingredient railsIngredient,
+						 Identifier particle, @Nullable Supplier<Ingredient> sleeperIngredient,
+						 @Nullable Supplier<Ingredient> railsIngredient,
 						 TrackType trackType, Supplier<Supplier<TrackModelHolder>> modelHolder) {
 		this(id, langName, trackBlock, particle, sleeperIngredient, railsIngredient, trackType, modelHolder, null);
 	}
 
 	public TrackMaterial(Identifier id, String langName, NonNullSupplier<NonNullSupplier<? extends TrackBlock>> trackBlock,
-						 Identifier particle, Ingredient sleeperIngredient, Ingredient railsIngredient,
+						 Identifier particle, @Nullable Supplier<Ingredient> sleeperIngredient,
+						 @Nullable Supplier<Ingredient> railsIngredient,
 						 TrackType trackType, Supplier<Supplier<TrackModelHolder>> modelHolder,
 						 @Nullable TrackType.TrackBlockFactory customFactory) {
 		this.id = id;
