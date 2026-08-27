@@ -18,7 +18,7 @@ public class Indicator extends AbstractSimiWidget {
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks ) {
+	protected void doRender(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		if (!visible)
 			return;
 		AllGuiTextures toDraw;

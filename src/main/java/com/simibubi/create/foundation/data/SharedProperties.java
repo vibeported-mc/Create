@@ -20,7 +20,8 @@ public class SharedProperties {
 	}
 
 	public static Block copperMetal() {
-		return Blocks.COPPER_BLOCK;
+		return Blocks.COPPER_BLOCK.weathering()
+			.unaffected();
 	}
 
 	public static Block netheriteMetal() {

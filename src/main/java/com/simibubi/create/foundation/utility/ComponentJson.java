@@ -39,7 +39,7 @@ public class ComponentJson {
 		if (json.isEmpty())
 			return null;
 		return ComponentSerialization.CODEC
-			.parse(RegistryOps.create(JsonOps.INSTANCE, registries), GsonHelper.parse(json, true))
+			.parse(RegistryOps.create(JsonOps.INSTANCE, registries), GsonHelper.parse(json))
 			.result()
 			.orElse(null);
 	}

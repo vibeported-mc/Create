@@ -47,8 +47,8 @@ public class AllRenderPipelines {
 			.withCull(false));
 
 	public static final RenderPipeline GLOWING = pipeline("glowing", RenderPipeline.builder(GLOWING_SNIPPET)
-		.withColorTargetState(new ColorTargetState(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA,
-			BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA)));
+		.withColorTargetState(new ColorTargetState(new BlendFunction(BlendFactor.SRC_ALPHA,
+			BlendFactor.ONE_MINUS_SRC_ALPHA, BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA))));
 
 	public static final RenderPipeline GLOWING_TRANSLUCENT = pipeline("glowing_translucent",
 		RenderPipeline.builder(GLOWING_SNIPPET)

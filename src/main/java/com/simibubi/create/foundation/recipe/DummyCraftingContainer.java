@@ -5,6 +5,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.TransientCraftingContainer;
@@ -56,7 +57,7 @@ public class DummyCraftingContainer extends TransientCraftingContainer {
 	public void clearContent() {}
 
 	@Override
-	public void fillStackedContents(@NotNull StackedContents helper) {}
+	public void fillStackedContents(@NotNull StackedItemContents contents) {}
 
 	private static NonNullList<ItemStack> createInventory(ResourceHandler<ItemResource> itemHandler, int[] extractedItemsFromSlot) {
 		NonNullList<ItemStack> inv = NonNullList.create();

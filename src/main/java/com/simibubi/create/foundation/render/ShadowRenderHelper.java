@@ -3,6 +3,7 @@ package com.simibubi.create.foundation.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import net.minecraft.client.renderer.Lightmap;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -76,7 +77,8 @@ public class ShadowRenderHelper {
 			if (blockstate.isCollisionShapeFullBlock(world, blockpos)) {
 				VoxelShape voxelshape = blockstate.getShape(world, pos.below());
 				if (!voxelshape.isEmpty()) {
-					float brightness = LightCoordsUtil.getBrightness(world.dimensionType(), world.getMaxLocalRawBrightness(pos));
+					float brightness =
+						Lightmap.getBrightness(world.dimensionType(), world.getMaxLocalRawBrightness(pos));
 					float f = (float) ((opacity - (y - pos.getY()) / 2.0D) * 0.5D * brightness);
 					if (f >= 0.0F) {
 						if (f > 1.0F) {
