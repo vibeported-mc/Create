@@ -22,7 +22,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockEntity> {
 
@@ -92,7 +92,7 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 
 	// this is used to prevent InventorySorter from interfering with scrolling on the slots.
 	// we just need a class to use as a marker, see InventorySorterCompat
-	public static class SorterProofSlot extends SlotItemHandler {
+	public static class SorterProofSlot extends ResourceHandlerSlot {
 		public SorterProofSlot(ResourceHandler<ItemResource> itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, index, xPosition, yPosition);
 		}

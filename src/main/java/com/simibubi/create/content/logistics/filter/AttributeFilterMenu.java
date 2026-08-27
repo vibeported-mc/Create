@@ -21,7 +21,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class AttributeFilterMenu extends AbstractFilterMenu {
 
@@ -64,8 +64,8 @@ public class AttributeFilterMenu extends AbstractFilterMenu {
 
 	@Override
 	protected void addFilterSlots() {
-		this.addSlot(new SlotItemHandler(ghostInventory, 0, 16, 27));
-		this.addSlot(new SlotItemHandler(ghostInventory, 1, 16, 62) {
+		this.addSlot(new ResourceHandlerSlot(ghostInventory, ghostInventory::set, 0, 16, 27));
+		this.addSlot(new ResourceHandlerSlot(ghostInventory, ghostInventory::set, 1, 16, 62) {
 			@Override
 			public boolean mayPickup(Player playerIn) {
 				return false;

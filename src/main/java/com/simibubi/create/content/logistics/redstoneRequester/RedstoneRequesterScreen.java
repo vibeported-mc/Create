@@ -29,7 +29,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<RedstoneRequesterMenu> {
 
@@ -200,7 +200,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 	@Override
 	protected List<Component> getTooltipFromContainerItem(ItemStack pStack) {
 		List<Component> tooltip = super.getTooltipFromContainerItem(pStack);
-		if (!(hoveredSlot instanceof SlotItemHandler))
+		if (!(hoveredSlot instanceof ResourceHandlerSlot))
 			return tooltip;
 
 		int slotIndex = this.hoveredSlot.getSlotIndex();

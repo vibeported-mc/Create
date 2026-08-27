@@ -44,7 +44,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<StockKeeperCategoryMenu> {
 
@@ -439,7 +439,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		if (editingItem == null)
 			return;
 
-		if (hoveredSlot instanceof SlotItemHandler && hoveredSlot.getItem()
+		if (hoveredSlot instanceof ResourceHandlerSlot && hoveredSlot.getItem()
 			.isEmpty()) {
 			graphics.setComponentTooltipForNextFrame(font, List.of(CreateLang.translate("gui.stock_ticker.category_filter")
 						.color(ScrollInput.HEADER_RGB)
@@ -514,7 +514,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	@Override
 	protected List<Component> getTooltipFromContainerItem(ItemStack pStack) {
 		List<Component> tooltip = super.getTooltipFromContainerItem(pStack);
-		if (!(hoveredSlot instanceof SlotItemHandler))
+		if (!(hoveredSlot instanceof ResourceHandlerSlot))
 			return tooltip;
 		if (!tooltip.isEmpty())
 			tooltip.set(0, CreateLang.translate("gui.stock_ticker.category_filter")

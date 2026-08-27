@@ -21,7 +21,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class StockKeeperCategoryMenu extends MenuBase<StockTickerBlockEntity> {
 	public boolean slotsActive = true;
@@ -83,7 +83,7 @@ public class StockKeeperCategoryMenu extends MenuBase<StockTickerBlockEntity> {
 		}
 	}
 
-	class InactiveItemHandlerSlot extends SlotItemHandler {
+	class InactiveItemHandlerSlot extends ResourceHandlerSlot {
 		public InactiveItemHandlerSlot(ResourceHandler<ItemResource> itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, index, xPosition, yPosition);
 		}

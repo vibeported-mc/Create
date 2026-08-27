@@ -29,7 +29,7 @@ import net.minecraft.world.level.Level;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 import java.util.Optional;
 
@@ -64,7 +64,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 				this.addSlot(new BlueprintCraftSlot(ghostInventory, index++, x + col * 18, y + row * 18));
 
 		addSlot(new BlueprintCraftSlot(ghostInventory, index++, 123, 40));
-		addSlot(new SlotItemHandler(ghostInventory, index++, 135, 57));
+		addSlot(new ResourceHandlerSlot(ghostInventory, ghostInventory::set, index++, 135, 57));
 	}
 
 	public void onCraftMatrixChanged() {
@@ -153,7 +153,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 	}
 
-	class BlueprintCraftSlot extends SlotItemHandler {
+	class BlueprintCraftSlot extends ResourceHandlerSlot {
 
 		private int index;
 

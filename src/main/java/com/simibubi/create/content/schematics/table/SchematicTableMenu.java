@@ -14,7 +14,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class SchematicTableMenu extends MenuBase<SchematicTableBlockEntity> {
 
@@ -69,7 +69,7 @@ public class SchematicTableMenu extends MenuBase<SchematicTableBlockEntity> {
 
 	@Override
 	protected void addSlots() {
-		inputSlot = new SlotItemHandler(contentHolder.inventory, 0, 21, 59) {
+		inputSlot = new ResourceHandlerSlot(contentHolder.inventory, contentHolder.inventory::set, 0, 21, 59) {
 			@Override
 			public boolean mayPlace(ItemStack stack) {
 				return AllItems.EMPTY_SCHEMATIC.isIn(stack) || AllItems.SCHEMATIC_AND_QUILL.isIn(stack)
@@ -77,7 +77,7 @@ public class SchematicTableMenu extends MenuBase<SchematicTableBlockEntity> {
 			}
 		};
 
-		outputSlot = new SlotItemHandler(contentHolder.inventory, 1, 166, 59) {
+		outputSlot = new ResourceHandlerSlot(contentHolder.inventory, contentHolder.inventory::set, 1, 166, 59) {
 			@Override
 			public boolean mayPlace(ItemStack stack) {
 				return false;

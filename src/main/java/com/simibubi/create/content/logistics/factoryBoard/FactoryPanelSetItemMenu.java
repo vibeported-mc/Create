@@ -16,7 +16,7 @@ import net.minecraft.world.inventory.MenuType;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class FactoryPanelSetItemMenu extends GhostItemMenu<FactoryPanelBehaviour> {
 
@@ -57,7 +57,7 @@ public class FactoryPanelSetItemMenu extends GhostItemMenu<FactoryPanelBehaviour
 		int slotY = 28;
 
 		addPlayerSlots(playerX, playerY);
-		addSlot(new SlotItemHandler(ghostInventory, 0, slotX, slotY));
+		addSlot(new ResourceHandlerSlot(ghostInventory, ghostInventory::set, 0, slotX, slotY));
 	}
 
 	@Override

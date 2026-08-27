@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class FilterMenu extends AbstractFilterMenu {
 
@@ -46,7 +46,7 @@ public class FilterMenu extends AbstractFilterMenu {
 		int y = 25;
 		for (int row = 0; row < 2; ++row)
 			for (int col = 0; col < 9; ++col)
-				this.addSlot(new SlotItemHandler(ghostInventory, col + row * 9, x + col * 18, y + row * 18));
+				this.addSlot(new ResourceHandlerSlot(ghostInventory, ghostInventory::set, col + row * 9, x + col * 18, y + row * 18));
 	}
 
 	@Override

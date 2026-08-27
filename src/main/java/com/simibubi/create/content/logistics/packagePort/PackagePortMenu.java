@@ -19,7 +19,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 
@@ -56,7 +56,7 @@ public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 		}
 
 		// we need to copy the stack here since it may be modified by moveItemStackTo, but the
-		// stack may be taken directly from a SlotItemHandler, which just defers to an ResourceHandler<ItemResource>.
+		// stack may be taken directly from a ResourceHandlerSlot, which just defers to an ResourceHandler<ItemResource>.
 		// modifying the original stack would violate the class's contract and cause problems.
 		ItemStack stack = slot.getItem().copy();
 		// we return the stack that was moved out of the slot, so make a copy of that now too.
@@ -97,7 +97,7 @@ public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 
 		for (int row = 0; row < 2; row++)
 			for (int col = 0; col < 9; col++)
-				addSlot(new SlotItemHandler(inventory, row * 9 + col, x + col * 18, y + row * 18));
+				addSlot(new ResourceHandlerSlot(inventory, inventory::set, row * 9 + col, x + col * 18, y + row * 18));
 
 		addPlayerSlots(38, 108);
 	}
