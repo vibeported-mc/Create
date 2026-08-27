@@ -20,7 +20,7 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 public abstract class EnchantedCountIncreaseFunctionMixin {
 	@Shadow
 	@Final
-	private NumberProvider value;
+	private NumberProvider count;
 
 	@Shadow
 	protected abstract boolean hasLimit();
@@ -35,7 +35,7 @@ public abstract class EnchantedCountIncreaseFunctionMixin {
 		if (damageSource != null && damageSource.is(AllDamageTypes.CRUSH)) {
 			int lootingLevel = 2;
 
-			float f = (float) lootingLevel * this.value.getFloat(context);
+			float f = (float) lootingLevel * this.count.getFloat(context);
 			stack.grow(Math.round(f));
 			if (this.hasLimit())
 				stack.limitSize(this.limit);
