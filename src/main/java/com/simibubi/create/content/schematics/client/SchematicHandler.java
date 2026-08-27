@@ -71,8 +71,19 @@ public class SchematicHandler implements GuiLayer {
 	public SchematicHandler() {
 		overlay = new SchematicHotbarSlotOverlay();
 		currentTool = ToolType.DEPLOY;
-		selectionScreen = new ToolSelectionScreen(ImmutableList.of(ToolType.DEPLOY), this::equip);
 		transformation = new SchematicTransformation();
+	}
+
+	/**
+	 * 26.2's {@code Screen} constructor takes its font from {@code Minecraft.getInstance()}, which does
+	 * not exist yet while mods are being constructed - and this handler is a static field of
+	 * {@link com.simibubi.create.CreateClient CreateClient}. So the default screen is built on first
+	 * use rather than in the constructor.
+	 */
+	private ToolSelectionScreen selectionScreen() {
+		if (selectionScreen == null)
+			selectionScreen = new ToolSelectionScreen(ImmutableList.of(ToolType.DEPLOY), this::equip);
+		return selectionScreen;
 	}
 
 	public void tick() {
@@ -114,7 +125,7 @@ public class SchematicHandler implements GuiLayer {
 		if (syncCooldown == 1)
 			sync();
 
-		selectionScreen.update();
+		selectionScreen().update();
 		currentTool.getTool()
 			.updateSelection();
 	}
@@ -128,7 +139,7 @@ public class SchematicHandler implements GuiLayer {
 			ToolType toolBefore = currentTool;
 			selectionScreen = new ToolSelectionScreen(ToolType.getTools(player.isCreative()), this::equip);
 			if (toolBefore != null) {
-				selectionScreen.setSelectedElement(toolBefore);
+				selectionScreen().setSelectedElement(toolBefore);
 				equip(toolBefore);
 			}
 		} else
@@ -262,7 +273,7 @@ public class SchematicHandler implements GuiLayer {
 			this.overlay.renderOn(guiGraphics, activeHotbarSlot);
 		currentTool.getTool()
 			.renderOverlay(mc.gui, guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(false), guiGraphics.guiWidth(), guiGraphics.guiHeight());
-		selectionScreen.renderPassive(guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(false));
+		selectionScreen().renderPassive(guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(false));
 	}
 
 	public boolean onMouseInput(int button, boolean pressed) {
@@ -290,11 +301,11 @@ public class SchematicHandler implements GuiLayer {
 		if (!AllKeys.TOOL_MENU.doesModifierAndCodeMatch(key))
 			return;
 
-		if (pressed && !selectionScreen.focused)
-			selectionScreen.focused = true;
-		if (!pressed && selectionScreen.focused) {
-			selectionScreen.focused = false;
-			selectionScreen.onClose();
+		if (pressed && !selectionScreen().focused)
+			selectionScreen().focused = true;
+		if (!pressed && selectionScreen().focused) {
+			selectionScreen().focused = false;
+			selectionScreen().onClose();
 		}
 	}
 
@@ -302,8 +313,8 @@ public class SchematicHandler implements GuiLayer {
 		if (!active)
 			return false;
 
-		if (selectionScreen.focused) {
-			selectionScreen.cycle((int) Math.signum(delta));
+		if (selectionScreen().focused) {
+			selectionScreen().cycle((int) Math.signum(delta));
 			return true;
 		}
 		if (AllKeys.ctrlDown())

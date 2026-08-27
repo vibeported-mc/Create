@@ -35,7 +35,14 @@ public class ValueSettingsClient implements GuiLayer {
 	public int hoverWarmup;
 
 	public ValueSettingsClient() {
-		mc = Minecraft.getInstance();
+		// 26.2 constructs mods before the Minecraft instance exists, so this is resolved on first use
+		// rather than cached here - see CreateClient, which holds this as a static field.
+	}
+
+	private Minecraft mc() {
+		if (mc == null)
+			mc = Minecraft.getInstance();
+		return mc;
 	}
 
 	public void cancelIfWarmupAlreadyStarted(PlayerInteractEvent.RightClickBlock event) {
@@ -66,26 +73,26 @@ public class ValueSettingsClient implements GuiLayer {
 			hoverTicks--;
 		if (interactHeldTicks == -1)
 			return;
-		Player player = mc.player;
+		Player player = mc().player;
 
 		if (!ValueSettingsInputHandler.canInteract(player) || AllBlocks.CLIPBOARD.isIn(player.getMainHandItem())) {
 			cancelInteraction();
 			return;
 		}
-		HitResult hitResult = mc.hitResult;
+		HitResult hitResult = mc().hitResult;
 		if (!(hitResult instanceof BlockHitResult blockHitResult) || !blockHitResult.getBlockPos()
 			.equals(interactHeldPos)) {
 			cancelInteraction();
 			return;
 		}
-		BlockEntityBehaviour behaviour = BlockEntityBehaviour.get(mc.level, interactHeldPos, interactHeldBehaviour);
+		BlockEntityBehaviour behaviour = BlockEntityBehaviour.get(mc().level, interactHeldPos, interactHeldBehaviour);
 		if (!(behaviour instanceof ValueSettingsBehaviour valueSettingBehaviour)
 			|| valueSettingBehaviour.bypassesInput(player.getMainHandItem())
 			|| !valueSettingBehaviour.testHit(blockHitResult.getLocation())) {
 			cancelInteraction();
 			return;
 		}
-		if (!mc.options.keyUse.isDown()) {
+		if (!mc().options.keyUse.isDown()) {
 			ClientNetworkHelper.INSTANCE.sendToServer(new ValueSettingsPacket(interactHeldPos, 0, 0, interactHeldHand, blockHitResult,
 					interactHeldFace, false, valueSettingBehaviour.netId()));
 			valueSettingBehaviour.onShortInteract(player, interactHeldHand, interactHeldFace, blockHitResult);
@@ -104,7 +111,7 @@ public class ValueSettingsClient implements GuiLayer {
 	}
 
 	public void showHoverTip(List<MutableComponent> tip) {
-		if (mc.gui.screen() != null)
+		if (mc().gui.screen() != null)
 			return;
 		if (hoverWarmup < 6) {
 			hoverWarmup += 2;
@@ -117,8 +124,7 @@ public class ValueSettingsClient implements GuiLayer {
 
 	@Override
 	public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
-		Minecraft mc = Minecraft.getInstance();
-		if (mc.gui.hud.isHidden() || !ValueSettingsInputHandler.canInteract(mc.player))
+		if (mc().gui.hud.isHidden() || !ValueSettingsInputHandler.canInteract(mc().player))
 			return;
 		if (hoverTicks == 0 || lastHoverTip == null)
 			return;
@@ -134,7 +140,7 @@ public class ValueSettingsClient implements GuiLayer {
 
 		for (int i = 0; i < lastHoverTip.size(); i++) {
 			MutableComponent mutableComponent = lastHoverTip.get(i);
-			guiGraphics.text(mc.font, mutableComponent, x - mc.font.width(mutableComponent) / 2, y,
+			guiGraphics.text(mc().font, mutableComponent, x - mc().font.width(mutableComponent) / 2, y,
 				(i == 0 ? titleColor : color).getRGB());
 			y += 12;
 		}
