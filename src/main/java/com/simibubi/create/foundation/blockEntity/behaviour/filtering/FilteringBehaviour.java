@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.filtering;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import java.util.function.Consumer;
@@ -386,7 +388,7 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 			.orElse(ItemStack.EMPTY);
 
 		if (copied.getItem() instanceof FilterItem filterType && !player.isCreative()) {
-			InvWrapper inv = VanillaContainerWrapper.of(player.getInventory());
+			ResourceHandler<ItemResource> inv = VanillaContainerWrapper.of(player.getInventory());
 
 			for (boolean preferStacksWithoutData : Iterate.trueAndFalse) {
 				if (refund.getItem() != filterType && ItemHelper

@@ -205,22 +205,16 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 		AllGuiTextures.THRESHOLD_SWITCH_CURRENT_STATE.render(graphics, torchX - 3,
 			torchY - 4 + (highlightTopRow ? 0 : 24));
 
-		Matrix3x2fStack ms = graphics.pose();
-		ms.pushMatrix();
-		ms.translate((float) (torchX - 5), (float) (torchY + 14));
-		TransformStack.of(ms)
-			.rotateXDegrees(-22.5f)
-			.rotateYDegrees(45);
-
+		int torchY2 = torchY + 14;
 		for (boolean power : Iterate.trueAndFalse) {
 			GuiGameElement.of(Blocks.REDSTONE_TORCH.defaultBlockState()
 					.setValue(RedstoneTorchBlock.LIT, blockEntity.isInverted() ^ power))
+				.rotate(-22.5f, 45, 0)
 				.scale(20)
+				.at(torchX - 5, torchY2)
 				.submit(graphics);
-			ms.translate((float) (0), (float) (26));
+			torchY2 += 26;
 		}
-
-		ms.popMatrix();
 
 		if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
 			ArrayList<Component> list = new ArrayList<>();

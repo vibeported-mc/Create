@@ -98,6 +98,7 @@ public class BlazeBurnerRenderer
 		if (!heatLevel.isAtLeast(HeatLevel.FADING))
 			heatLevel = HeatLevel.FADING;
 
+		HeatLevel drawnHeat = heatLevel;
 		Level level = context.world;
 		float horizontalAngle = AngleHelper.rad(headAngle.getValue(AnimationTickHolder.getPartialTicks(level)));
 		boolean drawGoggles = context.blockEntityData.contains("Goggles");
@@ -112,7 +113,7 @@ public class BlazeBurnerRenderer
 				.last());
 		PartialModel hat = drawHat ? AllPartialModels.TRAIN_HAT : null;
 		out.add(ActorGeometry.at(matrices.getViewProjection(), (ms, queue) -> submitShared(ms, modelTransform, queue,
-			level, state, heatLevel, 0, horizontalAngle, false, drawGoggles, hat, hashCode)));
+			level, state, drawnHeat, 0, horizontalAngle, false, drawGoggles, hat, hashCode)));
 	}
 
 	public static void submitShared(PoseStack ms, @Nullable PoseStack modelTransform, SubmitNodeCollector queue,

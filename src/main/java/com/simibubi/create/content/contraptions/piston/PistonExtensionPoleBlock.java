@@ -130,7 +130,6 @@ public class PistonExtensionPoleBlock extends WrenchableDirectionalBlock impleme
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        IPlacementHelper placementHelper = placementHelper;
         if (placementHelper.matchesItem(stack) && !player.isShiftKeyDown())
 			return placementHelper.getOffset(player, level, state, pos, hitResult).placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);
 

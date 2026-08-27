@@ -4,7 +4,6 @@ import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
 import com.simibubi.create.compat.Mods;
 
-import com.simibubi.create.compat.farmersdelight.FarmersDelightCompat;
 
 import net.minecraft.world.level.block.MushroomBlock;
 
@@ -160,9 +159,9 @@ public class HarvesterMovementBehaviour implements MovementBehaviour {
 				return false;
 			}
 
-			if (state.getBlock() instanceof MushroomBlock && Mods.FARMERSDELIGHT.isLoaded()) {
-				return FarmersDelightCompat.shouldHarvestMushroom(world, pos, state);
-			}
+			// TODO 26.2: Farmer's Delight has no 26.2 build, so its compat is excluded from the build
+			// (see build.gradle) and the mushroom-on-rich-soil check it provided is gone with it.
+			// Restore FarmersDelightCompat.shouldHarvestMushroom here once the mod is available.
 
 			// TODO: 1.21.5-rc1+ change to VegetationBlock (https://github.com/neoforged/NeoForge/commit/9f6edae1894ad249a8719c4e1f14beda0fdedc72)
 			if (state.getBlock() instanceof BushBlock)

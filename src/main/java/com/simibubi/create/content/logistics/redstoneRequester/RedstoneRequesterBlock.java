@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import java.util.function.Consumer;
 import com.simibubi.create.foundation.item.BlockEntityDataHelper;
 import org.jspecify.annotations.Nullable;
 import net.minecraft.world.level.redstone.Orientation;
@@ -118,7 +119,7 @@ public class RedstoneRequesterBlock extends Block implements IBE<RedstoneRequest
 		player.setItemInHand(InteractionHand.MAIN_HAND, stack);
 	}
 
-	public static void appendRequesterTooltip(ItemStack pStack, List<Component> pTooltip) {
+	public static void appendRequesterTooltip(ItemStack pStack, Consumer<Component> pTooltip) {
 		if (!pStack.has(AllDataComponents.AUTO_REQUEST_DATA))
 			return;
 
@@ -126,7 +127,7 @@ public class RedstoneRequesterBlock extends Block implements IBE<RedstoneRequest
 
 		//noinspection DataFlowIssue
 		for (BigItemStack entry : data.encodedRequest().stacks()) {
-			pTooltip.add(entry.stack.getHoverName()
+			pTooltip.accept(entry.stack.getHoverName()
 				.copy()
 				.append(" x")
 				.append(String.valueOf(entry.count))

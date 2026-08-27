@@ -79,9 +79,10 @@ public class PalettesVariantEntry {
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE,
 			p -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(paletteStoneVariants.materialTag)), RecipeCategory.BUILDING_BLOCKS,
 				baseBlock));
-		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, p -> p.addTag(paletteStoneVariants.materialTag)
-			.add(baseBlock.get()
-				.asItem()));
+		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, p -> p.tag(paletteStoneVariants.materialTag)
+			.add(BuiltInRegistries.ITEM.getResourceKey(baseBlock.get()
+				.asItem())
+				.orElseThrow()));
 
 		this.registeredBlocks = registeredBlocks.build();
 		this.registeredPartials = registeredPartials.build();

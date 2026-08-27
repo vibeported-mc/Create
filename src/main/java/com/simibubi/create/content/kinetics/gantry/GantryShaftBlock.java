@@ -75,7 +75,6 @@ public class GantryShaftBlock extends DirectionalKineticBlock implements IBE<Gan
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		IPlacementHelper placementHelper = placementHelper;
 		if (!placementHelper.matchesItem(stack))
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 

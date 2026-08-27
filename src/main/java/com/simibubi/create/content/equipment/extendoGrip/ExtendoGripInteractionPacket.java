@@ -55,7 +55,7 @@ public record ExtendoGripInteractionPacket(InteractionHand hand, int target, Vec
 			if (this.hand == null)
 				sender.attack(entityByID);
 			else if (this.point == null)
-				sender.interactOn(entityByID, this.hand);
+				sender.interactOn(entityByID, this.hand, entityByID.position());
 			else
 				entityByID.interact(sender, this.hand, this.point);
 		}

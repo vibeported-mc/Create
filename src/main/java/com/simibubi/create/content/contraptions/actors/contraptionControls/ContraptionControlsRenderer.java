@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.actors.contraptionControls;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
@@ -99,8 +101,15 @@ public class ContraptionControlsRenderer
 			state.indicator.submit(ms, RenderTypes.solidMovingBlock(), queue);
 	}
 
-	public static void renderInContraption(MovementContext ctx, VirtualRenderWorld renderWorld,
-										   ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	/**
+	 * Everything the controls contribute to a moving contraption.
+	 * <p>
+	 * 26.2 splits rendering in two: what reads the contraption happens here, and what draws happens
+	 * later with no access to it. The button's buffer is extracted at once, and the floor's name is
+	 * captured as plain values and drawn from those.
+	 */
+	public static void extractInContraption(MovementContext ctx, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 
 		if (!(ctx.temporaryData instanceof ElevatorFloorSelection efs))
 			return;
@@ -112,7 +121,8 @@ public class ContraptionControlsRenderer
 		float playerDistance = (float) (ctx.position == null || cameraEntity == null ? 0
 			: ctx.position.distanceToSqr(cameraEntity.getEyePosition()));
 
-		float flicker = renderWorld.getRandom().nextFloat();
+		float flicker = renderWorld.getRandom()
+			.nextFloat();
 		Couple<Integer> couple = DyeHelper.getDyeColors(efs.targetYEqualsSelection ? DyeColor.WHITE : DyeColor.ORANGE);
 		int brightColor = couple.getFirst();
 		int darkColor = couple.getSecond();
@@ -132,10 +142,14 @@ public class ContraptionControlsRenderer
 		ms.pushPose();
 		msr.translate(ctx.localPos);
 		ms.translate(0, buttondepth, 0);
-		CachedBufferer.partialFacing(AllPartialModels.CONTRAPTION_CONTROLS_BUTTON, ctx.state, ctx.state.getValue(ContraptionControlsBlock.FACING).getOpposite())
-			.light(LightCoordsUtil.getLightCoords(renderWorld, ctx.localPos))
-			.useLevelLight(RenderLevels.lightSource(ctx.world, renderWorld), matrices.getWorld())
-			.submit(ms, RenderTypes.solidMovingBlock(), buffer);
+		out.add(ActorGeometry.of(ms,
+			CachedBufferer
+				.partialFacing(AllPartialModels.CONTRAPTION_CONTROLS_BUTTON, ctx.state,
+					ctx.state.getValue(ContraptionControlsBlock.FACING)
+						.getOpposite())
+				.light(LightCoordsUtil.getLightCoords(renderWorld, ctx.localPos))
+				.useLevelLight(RenderLevels.lightSource(ctx.world, renderWorld), matrices.getWorld()),
+			RenderTypes.solidMovingBlock()));
 		ms.popPose();
 
 		ms.pushPose();
@@ -150,15 +164,18 @@ public class ContraptionControlsRenderer
 			int width = Math.max(actualWidth, 12);
 			float scale = 1 / (5f * (width - .5f));
 			float heightCentering = (width - 8f) / 2;
+			float depth = buttondepth;
 
-			ms.pushPose();
-			ms.translate(0, .15f, buttondepth - .25f);
-			ms.scale(scale, -scale, scale);
-			ms.translate((float) Math.max(0, width - actualWidth) / 2, heightCentering, 0);
-			NixieTubeRenderer.submitInWorldString(ms, buffer, text, flickeringBrightColor);
-			ms.translate(shadowOffset, shadowOffset, -1 / 16f);
-			NixieTubeRenderer.submitInWorldString(ms, buffer, text, Color.mixColors(darkColor, 0, .35f));
-			ms.popPose();
+			out.add(ActorGeometry.at(ms, (poseStack, queue) -> {
+				poseStack.pushPose();
+				poseStack.translate(0, .15f, depth - .25f);
+				poseStack.scale(scale, -scale, scale);
+				poseStack.translate((float) Math.max(0, width - actualWidth) / 2, heightCentering, 0);
+				NixieTubeRenderer.submitInWorldString(poseStack, queue, text, flickeringBrightColor);
+				poseStack.translate(shadowOffset, shadowOffset, -1 / 16f);
+				NixieTubeRenderer.submitInWorldString(poseStack, queue, text, Color.mixColors(darkColor, 0, .35f));
+				poseStack.popPose();
+			}));
 		}
 
 		if (!description.isBlank() && playerDistance < 20) {
@@ -166,16 +183,18 @@ public class ContraptionControlsRenderer
 			int width = Math.max(actualWidth, 55);
 			float scale = 1 / (3f * (width - .5f));
 			float heightCentering = (width - 8f) / 2;
+			float depth = buttondepth;
 
-			ms.pushPose();
-			ms.translate(-.0635f, 0.06f, buttondepth - .25f);
-			ms.scale(scale, -scale, scale);
-			ms.translate((float) Math.max(0, width - actualWidth) / 2, heightCentering, 0);
-			NixieTubeRenderer.submitInWorldString(ms, buffer, description, flickeringBrightColor);
-			ms.popPose();
+			out.add(ActorGeometry.at(ms, (poseStack, queue) -> {
+				poseStack.pushPose();
+				poseStack.translate(-.0635f, 0.06f, depth - .25f);
+				poseStack.scale(scale, -scale, scale);
+				poseStack.translate((float) Math.max(0, width - actualWidth) / 2, heightCentering, 0);
+				NixieTubeRenderer.submitInWorldString(poseStack, queue, description, flickeringBrightColor);
+				poseStack.popPose();
+			}));
 		}
 
 		ms.popPose();
-
 	}
 }

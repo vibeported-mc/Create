@@ -97,7 +97,6 @@ public class TableClothBlock extends Block implements IHaveBigOutline, IWrenchab
 		if (!player.mayBuild())
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
-		IPlacementHelper placementHelper = placementHelper;
 		if (placementHelper.matchesItem(heldItem)) {
 			if (shiftKeyDown)
 				return InteractionResult.TRY_WITH_EMPTY_HAND;

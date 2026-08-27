@@ -155,7 +155,7 @@ public abstract class EntityContraptionInteractionMixin {
 				&& state.getRenderShape() != RenderShape.INVISIBLE) {
 				Vec3 speed = self.getDeltaMovement();
 				level.addParticle(
-					new BlockParticleOption(ParticleTypes.BLOCK, state).setPos(particlePos),
+					new BlockParticleOption(ParticleTypes.BLOCK, state, particlePos),
 					self.getX() + ((double) random.nextFloat() - 0.5D) * (double) dimensions.width(),
 					self.getY() + 0.1D,
 					self.getZ() + ((double) random.nextFloat() - 0.5D) * (double) dimensions.height(),
