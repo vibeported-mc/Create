@@ -83,10 +83,10 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintMenu> 
 	}
 
 	@Override
-	protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
+	protected void extractTooltip(GuiGraphicsExtractor graphics, int x, int y) {
 		if (!menu.getCarried()
 			.isEmpty() || this.hoveredSlot == null || hoveredSlot.container == menu.playerInventory) {
-			super.setTooltipForNextFrame(graphics, x, y);
+			super.extractTooltip(graphics, x, y);
 			return;
 		}
 

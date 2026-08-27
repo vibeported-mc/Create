@@ -253,11 +253,11 @@ public class FactoryPanelBlock extends FaceAttachedHorizontalDirectionalBlock
 	}
 
 	@Override
-	public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest,
-									   FluidState fluid) {
+	public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, ItemStack tool,
+									   boolean willHarvest, FluidState fluid) {
 		if (tryDestroySubPanelFirst(state, level, pos, player))
 			return false;
-		boolean result = super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
+		boolean result = super.onDestroyedByPlayer(state, level, pos, player, tool, willHarvest, fluid);
 		return result;
 	}
 
