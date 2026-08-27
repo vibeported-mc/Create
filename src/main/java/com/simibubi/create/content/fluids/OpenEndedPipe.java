@@ -22,6 +22,7 @@ import com.simibubi.create.foundation.mixin.accessor.FlowingFluidAccessor;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.math.BlockFace;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -155,8 +156,8 @@ public class OpenEndedPipe extends FlowSource {
 
 			var newFluidState = newState.getFluidState();
 
-			if (newFluidState.getType() instanceof FlowingFluidAccessor flowing) {
-				var potentiallyFilled = flowing.create$getNewLiquid(world, outputPos, newState);
+			if (newFluidState.getType() instanceof FlowingFluidAccessor flowing && world instanceof ServerLevel serverLevel) {
+				var potentiallyFilled = flowing.create$getNewLiquid(serverLevel, outputPos, newState);
 
 				// Check if we'd immediately become the same fluid again.
 				if (potentiallyFilled.equals(fluidState)) {
