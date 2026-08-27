@@ -11,7 +11,6 @@ import com.simibubi.create.foundation.item.CustomUseEffectsItem;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import com.simibubi.create.foundation.mixin.accessor.LivingEntityAccessor;
 
-import net.createmod.catnip.data.TriState;
 import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;

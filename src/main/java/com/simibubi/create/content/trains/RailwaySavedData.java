@@ -1,5 +1,8 @@
 package com.simibubi.create.content.trains;
 
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.resources.Identifier;
+import com.mojang.serialization.Codec;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -25,11 +28,15 @@ public class RailwaySavedData extends SavedData {
 	private Map<UUID, SignalEdgeGroup> signalEdgeGroups = new HashMap<>();
 	private Map<UUID, Train> trains = new HashMap<>();
 
-	public static SavedData.Factory<RailwaySavedData> factory() {
-		return new SavedData.Factory<>(RailwaySavedData::new, RailwaySavedData::load);
-	}
+	/**
+	 * The rail network is written by hand into a CompoundTag, so the codec 26.2 wants is that pair
+	 * wrapped up. The factory is level-sensitive, which is where the registries come from.
+	 */
+	public static final SavedDataType<RailwaySavedData> TYPE = new SavedDataType<>(
+		Identifier.parse("create:create_tracks"), level -> new RailwaySavedData(),
+		level -> Codec.of(CompoundTag.CODEC.comap(data -> data.save(new CompoundTag(), level.registryAccess())),
+			CompoundTag.CODEC.map(tag -> load(tag, level.registryAccess()))));
 
-	@Override
 	public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries) {
 		GlobalRailwayManager railways = Create.RAILWAYS;
 //		Create.LOGGER.info("Saving Railway Information...");
@@ -101,7 +108,7 @@ public class RailwaySavedData extends SavedData {
 	public static RailwaySavedData load(MinecraftServer server) {
 		return server.overworld()
 			.getDataStorage()
-			.computeIfAbsent(factory(), "create_tracks");
+			.computeIfAbsent(TYPE);
 	}
 
 }

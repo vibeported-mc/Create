@@ -79,7 +79,6 @@ import com.simibubi.create.infrastructure.command.AllCommands;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.createmod.catnip.api.client.level.wrapper.WrappedClientLevel;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -392,7 +391,8 @@ public class ClientEvents {
 		ModContainer createContainer = ModList.get()
 			.getModContainerById(Create.ID)
 			.orElseThrow(() -> new IllegalStateException("Create mod container missing on LoadComplete"));
-		Supplier<IConfigScreenFactory> configScreen = () -> (mc, previousScreen) -> new BaseConfigScreen(previousScreen, Create.ID);
-		createContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
+		// TODO 26.2: re-enable once Catnip's config UI is ported.
+		// Supplier<IConfigScreenFactory> configScreen = () -> (mc, previousScreen) -> new BaseConfigScreen(previousScreen, Create.ID);
+		// createContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
 	}
 }

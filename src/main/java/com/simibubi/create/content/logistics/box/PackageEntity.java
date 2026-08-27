@@ -36,7 +36,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -378,7 +378,7 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 			if (itemstack.getItem() instanceof SpawnEggItem sei) {
 				EntityType<?> entitytype = sei.getType(itemstack);
 				Entity entity =
-					entitytype.spawn(level, itemstack, null, blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
+					entitytype.spawn(level, itemstack, null, blockPosition(), EntitySpawnReason.SPAWN_EGG, false, false);
 				if (entity != null)
 					itemstack.shrink(1);
 			}

@@ -13,7 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
@@ -30,7 +30,7 @@ public class AllBlockSpoutingBehaviours {
 			BlockSpoutingBehaviour.BY_BLOCK.register(dirt, toMud);
 		}
 
-		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.FARMLAND, StateChangingBehavior.incrementingState(100, isWater, FarmBlock.MOISTURE));
+		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.FARMLAND, StateChangingBehavior.incrementingState(100, isWater, FarmlandBlock.MOISTURE));
 		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.WATER_CAULDRON, StateChangingBehavior.incrementingState(250, isWater, LayeredCauldronBlock.LEVEL));
 		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.CAULDRON, CauldronSpoutingBehavior.INSTANCE);
 

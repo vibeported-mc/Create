@@ -27,7 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BubbleColumnBlock;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -102,7 +102,7 @@ public class PloughMovementBehaviour extends BlockBreakingMovementBehaviour {
 		if (state.isAir())
 			return false;
 		if (world.getBlockState(breakingPos.below())
-			.getBlock() instanceof FarmBlock)
+			.getBlock() instanceof FarmlandBlock)
 			return false;
 		if (state.getBlock() instanceof LiquidBlock)
 			return false;

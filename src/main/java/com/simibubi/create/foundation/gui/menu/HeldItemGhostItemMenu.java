@@ -3,7 +3,7 @@ package com.simibubi.create.foundation.gui.menu;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -30,8 +30,8 @@ public abstract class HeldItemGhostItemMenu extends GhostItemMenu<ItemStack> {
 	}
 
 	@Override
-	public void clicked(int index, int dragType, ClickType clickType, Player player) {
-		if (!this.isInSlot(index) || clickType == ClickType.THROW || clickType == ClickType.CLONE) {
+	public void clicked(int index, int dragType, ContainerInput clickType, Player player) {
+		if (!this.isInSlot(index) || clickType == ContainerInput.THROW || clickType == ContainerInput.CLONE) {
 			super.clicked(index, dragType, clickType, player);
 		}
 	}

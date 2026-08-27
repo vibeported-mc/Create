@@ -147,7 +147,7 @@ public class BacktankBlockEntity extends KineticBlockEntity implements Nameable 
 	}
 
 	@Override
-	protected void applyImplicitComponents(DataComponentInput componentInput) {
+	protected void applyImplicitComponents(DataComponentGetter componentInput) {
 		setAirLevel(componentInput.getOrDefault(AllDataComponents.BACKTANK_AIR, 0));
 	}
 

@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.packagerLink;
 
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.resources.Identifier;
+import com.mojang.serialization.Codec;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,11 +20,12 @@ public class LogisticsNetworkSavedData extends SavedData {
 
 	private Map<UUID, LogisticsNetwork> logisticsNetworks = new HashMap<>();
 
-	public static SavedData.Factory<LogisticsNetworkSavedData> factory() {
-		return new SavedData.Factory<>(LogisticsNetworkSavedData::new, LogisticsNetworkSavedData::load);
-	}
+	public static final SavedDataType<LogisticsNetworkSavedData> TYPE = new SavedDataType<>(
+		Identifier.parse("create:create_logistics"), level -> new LogisticsNetworkSavedData(),
+		level -> Codec.of(
+			CompoundTag.CODEC.comap(data -> data.save(new CompoundTag(), level.registryAccess())),
+			CompoundTag.CODEC.map(tag -> load(tag, level.registryAccess()))));
 
-	@Override
 	public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries) {
 		GlobalLogisticsManager logistics = Create.LOGISTICS;
 		nbt.put("LogisticsNetworks",
@@ -48,7 +52,7 @@ public class LogisticsNetworkSavedData extends SavedData {
 	public static LogisticsNetworkSavedData load(MinecraftServer server) {
 		return server.overworld()
 			.getDataStorage()
-			.computeIfAbsent(factory(), "create_logistics");
+			.computeIfAbsent(TYPE);
 	}
 
 }

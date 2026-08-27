@@ -39,7 +39,7 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.level.material.Fluids;
@@ -354,7 +354,7 @@ public class TestFluids {
 			// lava
 			helper.assertBlockPresent(Blocks.LAVA_CAULDRON, 3, 2, 1);
 			// water
-			helper.assertBlockProperty(farmland, FarmBlock.MOISTURE, 7);
+			helper.assertBlockProperty(farmland, FarmlandBlock.MOISTURE, 7);
 			helper.assertBlockPresent(Blocks.MUD, farmland.east(1));
 			helper.assertBlockPresent(Blocks.MUD, farmland.east(2));
 			helper.assertBlockPresent(Blocks.MUD, farmland.east(3));

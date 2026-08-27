@@ -18,7 +18,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -49,7 +49,7 @@ public class AllMountedDispenseItemBehaviors {
 			if (context.world instanceof ServerLevel serverLevel) {
 				EntityType<?> type = egg.getType(stack);
 				BlockPos offset = BlockPos.containing(facing.x + .7, facing.y + .7, facing.z + .7);
-				Entity entity = type.spawn(serverLevel, stack, null, pos.offset(offset), MobSpawnType.DISPENSER, facing.y < .5, false);
+				Entity entity = type.spawn(serverLevel, stack, null, pos.offset(offset), EntitySpawnReason.DISPENSER, facing.y < .5, false);
 				if (entity != null) {
 					entity.setDeltaMovement(context.motion.scale(2));
 				}
