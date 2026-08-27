@@ -1,5 +1,10 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.entity.EntitySpawnRequest;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.util.ProblemReporter;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.Arrays;
 import java.util.Optional;
@@ -105,7 +110,7 @@ public abstract class LaunchedItem {
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-			CompoundTag serializeNBT = ItemHandlerHelpers.serializeNBT(super, registries);
+			CompoundTag serializeNBT = super.serializeNBT(registries);
 			serializeNBT.put("BlockState", NbtUtils.writeBlockState(state));
 			if (data != null) {
 				data.remove("x");
@@ -141,18 +146,19 @@ public abstract class LaunchedItem {
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-			CompoundTag serializeNBT = ItemHandlerHelpers.serializeNBT(super, registries);
+			CompoundTag serializeNBT = super.serializeNBT(registries);
 			serializeNBT.putInt("Length", length);
 			serializeNBT.putIntArray("Casing", Arrays.stream(casings)
-				.map(CasingType::ordinal)
-				.toList());
+				.mapToInt(CasingType::ordinal)
+				.toArray());
 			return serializeNBT;
 		}
 
 		@Override
 		void readNBT(CompoundTag nbt, HolderLookup.Provider registries, HolderGetter<Block> holderGetter) {
 			length = nbt.getIntOr("Length", 0);
-			int[] intArray = nbt.getIntArray("Casing");
+			int[] intArray = nbt.getIntArray("Casing")
+				.orElseGet(() -> new int[0]);
 			casings = new CasingType[length];
 			for (int i = 0; i < casings.length; i++)
 				casings[i] = i >= intArray.length ? CasingType.NONE
@@ -207,7 +213,9 @@ public abstract class LaunchedItem {
 		public boolean update(Level world) {
 			if (deferredTag != null && entity == null) {
 				try {
-					Optional<Entity> loadEntityUnchecked = EntityType.create(deferredTag, world);
+					Optional<Entity> loadEntityUnchecked = EntityType.create(
+						TagValueInput.create(ProblemReporter.DISCARDING, world.registryAccess(), deferredTag), world,
+						new EntitySpawnRequest(EntitySpawnReason.LOAD, true));
 					if (!loadEntityUnchecked.isPresent())
 						return true;
 					entity = loadEntityUnchecked.get();
@@ -221,9 +229,13 @@ public abstract class LaunchedItem {
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-			CompoundTag serializeNBT = ItemHandlerHelpers.serializeNBT(super, registries);
+			CompoundTag serializeNBT = super.serializeNBT(registries);
 			if (entity != null)
-				serializeNBT.put("Entity", ItemHandlerHelpers.serializeNBT(entity, registries));
+			{
+				TagValueOutput entityOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+				entity.save(entityOutput);
+				serializeNBT.put("Entity", entityOutput.buildResult());
+			}
 			return serializeNBT;
 		}
 
