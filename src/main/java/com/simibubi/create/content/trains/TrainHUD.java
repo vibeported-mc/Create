@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains;
 
+import net.neoforged.neoforge.client.gui.GuiLayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
@@ -21,7 +22,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -32,7 +32,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 public class TrainHUD {
 
-	public static final LayeredDraw.Layer OVERLAY = TrainHUD::renderOverlay;
+	public static final GuiLayer OVERLAY = TrainHUD::renderOverlay;
 
 	static LerpedFloat displayedSpeed = LerpedFloat.linear();
 	static LerpedFloat displayedThrottle = LerpedFloat.linear();

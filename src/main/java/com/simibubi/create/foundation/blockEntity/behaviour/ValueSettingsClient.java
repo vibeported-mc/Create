@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
+import net.neoforged.neoforge.client.gui.GuiLayer;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 
@@ -10,7 +11,6 @@ import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,7 +21,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
-public class ValueSettingsClient implements LayeredDraw.Layer {
+public class ValueSettingsClient implements GuiLayer {
 	private Minecraft mc;
 
 	public int interactHeldTicks = -1;

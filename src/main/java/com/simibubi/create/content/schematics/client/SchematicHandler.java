@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
+import net.neoforged.neoforge.client.gui.GuiLayer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
@@ -28,7 +29,6 @@ import net.createmod.catnip.api.client.outliner.AABBOutline;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
@@ -49,7 +49,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-public class SchematicHandler implements LayeredDraw.Layer {
+public class SchematicHandler implements GuiLayer {
 
 	private String displayedSchematic;
 	private SchematicTransformation transformation;

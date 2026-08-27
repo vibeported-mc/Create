@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.neoforged.neoforge.client.gui.GuiLayer;
 import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.TOOLBELT_HOTBAR_OFF;
@@ -21,7 +22,6 @@ import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -38,7 +38,7 @@ import net.minecraft.world.phys.HitResult;
 
 public class ToolboxHandlerClient {
 
-	public static final LayeredDraw.Layer OVERLAY = ToolboxHandlerClient::renderOverlay;
+	public static final GuiLayer OVERLAY = ToolboxHandlerClient::renderOverlay;
 
 	static int COOLDOWN = 0;
 

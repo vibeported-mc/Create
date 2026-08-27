@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.armor;
 
+import net.neoforged.neoforge.client.gui.GuiLayer;
 import org.joml.Matrix3x2fStack;
 import java.util.List;
 
@@ -11,7 +12,6 @@ import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -22,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 
-public class RemainingAirOverlay implements LayeredDraw.Layer {
+public class RemainingAirOverlay implements GuiLayer {
 	public static final RemainingAirOverlay INSTANCE = new RemainingAirOverlay();
 
 	@Override

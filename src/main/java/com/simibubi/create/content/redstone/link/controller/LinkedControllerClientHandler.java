@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import net.neoforged.neoforge.client.gui.GuiLayer;
 import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -39,7 +39,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class LinkedControllerClientHandler {
 
-	public static final LayeredDraw.Layer OVERLAY = LinkedControllerClientHandler::renderOverlay;
+	public static final GuiLayer OVERLAY = LinkedControllerClientHandler::renderOverlay;
 
 	public static Mode MODE = Mode.IDLE;
 	public static int PACKET_RATE = 5;
