@@ -46,7 +46,6 @@ import com.simibubi.create.content.equipment.wrench.WrenchItem;
 import com.simibubi.create.content.equipment.zapper.terrainzapper.WorldshaperItem;
 import com.simibubi.create.content.kinetics.belt.item.BeltConnectorItem;
 import com.simibubi.create.content.kinetics.gearbox.VerticalGearboxItem;
-import com.simibubi.create.content.legacy.ChromaticCompoundColor;
 import com.simibubi.create.content.legacy.ChromaticCompoundItem;
 import com.simibubi.create.content.legacy.RefinedRadianceItem;
 import com.simibubi.create.content.legacy.ShadowSteelItem;
@@ -200,10 +199,10 @@ public class AllItems {
 	public static final ItemEntry<ChromaticCompoundItem> CHROMATIC_COMPOUND =
 		REGISTRATE.item("chromatic_compound", ChromaticCompoundItem::new)
 			.properties(p -> p.rarity(Rarity.UNCOMMON))
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
+			// TODO 26.2: port datagen to RegistrateItemModelGenerator; the model must name
+			// ChromaticCompoundColor.ID as the tint source for each of its three layers, since item
+			// tinting is data-driven now and Registrate no longer binds colour handlers.
 			// .model(AssetLookup.existingItemModel())
-			
-			.color(() -> ChromaticCompoundColor::new)
 			.register();
 
 	public static final ItemEntry<ShadowSteelItem> SHADOW_STEEL = REGISTRATE.item("shadow_steel", ShadowSteelItem::new)

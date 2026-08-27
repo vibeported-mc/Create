@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
@@ -28,6 +27,9 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 
 public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
+
+	/** The colour vanilla's masked fill used to paint over a hovered slot. */
+	private static final int SLOT_HIGHLIGHT_COLOR = 0x80_FFFFFF;
 
 	protected static final AllGuiTextures BG = AllGuiTextures.TOOLBOX;
 	protected static final AllGuiTextures PLAYER = AllGuiTextures.PLAYER_INVENTORY;
@@ -72,9 +74,9 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		menu.renderPass = true;
-		super.render(graphics, mouseX, mouseY, partialTicks);
+		super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 		menu.renderPass = false;
 	}
 
@@ -117,44 +119,37 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 
 			if (isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY)) {
 				hoveredToolboxSlot = slot;
-				RenderSystem.colorMask(true, true, true, false);
-				int slotColor = this.getSlotColor(baseIndex);
-				graphics.fillGradient(i, j, i + 16, j + 16, slotColor, slotColor);
-				RenderSystem.colorMask(true, true, true, true);
+				graphics.fillGradient(i, j, i + 16, j + 16, SLOT_HIGHLIGHT_COLOR, SLOT_HIGHLIGHT_COLOR);
 			}
 		}
 	}
 
 	private void renderToolbox(GuiGraphicsExtractor graphics, int x, int y, float partialTicks) {
-        Matrix3x2fStack ms = graphics.pose();
-		TransformStack.of(ms)
-			.pushPose()
-			.translate(x, y, 100)
-			.scale(50)
-			.rotateXDegrees(-22)
-			.rotateYDegrees(-202);
+		Matrix3x2fStack ms = graphics.pose();
+		ms.pushMatrix();
+		ms.translate(x, y);
+		// A block is 16 units wide inside a picture-in-picture texture; the toolbox was drawn 50 wide.
+		ms.scale(50 / 16f, 50 / 16f);
 
 		GuiGameElement.of(AllBlocks.TOOLBOXES.get(color)
 			.getDefaultState())
+			.viewRotate(-22, -202, 0)
 			.submit(graphics);
 
-        TransformStack.of(ms)
-			.pushPose()
-			.translate(0, -6 / 16f, 12 / 16f)
-			.rotateXDegrees(-105 * menu.contentHolder.lid.getValue(partialTicks))
-			.translate(0, 6 / 16f, -12 / 16f);
-		GuiGameElement.of(AllPartialModels.TOOLBOX_LIDS.get(color))
+		float lid = menu.contentHolder.lid.getValue(partialTicks);
+		GuiGameElement.of(AllPartialModels.TOOLBOX_LIDS.get(color).get())
+			.viewRotate(-22, -202, 0)
+			.rotate(-105 * lid, 0, 0)
+			.withRotationOffset(0, -6 / 16f, 12 / 16f)
 			.submit(graphics);
-		ms.popMatrix();
 
-		for (int offset : Iterate.zeroAndOne) {
-			ms.pushMatrix();
-			ms.translate(0, -offset * 1 / 8f,
-				menu.contentHolder.drawers.getValue(partialTicks) * -.175f * (2 - offset));
-			GuiGameElement.of(AllPartialModels.TOOLBOX_DRAWER)
+		float drawers = menu.contentHolder.drawers.getValue(partialTicks);
+		for (int offset : Iterate.zeroAndOne)
+			GuiGameElement.of(AllPartialModels.TOOLBOX_DRAWER.get())
+				.viewRotate(-22, -202, 0)
+				.atLocal(0, -offset * 1 / 8f, drawers * -.175f * (2 - offset))
 				.submit(graphics);
-			ms.popMatrix();
-		}
+
 		ms.popMatrix();
 	}
 

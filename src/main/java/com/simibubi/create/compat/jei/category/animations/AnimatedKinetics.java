@@ -36,7 +36,7 @@ public abstract class AnimatedKinetics implements IDrawable {
 	 * Use {@link #blockElement(PartialModel)} if calling from inside a subclass.
 	 */
 	public static GuiGameElement.GuiRenderBuilder defaultBlockElement(PartialModel partial) {
-		return GuiGameElement.of(partial)
+		return GuiGameElement.of(partial.get())
 				.lighting(DEFAULT_LIGHTING);
 	}
 

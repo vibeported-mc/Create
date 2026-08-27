@@ -57,8 +57,8 @@ public class PackageFilterScreen extends AbstractFilterScreen<PackageFilterMenu>
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-		super.render(graphics, mouseX, mouseY, partialTicks);
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+		super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();

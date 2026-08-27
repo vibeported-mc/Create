@@ -98,7 +98,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		editorEditBox.setTextColor(0xffeeeeee);
 		editorEditBox.setBordered(false);
 		editorEditBox.setFocused(false);
-		editorEditBox.mouseClicked(0, 0, 0);
+		editorEditBox.setFocused(true);
 		editorEditBox.setMaxLength(28);
 		editorEditBox.setValue(index == -1 || schedule.get(index)
 			.isEmpty() ? CreateLang.translate("gui.stock_ticker.new_category")
@@ -167,18 +167,20 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-		partialTicks = AnimationTickHolder.getPartialTicksUI();
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+		partialTicks = AnimationTickHolder.getGuiPartialTicks();
 
-		if (menu.slotsActive)
-			super.render(graphics, mouseX, mouseY, partialTicks);
-		else {
-			renderBackground(graphics, mouseX, mouseY, partialTicks);
-			renderBg(graphics, partialTicks, mouseX, mouseY);
-			for (Renderable widget : this.renderables)
-				widget.render(graphics, mouseX, mouseY, partialTicks);
-			renderForeground(graphics, mouseX, mouseY, partialTicks);
+		if (menu.slotsActive) {
+			super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+			return;
 		}
+
+		// Without the menu's slots there is nothing for the container screen's own pass to draw, so
+		// the screen puts its frame together itself.
+		extractBackground(graphics, mouseX, mouseY, partialTicks);
+		for (Renderable widget : this.renderables)
+			widget.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+		renderForeground(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	protected void renderCategories(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
@@ -236,7 +238,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 			entry.isEmpty() ? CreateLang.translate("gui.stock_ticker.empty_category_name_placeholder")
 				.string()
 				: entry.getHoverName()
-				.getStringOr(20, "")
+				.getString(20)
 				.stripTrailing()
 				+ (entry.getHoverName()
 				.getString()
@@ -390,15 +392,12 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		int pKeyCode = event.key();
-		int pScanCode = event.scancode();
-		int pModifiers = event.modifiers();
 		if (editingItem == null)
 			return super.keyPressed(event);
 
-		InputConstants.Key mouseKey = InputConstants.getKey(pKeyCode, pScanCode);
 		boolean hitEscape = pKeyCode == GLFW.GLFW_KEY_ESCAPE;
 		boolean hitEnter = getFocused() instanceof EditBox && (pKeyCode == 257 || pKeyCode == 335);
-		boolean hitE = getFocused() == null && minecraft.options.keyInventory.isActiveAndMatches(mouseKey);
+		boolean hitE = getFocused() == null && minecraft.options.keyInventory.matches(event);
 		if (hitE || hitEnter || hitEscape) {
 			stopEditing();
 			return true;
@@ -480,8 +479,8 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 			.getVisualOrderText();
 
 		int center = leftPos + (AllGuiTextures.STOCK_KEEPER_CATEGORY.getWidth()) / 2;
-		graphics.text(font, formattedcharsequence, (float) (center - font.width(formattedcharsequence) / 2),
-			(float) topPos + 4, 0x3D3C48, false);
+		graphics.text(font, formattedcharsequence, center - font.width(formattedcharsequence) / 2, topPos + 4,
+			0x3D3C48, false);
 
 		if (editingItem == null) {
 			renderCategories(graphics, pMouseX, pMouseY, pPartialTick);
@@ -502,8 +501,8 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		formattedcharsequence = CreateLang.translate("gui.stock_ticker.category_editor")
 			.component()
 			.getVisualOrderText();
-		graphics.text(font, formattedcharsequence, (float) (center - font.width(formattedcharsequence) / 2),
-			(float) topPos - 1, 0x3D3C48, false);
+		graphics.text(font, formattedcharsequence, center - font.width(formattedcharsequence) / 2, topPos - 1,
+			0x3D3C48, false);
 	}
 
 	@Override
