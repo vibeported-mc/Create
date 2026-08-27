@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.tank;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.BlockEntityDataHelper;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.AllBlockEntityTypes;
@@ -58,7 +59,8 @@ public class FluidTankItem extends BlockItem {
 				FluidStack fluid = FluidHelper.parseOptional(minecraftserver.registryAccess(), nbt.getCompoundOrEmpty("TankContent"));
 				if (!fluid.isEmpty()) {
 					fluid.setAmount(Math.min(FluidTankBlockEntity.getCapacityMultiplier(), fluid.getAmount()));
-					nbt.store("TankContent", FluidStack.OPTIONAL_CODEC, fluid);
+					nbt.store("TankContent", FluidStack.OPTIONAL_CODEC,
+						RegistryNbt.ops(minecraftserver.registryAccess()), fluid);
 				}
 			}
 			BlockEntityDataHelper.setTag(itemStack, ((IBE<?>) this.getBlock()).getBlockEntityType(), nbt);

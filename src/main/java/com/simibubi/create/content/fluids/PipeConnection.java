@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
@@ -229,7 +230,7 @@ public class PipeConnection {
 		if (hasFlow()) {
 			CompoundTag flowData = new CompoundTag();
 			Flow flow = this.flow.get();
-			flowData.store("Fluid", ItemStack.OPTIONAL_CODEC, flow.fluid);
+			flowData.store("Fluid", FluidStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), flow.fluid);
 			flowData.putBoolean("In", flow.inbound);
 			if (!flow.complete)
 				flowData.put("Progress", NbtValueIO.toTag(flow.progress::write));

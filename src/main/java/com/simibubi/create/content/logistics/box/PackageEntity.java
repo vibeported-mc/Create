@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.box;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.mixin.accessor.ItemEntityAccessor;
 import net.minecraft.world.entity.InterpolationHandler;
@@ -402,7 +403,8 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 	@Override
 	public void readAdditionalSaveData(ValueInput input) {
 		CompoundTag compound = NbtValueIO.read(input);
-		box = compound.read("Box", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		box = compound.read("Box", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(input.lookup()))
+			.orElse(ItemStack.EMPTY);
 		refreshDimensions();
 	}
 

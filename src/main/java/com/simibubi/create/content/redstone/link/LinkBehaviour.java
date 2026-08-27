@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.link;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.ItemHelper;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
@@ -149,8 +150,8 @@ public class LinkBehaviour extends BlockEntityBehaviour implements IRedstoneLink
 		newPosition = positionInTag != positionKey;
 
 		super.read(nbt, registries, clientPacket);
-		frequencyFirst = Frequency.of(nbt.read("FrequencyFirst", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
-		frequencyLast = Frequency.of(nbt.read("FrequencyLast", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+		frequencyFirst = Frequency.of(nbt.read("FrequencyFirst", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY));
+		frequencyLast = Frequency.of(nbt.read("FrequencyLast", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY));
 	}
 
 	public void setFrequency(boolean first, ItemStack stack) {
@@ -244,8 +245,8 @@ public class LinkBehaviour extends BlockEntityBehaviour implements IRedstoneLink
 			return false;
 		if (simulate)
 			return true;
-		setFrequency(true, tag.read("First", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
-		setFrequency(false, tag.read("Last", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+		setFrequency(true, tag.read("First", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY));
+		setFrequency(false, tag.read("Last", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY));
 		return true;
 	}
 

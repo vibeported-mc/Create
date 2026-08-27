@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.tunnel;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
@@ -597,7 +598,7 @@ public class BrassTunnelBlockEntity extends BeltTunnelBlockEntity implements IHa
 		compound.putBoolean("ConnectedLeft", connectedLeft);
 		compound.putBoolean("ConnectedRight", connectedRight);
 
-		compound.store("StackToDistribute", ItemStack.OPTIONAL_CODEC, stackToDistribute);
+		compound.store("StackToDistribute", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), stackToDistribute);
 		if (stackEnteredFrom != null)
 			NBTHelper.writeEnum(compound, "StackEnteredFrom", stackEnteredFrom);
 
@@ -629,7 +630,7 @@ public class BrassTunnelBlockEntity extends BeltTunnelBlockEntity implements IHa
 		connectedLeft = compound.getBooleanOr("ConnectedLeft", false);
 		connectedRight = compound.getBooleanOr("ConnectedRight", false);
 
-		stackToDistribute = compound.read("StackToDistribute", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		stackToDistribute = compound.read("StackToDistribute", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 		stackEnteredFrom =
 			compound.contains("StackEnteredFrom") ? NBTHelper.readEnum(compound, "StackEnteredFrom", Direction.class)
 				: null;

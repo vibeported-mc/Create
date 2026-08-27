@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
 import static com.simibubi.create.content.kinetics.base.HorizontalKineticBlock.HORIZONTAL_FACING;
 
@@ -199,7 +200,7 @@ public class RecipeGridHandler {
 				CompoundTag entry = new CompoundTag();
 				entry.putInt("x", pair.getKey());
 				entry.putInt("y", pair.getValue());
-				entry.store("item", ItemStack.OPTIONAL_CODEC, stack);
+				entry.store("item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), stack);
 				gridNBT.add(entry);
 			});
 			nbt.put("Grid", gridNBT);
@@ -212,7 +213,7 @@ public class RecipeGridHandler {
 				CompoundTag entry = (CompoundTag) inbt;
 				int x = entry.getIntOr("x", 0);
 				int y = entry.getIntOr("y", 0);
-				ItemStack stack = entry.read("item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+				ItemStack stack = entry.read("item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 				items.grid.put(Pair.of(x, y), stack);
 			});
 			return items;

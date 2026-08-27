@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.createmod.catnip.api.network.NetworkHelper;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import net.minecraft.core.UUIDUtil;
@@ -811,7 +812,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 			return;
 
 		CompoundTag panelTag = new CompoundTag();
-		panelTag.store("Filter", ItemStack.OPTIONAL_CODEC, getFilter());
+		panelTag.store("Filter", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), getFilter());
 		panelTag.putBoolean("UpTo", upTo);
 		panelTag.putInt("FilterAmount", count);
 		panelTag.store("Freq", UUIDUtil.CODEC, network);

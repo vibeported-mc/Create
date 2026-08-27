@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.filter;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -47,7 +48,9 @@ public record FilterScreenPacket(Option option, @Nullable CompoundTag data) impl
 				c.respectNBT = false;
 			if (this.option == Option.UPDATE_FILTER_ITEM)
 				ItemHandlerHelpers.setStackInSlot(c.ghostInventory, tag.getIntOr("Slot", 0),
-					tag.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+					tag.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(player.level()
+						.registryAccess()))
+						.orElse(ItemStack.EMPTY));
 		}
 
 		if (player.containerMenu instanceof AttributeFilterMenu c) {

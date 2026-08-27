@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.roller;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -402,7 +403,9 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 	}
 
 	protected BlockState getStateToPaveWith(MovementContext context) {
-		return getStateToPaveWith(context.blockEntityData.read("Filter", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+		return getStateToPaveWith(context.blockEntityData
+			.read("Filter", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(context.world.registryAccess()))
+			.orElse(ItemStack.EMPTY));
 	}
 
 	protected BlockState getStateToPaveWithAsSlab(MovementContext context) {

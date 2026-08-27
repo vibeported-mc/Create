@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.placard;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.util.ARGB;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class PlacardBlockEntity extends SmartBlockEntity {
 	@Override
 	protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		tag.putInt("PoweredTicks", poweredTicks);
-		tag.store("Item", ItemStack.OPTIONAL_CODEC, heldItem);
+		tag.store("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), heldItem);
 		super.write(tag, registries, clientPacket);
 	}
 
@@ -68,7 +69,7 @@ public class PlacardBlockEntity extends SmartBlockEntity {
 	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		int prevTicks = poweredTicks;
 		poweredTicks = tag.getIntOr("PoweredTicks", 0);
-		heldItem = tag.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		heldItem = tag.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 		super.read(tag, registries, clientPacket);
 
 		if (clientPacket && prevTicks < poweredTicks)

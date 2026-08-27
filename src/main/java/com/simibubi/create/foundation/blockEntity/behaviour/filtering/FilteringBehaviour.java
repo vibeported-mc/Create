@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.filtering;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -87,7 +88,7 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 
 	@Override
 	public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		nbt.store("Filter", ItemStack.OPTIONAL_CODEC, getFilter());
+		nbt.store("Filter", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), getFilter());
 		nbt.putInt("FilterAmount", count);
 		nbt.putBoolean("UpTo", upTo);
 		super.write(nbt, registries, clientPacket);
@@ -361,7 +362,7 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 	public boolean writeToClipboard(HolderLookup.@NotNull Provider registries, CompoundTag tag, Direction side) {
 		ValueSettingsBehaviour.super.writeToClipboard(registries, tag, side);
 		ItemStack filter = getFilter(side);
-		tag.store("Filter", ItemStack.OPTIONAL_CODEC, filter);
+		tag.store("Filter", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), filter);
 		return true;
 	}
 
@@ -381,7 +382,8 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 		if (getFilter(side).getItem() instanceof FilterItem && !player.isCreative())
 			refund = getFilter(side).copy();
 
-		ItemStack copied = tag.read("Filter", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		ItemStack copied = tag.read("Filter", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries))
+			.orElse(ItemStack.EMPTY);
 
 		if (copied.getItem() instanceof FilterItem filterType && !player.isCreative()) {
 			InvWrapper inv = VanillaContainerWrapper.of(player.getInventory());

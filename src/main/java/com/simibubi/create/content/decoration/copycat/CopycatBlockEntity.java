@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.copycat;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.world.level.block.Block;
 import java.util.List;
 
@@ -153,7 +154,7 @@ public class CopycatBlockEntity extends SmartBlockEntity
 	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(tag, registries, clientPacket);
 
-		consumedItem = tag.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		consumedItem = tag.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 
 		BlockState prevMaterial = material;
 		if (!tag.contains("Material")) {
@@ -197,7 +198,7 @@ public class CopycatBlockEntity extends SmartBlockEntity
 	}
 
 	protected void write(CompoundTag tag, HolderLookup.Provider registries, ItemStack stack, BlockState material) {
-		tag.store("Item", ItemStack.OPTIONAL_CODEC, stack);
+		tag.store("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), stack);
 		tag.put("Material", NbtUtils.writeBlockState(material));
 	}
 

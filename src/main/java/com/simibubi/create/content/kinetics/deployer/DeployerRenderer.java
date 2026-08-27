@@ -249,7 +249,7 @@ public class DeployerRenderer
 			axis = def.getRotationAxis(context.state);
 		}
 
-		float time = AnimationTickHolder.getRenderTime() / 20;
+		float time = AnimationTickHolder.getRenderTime(context.world) / 20;
 		float angle = (time * speed) % 360;
 
 		TransformStack.of(m)

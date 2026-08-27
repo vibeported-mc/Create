@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -279,7 +280,8 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 		DeployerFakePlayer player = getPlayer(context);
 		if (player == null)
 			return;
-		context.data.store("HeldItem", ItemStack.OPTIONAL_CODEC, player.getMainHandItem());
+		context.data.store("HeldItem", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(context.world.registryAccess()),
+			player.getMainHandItem());
 	}
 
 	private DeployerFakePlayer getPlayer(MovementContext context) {
@@ -291,7 +293,8 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 				context.blockEntityData.getListOrEmpty("Inventory"), context.world.registryAccess());
 			if (context.data.contains("HeldItem"))
 				deployerFakePlayer.setItemInHand(InteractionHand.MAIN_HAND,
-					context.data.read("HeldItem", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+					context.data.read("HeldItem", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(context.world.registryAccess()))
+						.orElse(ItemStack.EMPTY));
 			context.blockEntityData.remove("Inventory");
 			context.temporaryData = deployerFakePlayer;
 		}

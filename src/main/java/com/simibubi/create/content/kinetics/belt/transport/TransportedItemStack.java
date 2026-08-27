@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.belt.transport;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import java.util.Random;
 
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
@@ -73,7 +74,7 @@ public class TransportedItemStack implements Comparable<TransportedItemStack> {
 
 	public CompoundTag serializeNBT(HolderLookup.Provider registries) {
 		CompoundTag nbt = new CompoundTag();
-		nbt.store("Item", ItemStack.OPTIONAL_CODEC, stack);
+		nbt.store("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), stack);
 		nbt.putFloat("Pos", beltPosition);
 		nbt.putFloat("PrevPos", prevBeltPosition);
 		nbt.putFloat("Offset", sideOffset);
@@ -99,7 +100,7 @@ public class TransportedItemStack implements Comparable<TransportedItemStack> {
 	}
 
 	public static TransportedItemStack read(CompoundTag nbt, HolderLookup.Provider registries) {
-		TransportedItemStack stack = new TransportedItemStack(nbt.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+		TransportedItemStack stack = new TransportedItemStack(nbt.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY));
 		stack.beltPosition = nbt.getFloatOr("Pos", 0);
 		stack.prevBeltPosition = nbt.getFloatOr("PrevPos", 0);
 		stack.sideOffset = nbt.getFloatOr("Offset", 0);

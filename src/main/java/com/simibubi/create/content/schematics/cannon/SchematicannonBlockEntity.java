@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.core.component.DataComponentGetter;
 import com.simibubi.create.foundation.item.EmptyItemHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -178,7 +179,7 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 
 		missingItem = null;
 		if (compound.contains("MissingItem")) {
-			compound.read("MissingItem", ItemStack.CODEC)
+			compound.read("MissingItem", ItemStack.CODEC, RegistryNbt.ops(registries))
 				.ifPresent(i -> missingItem = i);
 		}
 
@@ -254,7 +255,7 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 		compound.putInt("AmountToPlace", blocksToPlace);
 
 		if (missingItem != null)
-			compound.store("MissingItem", ItemStack.OPTIONAL_CODEC, missingItem);
+			compound.store("MissingItem", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), missingItem);
 
 		// Settings
 		Tag options = CatnipCodecUtils.encode(SchematicannonOptions.CODEC, registries, new SchematicannonOptions(replaceMode, skipMissing, replaceBlockEntities)).orElseThrow();

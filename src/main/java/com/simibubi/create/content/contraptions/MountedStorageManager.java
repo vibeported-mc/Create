@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.createmod.catnip.api.network.NetworkHelper;
@@ -449,7 +450,7 @@ public class MountedStorageManager {
 			} else if (data.contains("NoFuel")) {
 				this.addStorage(ItemVaultMountedStorage.fromLegacy(registries, data), pos);
 			} else if (data.contains("Bottomless")) {
-				ItemStack supplied = data.read("ProvidedStack", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+				ItemStack supplied = data.read("ProvidedStack", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 				this.addStorage(new CreativeCrateMountedStorage(supplied), pos);
 			} else if (data.contains("Synced")) {
 				this.addStorage(DepotMountedStorage.fromLegacy(registries, data), pos);

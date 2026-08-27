@@ -87,7 +87,7 @@ public class HarvesterRenderer
 	public static void transform(Level world, Direction facing, SuperByteBuffer superBuffer, float speed, Vec3 pivot) {
 		float originOffset = 1 / 16f;
 		Vec3 rotOffset = new Vec3(0, pivot.y * originOffset, pivot.z * originOffset);
-		float time = AnimationTickHolder.getRenderTime() / 20;
+		float time = AnimationTickHolder.getRenderTime(world) / 20;
 		float angle = (time * speed) % 360;
 
 		TransformStack.of(superBuffer.getTransforms())

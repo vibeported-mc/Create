@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.chute;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -548,7 +549,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		compound.store("Item", ItemStack.OPTIONAL_CODEC, item);
+		compound.store("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), item);
 		compound.putFloat("ItemPosition", itemPosition.getValue());
 		compound.putFloat("Pull", pull);
 		compound.putFloat("Push", push);
@@ -559,7 +560,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		ItemStack previousItem = item;
-		item = compound.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		item = compound.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 		itemPosition.startWithValue(compound.getFloatOr("ItemPosition", 0));
 		pull = compound.getFloatOr("Pull", 0);
 		push = compound.getFloatOr("Push", 0);

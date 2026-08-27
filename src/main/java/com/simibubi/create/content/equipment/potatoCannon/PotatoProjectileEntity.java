@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.potatoCannon;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.util.ProblemReporter;
@@ -100,7 +101,8 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	@Override
 	public void readAdditionalSaveData(ValueInput input) {
 		CompoundTag nbt = NbtValueIO.read(input);
-		setItem(nbt.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+		setItem(nbt.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(input.lookup()))
+			.orElse(ItemStack.EMPTY));
 		additionalDamageMult = nbt.getFloatOr("AdditionalDamage", 0);
 		additionalKnockback = nbt.getFloatOr("AdditionalKnockback", 0);
 		recoveryChance = nbt.getFloatOr("Recovery", 0);
@@ -109,7 +111,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	@Override
 	public void addAdditionalSaveData(ValueOutput output) {
 		CompoundTag nbt = new CompoundTag();
-		nbt.store("Item", ItemStack.OPTIONAL_CODEC, stack);
+		nbt.store("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(level().registryAccess()), stack);
 		nbt.putFloat("AdditionalDamage", additionalDamageMult);
 		nbt.putFloat("AdditionalKnockback", additionalKnockback);
 		nbt.putFloat("Recovery", recoveryChance);

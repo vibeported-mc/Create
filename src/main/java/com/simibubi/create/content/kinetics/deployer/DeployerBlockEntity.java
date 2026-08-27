@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
@@ -384,7 +385,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		deferredInventoryList = compound.getListOrEmpty("Inventory");
 		overflowItems = NBTHelper.readItemList(compound.getListOrEmpty("Overflow"), registries);
 		if (compound.contains("HeldItem")) {
-			heldItem = compound.read("HeldItem", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+			heldItem = compound.read("HeldItem", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 		}
 		super.read(compound, registries, clientPacket);
 
@@ -393,7 +394,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		fistBump = compound.getBooleanOr("Fistbump", false);
 		reach = compound.getFloatOr("Reach", 0);
 		if (compound.contains("Particle")) {
-			ItemStack particleStack = compound.read("Particle", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+			ItemStack particleStack = compound.read("Particle", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 			SandPaperItem.spawnParticles(VecHelper.getCenterOf(worldPosition)
 				.add(getMovementVector().scale(reach + 1)), particleStack, this.level);
 		}
@@ -410,7 +411,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 
 		if (player != null) {
 			compound.put("Inventory", NbtValueIO.saveInventory(player.getInventory(), registries));
-			compound.store("HeldItem", ItemStack.OPTIONAL_CODEC, player.getMainHandItem());
+			compound.store("HeldItem", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), player.getMainHandItem());
 			compound.put("Overflow", NBTHelper.writeItemList(overflowItems, registries));
 		} else if (deferredInventoryList != null) {
 			compound.put("Inventory", deferredInventoryList);
@@ -424,9 +425,9 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		compound.putFloat("Reach", reach);
 		if (player == null)
 			return;
-		compound.store("HeldItem", ItemStack.OPTIONAL_CODEC, player.getMainHandItem());
+		compound.store("HeldItem", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), player.getMainHandItem());
 		if (player.spawnedItemEffects != null) {
-			compound.store("Particle", ItemStack.OPTIONAL_CODEC, player.spawnedItemEffects);
+			compound.store("Particle", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), player.spawnedItemEffects);
 			player.spawnedItemEffects = null;
 		}
 	}

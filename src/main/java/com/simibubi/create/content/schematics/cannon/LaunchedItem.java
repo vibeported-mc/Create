@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.entity.EntitySpawnRequest;
@@ -75,7 +76,7 @@ public abstract class LaunchedItem {
 		CompoundTag c = new CompoundTag();
 		c.putInt("TotalTicks", totalTicks);
 		c.putInt("TicksLeft", ticksRemaining);
-		c.store("Stack", ItemStack.OPTIONAL_CODEC, stack);
+		c.store("Stack", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), stack);
 		c.store("Target", BlockPos.CODEC, target);
 		return c;
 	}
@@ -93,7 +94,7 @@ public abstract class LaunchedItem {
 		target = NBTHelper.readBlockPos(c, "Target");
 		ticksRemaining = c.getIntOr("TicksLeft", 0);
 		totalTicks = c.getIntOr("TotalTicks", 0);
-		stack = c.read("Stack", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		stack = c.read("Stack", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 	}
 
 	public static class ForBlockState extends LaunchedItem {

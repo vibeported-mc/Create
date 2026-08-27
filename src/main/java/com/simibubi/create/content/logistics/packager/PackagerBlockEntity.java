@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packager;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -582,8 +583,8 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 		signBasedAddress = compound.getStringOr("SignAddress", "");
 		customComputerAddress = compound.getStringOr("ComputerAddress", "");
 		hasCustomComputerAddress = compound.getBooleanOr("HasComputerAddress", false);
-		heldBox = compound.read("HeldBox", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
-		previouslyUnwrapped = compound.read("InsertedBox", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		heldBox = compound.read("HeldBox", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
+		previouslyUnwrapped = compound.read("InsertedBox", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 		if (clientPacket)
 			return;
 		queuedExitingPackages = NBTHelper.readCompoundList(compound.getListOrEmpty("QueuedExitingPackages"),
@@ -602,8 +603,8 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 		compound.putString("SignAddress", signBasedAddress);
 		compound.putString("ComputerAddress", customComputerAddress);
 		compound.putBoolean("HasComputerAddress", hasCustomComputerAddress);
-		compound.store("HeldBox", ItemStack.OPTIONAL_CODEC, heldBox);
-		compound.store("InsertedBox", ItemStack.OPTIONAL_CODEC, previouslyUnwrapped);
+		compound.store("HeldBox", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), heldBox);
+		compound.store("InsertedBox", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), previouslyUnwrapped);
 		if (clientPacket)
 			return;
 		compound.put("QueuedExitingPackages", NBTHelper.writeCompoundList(queuedExitingPackages, bis -> {

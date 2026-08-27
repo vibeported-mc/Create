@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packagePort.frogport;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -337,7 +338,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 		super.write(tag, registries, clientPacket);
 		tag.putFloat("PlacedYaw", passiveYaw);
 		if (animatedPackage != null && isAnimationInProgress()) {
-			tag.store("AnimatedPackage", ItemStack.OPTIONAL_CODEC, animatedPackage);
+			tag.store("AnimatedPackage", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), animatedPackage);
 			tag.putBoolean("Deposit", currentlyDepositing);
 		}
 		if (sendAnticipate) {
@@ -360,7 +361,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 			animatedPackage = null;
 		if (tag.contains("AnimatedPackage")) {
 			deferAnimationInward = tag.getBooleanOr("Deposit", false);
-			deferAnimationStart = tag.read("AnimatedPackage", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+			deferAnimationStart = tag.read("AnimatedPackage", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 		}
 		if (clientPacket && tag.contains("Anticipate"))
 			anticipate();

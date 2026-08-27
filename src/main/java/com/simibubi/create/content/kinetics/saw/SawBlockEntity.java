@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import net.minecraft.tags.BlockItemTags;
@@ -123,7 +124,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 
 		if (!clientPacket || playEvent.isEmpty())
 			return;
-		compound.store("PlayEvent", ItemStack.OPTIONAL_CODEC, playEvent);
+		compound.store("PlayEvent", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), playEvent);
 		playEvent = ItemStack.EMPTY;
 	}
 
@@ -133,7 +134,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
 		recipeIndex = compound.getIntOr("RecipeIndex", 0);
 		if (compound.contains("PlayEvent"))
-			playEvent = compound.read("PlayEvent", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+			playEvent = compound.read("PlayEvent", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 	}
 
 	@Override

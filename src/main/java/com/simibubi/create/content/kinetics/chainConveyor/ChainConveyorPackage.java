@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
+import com.simibubi.create.foundation.utility.RegistryNbt;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -95,13 +96,13 @@ public class ChainConveyorPackage {
 	public CompoundTag write(HolderLookup.Provider registries) {
 		CompoundTag compoundTag = new CompoundTag();
 		compoundTag.putFloat("Position", chainPosition);
-		compoundTag.store("Item", ItemStack.OPTIONAL_CODEC, item);
+		compoundTag.store("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries), item);
 		return compoundTag;
 	}
 
 	public static ChainConveyorPackage read(CompoundTag compoundTag, HolderLookup.Provider registries) {
 		float pos = compoundTag.getFloatOr("Position", 0);
-		ItemStack item = compoundTag.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		ItemStack item = compoundTag.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
 		if (compoundTag.contains("NetID"))
 			return new ChainConveyorPackage(pos, item, compoundTag.getIntOr("NetID", 0));
 		return new ChainConveyorPackage(pos, item);
