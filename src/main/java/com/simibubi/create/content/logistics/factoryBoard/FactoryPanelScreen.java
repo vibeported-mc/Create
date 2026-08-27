@@ -77,7 +77,6 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 
 	public FactoryPanelScreen(FactoryPanelBehaviour behaviour) {
 		this.behaviour = behaviour;
-		minecraft = Minecraft.getInstance();
 		restocker = behaviour.panelBE().restocker;
 		availableCraftingRecipe = null;
 		craftingActive = !behaviour.activeCraftingArrangement.isEmpty();
@@ -107,7 +106,7 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 	public static List<BigItemStack> convertRecipeToPackageOrderContext(CraftingRecipe availableCraftingRecipe, List<BigItemStack> inputs, boolean respectAmounts) {
 		List<BigItemStack> craftingIngredients = new ArrayList<>();
 		BigItemStack emptyIngredient = new BigItemStack(ItemStack.EMPTY, 1);
-		NonNullList<Ingredient> ingredients = RecipeAccessors.ingredients(availableCraftingRecipe);
+		List<Ingredient> ingredients = RecipeAccessors.ingredients(availableCraftingRecipe);
 		List<BigItemStack> mutableInputs = BigItemStack.duplicateWrappers(inputs);
 
 		int width = Math.min(3, ingredients.size());
@@ -684,16 +683,16 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 
 		ClientLevel level = Minecraft.getInstance().level;
 
-		availableCraftingRecipe = RecipeFinder.all(RecipeType.CRAFTING)
+		availableCraftingRecipe = RecipeFinder.all(RecipeType.CRAFTING, level)
 			.parallelStream()
-			.filter(r -> output.getItem() == r.value().getResultItem(level.registryAccess())
+			.filter(r -> output.getItem() == RecipeAccessors.result(r.value(), level)
 				.getItem())
 			.filter(r -> {
 				if (AllRecipeTypes.shouldIgnoreInAutomation(r))
 					return false;
 
 				Set<Item> itemsUsed = new HashSet<>();
-				for (Ingredient ingredient : r.value().getIngredients()) {
+				for (Ingredient ingredient : RecipeAccessors.ingredients(r.value())) {
 					if (ingredient.isEmpty())
 						continue;
 					boolean available = false;

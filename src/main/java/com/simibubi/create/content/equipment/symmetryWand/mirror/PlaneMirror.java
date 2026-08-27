@@ -91,6 +91,11 @@ public class PlaneMirror extends SymmetryMirror {
 	}
 
 	@Override
+	public float getModelYRotation() {
+		return ((Align) orientation) == Align.XY ? 0 : 90;
+	}
+
+	@Override
 	public void applyModelTransform(PoseStack ms) {
 		super.applyModelTransform(ms);
 		TransformStack.of(ms)

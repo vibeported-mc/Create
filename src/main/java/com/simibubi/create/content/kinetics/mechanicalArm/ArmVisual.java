@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
+import com.simibubi.create.content.logistics.depot.DepotRenderer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.base.SingleAxisRotatingVisual;
 
@@ -22,7 +23,6 @@ import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -157,12 +157,11 @@ public class ArmVisual extends SingleAxisRotatingVisual<ArmBlockEntity> implemen
 			msr.rotateZDegrees(180);
 
 		ItemStack item = blockEntity.heldItem;
-		ItemRenderer itemRenderer = Minecraft.getInstance()
-			.getItemRenderer();
 		boolean hasItem = !item.isEmpty();
-		boolean isBlockItem = hasItem && (item.getItem() instanceof BlockItem)
-			&& itemRenderer.getModel(item, Minecraft.getInstance().level, null, 0)
-			.isGui3d();
+		boolean isBlockItem = hasItem && item.getItem() instanceof BlockItem
+			&& DepotRenderer.ItemState.create(Minecraft.getInstance()
+				.getItemModelResolver(), item, blockEntity.getLevel())
+				.blockItem();
 
 		for (int index : Iterate.zeroAndOne) {
 			poseStack.pushPose();

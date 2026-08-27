@@ -2,6 +2,7 @@ package com.simibubi.create.content.decoration.copycat;
 
 import java.util.function.Predicate;
 
+import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -50,8 +51,8 @@ public class FilteredBlockAndTintGetter implements BlockAndTintGetter {
 	}
 
 	@Override
-	public float getShade(Direction pDirection, boolean pShade) {
-		return wrapped.getShade(pDirection, pShade);
+	public CardinalLighting cardinalLighting() {
+		return wrapped.cardinalLighting();
 	}
 
 	@Override

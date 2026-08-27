@@ -339,8 +339,7 @@ public class BlueprintOverlayRenderer {
 		int y = guiGraphics.guiHeight() - 100;
 
 		if (shopContext != null) {
-			TooltipRenderUtil.renderTooltipBackground(guiGraphics, x - 2, y + 1, w + 4, 19, 0, 0x55_000000, 0x55_000000, 0,
-				0);
+			TooltipRenderUtil.extractTooltipBackground(guiGraphics, x - 2, y + 1, w + 4, 19, null);
 
 			AllGuiTextures.TRADE_OVERLAY.render(guiGraphics, guiGraphics.guiWidth() / 2 - 48, y - 19);
 			if (shopContext.purchases() > 0) {
@@ -400,9 +399,9 @@ public class BlueprintOverlayRenderer {
 						cycle++;
 						continue;
 					}
-					if ((mc.gui.getGuiTicks() / 40) % cycle != i)
+					if ((AnimationTickHolder.getTicks() / 40) % cycle != i)
 						continue;
-					guiGraphics.setComponentTooltipForNextFrame(mc.gui.getFont(), tooltipLines, mc.getWindow()
+					guiGraphics.setComponentTooltipForNextFrame(mc.font, tooltipLines, mc.getWindow()
 							.getGuiScaledWidth(),
 						mc.getWindow()
 							.getGuiScaledHeight());

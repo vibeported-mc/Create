@@ -95,6 +95,11 @@ public class CrossPlaneMirror extends SymmetryMirror {
 	}
 
 	@Override
+	public float getModelYRotation() {
+		return ((Align) orientation) == Align.Y ? 0 : 45;
+	}
+
+	@Override
 	public void applyModelTransform(PoseStack ms) {
 		super.applyModelTransform(ms);
 		TransformStack.of(ms)

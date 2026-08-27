@@ -141,16 +141,13 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 	protected void renderBlock(GuiGraphicsExtractor graphics, int x, int y) {
 		Matrix3x2fStack ms = graphics.pose();
 
-		ms.pushMatrix();
-		ms.translate((float) (x + 26), (float) (y + 39));
-		ms.scale((float) (16), (float) (16));
-		ms.mulPose(Axis.of(new Vector3f(.3f, 1f, 0f)).rotationDegrees(-22.5f));
-		currentElement.applyModelTransform(ms);
-		// RenderSystem.multMatrix(ms.peek().getModel());
-		GuiGameElement.of(currentElement.getModel())
+		GuiGameElement.of(currentElement.getModel()
+			.get())
+			.rotateBlock(0, currentElement.getModelYRotation(), 0)
+			.rotate(-22.5f * .3f, -22.5f, 0)
+			.scale(16)
+			.at(x + 26, y + 39)
 			.submit(graphics);
-
-		ms.popMatrix();
 	}
 
 	@Override

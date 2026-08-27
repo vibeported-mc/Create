@@ -2,7 +2,7 @@ package com.simibubi.create.content.trains.track;
 
 import net.neoforged.neoforge.client.gui.GuiLayer;
 import com.mojang.blaze3d.platform.Window;
-import com.simibubi.create.foundation.mixin.accessor.GuiAccessor;
+import com.simibubi.create.foundation.mixin.accessor.HudAccessor;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.createmod.catnip.api.theme.Color;
@@ -30,7 +30,7 @@ public class TrackPlacementOverlay implements GuiLayer {
 		if (TrackPlacement.extraTipWarmup < 4)
 			return;
 
-		if (((GuiAccessor) mc.gui).create$getToolHighlightTimer() > 0)
+		if (((HudAccessor) mc.gui.hud).create$getToolHighlightTimer() > 0)
 			return;
 
 		boolean active = mc.options.keySprint.isDown();

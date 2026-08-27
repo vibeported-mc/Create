@@ -54,7 +54,7 @@
     "accessor.AgeableListModelAccessor",
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.FontAccessor",
-    "accessor.GuiAccessor",
+    "accessor.HudAccessor",
     "accessor.LevelRendererAccessor",
     "accessor.MinecraftAccessor",
     "accessor.MouseHandlerAccessor",

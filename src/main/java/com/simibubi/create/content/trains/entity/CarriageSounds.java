@@ -3,7 +3,7 @@ package com.simibubi.create.content.trains.entity;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.AllSoundEvents.SoundEntry;
 import com.simibubi.create.content.trains.entity.Carriage.DimensionalCarriageEntity;
-import com.simibubi.create.foundation.mixin.accessor.GuiAccessor;
+import com.simibubi.create.foundation.mixin.accessor.HudAccessor;
 
 import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
@@ -271,7 +271,7 @@ public class CarriageSounds {
 	}
 
 	static class LoopingSound extends AbstractTickableSoundInstance {
-		private static final SubtitleOverlay OVERLAY = ((GuiAccessor) Minecraft.getInstance().gui).create$getSubtitleOverlay();
+		private static final SubtitleOverlay OVERLAY = ((HudAccessor) Minecraft.getInstance().gui.hud).create$getSubtitleOverlay();
 
 		private final boolean repeatSubtitle;
 		private final WeighedSoundEvents weighedSoundEvents = this.resolve(Minecraft.getInstance().getSoundManager());

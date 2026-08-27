@@ -31,7 +31,6 @@ import com.simibubi.create.content.equipment.armor.BacktankItem;
 import com.simibubi.create.content.equipment.armor.BacktankItem.BacktankBlockItem;
 import com.simibubi.create.content.equipment.armor.BaseArmorItem;
 import com.simibubi.create.content.equipment.armor.CardboardArmorItem;
-import com.simibubi.create.content.equipment.armor.CardboardArmorStealthOverlay;
 import com.simibubi.create.content.equipment.armor.DivingBootsItem;
 import com.simibubi.create.content.equipment.armor.DivingHelmetItem;
 import com.simibubi.create.content.equipment.blueprint.BlueprintItem;
@@ -375,7 +374,6 @@ public class AllItems {
 		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 		// .model(TrimmableArmorModelGenerator::generate)
 		
-		.clientExtension(() -> () -> new CardboardArmorStealthOverlay())
 		.register(),
 
 	CARDBOARD_CHESTPLATE =

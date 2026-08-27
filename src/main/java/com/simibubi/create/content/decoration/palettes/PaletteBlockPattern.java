@@ -34,7 +34,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 
 public class PaletteBlockPattern {
 
@@ -49,12 +48,10 @@ public class PaletteBlockPattern {
 
 		POLISHED = create("polished_cut", PREFIX, FOR_POLISHED).textures("polished", "slab"),
 
-		LAYERED = create("layered", PREFIX).blockStateFactory(p -> p::cubeColumn)
-			.textures("layered", "cap")
+		LAYERED = create("layered", PREFIX).textures("layered", "cap")
 			.connectedTextures(v -> new HorizontalCTBehaviour(ct(v, CTs.LAYERED), ct(v, CTs.CAP))),
 
-		PILLAR = create("pillar", SUFFIX).blockStateFactory(p -> p::pillar)
-			.block(ConnectedPillarBlock::new)
+		PILLAR = create("pillar", SUFFIX).block(ConnectedPillarBlock::new)
 			.textures("pillar", "cap")
 			.connectedTextures(v -> new RotatedPillarCTBehaviour(ct(v, CTs.PILLAR), ct(v, CTs.CAP)))
 
@@ -74,7 +71,6 @@ public class PaletteBlockPattern {
 	private TagKey<Item>[] itemTags;
 	private Optional<Function<String, ConnectedTextureBehaviour>> ctFactory;
 
-	private IPatternBlockStateGenerator blockStateGenerator;
 	private NonNullFunction<Properties, ? extends Block> blockFactory;
 	private NonNullFunction<NonNullSupplier<Block>, NonNullBiConsumer<DataGenContext<Block, ? extends Block>, RegistrateRecipeProvider>> additionalRecipes;
 	private PaletteBlockPartial<? extends Block>[] partials;
@@ -93,12 +89,7 @@ public class PaletteBlockPattern {
 		pattern.isTranslucent = false;
 		pattern.blockFactory = Block::new;
 		pattern.textures = new String[] { name };
-		pattern.blockStateGenerator = p -> p::cubeAll;
 		return pattern;
-	}
-
-	public IPatternBlockStateGenerator getBlockStateGenerator() {
-		return blockStateGenerator;
 	}
 
 	public boolean isTranslucent() {
@@ -137,11 +128,6 @@ public class PaletteBlockPattern {
 
 	// Builder
 
-	private PaletteBlockPattern blockStateFactory(IPatternBlockStateGenerator factory) {
-		blockStateGenerator = factory;
-		return this;
-	}
-
 	private PaletteBlockPattern textures(String... textures) {
 		this.textures = textures;
 		return this;
@@ -159,50 +145,10 @@ public class PaletteBlockPattern {
 
 	// Model generators
 
-	public IBlockStateProvider cubeAll(String variant) {
-		Identifier all = toLocation(variant, textures[0]);
-		return (ctx, prov) -> prov.simpleBlock(ctx.get(), prov.models()
-			.cubeAll(createName(variant), all));
-	}
-
-	public IBlockStateProvider cubeBottomTop(String variant) {
-		Identifier side = toLocation(variant, textures[0]);
-		Identifier bottom = toLocation(variant, textures[1]);
-		Identifier top = toLocation(variant, textures[2]);
-		return (ctx, prov) -> prov.simpleBlock(ctx.get(), prov.models()
-			.cubeBottomTop(createName(variant), side, bottom, top));
-	}
-
-	public IBlockStateProvider pillar(String variant) {
-		Identifier side = toLocation(variant, textures[0]);
-		Identifier end = toLocation(variant, textures[1]);
-
-		return (ctx, prov) -> prov.getVariantBuilder(ctx.getEntry())
-			.forAllStatesExcept(state -> {
-				Axis axis = state.getValue(BlockStateProperties.AXIS);
-				if (axis == Axis.Y)
-					return ConfiguredModel.builder()
-						.modelFile(prov.models()
-							.cubeColumn(createName(variant), side, end))
-						.uvLock(false)
-						.build();
-				return ConfiguredModel.builder()
-					.modelFile(prov.models()
-						.cubeColumnHorizontal(createName(variant) + "_horizontal", side, end))
-					.uvLock(false)
-					.rotationX(90)
-					.rotationY(axis == Axis.X ? 90 : 0)
-					.build();
-			}, BlockStateProperties.WATERLOGGED, ConnectedPillarBlock.NORTH, ConnectedPillarBlock.SOUTH,
-				ConnectedPillarBlock.EAST, ConnectedPillarBlock.WEST);
-	}
-
-	public IBlockStateProvider cubeColumn(String variant) {
-		Identifier side = toLocation(variant, textures[0]);
-		Identifier end = toLocation(variant, textures[1]);
-		return (ctx, prov) -> prov.simpleBlock(ctx.get(), prov.models()
-			.cubeColumn(createName(variant), side, end));
-	}
+	// TODO: the four model generators that used to live here (cubeAll, cubeBottomTop, pillar and
+	// cubeColumn) built blockstates through NeoForge's model generators, which 26.2 replaced with
+	// Registrate's RegistrateBlockModelGenerator. They are gone for now along with the rest of Create's
+	// datagen; PalettesVariantEntry's call to getBlockStateGenerator is commented out to match.
 
 	// Utility
 
@@ -228,16 +174,6 @@ public class PaletteBlockPattern {
 		Identifier resLocTarget = texture.targetFactory.apply(variant);
 		return CTSpriteShifter.getCT(texture.type, resLoc,
 			Identifier.fromNamespaceAndPath(resLocTarget.getNamespace(), resLocTarget.getPath() + "_connected"));
-	}
-
-	@FunctionalInterface
-	static interface IPatternBlockStateGenerator
-		extends Function<PaletteBlockPattern, Function<String, IBlockStateProvider>> {
-	}
-
-	@FunctionalInterface
-	static interface IBlockStateProvider
-		extends NonNullBiConsumer<DataGenContext<Block, ? extends Block>, RegistrateBlockstateProvider> {
 	}
 
 	enum PatternNameType {

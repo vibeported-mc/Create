@@ -120,6 +120,16 @@ public abstract class SymmetryMirror {
 
 	public void applyModelTransform(PoseStack ms) {}
 
+	/**
+	 * How far the model is turned about its own Y axis when drawn in a GUI.
+	 * <p>
+	 * The GUI pose is two-dimensional in 26.2, so a screen cannot apply {@link #applyModelTransform}
+	 * itself; it hands the angle to the element builder instead.
+	 */
+	public float getModelYRotation() {
+		return 0;
+	}
+
 	protected Vec3 getDiff(BlockPos position) {
 		return this.position.scale(-1)
 			.add(position.getX(), position.getY(), position.getZ());

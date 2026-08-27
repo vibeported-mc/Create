@@ -1,25 +1,28 @@
 package com.simibubi.create.content.equipment.armor;
 
 import com.simibubi.create.Create;
-import com.simibubi.create.foundation.mixin.accessor.GuiAccessor;
 
 import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ARGB;
 
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.gui.GuiLayer;
 
-public class CardboardArmorStealthOverlay extends Gui implements IClientItemExtensions {
-
-	public CardboardArmorStealthOverlay() {
-		super(Minecraft.getInstance());
-	}
+/**
+ * The blur shown while cardboard armour is hiding the player.
+ * <p>
+ * This used to ride on the item's {@code renderHelmetOverlay}, which 26.2 dropped along with the rest
+ * of the helmet overlay hook; it is a GUI layer of its own now, drawn the same way vanilla draws its
+ * own full-screen overlays.
+ */
+public class CardboardArmorStealthOverlay implements GuiLayer {
+	public static final CardboardArmorStealthOverlay INSTANCE = new CardboardArmorStealthOverlay();
 
 	private static final Identifier PACKAGE_BLUR_LOCATION = Create.asResource("textures/misc/package_blur.png");
 
@@ -37,13 +40,13 @@ public class CardboardArmorStealthOverlay extends Gui implements IClientItemExte
 	}
 
 	@Override
-	public void renderHelmetOverlay(ItemStack stack, Player player, int width, int height, float partialTick) {
-		Minecraft mc = Minecraft.getInstance();
-		float value = opacity.getValue(partialTick);
+	public void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+		float value = opacity.getValue(deltaTracker.getGameTimeDeltaPartialTick(false));
 		if (value == 0)
 			return;
-		((GuiAccessor) this).create$renderTextureOverlay(new GuiGraphicsExtractor(mc, mc.renderBuffers()
-			.bufferSource()), PACKAGE_BLUR_LOCATION, value);
+
+		graphics.blit(RenderPipelines.GUI_TEXTURED, PACKAGE_BLUR_LOCATION, 0, 0, 0, 0, graphics.guiWidth(),
+			graphics.guiHeight(), graphics.guiWidth(), graphics.guiHeight(), ARGB.white(value));
 	}
 
 }

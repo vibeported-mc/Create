@@ -381,6 +381,8 @@ public class ClientEvents {
 	public static void registerGuiOverlays(RegisterGuiLayersEvent event) {
 		// Register overlays in reverse order
 		event.registerAbove(VanillaGuiLayers.AIR_LEVEL, Create.asResource("remaining_air"), RemainingAirOverlay.INSTANCE);
+		event.registerAbove(VanillaGuiLayers.CAMERA_OVERLAYS, Create.asResource("cardboard_stealth"),
+			CardboardArmorStealthOverlay.INSTANCE);
 		event.registerAbove(VanillaGuiLayers.CONTEXTUAL_INFO_BAR, Create.asResource("train_hud"), TrainHUD.OVERLAY);
 		event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("value_settings"), CreateClient.VALUE_SETTINGS_HANDLER);
 		event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("track_placement"), TrackPlacementOverlay.INSTANCE);
