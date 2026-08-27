@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 import java.util.List;
 
 import com.simibubi.create.AllDataComponents;
@@ -19,12 +21,13 @@ public class RedstoneRequesterBlockItem extends LogisticallyLinkedBlockItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext tooltipContext, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+	public void appendHoverText(ItemStack stack, TooltipContext tooltipContext, TooltipDisplay display,
+		Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 		if (!isTuned(stack))
 			return;
 
 		if (!stack.has(AllDataComponents.AUTO_REQUEST_DATA)) {
-			super.appendHoverText(stack, tooltipContext, tooltipComponents, tooltipFlag);
+			super.appendHoverText(stack, tooltipContext, display, tooltipComponents, tooltipFlag);
 			return;
 		}
 

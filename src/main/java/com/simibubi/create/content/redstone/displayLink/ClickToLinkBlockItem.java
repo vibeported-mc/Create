@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink;
 
+import com.simibubi.create.foundation.item.BlockEntityDataHelper;
 import net.minecraft.util.TriState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -126,8 +127,7 @@ public abstract class ClickToLinkBlockItem extends BlockItem {
 		CompoundTag beTag = new CompoundTag();
 		beTag.store("TargetOffset", BlockPos.CODEC, selectedPos.subtract(placedPos));
 		NBTHelper.writeIdentifier(beTag, "TargetDimension", selectedDim);
-		BlockEntity.addEntityType(beTag, ((IBE<?>) this.getBlock()).getBlockEntityType());
-		stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(beTag));
+		BlockEntityDataHelper.setTag(stack, ((IBE<?>) this.getBlock()).getBlockEntityType(), beTag);
 
 		InteractionResult useOn = super.useOn(pContext);
 		if (level.isClientSide() || useOn == InteractionResult.FAIL)

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.tableCloth;
 
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -127,8 +129,8 @@ public class ShoppingListItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents,
-								TooltipFlag tooltipFlag) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+		Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
 		ShoppingList list = getList(stack);
 
 		if (list != null) {
@@ -140,7 +142,7 @@ public class ShoppingListItem extends Item {
 					boolean cost = items == lists.getSecond();
 
 					if (cost)
-						tooltipComponents.add(Component.empty());
+						tooltipComponents.accept(Component.empty());
 
 					if (entries.size() == 1) {
 						BigItemStack entry = entries.get(0);

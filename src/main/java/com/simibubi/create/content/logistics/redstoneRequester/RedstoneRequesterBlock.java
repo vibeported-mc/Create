@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import com.simibubi.create.foundation.item.BlockEntityDataHelper;
 import org.jspecify.annotations.Nullable;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.core.UUIDUtil;
@@ -109,10 +110,9 @@ public class RedstoneRequesterBlock extends Block implements IBE<RedstoneRequest
 		autoRequestData.writeToItem(BlockPos.ZERO, stack);
 
 		if (isRequester) {
-			CompoundTag beTag = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
+			CompoundTag beTag = BlockEntityDataHelper.getTag(stack);
 			beTag.store("Freq", UUIDUtil.CODEC, be.behaviour.freqId);
-			BlockEntity.addEntityType(beTag, AllBlockEntityTypes.REDSTONE_REQUESTER.get());
-			stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(beTag));
+			BlockEntityDataHelper.setTag(stack, AllBlockEntityTypes.REDSTONE_REQUESTER.get(), beTag);
 		}
 
 		player.setItemInHand(InteractionHand.MAIN_HAND, stack);

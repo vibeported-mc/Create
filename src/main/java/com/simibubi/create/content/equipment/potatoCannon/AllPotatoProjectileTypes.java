@@ -13,6 +13,7 @@ import com.simibubi.create.content.equipment.potatoCannon.AllPotatoProjectileEnt
 import com.simibubi.create.content.equipment.potatoCannon.AllPotatoProjectileEntityHitActions.SetOnFire;
 import com.simibubi.create.content.equipment.potatoCannon.AllPotatoProjectileEntityHitActions.SuspiciousStew;
 
+import net.minecraft.world.item.component.Consumables;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffects;
@@ -162,7 +163,7 @@ public class AllPotatoProjectileTypes {
 			.knockback(0.05f)
 			.renderTumbling()
 			.soundPitch(1.1f)
-			.onEntityHit(new FoodEffects(Foods.ENCHANTED_GOLDEN_APPLE, false))
+			.onEntityHit(new FoodEffects(Consumables.ENCHANTED_GOLDEN_APPLE, false))
 			.addItems(Items.ENCHANTED_GOLDEN_APPLE)
 			.build());
 
@@ -267,7 +268,7 @@ public class AllPotatoProjectileTypes {
 			.velocity(1.1f)
 			.renderTowardMotion(140, 1)
 			.sticky()
-			.onEntityHit(new FoodEffects(Foods.PUFFERFISH, false))
+			.onEntityHit(new FoodEffects(Consumables.PUFFERFISH, false))
 			.soundPitch(1.1f)
 			.addItems(Items.PUFFERFISH)
 			.build());

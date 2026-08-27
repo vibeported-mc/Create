@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.tank;
 
+import com.simibubi.create.foundation.item.BlockEntityDataHelper;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
@@ -46,9 +47,8 @@ public class FluidTankItem extends BlockItem {
 		MinecraftServer minecraftserver = level.getServer();
 		if (minecraftserver == null)
 			return false;
-		CustomData blockEntityData = itemStack.get(DataComponents.BLOCK_ENTITY_DATA);
-		if (blockEntityData != null) {
-			CompoundTag nbt = blockEntityData.copyTag();
+		if (itemStack.has(DataComponents.BLOCK_ENTITY_DATA)) {
+			CompoundTag nbt = BlockEntityDataHelper.getTag(itemStack);
 			nbt.remove("Luminosity");
 			nbt.remove("Size");
 			nbt.remove("Height");
@@ -58,11 +58,10 @@ public class FluidTankItem extends BlockItem {
 				FluidStack fluid = FluidHelper.parseOptional(minecraftserver.registryAccess(), nbt.getCompoundOrEmpty("TankContent"));
 				if (!fluid.isEmpty()) {
 					fluid.setAmount(Math.min(FluidTankBlockEntity.getCapacityMultiplier(), fluid.getAmount()));
-					nbt.store("TankContent", ItemStack.OPTIONAL_CODEC, fluid);
+					nbt.store("TankContent", FluidStack.OPTIONAL_CODEC, fluid);
 				}
 			}
-			BlockEntity.addEntityType(nbt, ((IBE<?>) this.getBlock()).getBlockEntityType());
-			itemStack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(nbt));
+			BlockEntityDataHelper.setTag(itemStack, ((IBE<?>) this.getBlock()).getBlockEntityType(), nbt);
 		}
 		return super.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState);
 	}

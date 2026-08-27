@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packagerLink;
 
+import com.simibubi.create.foundation.item.BlockEntityDataHelper;
 import net.minecraft.core.UUIDUtil;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class LogisticallyLinkedClientHandler {
 			|| !LogisticallyLinkedBlockItem.isTuned(mainHandItem))
 			return;
 
-		CompoundTag tag = mainHandItem.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
+		CompoundTag tag = BlockEntityDataHelper.getTag(mainHandItem);
 		if (!tag.read("Freq", UUIDUtil.CODEC).isPresent())
 			return;
 

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.box;
 
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
@@ -62,11 +64,6 @@ public class PackageItem extends Item {
 		this.style = style;
 		PackageStyles.ALL_BOXES.add(this);
 		(style.rare() ? PackageStyles.RARE_BOXES : PackageStyles.STANDARD_BOXES).add(this);
-	}
-
-	@Override
-	public String getDescriptionId() {
-		return "item." + Create.ID + (style.rare() ? ".rare_package" : ".package");
 	}
 
 	public static boolean isPackage(ItemStack stack) {
@@ -221,12 +218,12 @@ public class PackageItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext tooltipContext, List<Component> tooltipComponents,
-								TooltipFlag tooltipFlag) {
-		super.appendHoverText(stack, tooltipContext, tooltipComponents, tooltipFlag);
+	public void appendHoverText(ItemStack stack, TooltipContext tooltipContext, TooltipDisplay display,
+		Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+		super.appendHoverText(stack, tooltipContext, display, tooltipComponents, tooltipFlag);
 
 		if (stack.has(AllDataComponents.PACKAGE_ADDRESS))
-			tooltipComponents.add(Component.literal("\u2192 " + stack.get(AllDataComponents.PACKAGE_ADDRESS))
+			tooltipComponents.accept(Component.literal("\u2192 " + stack.get(AllDataComponents.PACKAGE_ADDRESS))
 				.withStyle(ChatFormatting.GOLD));
 
 		/*
@@ -261,7 +258,7 @@ public class PackageItem extends Item {
 			}
 
 			visibleNames++;
-			tooltipComponents.add(itemstack.getHoverName()
+			tooltipComponents.accept(itemstack.getHoverName()
 				.copy()
 				.append(" x")
 				.append(String.valueOf(itemstack.getCount()))
@@ -269,7 +266,7 @@ public class PackageItem extends Item {
 		}
 
 		if (skippedNames > 0)
-			tooltipComponents.add(Component.translatable("container.shulkerBox.more", skippedNames)
+			tooltipComponents.accept(Component.translatable("container.shulkerBox.more", skippedNames)
 				.withStyle(ChatFormatting.ITALIC));
 	}
 
@@ -304,7 +301,7 @@ public class PackageItem extends Item {
 							.add(playerIn.getLookAngle()
 								.multiply(1, 0, 1)
 								.normalize())),
-						EntitySpawnReason.SPAWN_EGG, false, false);
+						EntitySpawnReason.SPAWN_ITEM_USE, false, false);
 					if (entity != null)
 						itemstack.shrink(1);
 				}
@@ -376,18 +373,18 @@ public class PackageItem extends Item {
 	}
 
 	@Override
-	public void releaseUsing(ItemStack stack, Level world, LivingEntity entity, int ticks) {
+	public boolean releaseUsing(ItemStack stack, Level world, LivingEntity entity, int ticks) {
 		if (!(entity instanceof Player player))
-			return;
+			return false;
 		int i = this.getUseDuration(stack, entity) - ticks;
 		if (i < 0)
-			return;
+			return false;
 
 		float f = getPackageVelocity(i);
 		if (f < 0.1D)
-			return;
+			return false;
 		if (world.isClientSide())
-			return;
+			return true;
 
 		world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SNOWBALL_THROW,
 			SoundSource.NEUTRAL, 0.5F, 0.5F);
@@ -407,6 +404,7 @@ public class PackageItem extends Item {
 		packageEntity.setDeltaMovement(motion);
 		packageEntity.tossedBy = new WeakReference<>(player);
 		world.addFreshEntity(packageEntity);
+		return true;
 	}
 
 	public static float getPackageVelocity(int p_185059_0_) {

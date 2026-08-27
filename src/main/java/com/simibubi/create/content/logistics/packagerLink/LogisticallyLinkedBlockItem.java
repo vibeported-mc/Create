@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.packagerLink;
 
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
+import com.simibubi.create.foundation.item.BlockEntityDataHelper;
 import net.minecraft.core.UUIDUtil;
 import java.util.List;
 import java.util.UUID;
@@ -47,18 +50,18 @@ public class LogisticallyLinkedBlockItem extends BlockItem {
 
 	@Nullable
 	public static UUID networkFromStack(ItemStack pStack) {
-		CompoundTag tag = pStack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
+		CompoundTag tag = BlockEntityDataHelper.getTag(pStack);
 		if (!tag.read("Freq", UUIDUtil.CODEC).isPresent())
 			return null;
 		return tag.read("Freq", UUIDUtil.CODEC).orElse(null);
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext tooltipContext,
-								@NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
-		super.appendHoverText(stack, tooltipContext, tooltipComponents, tooltipFlag);
+	public void appendHoverText(ItemStack stack, TooltipContext tooltipContext, TooltipDisplay display,
+		Consumer<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+		super.appendHoverText(stack, tooltipContext, display, tooltipComponents, tooltipFlag);
 
-		CompoundTag tag = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
+		CompoundTag tag = BlockEntityDataHelper.getTag(stack);
 		if (!tag.read("Freq", UUIDUtil.CODEC).isPresent())
 			return;
 
@@ -123,13 +126,12 @@ public class LogisticallyLinkedBlockItem extends BlockItem {
 	}
 
 	public static void assignFrequency(ItemStack stack, Player player, UUID frequency) {
-		CompoundTag tag = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
+		CompoundTag tag = BlockEntityDataHelper.getTag(stack);
 		tag.store("Freq", UUIDUtil.CODEC, frequency);
 
 		player.sendOverlayMessage(CreateLang.translateDirect("logistically_linked.tuned"));
 
-		BlockEntity.addEntityType(tag, ((IBE<?>) ((BlockItem) stack.getItem()).getBlock()).getBlockEntityType());
-		stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(tag));
+		BlockEntityDataHelper.setTag(stack, ((IBE<?>) ((BlockItem) stack.getItem()).getBlock()).getBlockEntityType(), tag);
 	}
 
 }
