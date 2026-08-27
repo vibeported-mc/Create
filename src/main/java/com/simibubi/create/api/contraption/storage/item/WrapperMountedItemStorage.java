@@ -1,5 +1,6 @@
 package com.simibubi.create.api.contraption.storage.item;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
@@ -60,8 +61,8 @@ public abstract class WrapperMountedItemStorage<T extends ModifiableItemHandler>
 		this.wrapped.set(index, resource, amount);
 	}
 
-	public static ItemStacksResourceHandler copyToItemStackHandler(ResourceHandler<ItemResource> handler) {
-		ItemStacksResourceHandler copy = new ItemStacksResourceHandler(handler.size());
+	public static ItemStackHandler copyToItemStackHandler(ResourceHandler<ItemResource> handler) {
+		ItemStackHandler copy = new ItemStackHandler(handler.size());
 		for (int i = 0; i < handler.size(); i++) {
 			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
 			ItemHandlerHelpers.setStackInSlot(copy, i, stack.copy());

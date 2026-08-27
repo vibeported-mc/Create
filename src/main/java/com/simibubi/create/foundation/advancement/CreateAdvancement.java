@@ -8,6 +8,8 @@ import java.util.function.UnaryOperator;
 import com.simibubi.create.Create;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementType;
@@ -71,7 +73,8 @@ public class CreateAdvancement {
 	public boolean isAlreadyAwardedTo(Player player) {
 		if (!(player instanceof ServerPlayer sp))
 			return true;
-		AdvancementHolder advancement = sp.getServer()
+		AdvancementHolder advancement = sp.level()
+			.getServer()
 			.getAdvancements()
 			.get(Create.asResource(id));
 		if (advancement == null)
@@ -97,7 +100,7 @@ public class CreateAdvancement {
 		if (createBuilder.func != null)
 			createBuilder.icon(createBuilder.func.apply(registries));
 
-		mcBuilder.display(createBuilder.icon, Component.translatable(titleKey()),
+		mcBuilder.display(ItemStackTemplate.fromStack(createBuilder.icon), Component.translatable(titleKey()),
 			Component.translatable(descriptionKey()).withStyle(s -> s.withColor(0xDBA213)),
 			id.equals("root") ? BACKGROUND : null, createBuilder.type.advancementType, createBuilder.type.toast,
 			createBuilder.type.announce, createBuilder.type.hide);
@@ -198,8 +201,9 @@ public class CreateAdvancement {
 		}
 
 		Builder whenItemCollected(TagKey<Item> tag) {
-			return externalTrigger(InventoryChangeTrigger.TriggerInstance
-				.hasItems(ItemPredicate.Builder.item().of(tag).build()));
+			return externalTrigger(InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item()
+				.of(BuiltInRegistries.ITEM, tag)
+				.build()));
 		}
 
 		Builder awardedForFree() {

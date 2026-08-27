@@ -11,7 +11,6 @@ import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.simibubi.create.foundation.fluid.FluidIngredientOld;
 import com.simibubi.create.foundation.item.ItemSlots;
 
 import net.minecraft.util.ExtraCodecs;
@@ -69,7 +68,9 @@ public class CreateCodecs {
 		NeoForgeExtraCodecs.optionalFieldAlwaysWrite(ExtraCodecs.POSITIVE_INT, "amount", 1000).forGetter(SizedFluidIngredient::amount)
 	).apply(instance, SizedFluidIngredient::new));
 
-	@ScheduledForRemoval(inVersion = "1.21.1+ Port")
-	@Deprecated(since = "6.0.7", forRemoval = true)
-	public static Codec<SizedFluidIngredient> SIZED_FLUID_INGREDIENT = Codec.withAlternative(FLAT_SIZED_FLUID_INGREDIENT_WITH_TYPE, FluidIngredientOld.CODEC);
+	/**
+	 * The pre-1.21.1 {@code fluid_stack}/{@code fluid_tag} spellings were scheduled for removal in this
+	 * port, and their fluid ingredient types no longer exist in 26.2, so only the flat form is read.
+	 */
+	public static Codec<SizedFluidIngredient> SIZED_FLUID_INGREDIENT = FLAT_SIZED_FLUID_INGREDIENT_WITH_TYPE;
 }

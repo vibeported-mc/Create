@@ -116,9 +116,9 @@ public class DisplayLinkScreen extends AbstractSimiScreen {
 		Block sourceBlock = sourceState.getBlock();
 		Block targetBlock = targetState.getBlock();
 
-		asItem = sourceBlock.getCloneItemStack(level, blockEntity.getSourcePosition(), sourceState, true);
+		asItem = sourceState.getCloneItemStack(blockEntity.getSourcePosition(), level, true, minecraft.player);
 		ItemStack sourceIcon = asItem == null || asItem.isEmpty() ? FALLBACK : asItem;
-		asItem = targetBlock.getCloneItemStack(level, blockEntity.getTargetPosition(), targetState, true);
+		asItem = targetState.getCloneItemStack(blockEntity.getTargetPosition(), level, true, minecraft.player);
 		ItemStack targetIcon = asItem == null || asItem.isEmpty() ? FALLBACK : asItem;
 
 		sources = DisplaySource.getAll(level, blockEntity.getSourcePosition());
@@ -280,14 +280,11 @@ public class DisplayLinkScreen extends AbstractSimiScreen {
 		ms.popMatrix();
 
 		ms.pushMatrix();
-		TransformStack.of(ms)
-			.pushPose()
-			.translate(x + background.getWidth() + 4, y + background.getHeight() + 4, 100)
-			.scale(40)
-			.rotateXDegrees(-22)
-			.rotateYDegrees(63);
 		GuiGameElement.of(blockEntity.getBlockState()
-				.setValue(DisplayLinkBlock.FACING, Direction.UP))
+			.setValue(DisplayLinkBlock.FACING, Direction.UP))
+			.rotateBlock(-22, 63, 0)
+			.scale(40)
+			.at(x + background.getWidth() + 4, y + background.getHeight() + 4)
 			.submit(graphics);
 		ms.popMatrix();
 	}
