@@ -1,5 +1,8 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.recipe.RecipeFinder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
@@ -17,9 +20,8 @@ public record BlueprintAssignCompleteRecipePacket(Identifier recipeId) implement
 	@Override
 	public void handle(ServerPlayer player) {
 		if (player.containerMenu instanceof BlueprintMenu c) {
-			player.level()
-					.byKeyThroughFinder(recipeId)
-					.ifPresent(r -> BlueprintItem.assignCompleteRecipe(c.player.level(), c.ghostInventory, r.value()));
+			RecipeFinder.byKey(ResourceKey.create(Registries.RECIPE, recipeId), player.level())
+				.ifPresent(r -> BlueprintItem.assignCompleteRecipe(c.player.level(), c.ghostInventory, r.value()));
 		}
 	}
 

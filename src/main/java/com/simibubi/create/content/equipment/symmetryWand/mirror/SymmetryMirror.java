@@ -150,11 +150,13 @@ public abstract class SymmetryMirror {
 			if (property == BlockStateProperties.HALF)
 				return in.cycle(property);
 			// Directional Blocks
-			if (property instanceof EnumProperty<Direction>) {
-				if (in.getValue(property) == Direction.DOWN) {
-					return in.setValue((EnumProperty<Direction>) property, Direction.UP);
-				} else if (in.getValue(property) == Direction.UP) {
-					return in.setValue((EnumProperty<Direction>) property, Direction.DOWN);
+			if (property.getValueClass() == Direction.class) {
+				@SuppressWarnings("unchecked")
+				EnumProperty<Direction> directional = (EnumProperty<Direction>) property;
+				if (in.getValue(directional) == Direction.DOWN) {
+					return in.setValue(directional, Direction.UP);
+				} else if (in.getValue(directional) == Direction.UP) {
+					return in.setValue(directional, Direction.DOWN);
 				}
 			}
 		}

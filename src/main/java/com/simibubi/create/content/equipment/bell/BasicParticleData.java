@@ -48,7 +48,7 @@ public abstract class BasicParticleData<T extends Particle> implements ParticleO
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public ParticleResources.SpriteParticleRegistration<BasicParticleData<T>> getMetaFactory() {
-		return animatedSprite -> (data, worldIn, x, y, z, vx, vy, vz) ->
+		return animatedSprite -> (data, worldIn, x, y, z, vx, vy, vz, random) ->
 			getBasicFactory().makeParticle(worldIn, x, y, z, vx, vy, vz, animatedSprite);
 	}
 }

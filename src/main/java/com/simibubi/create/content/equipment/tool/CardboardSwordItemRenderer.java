@@ -17,7 +17,10 @@ public class CardboardSwordItemRenderer extends CustomRenderedItemModelRenderer 
 	@Override
 	protected void render(ItemStack stack, PartialItemModelRenderer renderer, ItemDisplayContext transformType,
 		PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
-		renderer.render(transformType == ItemDisplayContext.GUI ? model.getOriginalModel() : HELD.get(), light);
+		if (transformType == ItemDisplayContext.GUI)
+			renderer.renderBase(light);
+		else
+			renderer.render(HELD.get(), light);
 	}
 
 }

@@ -209,7 +209,8 @@ public class GoggleOverlayRenderer {
 			: BoxElement.COLOR_VANILLA_BORDER.getSecond().copy();
 
 		if (fade < 1) {
-			poseStack.translate(Math.pow(1 - fade, 3) * Math.signum(cfg.overlayOffsetX.get() + .5f) * 8, 0, 0);
+			poseStack.translate((float) (Math.pow(1 - fade, 3) * Math.signum(cfg.overlayOffsetX.get() + .5f) * 8),
+				0);
 			colorBackground.scaleAlpha(fade);
 			colorBorderTop.scaleAlpha(fade);
 			colorBorderBot.scaleAlpha(fade);

@@ -58,7 +58,7 @@ public class PotatoProjectileRenderer
 		state.mode = entity.getRenderMode();
 		Vec3 toCamera = entity.getBoundingBox()
 			.getCenter()
-			.subtract(entityRenderDispatcher.camera.getPosition());
+			.subtract(entityRenderDispatcher.camera.position());
 		state.context = new PotatoProjectileRenderMode.Context(toCamera, entity.getDeltaMovement(),
 			entity.tickCount + partialTicks, System.identityHashCode(entity));
 	}
