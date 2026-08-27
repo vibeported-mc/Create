@@ -85,7 +85,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, IBE<ItemDrainB
 		Vec3 deltaMovement = entityIn.getDeltaMovement()
 			.multiply(1, 0, 1)
 			.normalize();
-		Direction nearest = Direction.getNearest(deltaMovement.x, deltaMovement.y, deltaMovement.z);
+		Direction nearest = Direction.getApproximateNearest(deltaMovement.x, deltaMovement.y, deltaMovement.z);
 		ItemStack remainder = inputBehaviour.handleInsertion(itemEntity.getItem(), nearest, false);
 		itemEntity.setItem(remainder);
 		if (remainder.isEmpty())

@@ -2,8 +2,9 @@ package com.simibubi.create.content.fluids.tank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.api.connectivity.ConnectivityHandler;
@@ -11,61 +12,95 @@ import com.simibubi.create.foundation.block.connected.CTModel;
 import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 
 import net.createmod.catnip.api.data.Iterate;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.util.TriState;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.model.data.ModelData;
-import net.neoforged.neoforge.model.data.ModelData.Builder;
-import net.neoforged.neoforge.model.data.ModelProperty;
 
+/**
+ * A fluid tank, with the faces it shares with a neighbouring tank left out.
+ * <p>
+ * The tank hides those faces itself rather than letting the chunk mesher cull them, so everything is
+ * handed out unculled: 26.2 asks a part for its quads per cull face, and the culled buckets here are
+ * folded into the unculled one.
+ */
 public class FluidTankModel extends CTModel {
 
-	protected static final ModelProperty<CullData> CULL_PROPERTY = new ModelProperty<>();
-
-	public static FluidTankModel standard(BakedModel originalModel) {
+	public static FluidTankModel standard(BlockStateModel originalModel) {
 		return new FluidTankModel(originalModel, AllSpriteShifts.FLUID_TANK, AllSpriteShifts.FLUID_TANK_TOP,
 			AllSpriteShifts.FLUID_TANK_INNER);
 	}
 
-	public static FluidTankModel creative(BakedModel originalModel) {
+	public static FluidTankModel creative(BlockStateModel originalModel) {
 		return new FluidTankModel(originalModel, AllSpriteShifts.CREATIVE_FLUID_TANK, AllSpriteShifts.CREATIVE_CASING,
 			AllSpriteShifts.CREATIVE_CASING);
 	}
 
-	private FluidTankModel(BakedModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
+	private FluidTankModel(BlockStateModel originalModel, CTSpriteShiftEntry side, CTSpriteShiftEntry top,
 		CTSpriteShiftEntry inner) {
 		super(originalModel, new FluidTankCTBehaviour(side, top, inner));
 	}
 
 	@Override
-	protected ModelData.Builder gatherModelData(Builder builder, BlockAndTintGetter world, BlockPos pos, BlockState state,
-		ModelData blockEntityData) {
-		super.gatherModelData(builder, world, pos, state, blockEntityData);
+	public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
+		List<BlockStateModelPart> parts) {
 		CullData cullData = new CullData();
 		for (Direction d : Iterate.horizontalDirections)
-			cullData.setCulled(d, ConnectivityHandler.isConnected(world, pos, pos.relative(d)));
-		return builder.with(CULL_PROPERTY, cullData);
+			cullData.setCulled(d, ConnectivityHandler.isConnected(level, pos, pos.relative(d)));
+
+		List<BlockStateModelPart> collected = new ArrayList<>();
+		super.collectParts(level, pos, state, random, collected);
+		for (BlockStateModelPart part : collected)
+			parts.add(new UnculledPart(part, cullData));
 	}
 
-	@Override
-	public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, ModelData extraData, RenderType renderType) {
-		if (side != null)
-			return Collections.emptyList();
+	/**
+	 * Hands every quad out unculled, minus the faces shared with a neighbouring tank.
+	 */
+	private record UnculledPart(BlockStateModelPart delegate, CullData cullData) implements BlockStateModelPart {
 
-		List<BakedQuad> quads = new ArrayList<>();
-		for (Direction d : Iterate.directions) {
-			if (extraData.has(CULL_PROPERTY) && extraData.get(CULL_PROPERTY)
-				.isCulled(d))
-				continue;
-			quads.addAll(super.getQuads(state, d, rand, extraData, renderType));
+		@Override
+		public List<BakedQuad> getQuads(@Nullable Direction direction) {
+			if (direction != null)
+				return List.of();
+
+			List<BakedQuad> quads = new ArrayList<>();
+			for (Direction d : Iterate.directions) {
+				if (cullData.isCulled(d))
+					continue;
+				quads.addAll(delegate.getQuads(d));
+			}
+			quads.addAll(delegate.getQuads(null));
+			return quads;
 		}
-		quads.addAll(super.getQuads(state, null, rand, extraData, renderType));
-		return quads;
+
+		@Override
+		@SuppressWarnings("deprecation")
+		public boolean useAmbientOcclusion() {
+			return delegate.useAmbientOcclusion();
+		}
+
+		@Override
+		public TriState ambientOcclusion() {
+			return delegate.ambientOcclusion();
+		}
+
+		@Override
+		public Material.Baked particleMaterial() {
+			return delegate.particleMaterial();
+		}
+
+		@Override
+		public int materialFlags() {
+			return delegate.materialFlags();
+		}
+
 	}
 
 	private static class CullData {

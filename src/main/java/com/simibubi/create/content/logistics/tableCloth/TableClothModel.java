@@ -6,38 +6,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import com.simibubi.create.AllPartialModels;
-import com.simibubi.create.foundation.model.BakedModelWrapperWithData;
-import com.simibubi.create.foundation.model.BakedQuadHelper;
+import com.simibubi.create.foundation.model.BakedModelHelper;
+import com.simibubi.create.foundation.model.TransformedModelPart;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.createmod.catnip.api.data.Iterate;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.RandomSource;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.util.TriState;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.model.data.ModelData;
-import net.neoforged.neoforge.model.data.ModelData.Builder;
-import net.neoforged.neoforge.model.data.ModelProperty;
 
-public class TableClothModel extends BakedModelWrapperWithData {
+import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 
-	private static final ModelProperty<CullData> CULL_PROPERTY = new ModelProperty<>();
+/**
+ * A table cloth, with a draped corner added wherever it hangs over an edge.
+ */
+public class TableClothModel extends DelegateBlockStateModel {
 
 	private static final Map<TableClothBlock, List<List<BakedQuad>>> CORNERS = new HashMap<>();
 
-	public TableClothModel(BakedModel originalModel) {
+	public TableClothModel(BlockStateModel originalModel) {
 		super(originalModel);
 	}
 
@@ -45,20 +45,14 @@ public class TableClothModel extends BakedModelWrapperWithData {
 		CORNERS.clear();
 	}
 
-	@Override
-	public boolean useAmbientOcclusion() {
-		return false;
-	}
-
-	private List<BakedQuad> getCorner(TableClothBlock block, int corner, @NotNull RandomSource rand,
-		@Nullable RenderType renderType) {
+	private List<BakedQuad> getCorner(TableClothBlock block, int corner, RandomSource rand) {
 		if (!CORNERS.containsKey(block)) {
-			TextureAtlasSprite targetSprite = getParticleIcon(ModelData.EMPTY);
+			TextureAtlasSprite targetSprite = particleMaterial().sprite();
 			List<List<BakedQuad>> list = new ArrayList<>();
 
 			for (PartialModel pm : List.of(AllPartialModels.TABLE_CLOTH_SW, AllPartialModels.TABLE_CLOTH_NW,
 				AllPartialModels.TABLE_CLOTH_NE, AllPartialModels.TABLE_CLOTH_SE))
-				list.add(getCornerQuads(rand, renderType, targetSprite, pm));
+				list.add(getCornerQuads(rand, targetSprite, pm));
 
 			CORNERS.put(block, list);
 		}
@@ -67,60 +61,80 @@ public class TableClothModel extends BakedModelWrapperWithData {
 			.get(corner);
 	}
 
-	private List<BakedQuad> getCornerQuads(RandomSource rand, RenderType renderType, TextureAtlasSprite targetSprite,
-		PartialModel pm) {
+	private List<BakedQuad> getCornerQuads(RandomSource rand, TextureAtlasSprite targetSprite, PartialModel pm) {
+		List<BlockStateModelPart> parts = new ArrayList<>();
+		pm.get()
+			.collectParts(rand, parts);
+
 		List<BakedQuad> quads = new ArrayList<>();
-
-		for (BakedQuad quad : pm.get()
-			.getQuads(null, null, rand, ModelData.EMPTY, renderType)) {
-			TextureAtlasSprite original = quad.getSprite();
-			BakedQuad newQuad = BakedQuadHelper.clone(quad);
-			int[] vertexData = newQuad.getVertices();
-			for (int vertex = 0; vertex < 4; vertex++) {
-				BakedQuadHelper.setU(vertexData, vertex, targetSprite
-					.getU(SpriteShiftEntry.getUnInterpolatedU(original, BakedQuadHelper.getU(vertexData, vertex))));
-				BakedQuadHelper.setV(vertexData, vertex, targetSprite
-					.getV(SpriteShiftEntry.getUnInterpolatedV(original, BakedQuadHelper.getV(vertexData, vertex))));
-			}
-			quads.add(newQuad);
-		}
-
+		for (BakedQuad quad : BakedModelHelper.quadsOf(parts, null))
+			quads.add(BakedModelHelper.swapSprite(quad, ignored -> targetSprite));
 		return quads;
 	}
 
 	@Override
-	protected Builder gatherModelData(Builder builder, BlockAndTintGetter world, BlockPos pos, BlockState state,
-									  ModelData blockEntityData) {
-		List<Direction> culledSides = new ArrayList<>();
+	public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
+		List<BlockStateModelPart> parts) {
+		int from = parts.size();
+		super.collectParts(level, pos, state, random, parts);
+		TransformedModelPart.forceAmbientOcclusion(parts, from, TriState.FALSE);
+
+		if (!(state.getBlock() instanceof TableClothBlock dcb))
+			return;
+
+		EnumSet<Direction> culled = EnumSet.noneOf(Direction.class);
 		for (Direction side : Iterate.horizontalDirections)
-			if (!Block.shouldRenderFace(state, world, pos, side, pos.relative(side)))
-				culledSides.add(side);
-		if (culledSides.isEmpty())
-			return builder;
-		return builder.with(CULL_PROPERTY, new CullData(EnumSet.copyOf(culledSides)));
+			if (!Block.shouldRenderFace(level, pos, state, level.getBlockState(pos.relative(side)), side))
+				culled.add(side);
+
+		parts.add(new CornerPart(dcb, culled, random));
 	}
 
-	@Override
-	public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
-											 @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
-		@NotNull
-		List<BakedQuad> mainQuads = super.getQuads(state, side, rand, extraData, renderType);
-		if (side == null || side.getAxis() == Axis.Y)
-			return mainQuads;
+	/**
+	 * The draped corners, one per horizontal side the cloth hangs over.
+	 */
+	private final class CornerPart implements BlockStateModelPart {
 
-		CullData cullData = extraData.get(CULL_PROPERTY);
-		if (cullData != null && cullData.culled()
-			.contains(side.getClockWise()))
-			return mainQuads;
-		if (state == null || !(state.getBlock() instanceof TableClothBlock dcb))
-			return mainQuads;
+		private final TableClothBlock block;
+		private final EnumSet<Direction> culled;
+		private final RandomSource random;
 
-		List<BakedQuad> copyOf = new ArrayList<>(mainQuads);
-		copyOf.addAll(getCorner(dcb, side.get2DDataValue(), rand, renderType));
-		return copyOf;
-	}
+		private CornerPart(TableClothBlock block, EnumSet<Direction> culled, RandomSource random) {
+			this.block = block;
+			this.culled = culled;
+			this.random = random;
+		}
 
-	private static record CullData(EnumSet<Direction> culled) {
+		@Override
+		public List<BakedQuad> getQuads(@Nullable Direction direction) {
+			if (direction == null || direction.getAxis() == Axis.Y)
+				return List.of();
+			if (culled.contains(direction.getClockWise()))
+				return List.of();
+			return getCorner(block, direction.get2DDataValue(), random);
+		}
+
+		@Override
+		@SuppressWarnings("deprecation")
+		public boolean useAmbientOcclusion() {
+			return false;
+		}
+
+		@Override
+		public TriState ambientOcclusion() {
+			return TriState.FALSE;
+		}
+
+		@Override
+		public Material.Baked particleMaterial() {
+			return TableClothModel.this.particleMaterial();
+		}
+
+		@Override
+		public int materialFlags() {
+			return TableClothModel.this.materialFlags();
+		}
+
 	}
 
 }

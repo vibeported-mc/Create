@@ -1,42 +1,46 @@
 package com.simibubi.create.content.trains.track;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import com.simibubi.create.foundation.model.BakedQuadHelper;
+import com.simibubi.create.foundation.model.TransformedModelPart;
 
 import net.createmod.catnip.api.math.VecHelper;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.neoforge.client.model.BakedModelWrapper;
+import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 import net.neoforged.neoforge.model.data.ModelData;
 
-public class TrackModel extends BakedModelWrapper<BakedModel> {
+/**
+ * Tilts a track's model to the slope its block entity reports.
+ */
+public class TrackModel extends DelegateBlockStateModel {
 
-	public TrackModel(BakedModel originalModel) {
+	public TrackModel(BlockStateModel originalModel) {
 		super(originalModel);
 	}
 
 	@Override
-	public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
-											 @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
-		List<BakedQuad> templateQuads = super.getQuads(state, side, rand, extraData, renderType);
-		if (templateQuads.isEmpty())
-			return templateQuads;
+	public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
+		List<BlockStateModelPart> parts) {
+		int from = parts.size();
+		super.collectParts(level, pos, state, random, parts);
+
+		ModelData extraData = level.getModelData(pos);
 		if (!extraData.has(TrackBlockEntityTilt.ASCENDING_PROPERTY))
-			return templateQuads;
+			return;
 
 		double angleIn = extraData.get(TrackBlockEntityTilt.ASCENDING_PROPERTY);
 		double angle = Math.abs(angleIn);
@@ -67,17 +71,14 @@ public class TrackModel extends BakedModelWrapper<BakedModel> {
 			return v;
 		};
 
-		int size = templateQuads.size();
-		List<BakedQuad> quads = new ArrayList<>();
-		for (BakedQuad templateQuad : templateQuads) {
-			BakedQuad quad = BakedQuadHelper.clone(templateQuad);
-			int[] vertexData = quad.getVertices();
-			for (int j = 0; j < 4; j++)
-				BakedQuadHelper.setXYZ(vertexData, j, transform.apply(BakedQuadHelper.getXYZ(vertexData, j)));
-			quads.add(quad);
-		}
+		TransformedModelPart.wrapFrom(parts, from, (quad, cullFace, out) -> out.add(tilt(quad, transform)));
+	}
 
-		return quads;
+	private static BakedQuad tilt(BakedQuad quad, UnaryOperator<Vec3> transform) {
+		Vector3f[] positions = BakedQuadHelper.positions(quad);
+		for (int vertex = 0; vertex < BakedQuadHelper.VERTEX_COUNT; vertex++)
+			BakedQuadHelper.setXYZ(positions, vertex, transform.apply(BakedQuadHelper.getXYZ(positions, vertex)));
+		return BakedQuadHelper.withGeometry(quad, positions, BakedQuadHelper.uvs(quad));
 	}
 
 }

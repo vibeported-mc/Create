@@ -13,7 +13,7 @@ public class DirectionalShaftHalvesBlockEntity extends KineticBlockEntity {
 
 	public Direction getSourceFacing() {
 		BlockPos localSource = source.subtract(getBlockPos());
-		return Direction.getNearest(localSource.getX(), localSource.getY(), localSource.getZ());
+		return Direction.getApproximateNearest(localSource.getX(), localSource.getY(), localSource.getZ());
 	}
 
 }

@@ -31,10 +31,27 @@ public class TransformedModelPart implements BlockStateModelPart {
 
 	private final BlockStateModelPart delegate;
 	private final QuadTransform transform;
+	private final @Nullable TriState ambientOcclusion;
 
 	public TransformedModelPart(BlockStateModelPart delegate, QuadTransform transform) {
+		this(delegate, transform, null);
+	}
+
+	public TransformedModelPart(BlockStateModelPart delegate, QuadTransform transform,
+		@Nullable TriState ambientOcclusion) {
 		this.delegate = delegate;
 		this.transform = transform;
+		this.ambientOcclusion = ambientOcclusion;
+	}
+
+	/**
+	 * Wraps every part added to {@code parts} from index {@code from} onwards, forcing their ambient
+	 * occlusion.
+	 */
+	public static void forceAmbientOcclusion(List<BlockStateModelPart> parts, int from, TriState ambientOcclusion) {
+		for (int i = from; i < parts.size(); i++)
+			parts.set(i, new TransformedModelPart(parts.get(i), (quad, cullFace, out) -> out.add(quad),
+				ambientOcclusion));
 	}
 
 	/**
@@ -57,12 +74,12 @@ public class TransformedModelPart implements BlockStateModelPart {
 	@Override
 	@SuppressWarnings("deprecation")
 	public boolean useAmbientOcclusion() {
-		return delegate.useAmbientOcclusion();
+		return ambientOcclusion == null ? delegate.useAmbientOcclusion() : ambientOcclusion.isTrue();
 	}
 
 	@Override
 	public TriState ambientOcclusion() {
-		return delegate.ambientOcclusion();
+		return ambientOcclusion == null ? delegate.ambientOcclusion() : ambientOcclusion;
 	}
 
 	@Override

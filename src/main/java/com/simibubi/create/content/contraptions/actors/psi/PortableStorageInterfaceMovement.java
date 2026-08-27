@@ -204,7 +204,7 @@ public class PortableStorageInterfaceMovement implements MovementBehaviour {
 		Vec3 directionVec = Vec3.atLowerCornerOf(context.state.getValue(PortableStorageInterfaceBlock.FACING)
 			.getUnitVec3i());
 		directionVec = context.rotation.apply(directionVec);
-		Direction facingFromVector = Direction.getNearest(directionVec.x, directionVec.y, directionVec.z);
+		Direction facingFromVector = Direction.getApproximateNearest(directionVec.x, directionVec.y, directionVec.z);
 		if (directionVec.distanceTo(Vec3.atLowerCornerOf(facingFromVector.getUnitVec3i())) > 1 / 2f)
 			return Optional.empty();
 		return Optional.of(facingFromVector);

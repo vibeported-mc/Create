@@ -29,7 +29,7 @@ public class BasinMovementBehaviour implements MovementBehaviour {
 		if (context.temporaryData == null || (boolean) context.temporaryData) {
 			Vec3 facingVec = context.rotation.apply(Vec3.atLowerCornerOf(Direction.UP.getUnitVec3i()));
 			facingVec.normalize();
-			if (Direction.getNearest(facingVec.x, facingVec.y, facingVec.z) == Direction.DOWN)
+			if (Direction.getApproximateNearest(facingVec.x, facingVec.y, facingVec.z) == Direction.DOWN)
 				dump(context, facingVec);
 		}
 	}

@@ -154,7 +154,7 @@ public class GantryCarriageBlockEntity extends KineticBlockEntity implements IDi
 		if (!stateTo.getValue(GantryShaftBlock.POWERED))
 			return defaultModifier;
 
-		Direction direction = Direction.getNearest(diff.getX(), diff.getY(), diff.getZ());
+		Direction direction = Direction.getApproximateNearest(diff.getX(), diff.getY(), diff.getZ());
 		if (stateFrom.getValue(GantryCarriageBlock.FACING) != direction.getOpposite())
 			return defaultModifier;
 		return getGantryPinionModifier(stateTo.getValue(GantryShaftBlock.FACING), stateFrom.getValue(GantryCarriageBlock.FACING));

@@ -1,75 +1,63 @@
 package com.simibubi.create.content.kinetics.simpleRelays;
 
-import java.util.Collections;
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 import com.simibubi.create.content.decoration.bracket.BracketedBlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
 import net.createmod.catnip.impl.neoforge.render.VirtualRenderHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.neoforge.client.model.BakedModelWrapper;
+import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 import net.neoforged.neoforge.model.data.ModelData;
-import net.neoforged.neoforge.model.data.ModelProperty;
 
-public class BracketedKineticBlockModel extends BakedModelWrapper<BakedModel> {
+/**
+ * Draws the bracket a shaft or cogwheel is wearing, and nothing else.
+ * <p>
+ * The shaft itself is drawn by Flywheel, so in the world this model contributes only the bracket.
+ * Virtual rendering - schematics, ponder - has no Flywheel behind it, so there the shaft's own model
+ * is used instead.
+ */
+public class BracketedKineticBlockModel extends DelegateBlockStateModel {
 
-	private static final ModelProperty<BracketedModelData> BRACKET_PROPERTY = new ModelProperty<>();
-
-	public BracketedKineticBlockModel(BakedModel template) {
+	public BracketedKineticBlockModel(BlockStateModel template) {
 		super(template);
 	}
 
 	@Override
-	public ModelData getModelData(BlockAndTintGetter world, BlockPos pos, BlockState state, ModelData blockEntityData) {
-		if (VirtualRenderHelper.isVirtual(blockEntityData))
-			return blockEntityData;
-		BracketedModelData data = new BracketedModelData();
+	public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
+		List<BlockStateModelPart> parts) {
+		ModelData data = level.getModelData(pos);
+		if (VirtualRenderHelper.isVirtual(data)) {
+			super.collectParts(level, pos, state, random, parts);
+			return;
+		}
+
+		BlockStateModel bracket = getBracket(level, pos);
+		if (bracket != null)
+			bracket.collectParts(level, pos, state, random, parts);
+	}
+
+	private static @Nullable BlockStateModel getBracket(BlockAndTintGetter world, BlockPos pos) {
 		BracketedBlockEntityBehaviour attachmentBehaviour =
 			BlockEntityBehaviour.get(world, pos, BracketedBlockEntityBehaviour.TYPE);
-		if (attachmentBehaviour != null)
-			data.putBracket(attachmentBehaviour.getBracket());
-		return ModelData.builder().with(BRACKET_PROPERTY, data)
-			.build();
-	}
-
-	@Override
-	public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, ModelData data, RenderType renderType) {
-		if (!VirtualRenderHelper.isVirtual(data)) {
-			if (data.has(BRACKET_PROPERTY)) {
-				BracketedModelData pipeData = data.get(BRACKET_PROPERTY);
-				BakedModel bracket = pipeData.getBracket();
-				if (bracket != null)
-					return bracket.getQuads(state, side, rand, data, renderType);
-			}
-			return Collections.emptyList();
-		}
-		return super.getQuads(state, side, rand, data, renderType);
-	}
-
-	private static class BracketedModelData {
-		private BakedModel bracket;
-
-		public void putBracket(BlockState state) {
-			if (state != null) {
-				this.bracket = Minecraft.getInstance()
-					.getBlockRenderer()
-					.getBlockModel(state);
-			}
-		}
-
-		public BakedModel getBracket() {
-			return bracket;
-		}
+		if (attachmentBehaviour == null)
+			return null;
+		BlockState bracket = attachmentBehaviour.getBracket();
+		if (bracket == null)
+			return null;
+		return Minecraft.getInstance()
+			.getModelManager()
+			.getBlockStateModelSet()
+			.get(bracket);
 	}
 
 }

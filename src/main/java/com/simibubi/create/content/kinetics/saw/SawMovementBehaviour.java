@@ -52,7 +52,7 @@ public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 			.getUnitVec3i());
 		facingVec = context.rotation.apply(facingVec);
 
-		Direction closestToFacing = Direction.getNearest(facingVec.x, facingVec.y, facingVec.z);
+		Direction closestToFacing = Direction.getApproximateNearest(facingVec.x, facingVec.y, facingVec.z);
 		if (closestToFacing.getAxis()
 			.isVertical() && context.data.contains("BreakingPos")) {
 			context.data.remove("BreakingPos");

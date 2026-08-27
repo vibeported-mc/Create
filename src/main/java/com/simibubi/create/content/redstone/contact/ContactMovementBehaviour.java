@@ -41,7 +41,7 @@ public class ContactMovementBehaviour implements MovementBehaviour {
 		Vec3 contact = Vec3.atLowerCornerOf(block.getValue(RedstoneContactBlock.FACING)
 			.getUnitVec3i());
 		contact = context.rotation.apply(contact);
-		Direction direction = Direction.getNearest(contact.x, contact.y, contact.z);
+		Direction direction = Direction.getApproximateNearest(contact.x, contact.y, contact.z);
 
 		if (visitedState.getValue(RedstoneContactBlock.FACING) != direction.getOpposite())
 			return;

@@ -201,7 +201,7 @@ public class SlidingDoorMovementBehaviour implements MovementBehaviour {
 
 		Vec3 directionVec = Vec3.atLowerCornerOf(originalFacing.getUnitVec3i());
 		directionVec = context.rotation.apply(directionVec);
-		return Direction.getNearest(directionVec.x, directionVec.y, directionVec.z);
+		return Direction.getApproximateNearest(directionVec.x, directionVec.y, directionVec.z);
 	}
 
 }

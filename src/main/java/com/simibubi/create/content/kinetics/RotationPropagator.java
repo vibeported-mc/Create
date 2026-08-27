@@ -52,7 +52,7 @@ public class RotationPropagator {
 
 		final BlockPos diff = to.getBlockPos()
 			.subtract(from.getBlockPos());
-		final Direction direction = Direction.getNearest(diff.getX(), diff.getY(), diff.getZ());
+		final Direction direction = Direction.getApproximateNearest(diff.getX(), diff.getY(), diff.getZ());
 		final Level world = from.getLevel();
 
 		boolean alignedAxes = true;

@@ -626,7 +626,7 @@ public class ContraptionCollider {
 		if (motion.equals(Vec3.ZERO))
 			return false;
 
-		Direction movementDirection = Direction.getNearest(motion.x, motion.y, motion.z);
+		Direction movementDirection = Direction.getApproximateNearest(motion.x, motion.y, motion.z);
 
 		// Blocks in the world
 		if (movementDirection.getAxisDirection() == AxisDirection.POSITIVE)

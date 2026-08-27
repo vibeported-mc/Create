@@ -243,7 +243,7 @@ public class MechanicalCrafterBlock extends HorizontalKineticBlock
 		Vec3 targetVec = new Vec3(0, 1, 0);
 		targetVec = VecHelper.rotate(targetVec, -point.getXRotation(), Axis.Z);
 		targetVec = VecHelper.rotate(targetVec, AngleHelper.horizontalAngle(facing), Axis.Y);
-		return Direction.getNearest(targetVec.x, targetVec.y, targetVec.z);
+		return Direction.getApproximateNearest(targetVec.x, targetVec.y, targetVec.z);
 	}
 
 	public static boolean isValidTarget(Level world, BlockPos targetPos, BlockState crafterState) {

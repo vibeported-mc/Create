@@ -67,7 +67,7 @@ public class GearboxRenderer
 
 			if (be.getSpeed() != 0 && be.hasSource()) {
 				BlockPos source = be.source.subtract(be.getBlockPos());
-				Direction sourceFacing = Direction.getNearest(source.getX(), source.getY(), source.getZ());
+				Direction sourceFacing = Direction.getApproximateNearest(source.getX(), source.getY(), source.getZ());
 				if (sourceFacing.getAxis() == direction.getAxis())
 					angle *= sourceFacing == direction ? 1 : -1;
 				else if (sourceFacing.getAxisDirection() == direction.getAxisDirection())

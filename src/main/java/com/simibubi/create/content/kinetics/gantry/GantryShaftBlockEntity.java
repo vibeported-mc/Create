@@ -62,7 +62,7 @@ public class GantryShaftBlockEntity extends KineticBlockEntity {
 		if (!AllBlocks.GANTRY_CARRIAGE.has(stateTo))
 			return defaultModifier;
 
-		Direction direction = Direction.getNearest(diff.getX(), diff.getY(), diff.getZ());
+		Direction direction = Direction.getApproximateNearest(diff.getX(), diff.getY(), diff.getZ());
 		if (stateTo.getValue(GantryCarriageBlock.FACING) != direction)
 			return defaultModifier;
 		return GantryCarriageBlockEntity.getGantryPinionModifier(stateFrom.getValue(GantryShaftBlock.FACING),
@@ -75,7 +75,7 @@ public class GantryShaftBlockEntity extends KineticBlockEntity {
 			return false;
 		final BlockPos diff = other.getBlockPos()
 			.subtract(worldPosition);
-		Direction direction = Direction.getNearest(diff.getX(), diff.getY(), diff.getZ());
+		Direction direction = Direction.getApproximateNearest(diff.getX(), diff.getY(), diff.getZ());
 		return otherState.getValue(GantryCarriageBlock.FACING) == direction;
 	}
 
