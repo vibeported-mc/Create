@@ -109,8 +109,8 @@ public class ToolboxInventory extends ItemStacksResourceHandler implements Modif
 					ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + j);
 					if (stackInSlot.isEmpty())
 						continue;
-					setStackInSlot(compartment * STACKS_PER_COMPARTMENT + i, stackInSlot);
-					setStackInSlot(compartment * STACKS_PER_COMPARTMENT + j, ItemStack.EMPTY);
+					ItemHandlerHelpers.setStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + i, stackInSlot);
+					ItemHandlerHelpers.setStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + j, ItemStack.EMPTY);
 					break;
 				}
 			}
@@ -118,7 +118,7 @@ public class ToolboxInventory extends ItemStacksResourceHandler implements Modif
 			for (int i = 0; i < STACKS_PER_COMPARTMENT; i++) {
 				ItemStack copy = totalCount <= 0 ? ItemStack.EMPTY
 					: sample.copyWithCount(Math.min(totalCount, sample.getMaxStackSize()));
-				setStackInSlot(compartment * STACKS_PER_COMPARTMENT + i, copy);
+				ItemHandlerHelpers.setStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + i, copy);
 				totalCount -= copy.getCount();
 			}
 		}
@@ -210,7 +210,7 @@ public class ToolboxInventory extends ItemStacksResourceHandler implements Modif
 
 		for (int i = STACKS_PER_COMPARTMENT - 1; i >= 0; i--) {
 			int slot = compartment * STACKS_PER_COMPARTMENT + i;
-			stack = insertItem(slot, stack, simulate);
+			stack = ItemHandlerHelpers.insertItem(this, slot, stack, simulate);
 			if (stack.isEmpty())
 				return ItemStack.EMPTY;
 		}
@@ -263,7 +263,7 @@ public class ToolboxInventory extends ItemStacksResourceHandler implements Modif
 	private static ToolboxInventory deserialize(ItemSlots slots, List<ItemStack> filters) {
 		ToolboxInventory inventory = new ToolboxInventory(null);
 		inventory.settling = true;
-		slots.forEach(inventory::setStackInSlot);
+		slots.forEach((slot, stack) -> ItemHandlerHelpers.setStackInSlot(inventory, slot, stack));
 		inventory.settling = false;
 		inventory.filters = new ArrayList<>(filters);
 		return inventory;
