@@ -21,12 +21,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 public class VerticalGearboxItem extends BlockItem {
 
 	public VerticalGearboxItem(Properties builder) {
-		super(AllBlocks.GEARBOX.get(), builder);
-	}
-
-	@Override
-	public String getDescriptionId() {
-		return "item.create.vertical_gearbox";
+		// The block item would otherwise take the gearbox's name; 26.2 fixes an item's description id
+		// when its properties are built rather than letting the item answer for it.
+		super(AllBlocks.GEARBOX.get(), builder.overrideDescription("item.create.vertical_gearbox"));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.legacy;
 
+import net.minecraft.core.particles.ColorParticleOption;
 import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -30,7 +31,8 @@ public class NoGravMagicalDohickyItem extends Item {
 
 			if (entity.isSilent() && !persistentData.getBooleanOr("PlayEffects", false)) {
 				Vec3 basemotion = new Vec3(0, 1, 0);
-				world.addParticle(ParticleTypes.FLASH, pos.x, pos.y, pos.z, 0, 0, 0);
+				world.addParticle(ColorParticleOption.create(ParticleTypes.FLASH, 0xFF_FFFFFF), pos.x, pos.y, pos.z, 0, 0,
+					0);
 				for (int i = 0; i < 20; i++) {
 					Vec3 motion = VecHelper.offsetRandomly(basemotion, world.getRandom(), 1);
 					world.addParticle(ParticleTypes.WITCH, pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);

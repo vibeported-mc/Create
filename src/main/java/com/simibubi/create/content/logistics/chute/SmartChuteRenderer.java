@@ -37,7 +37,7 @@ public class SmartChuteRenderer
 			return;
 		if (be.itemPosition.getValue(partialTicks) > 0)
 			return;
-		state.item = ItemHandlerHelpers.extractItem(ChuteRenderer, be, partialTicks, itemModelResolver);
+		state.item = ChuteRenderer.extractItem(be, partialTicks, itemModelResolver);
 	}
 
 	@Override

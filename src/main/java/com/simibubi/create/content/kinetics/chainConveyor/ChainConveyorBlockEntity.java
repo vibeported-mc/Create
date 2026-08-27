@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
+import net.minecraft.world.entity.EquipmentSlot;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -749,7 +750,9 @@ public class ChainConveyorBlockEntity extends KineticBlockEntity implements Tran
 			else if (j == inv.getSelectedSlot())
 				continue;
 
-			ItemStack stackInSlot = (offhand ? inv.offhand : inv.getNonEquipmentItems()).get(i);
+			ItemStack stackInSlot = offhand ? inv.player.getItemBySlot(EquipmentSlot.OFFHAND)
+				: inv.getNonEquipmentItems()
+					.get(i);
 			if (!stackInSlot.is(chain.getItem()))
 				continue;
 			if (found >= cost)

@@ -20,6 +20,7 @@ import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.theme.Color;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -42,8 +43,11 @@ public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity, ArmR
 		public @Nullable PoseStack itemTransform;
 	}
 
+	private final ItemModelResolver itemModelResolver;
+
 	public ArmRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);
+		itemModelResolver = context.itemModelResolver();
 	}
 
 	@Override
