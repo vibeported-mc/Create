@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
@@ -322,7 +322,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 	protected void saveAndClose(double pMouseX, double pMouseY) {
 		ValueSettings closest = getClosestCoordinate((int) pMouseX, (int) pMouseY);
 		// FIXME: value settings may be face-sensitive on future components
-		NetworkHelper.INSTANCE.sendToServer(new ValueSettingsPacket(pos, closest.row(), closest.value(), null, null, Direction.UP,
+		ClientNetworkHelper.INSTANCE.sendToServer(new ValueSettingsPacket(pos, closest.row(), closest.value(), null, null, Direction.UP,
 				AllKeys.ctrlDown(), netId));
 		onClose();
 	}

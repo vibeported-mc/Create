@@ -1,6 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.Collections;
 import java.util.List;
 
@@ -250,7 +250,7 @@ public class DisplayLinkScreen extends AbstractSimiScreen {
 			configWidgets.forEach(s -> s.saveValues(sourceData));
 		}
 
-		NetworkHelper.INSTANCE.sendToServer(new DisplayLinkConfigurationPacket(blockEntity.getBlockPos(), sourceData,
+		ClientNetworkHelper.INSTANCE.sendToServer(new DisplayLinkConfigurationPacket(blockEntity.getBlockPos(), sourceData,
 			targetLineSelector == null ? 0 : targetLineSelector.getState()));
 	}
 

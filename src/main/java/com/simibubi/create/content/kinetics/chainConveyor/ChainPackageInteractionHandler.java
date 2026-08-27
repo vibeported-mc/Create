@@ -1,6 +1,6 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -44,7 +44,7 @@ public class ChainPackageInteractionHandler {
 
 				for (ChainConveyorPackage pckg : ccbe.getLoopingPackages()) {
 					if (pckg.netId == i) {
-						NetworkHelper.INSTANCE.sendToServer(
+						ClientNetworkHelper.INSTANCE.sendToServer(
 								new ChainPackageInteractionPacket(ccbe.getBlockPos(), null, pckg.chainPosition, true));
 						success.setTrue();
 						return;
@@ -57,7 +57,7 @@ public class ChainPackageInteractionHandler {
 						continue;
 					for (ChainConveyorPackage pckg : list) {
 						if (pckg.netId == i) {
-							NetworkHelper.INSTANCE.sendToServer(new ChainPackageInteractionPacket(ccbe.getBlockPos(), connection,
+							ClientNetworkHelper.INSTANCE.sendToServer(new ChainPackageInteractionPacket(ccbe.getBlockPos(), connection,
 									pckg.chainPosition, true));
 							success.setTrue();
 							return;

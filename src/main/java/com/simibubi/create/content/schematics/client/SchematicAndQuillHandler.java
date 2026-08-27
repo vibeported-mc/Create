@@ -1,6 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -226,7 +226,7 @@ public class SchematicAndQuillHandler {
 		try {
 			if (!ClientSchematicLoader.validateSizeLimitation(Files.size(file)))
 				return;
-			NetworkHelper.INSTANCE.sendToServer(new InstantSchematicPacket(result.fileName(), result.origin(), result.bounds()));
+			ClientNetworkHelper.INSTANCE.sendToServer(new InstantSchematicPacket(result.fileName(), result.origin(), result.bounds()));
 		} catch (IOException e) {
 			Create.LOGGER.error("Error instantly uploading Schematic file: " + file, e);
 		}

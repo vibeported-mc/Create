@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.packagePort;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -177,7 +177,7 @@ public class PackagePortScreen extends AbstractSimiContainerScreen<PackagePortMe
 
 	@Override
 	public void removed() {
-		NetworkHelper.INSTANCE.sendToServer(new PackagePortConfigurationPacket(menu.contentHolder.getBlockPos(), addressBox.getValue(),
+		ClientNetworkHelper.INSTANCE.sendToServer(new PackagePortConfigurationPacket(menu.contentHolder.getBlockPos(), addressBox.getValue(),
 				acceptPackages.green));
 		super.removed();
 	}

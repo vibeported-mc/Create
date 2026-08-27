@@ -48,7 +48,7 @@ public class ItemHandlerContainer implements Container {
 	 */
 	@Override
 	public void setItem(int slot, ItemStack stack) {
-		ItemHandlerHelpers.setStackInSlot(ItemHandlerHelpers, inv, slot, stack);
+		ItemHandlerHelpers.setStackInSlot(inv, slot, stack);
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package com.simibubi.create.content.equipment.symmetryWand;
 
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.joml.Vector3f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -155,7 +155,7 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 	@Override
 	public void removed() {
 		SymmetryWandItem.configureSettings(wand, currentElement);
-		NetworkHelper.INSTANCE.sendToServer(new ConfigureSymmetryWandPacket(hand, currentElement));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ConfigureSymmetryWandPacket(hand, currentElement));
 	}
 
 }

@@ -73,7 +73,7 @@ public class DrillBlockEntity extends BlockBreakingKineticBlockEntity {
 			for (ItemStack stack : Block.getDrops(stateToBreak, sl, breakingPos, null))
 				inv.handleInsertion(stack, Direction.UP, false);
 		else if (blockEntityBelow instanceof HopperBlockEntity hbe) {
-			ResourceHandler<ItemResource> handler = level.getCapability(ItemHandler.BLOCK, hbe.getBlockPos(), null);
+			ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, hbe.getBlockPos(), null);
 			if (handler != null)
 				for (ItemStack stack : Block.getDrops(stateToBreak, sl, breakingPos, null))
 					ItemHandlerHelpers.insertItemStacked(handler, stack, false);

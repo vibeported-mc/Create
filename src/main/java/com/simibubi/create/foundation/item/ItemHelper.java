@@ -1,5 +1,9 @@
 package com.simibubi.create.foundation.item;
 
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
+import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -86,7 +90,7 @@ public class ItemHelper {
 
 	public static <T extends IBE<? extends BlockEntity>> int calcRedstoneFromBlockEntity(T ibe, Level level, BlockPos pos) {
 		return ibe.getBlockEntityOptional(level, pos)
-			.map(be -> level.getCapability(ItemHandler.BLOCK, pos, null))
+			.map(be -> level.getCapability(Capabilities.Item.BLOCK, pos, null))
 			.map(ItemHelper::calcRedstoneFromInventory)
 			.orElse(0);
 	}
@@ -217,7 +221,7 @@ public class ItemHelper {
 					extracting.grow(stack.getCount());
 
 				if (!simulate && hasEnoughItems)
-					inv.extractItem(slot, stack.getCount(), false);
+					ItemHandlerHelpers.extractItem(inv, slot, stack.getCount(), false);
 
 				if (extracting.getCount() >= maxExtractionCount) {
 					if (checkHasEnoughItems) {
@@ -278,7 +282,7 @@ public class ItemHelper {
 				extracting.grow(stack.getCount());
 
 			if (!simulate)
-				inv.extractItem(slot, stack.getCount(), false);
+				ItemHandlerHelpers.extractItem(inv, slot, stack.getCount(), false);
 			if (extracting.getCount() >= maxExtractionCount)
 				break;
 		}
@@ -295,7 +299,7 @@ public class ItemHelper {
 		if (slot == -1)
 			return ItemStack.EMPTY;
 		else
-			return inv.getStackInSlot(slot);
+			return ItemHandlerHelpers.getStackInSlot(inv, slot);
 	}
 
 	public static int findFirstMatchingSlotIndex(ResourceHandler<ItemResource> inv, Predicate<ItemStack> test) {
@@ -363,4 +367,18 @@ public class ItemHelper {
 		}
 		return stacks;
 	}
+	/**
+	 * 26.2 dropped ItemStack's saveOptional/parseOptional pair in favour of its optional codec.
+	 * These keep the stored shape - an empty compound for an empty stack - identical.
+	 */
+	public static Tag saveOptional(ItemStack stack, HolderLookup.Provider registries) {
+		return CatnipCodecUtils.encode(ItemStack.OPTIONAL_CODEC, registries, stack)
+			.orElseGet(CompoundTag::new);
+	}
+
+	public static ItemStack parseOptional(HolderLookup.Provider registries, Tag tag) {
+		return CatnipCodecUtils.decode(ItemStack.OPTIONAL_CODEC, registries, tag)
+			.orElse(ItemStack.EMPTY);
+	}
+
 }

@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 
 import com.simibubi.create.AllBlocks;
@@ -86,7 +86,7 @@ public class ValueSettingsClient implements LayeredDraw.Layer {
 			return;
 		}
 		if (!mc.options.keyUse.isDown()) {
-			NetworkHelper.INSTANCE.sendToServer(new ValueSettingsPacket(interactHeldPos, 0, 0, interactHeldHand, blockHitResult,
+			ClientNetworkHelper.INSTANCE.sendToServer(new ValueSettingsPacket(interactHeldPos, 0, 0, interactHeldHand, blockHitResult,
 					interactHeldFace, false, valueSettingBehaviour.netId()));
 			valueSettingBehaviour.onShortInteract(player, interactHeldHand, interactHeldFace, blockHitResult);
 			cancelInteraction();

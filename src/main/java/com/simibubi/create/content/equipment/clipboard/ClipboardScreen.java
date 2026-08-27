@@ -1,6 +1,6 @@
 package com.simibubi.create.content.equipment.clipboard;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -370,7 +370,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			toSend = content;
 		}
 
-		NetworkHelper.INSTANCE.sendToServer(new ClipboardEditPacket(targetSlot, toSend, targetedBlock));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ClipboardEditPacket(targetSlot, toSend, targetedBlock));
 	}
 
 	@Override

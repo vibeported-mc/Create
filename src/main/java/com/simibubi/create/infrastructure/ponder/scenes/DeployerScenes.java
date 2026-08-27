@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.ponder.scenes;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import net.minecraft.world.entity.EntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperItem;
@@ -113,7 +114,7 @@ public class DeployerScenes {
 			.withItem(pot);
 		scene.idle(7);
 		Class<DeployerBlockEntity> teType = DeployerBlockEntity.class;
-		scene.world().modifyBlockEntityNBT(deployerSelection, teType, nbt -> nbt.put("HeldItem", pot.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.world().modifyBlockEntityNBT(deployerSelection, teType, nbt -> nbt.put("HeldItem", ItemHelper.saveOptional(pot, scene.world().getHolderLookupProvider())));
 		scene.idle(10);
 
 		scene.overlay().showText(40)
@@ -139,7 +140,7 @@ public class DeployerScenes {
 			scene.world().createItemEntity(entitySpawn, util.vector().of(0, 0.2, 0), tulip);
 		scene.idle(17);
 		scene.world().modifyEntity(entity1, Entity::discard);
-		scene.world().modifyBlockEntityNBT(deployerSelection, teType, nbt -> nbt.put("HeldItem", tulip.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.world().modifyBlockEntityNBT(deployerSelection, teType, nbt -> nbt.put("HeldItem", ItemHelper.saveOptional(tulip, scene.world().getHolderLookupProvider())));
 		scene.idle(10);
 		scene.overlay().showText(40)
 			.placeNearTarget()
@@ -201,7 +202,7 @@ public class DeployerScenes {
 		entity1 = scene.world().createItemEntity(entitySpawn, util.vector().of(0, 0.2, 0), shears);
 		scene.idle(17);
 		scene.world().modifyEntity(entity1, Entity::discard);
-		scene.world().modifyBlockEntityNBT(deployerSelection, teType, nbt -> nbt.put("HeldItem", shears.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.world().modifyBlockEntityNBT(deployerSelection, teType, nbt -> nbt.put("HeldItem", ItemHelper.saveOptional(shears, scene.world().getHolderLookupProvider())));
 		scene.idle(10);
 
 		scene.overlay().showText(60)
@@ -264,7 +265,7 @@ public class DeployerScenes {
 		scene.overlay().showControls(util.vector().topOf(deployerPos), Pointing.DOWN, 30).withItem(tool);
 		scene.idle(7);
 		scene.world().modifyBlockEntityNBT(deployerSelection, DeployerBlockEntity.class,
-			nbt -> nbt.put("HeldItem", tool.saveOptional(scene.world().getHolderLookupProvider())));
+			nbt -> nbt.put("HeldItem", ItemHelper.saveOptional(tool, scene.world().getHolderLookupProvider())));
 		scene.idle(45);
 
 		scene.world().setKineticSpeed(util.select().position(2, 0, 5), 16);
@@ -347,7 +348,7 @@ public class DeployerScenes {
 				.withItem(tool);
 		scene.idle(7);
 		scene.world().modifyBlockEntityNBT(pressS, DeployerBlockEntity.class,
-			nbt -> nbt.put("HeldItem", tool.saveOptional(scene.world().getHolderLookupProvider())));
+			nbt -> nbt.put("HeldItem", ItemHelper.saveOptional(tool, scene.world().getHolderLookupProvider())));
 		scene.idle(25);
 
 		Vec3 pressSide = util.vector().blockSurface(pressPos, Direction.WEST);

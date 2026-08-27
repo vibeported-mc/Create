@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.filter;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class FilterItemStack {
 	}
 
 	public static FilterItemStack of(HolderLookup.Provider registries, CompoundTag tag) {
-		return of(ItemStack.parseOptional(registries, tag));
+		return of(ItemHelper.parseOptional(registries, tag));
 	}
 
 	public static FilterItemStack empty() {
@@ -50,7 +51,7 @@ public class FilterItemStack {
 	}
 
 	public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-		return (CompoundTag) filterItemStack.saveOptional(registries);
+		return (CompoundTag) ItemHelper.saveOptional(filterItemStack, registries);
 	}
 
 	public ItemStack item() {

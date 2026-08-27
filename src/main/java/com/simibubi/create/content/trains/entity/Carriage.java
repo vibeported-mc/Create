@@ -863,7 +863,7 @@ public class Carriage {
 					Integer seat = mapping.get(passenger.getUUID());
 
 					if (passenger instanceof ServerPlayer sp) {
-						dismountPlayer(sp.serverLevel(), sp, seat, portal);
+						dismountPlayer(sp.level(), sp, seat, portal);
 						continue;
 					}
 

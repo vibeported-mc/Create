@@ -1,6 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class ClientSchematicLoader {
 
 			in = Files.newInputStream(path, StandardOpenOption.READ);
 			activeUploads.put(schematic, in);
-			NetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.begin(schematic, size));
+			ClientNetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.begin(schematic, size));
 		} catch (IOException e) {
 			Create.LOGGER.error("Encountered an error while starting schematic upload", e);
 		}
@@ -135,7 +135,7 @@ public class ClientSchematicLoader {
 					if (status < maxPacketSize)
 						data = Arrays.copyOf(data, status);
 					if (Minecraft.getInstance().level != null)
-						NetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.write(schematic, data));
+						ClientNetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.write(schematic, data));
 					else {
 						//noinspection resource
 						activeUploads.remove(schematic);
@@ -153,7 +153,7 @@ public class ClientSchematicLoader {
 
 	private void finishUpload(String schematic) {
 		if (activeUploads.containsKey(schematic)) {
-			NetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.finish(schematic));
+			ClientNetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.finish(schematic));
 			//noinspection resource
 			activeUploads.remove(schematic);
 		}

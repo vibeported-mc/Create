@@ -570,7 +570,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 			}
 		}
 
-		recipeInv.setStackInSlot(0, stack);
+		ItemHandlerHelpers.setStackInSlot(recipeInv, 0, stack);
 		ItemHandlerHelpers.setStackInSlot(recipeInv, 1, heldItemMainhand);
 
 		DeployerRecipeSearchEvent event = new DeployerRecipeSearchEvent(this, new RecipeWrapper(recipeInv));

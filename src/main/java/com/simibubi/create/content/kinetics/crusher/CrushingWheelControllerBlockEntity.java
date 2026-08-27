@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.crusher;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -65,8 +66,8 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 		inventory = new ProcessingInventory(this::itemInserted) {
 
 			@Override
-			public boolean isItemValid(int slot, ItemStack stack) {
-				return super.isItemValid(slot, stack) && processingEntity == null;
+			public boolean isValid(int slot, ItemResource resource) {
+				return super.isValid(slot, resource) && processingEntity == null;
 			}
 
 		};
@@ -318,7 +319,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 				ItemHelper.addToList(input.getCraftingRemainingItem(), list);
 			}
 			for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++)
-				inventory.setStackInSlot(slot + 1, list.get(slot));
+				ItemHandlerHelpers.setStackInSlot(inventory, slot + 1, list.get(slot));
 		} else {
 			inventory.clear();
 		}
@@ -336,7 +337,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (hasEntity())
 			compound.put("Entity", NbtUtils.createUUID(entityUUID));
-		compound.put("Inventory", inventory.serializeNBT(registries));
+		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
 		compound.putFloat("Speed", crushingspeed);
 		super.write(compound, registries, clientPacket);
 	}
@@ -349,7 +350,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 			this.searchForEntity = true;
 		}
 		crushingspeed = compound.getFloatOr("Speed", 0);
-		inventory.deserializeNBT(registries, compound.getCompoundOrEmpty("Inventory"));
+		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
 	}
 
 	@Override

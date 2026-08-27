@@ -1,6 +1,6 @@
 package com.simibubi.create.content.equipment.blueprint;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.logistics.filter.FilterScreenPacket;
@@ -160,7 +160,7 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintMenu> 
 	protected void contentsCleared() {}
 
 	protected void sendOptionUpdate(Option option) {
-		NetworkHelper.INSTANCE.sendToServer(new FilterScreenPacket(option));
+		ClientNetworkHelper.INSTANCE.sendToServer(new FilterScreenPacket(option));
 	}
 
 	@Override

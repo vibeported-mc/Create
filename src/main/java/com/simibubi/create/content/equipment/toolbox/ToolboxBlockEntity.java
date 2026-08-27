@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import com.simibubi.create.foundation.utility.ComponentJson;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.core.UUIDUtil;
 import java.util.ArrayList;
@@ -289,7 +290,7 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 		if (compound.contains("UniqueId", 11))
 			this.uniqueId = compound.read("UniqueId", UUIDUtil.CODEC).orElse(null);
 		if (compound.contains("CustomName", 8))
-			this.customName = Component.Serializer.fromJson(compound.getStringOr("CustomName", ""), registries);
+			this.customName = ComponentJson.fromJson(compound.getStringOr("CustomName", ""), registries);
 	}
 
 	@Override
@@ -301,7 +302,7 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 		compound.store("UniqueId", UUIDUtil.CODEC, uniqueId);
 
 		if (customName != null)
-			compound.putString("CustomName", Component.Serializer.toJson(customName, registries));
+			compound.putString("CustomName", ComponentJson.toJson(customName, registries));
 		super.write(compound, registries, clientPacket);
 	}
 

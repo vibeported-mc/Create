@@ -1,6 +1,6 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.equipment.blueprint.BlueprintOverlayRenderer;
@@ -262,7 +262,7 @@ public class ChainConveyorConnectionHandler {
 		if (simulate)
 			return true;
 
-		NetworkHelper.INSTANCE.sendToServer(new ChainConveyorConnectionPacket(firstPos, pos, chain, true));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ChainConveyorConnectionPacket(firstPos, pos, chain, true));
 
 		CreateLang.text("") // Clear status message
 			.sendStatus(player);

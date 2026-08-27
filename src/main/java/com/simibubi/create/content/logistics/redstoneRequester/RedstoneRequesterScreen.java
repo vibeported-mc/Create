@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -226,7 +226,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 
 	@Override
 	public void removed() {
-		NetworkHelper.INSTANCE.sendToServer(new RedstoneRequesterConfigurationPacket(menu.contentHolder.getBlockPos(),
+		ClientNetworkHelper.INSTANCE.sendToServer(new RedstoneRequesterConfigurationPacket(menu.contentHolder.getBlockPos(),
 				addressBox.getValue(), allowPartial.green, amounts));
 		super.removed();
 	}

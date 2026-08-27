@@ -278,7 +278,7 @@ public class BlueprintEntity extends HangingEntity
 			.isEmpty())
 			return super.skipAttackInteraction(source);
 		for (int i = 0; i < items.size(); i++)
-			items.setStackInSlot(i, ItemStack.EMPTY);
+			ItemHandlerHelpers.setStackInSlot(items, i, ItemStack.EMPTY);
 		sectionAt.save(items);
 		return true;
 	}
@@ -423,7 +423,7 @@ public class BlueprintEntity extends HangingEntity
 
 				if (!success) {
 					for (Entry<Integer, ItemStack> entry : stacksTaken.entrySet())
-						playerInv.insertItem(entry.getKey(), entry.getValue(), false);
+						ItemHandlerHelpers.insertItem(playerInv, entry.getKey(), entry.getValue(), false);
 					break;
 				}
 
@@ -520,13 +520,13 @@ public class BlueprintEntity extends HangingEntity
 			CompoundTag invNBT = list.getCompoundOrEmpty(index + "");
 			inferredIcon = list.getBooleanOr("InferredIcon", false);
 			if (!invNBT.isEmpty())
-				newInv.deserializeNBT(registryAccess(), invNBT);
+				ItemHandlerHelpers.deserializeNBT(newInv, registryAccess(), invNBT);
 			return newInv;
 		}
 
 		public void save(ItemStacksResourceHandler inventory) {
 			CompoundTag list = getOrCreateRecipeCompound();
-			list.put(index + "", inventory.serializeNBT(registryAccess()));
+			list.put(index + "", ItemHandlerHelpers.serializeNBT(inventory, registryAccess()));
 			list.putBoolean("InferredIcon", inferredIcon);
 			cachedDisplayItems = null;
 			if (!level().isClientSide())

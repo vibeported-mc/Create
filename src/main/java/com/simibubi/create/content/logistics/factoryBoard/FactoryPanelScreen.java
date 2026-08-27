@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.FACTORY_GAUGE_BOTTOM;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.FACTORY_GAUGE_RECIPE;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.FACTORY_GAUGE_RESTOCK;
@@ -659,7 +659,7 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 
 		FactoryPanelConfigurationPacket packet = new FactoryPanelConfigurationPacket(pos, address, inputs,
 			craftingArrangement, outputConfig.count, promiseExp, toRemove, clearPromises, sendReset, sendRedstoneReset);
-		NetworkHelper.INSTANCE.sendToServer(packet);
+		ClientNetworkHelper.INSTANCE.sendToServer(packet);
 	}
 
 	private void searchForCraftingRecipe() {

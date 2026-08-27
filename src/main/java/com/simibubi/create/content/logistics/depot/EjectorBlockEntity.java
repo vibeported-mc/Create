@@ -1,6 +1,7 @@
 package com.simibubi.create.content.logistics.depot;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
@@ -182,7 +183,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 
 			if (launcher.getHorizontalDistance() * launcher.getHorizontalDistance()
 				+ launcher.getVerticalDistance() * launcher.getVerticalDistance() >= 25 * 25)
-				NetworkHelper.INSTANCE.sendToServer(new EjectorAwardPacket(worldPosition));
+				ClientNetworkHelper.INSTANCE.sendToServer(new EjectorAwardPacket(worldPosition));
 
 			if (!(playerEntity.getItemBySlot(EquipmentSlot.CHEST)
 				.getItem() instanceof ElytraItem))
@@ -193,7 +194,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 			playerEntity.setDeltaMovement(playerEntity.getDeltaMovement()
 				.scale(.75f));
 			deployElytra(playerEntity);
-			NetworkHelper.INSTANCE.sendToServer(new EjectorElytraPacket(worldPosition));
+			ClientNetworkHelper.INSTANCE.sendToServer(new EjectorElytraPacket(worldPosition));
 		}
 
 		if (doLogic) {
@@ -244,7 +245,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 				ItemStack remainder =
 					directOutput.tryExportingToBeltFunnel(ItemHandlerHelpers.getStackInSlot(outputs, i), funnelFacing, false);
 				if (remainder != null)
-					outputs.setStackInSlot(i, remainder);
+					ItemHandlerHelpers.setStackInSlot(outputs, i, remainder);
 			}
 			return;
 		}
@@ -527,7 +528,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 		NBTHelper.writeEnum(compound, "State", state);
 		compound.put("Lid", lidProgress.writeNBT());
 		compound.put("LaunchedItems",
-			NBTHelper.writeCompoundList(launchedItems, ia -> ia.serializeNBT(s -> (CompoundTag) s.saveOptional(registries))));
+			NBTHelper.writeCompoundList(launchedItems, ia -> ia.serializeNBT(s -> (CompoundTag) ItemHelper.saveOptional(s, registries))));
 
 		if (earlyTarget != null) {
 			compound.put("EarlyTarget", VecHelper.writeNBT(earlyTarget.getFirst()));
@@ -559,7 +560,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 		state = NBTHelper.readEnum(compound, "State", State.class);
 		lidProgress.readNBT(compound.getCompoundOrEmpty("Lid"), false);
 		launchedItems = NBTHelper.readCompoundList(compound.getListOrEmpty("LaunchedItems"),
-			nbt -> IntAttached.read(nbt, t -> ItemStack.parseOptional(registries, t)));
+			nbt -> IntAttached.read(nbt, t -> ItemHelper.parseOptional(registries, t)));
 
 		earlyTarget = null;
 		earlyTargetTime = 0;

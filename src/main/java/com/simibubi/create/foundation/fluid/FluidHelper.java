@@ -1,5 +1,9 @@
 package com.simibubi.create.foundation.fluid;
 
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
+import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -259,6 +263,19 @@ public class FluidHelper {
 		}
 
 		return null;
+	}
+
+	/**
+	 * 26.2 dropped FluidStack's saveOptional/parseOptional pair in favour of its optional codec.
+	 */
+	public static Tag saveOptional(FluidStack stack, HolderLookup.Provider registries) {
+		return CatnipCodecUtils.encode(FluidStack.OPTIONAL_CODEC, registries, stack)
+			.orElseGet(CompoundTag::new);
+	}
+
+	public static FluidStack parseOptional(HolderLookup.Provider registries, Tag tag) {
+		return CatnipCodecUtils.decode(FluidStack.OPTIONAL_CODEC, registries, tag)
+			.orElse(FluidStack.EMPTY);
 	}
 
 }

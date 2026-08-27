@@ -1,6 +1,6 @@
 package com.simibubi.create.content.kinetics.gauge;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -138,7 +138,7 @@ public class StressGaugeBlockEntity extends GaugeBlockEntity {
 		}
 
 		if (!worldPosition.equals(lastSent))
-			NetworkHelper.INSTANCE.sendToServer(new GaugeObservedPacket(lastSent = worldPosition));
+			ClientNetworkHelper.INSTANCE.sendToServer(new GaugeObservedPacket(lastSent = worldPosition));
 
 		return true;
 	}

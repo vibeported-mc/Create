@@ -139,8 +139,8 @@ public abstract class BasinOperatingBlockEntity extends KineticBlockEntity {
 		List<Recipe<?>> list = new ArrayList<>();
 		try {
 
-			ResourceHandler<ItemResource> availableItems = level.getCapability(ItemHandler.BLOCK, basin.getBlockPos(), null);
-			ResourceHandler<FluidResource> availableFluids = level.getCapability(FluidHandler.BLOCK, basin.getBlockPos(), null);
+			ResourceHandler<ItemResource> availableItems = level.getCapability(Capabilities.Item.BLOCK, basin.getBlockPos(), null);
+			ResourceHandler<FluidResource> availableFluids = level.getCapability(Capabilities.Fluid.BLOCK, basin.getBlockPos(), null);
 
 			// no point even searching, since no recipe will ever match
 			if (availableItems == null && availableFluids == null) {

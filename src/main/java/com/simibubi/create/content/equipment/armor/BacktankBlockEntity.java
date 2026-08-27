@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.armor;
 
+import com.simibubi.create.foundation.utility.ComponentJson;
 import java.util.List;
 
 import com.simibubi.create.AllBlocks;
@@ -123,7 +124,7 @@ public class BacktankBlockEntity extends KineticBlockEntity implements Nameable 
 		compound.putInt("CapacityEnchantment", capacityEnchantLevel);
 
 		if (this.customName != null)
-			compound.putString("CustomName", Component.Serializer.toJson(this.customName, registries));
+			compound.putString("CustomName", ComponentJson.toJson(this.customName, registries));
 
 		compound.put("Components", CatnipCodecUtils.encode(DataComponentPatch.CODEC, registries, componentPatch)
 			.orElse(new CompoundTag()));
@@ -138,7 +139,7 @@ public class BacktankBlockEntity extends KineticBlockEntity implements Nameable 
 		capacityEnchantLevel = compound.getIntOr("CapacityEnchantment", 0);
 
 		if (compound.contains("CustomName", 8))
-			this.customName = Component.Serializer.fromJson(compound.getStringOr("CustomName", ""), registries);
+			this.customName = ComponentJson.fromJson(compound.getStringOr("CustomName", ""), registries);
 
 		componentPatch = CatnipCodecUtils.decode(DataComponentPatch.CODEC, registries, compound.getCompoundOrEmpty("Components")).orElse(DataComponentPatch.EMPTY);
 		if (prev != 0 && prev != airLevel && airLevel == BacktankUtil.maxAir(capacityEnchantLevel) && clientPacket)

@@ -1,6 +1,6 @@
 package com.simibubi.create.content.redstone.thresholdSwitch;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -342,7 +342,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 	}
 
 	protected void send(boolean invert) {
-		NetworkHelper.INSTANCE.sendToServer(new ConfigureThresholdSwitchPacket(blockEntity.getBlockPos(), offBelow.getState(),
+		ClientNetworkHelper.INSTANCE.sendToServer(new ConfigureThresholdSwitchPacket(blockEntity.getBlockPos(), offBelow.getState(),
 				onAbove.getState(), invert, inStacks.getState() == 1));
 	}
 

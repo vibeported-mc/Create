@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.depot;
 
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.joml.Vector3f;
 
 import com.simibubi.create.AllBlocks;
@@ -120,7 +120,7 @@ public class EjectorTargetHandler {
 		h = Math.abs(diff.getX() + diff.getZ());
 		v = -diff.getY();
 
-		NetworkHelper.INSTANCE.sendToServer(new EjectorPlacementPacket(h, v, pos, validTargetDirection));
+		ClientNetworkHelper.INSTANCE.sendToServer(new EjectorPlacementPacket(h, v, pos, validTargetDirection));
 		currentSelection = null;
 		currentItem = null;
 

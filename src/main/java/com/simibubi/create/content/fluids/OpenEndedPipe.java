@@ -98,13 +98,14 @@ public class OpenEndedPipe extends FlowSource {
 		CompoundTag compound = new CompoundTag();
 		fluidHandler.writeToNBT(registries, compound);
 		compound.putBoolean("Pulling", wasPulling);
-		compound.put("Location", location.serializeNBT());
+		compound.store("Location", BlockFace.CODEC, location);
 		return compound;
 	}
 
 	public static OpenEndedPipe fromNBT(CompoundTag compound, HolderLookup.Provider registries, BlockPos blockEntityPos) {
-		BlockFace fromNBT = BlockFace.fromNBT(compound.getCompoundOrEmpty("Location"));
-		OpenEndedPipe oep = new OpenEndedPipe(new BlockFace(blockEntityPos, fromNBT.getFace()));
+		BlockFace stored = compound.read("Location", BlockFace.CODEC)
+			.orElse(new BlockFace(blockEntityPos, Direction.UP));
+		OpenEndedPipe oep = new OpenEndedPipe(new BlockFace(blockEntityPos, stored.getFace()));
 
 		oep.fluidHandler.readFromNBT(registries, compound);
 		oep.wasPulling = compound.getBooleanOr("Pulling", false);

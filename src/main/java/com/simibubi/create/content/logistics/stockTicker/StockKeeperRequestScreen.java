@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.createmod.catnip.api.network.NetworkHelper;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.lang.ref.WeakReference;
@@ -1150,7 +1151,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			// Lock
 			if (isAdmin && pMouseX > lockX && pMouseX <= lockX + 15) {
 				isLocked = !isLocked;
-				NetworkHelper.INSTANCE.sendToServer(new StockKeeperLockPacket(blockEntity.getBlockPos(), isLocked));
+				ClientNetworkHelper.INSTANCE.sendToServer(new StockKeeperLockPacket(blockEntity.getBlockPos(), isLocked));
 				playUiSound(SoundEvents.UI_BUTTON_CLICK.value(), 1, 1);
 				return true;
 			}
@@ -1425,7 +1426,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 	@Override
 	public void removed() {
 		BlockPos pos = blockEntity.getBlockPos();
-		NetworkHelper.INSTANCE.sendToServer(
+		ClientNetworkHelper.INSTANCE.sendToServer(
 			new PackageOrderRequestPacket(pos, PackageOrderWithCrafts.empty(), addressBox.getValue(), false));
 		NetworkHelper.INSTANCE
 			.sendToServer(new StockKeeperCategoryHidingPacket(pos, new ArrayList<>(hiddenCategories)));
@@ -1499,7 +1500,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			order = new PackageOrderWithCrafts(order.orderedStacks(), craftList);
 		}
 
-		NetworkHelper.INSTANCE.sendToServer(
+		ClientNetworkHelper.INSTANCE.sendToServer(
 			new PackageOrderRequestPacket(blockEntity.getBlockPos(), order, addressBox.getValue(), encodeRequester));
 
 		itemsToOrder = new ArrayList<>();

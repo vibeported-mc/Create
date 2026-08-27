@@ -1,6 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static net.minecraft.ChatFormatting.BLUE;
 import static net.minecraft.ChatFormatting.DARK_PURPLE;
@@ -416,7 +416,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 	}
 
 	protected void sendOptionUpdate(Option option, boolean set) {
-		NetworkHelper.INSTANCE.sendToServer(new ConfigureSchematicannonPacket(option, set));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ConfigureSchematicannonPacket(option, set));
 	}
 
 	@Override

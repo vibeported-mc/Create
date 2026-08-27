@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.millstone;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -191,16 +192,16 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		compound.putInt("Timer", timer);
-		compound.put("InputInventory", inputInv.serializeNBT(registries));
-		compound.put("OutputInventory", outputInv.serializeNBT(registries));
+		compound.put("InputInventory", ItemHandlerHelpers.serializeNBT(inputInv, registries));
+		compound.put("OutputInventory", ItemHandlerHelpers.serializeNBT(outputInv, registries));
 		super.write(compound, registries, clientPacket);
 	}
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		timer = compound.getIntOr("Timer", 0);
-		inputInv.deserializeNBT(registries, compound.getCompoundOrEmpty("InputInventory"));
-		outputInv.deserializeNBT(registries, compound.getCompoundOrEmpty("OutputInventory"));
+		ItemHandlerHelpers.deserializeNBT(inputInv, registries, compound.getCompoundOrEmpty("InputInventory"));
+		ItemHandlerHelpers.deserializeNBT(outputInv, registries, compound.getCompoundOrEmpty("OutputInventory"));
 		super.read(compound, registries, clientPacket);
 	}
 
@@ -219,33 +220,39 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 			.isPresent();
 	}
 
+	/**
+	 * Input and output as one handler: the input half only accepts what the millstone can mill, and
+	 * the output half is extract-only.
+	 */
 	private class MillstoneInventoryHandler extends CombinedResourceHandler<ItemResource> {
 
 		public MillstoneInventoryHandler() {
 			super(inputInv, outputInv);
 		}
 
+		private boolean isOutput(int index) {
+			return getHandlerFromIndex(getHandlerIndex(index)) == outputInv;
+		}
+
 		@Override
-		public boolean isItemValid(int slot, ItemStack stack) {
-			if (outputInv == getHandlerFromIndex(getIndexForSlot(slot)))
+		public boolean isValid(int index, ItemResource resource) {
+			if (isOutput(index))
 				return false;
-			return canProcess(stack) && super.isItemValid(slot, stack);
+			return canProcess(resource.toStack(1)) && super.isValid(index, resource);
 		}
 
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			if (outputInv == getHandlerFromIndex(getIndexForSlot(slot)))
-				return stack;
-			if (!isItemValid(slot, stack))
-				return stack;
-			return super.insertItem(slot, stack, simulate);
+		public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+			if (!isValid(index, resource))
+				return 0;
+			return super.insert(index, resource, amount, transaction);
 		}
 
 		@Override
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			if (inputInv == getHandlerFromIndex(getIndexForSlot(slot)))
-				return ItemStack.EMPTY;
-			return super.extractItem(slot, amount, simulate);
+		public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+			if (!isOutput(index))
+				return 0;
+			return super.extract(index, resource, amount, transaction);
 		}
 
 	}

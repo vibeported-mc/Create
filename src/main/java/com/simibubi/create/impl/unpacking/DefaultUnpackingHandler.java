@@ -27,7 +27,7 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 		if (targetBE == null)
 			return false;
 
-		ResourceHandler<ItemResource> targetInv = level.getCapability(ItemHandler.BLOCK, pos, state, targetBE, side);
+		ResourceHandler<ItemResource> targetInv = level.getCapability(Capabilities.Item.BLOCK, pos, state, targetBE, side);
 		if (targetInv == null)
 			return false;
 

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.processing.basin;
 
+import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -175,16 +176,16 @@ public class BasinBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		ListTag disabledList = compound.getListOrEmpty("DisabledSpoutput");
 		disabledList.forEach(d -> disabledSpoutputs.add(Direction.valueOf(((StringTag) d).getAsString())));
 		spoutputBuffer = NBTHelper.readItemList(compound.getListOrEmpty("Overflow"), registries);
-		spoutputFluidBuffer = NBTHelper.readCompoundList(compound.getListOrEmpty("FluidOverflow"), tag -> FluidStack.parseOptional(registries, tag));
+		spoutputFluidBuffer = NBTHelper.readCompoundList(compound.getListOrEmpty("FluidOverflow"), tag -> FluidHelper.parseOptional(registries, tag));
 
 		if (!clientPacket)
 			return;
 
 		NBTHelper.iterateCompoundList(compound.getListOrEmpty("VisualizedItems"),
-			c -> visualizedOutputItems.add(IntAttached.with(OUTPUT_ANIMATION_TIME, ItemStack.parseOptional(registries, c))));
+			c -> visualizedOutputItems.add(IntAttached.with(OUTPUT_ANIMATION_TIME, ItemHelper.parseOptional(registries, c))));
 		NBTHelper.iterateCompoundList(compound.getListOrEmpty("VisualizedFluids"),
 			c -> visualizedOutputFluids
-				.add(IntAttached.with(OUTPUT_ANIMATION_TIME, FluidStack.parseOptional(registries, c))));
+				.add(IntAttached.with(OUTPUT_ANIMATION_TIME, FluidHelper.parseOptional(registries, c))));
 	}
 
 	@Override
@@ -200,7 +201,7 @@ public class BasinBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		compound.put("DisabledSpoutput", disabledList);
 		compound.put("Overflow", NBTHelper.writeItemList(spoutputBuffer, registries));
 		compound.put("FluidOverflow",
-			NBTHelper.writeCompoundList(spoutputFluidBuffer, fs -> (CompoundTag) fs.saveOptional(registries)));
+			NBTHelper.writeCompoundList(spoutputFluidBuffer, fs -> (CompoundTag) ItemHelper.saveOptional(fs, registries)));
 
 		if (!clientPacket)
 			return;

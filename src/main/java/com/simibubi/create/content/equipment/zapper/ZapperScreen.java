@@ -1,6 +1,6 @@
 package com.simibubi.create.content.equipment.zapper;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,7 +114,7 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 	public void removed() {
 		ConfigureZapperPacket packet = getConfigurationPacket();
 		packet.configureZapper(zapper);
-		NetworkHelper.INSTANCE.sendToServer(packet);
+		ClientNetworkHelper.INSTANCE.sendToServer(packet);
 	}
 
 	protected void renderZapper(GuiGraphicsExtractor graphics, int x, int y) {

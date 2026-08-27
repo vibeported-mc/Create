@@ -1,13 +1,13 @@
 package com.simibubi.create.api.contraption.storage.item;
 
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
-import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
  * Partial implementation of a MountedItemStorage that wraps an item handler.
@@ -21,47 +21,50 @@ public abstract class WrapperMountedItemStorage<T extends ModifiableItemHandler>
 	}
 
 	@Override
-	public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-		ItemHandlerHelpers.setStackInSlot(this.wrapped, slot, stack);
-	}
-
-	@Override
-	public int getSlots() {
+	public int size() {
 		return this.wrapped.size();
 	}
 
 	@Override
-	@NotNull
-	public ItemStack getStackInSlot(int slot) {
-		return this.wrapped.getStackInSlot(slot);
+	public ItemResource getResource(int index) {
+		return this.wrapped.getResource(index);
 	}
 
 	@Override
-	@NotNull
-	public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-		return this.wrapped.insertItem(slot, stack, simulate);
+	public long getAmountAsLong(int index) {
+		return this.wrapped.getAmountAsLong(index);
 	}
 
 	@Override
-	@NotNull
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		return this.wrapped.extractItem(slot, amount, simulate);
+	public long getCapacityAsLong(int index, ItemResource resource) {
+		return this.wrapped.getCapacityAsLong(index, resource);
 	}
 
 	@Override
-	public int getSlotLimit(int slot) {
-		return this.wrapped.getSlotLimit(slot);
+	public boolean isValid(int index, ItemResource resource) {
+		return this.wrapped.isValid(index, resource);
 	}
 
 	@Override
-	public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-		return this.wrapped.isItemValid(slot, stack);
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return this.wrapped.insert(index, resource, amount, transaction);
+	}
+
+	@Override
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return this.wrapped.extract(index, resource, amount, transaction);
+	}
+
+	@Override
+	public void set(int index, ItemResource resource, int amount) {
+		this.wrapped.set(index, resource, amount);
 	}
 
 	public static ItemStacksResourceHandler copyToItemStackHandler(ResourceHandler<ItemResource> handler) {
 		ItemStacksResourceHandler copy = new ItemStacksResourceHandler(handler.size());
 		for (int i = 0; i < handler.size(); i++) {
-			ItemHandlerHelpers.setStackInSlot(copy, i, ItemHandlerHelpers.getStackInSlot(handler, i).copy());
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
+			ItemHandlerHelpers.setStackInSlot(copy, i, stack.copy());
 		}
 		return copy;
 	}

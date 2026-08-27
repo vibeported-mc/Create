@@ -1,17 +1,30 @@
 package com.simibubi.create.content.kinetics.deployer;
 
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
-import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
-import com.simibubi.create.foundation.item.ItemHelper;
+import java.util.ArrayList;
+import java.util.List;
 
-import net.minecraft.core.component.DataComponents;
+import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
+
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class DeployerItemHandler implements ModifiableItemHandler {
+/**
+ * Exposes a deployer as a resource handler: the overflow items first, then the held item last.
+ * <p>
+ * Neither of those is a resource handler of its own - the held item lives on the fake player and the
+ * overflow is a plain list - so both are made transactional here with a {@link SnapshotJournal}
+ * that copies them before a transfer touches them.
+ */
+public class DeployerItemHandler implements ResourceHandler<ItemResource>, IndexModifier<ItemResource> {
 
-	private DeployerBlockEntity be;
-	private DeployerFakePlayer player;
+	private final DeployerBlockEntity be;
+	private final DeployerFakePlayer player;
+	private final ContentsJournal journal = new ContentsJournal();
 
 	public DeployerItemHandler(DeployerBlockEntity be) {
 		this.be = be;
@@ -19,13 +32,8 @@ public class DeployerItemHandler implements ModifiableItemHandler {
 	}
 
 	@Override
-	public int getSlots() {
+	public int size() {
 		return 1 + be.overflowItems.size();
-	}
-
-	@Override
-	public ItemStack getStackInSlot(int slot) {
-		return slot >= be.overflowItems.size() ? getHeld() : be.overflowItems.get(slot);
 	}
 
 	public ItemStack getHeld() {
@@ -37,97 +45,135 @@ public class DeployerItemHandler implements ModifiableItemHandler {
 	public void set(ItemStack stack) {
 		if (player == null)
 			return;
-		if (be.getLevel().isClientSide())
+		if (be.getLevel()
+			.isClientSide())
 			return;
 		player.setItemInHand(InteractionHand.MAIN_HAND, stack);
 		be.setChanged();
 		be.sendData();
 	}
 
-	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-		if (slot < be.overflowItems.size())
-			return stack;
-		if (!isItemValid(slot, stack))
-			return stack;
+	private boolean isHeldSlot(int index) {
+		return index >= be.overflowItems.size();
+	}
 
-		ItemStack held = getHeld();
-		if (held.isEmpty()) {
-			ItemStack remainder = ItemHelper.limitCountToMaxStackSize(stack, simulate);
-			if (!simulate)
-				set(stack);
-			return remainder;
-		}
-
-		if (!ItemStack.isSameItemSameComponents(held, stack))
-			return stack;
-
-		int space = held.getMaxStackSize() - held.getCount();
-		ItemStack remainder = stack.copy();
-		ItemStack split = remainder.split(space);
-
-		if (space == 0)
-			return stack;
-		if (!simulate) {
-			held = held.copy();
-			held.setCount(held.getCount() + split.getCount());
-			set(held);
-		}
-
-		return remainder;
+	private ItemStack stackAt(int index) {
+		return isHeldSlot(index) ? getHeld() : be.overflowItems.get(index);
 	}
 
 	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		if (amount == 0)
-			return ItemStack.EMPTY;
+	public ItemResource getResource(int index) {
+		return ItemResource.of(stackAt(index));
+	}
 
-		if (slot < be.overflowItems.size()) {
-			ItemStack itemStack = be.overflowItems.get(slot);
-			int toExtract = Math.min(amount, itemStack.getCount());
-			ItemStack extracted = simulate ? itemStack.copy() : itemStack.split(toExtract);
-			extracted.setCount(toExtract);
-			if (!simulate && itemStack.isEmpty())
-				be.overflowItems.remove(slot);
-			if (!simulate && !extracted.isEmpty())
-				be.setChanged();
+	@Override
+	public long getAmountAsLong(int index) {
+		return stackAt(index).getCount();
+	}
+
+	@Override
+	public long getCapacityAsLong(int index, ItemResource resource) {
+		return resource.isEmpty() ? stackAt(index).getMaxStackSize() : resource.getMaxStackSize();
+	}
+
+	@Override
+	public boolean isValid(int index, ItemResource resource) {
+		FilteringBehaviour filteringBehaviour = be.getBehaviour(FilteringBehaviour.TYPE);
+		return filteringBehaviour == null || filteringBehaviour.test(resource.toStack(1));
+	}
+
+	@Override
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		if (resource.isEmpty() || amount <= 0)
+			return 0;
+		// Only the held slot accepts insertion; the overflow is an output.
+		if (!isHeldSlot(index) || !isValid(index, resource))
+			return 0;
+
+		ItemStack held = getHeld();
+		int inserted;
+		if (held.isEmpty())
+			inserted = Math.min(amount, resource.getMaxStackSize());
+		else if (!resource.matches(held))
+			return 0;
+		else
+			inserted = Math.min(amount, held.getMaxStackSize() - held.getCount());
+
+		if (inserted <= 0)
+			return 0;
+
+		journal.updateSnapshots(transaction);
+		set(resource.toStack(held.getCount() + inserted));
+		return inserted;
+	}
+
+	@Override
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		if (resource.isEmpty() || amount <= 0)
+			return 0;
+
+		if (!isHeldSlot(index)) {
+			ItemStack overflow = be.overflowItems.get(index);
+			if (!resource.matches(overflow))
+				return 0;
+			int extracted = Math.min(amount, overflow.getCount());
+			journal.updateSnapshots(transaction);
+			ItemStack remaining = overflow.copy();
+			remaining.shrink(extracted);
+			if (remaining.isEmpty())
+				be.overflowItems.remove(index);
+			else
+				be.overflowItems.set(index, remaining);
 			return extracted;
 		}
 
 		ItemStack held = getHeld();
-		if (amount == 0 || held.isEmpty())
-			return ItemStack.EMPTY;
+		if (!resource.matches(held))
+			return 0;
+		// A filtered deployer holds onto what matches its filter.
 		if (!be.filtering.getFilter()
 			.isEmpty() && be.filtering.test(held))
-			return ItemStack.EMPTY;
-		if (simulate)
-			return held.copy()
-				.split(amount);
+			return 0;
 
-		ItemStack toReturn = held.split(amount);
-		be.setChanged();
-		be.sendData();
-		return toReturn;
+		int extracted = Math.min(amount, held.getCount());
+		journal.updateSnapshots(transaction);
+		set(resource.toStack(held.getCount() - extracted));
+		return extracted;
 	}
 
 	@Override
-	public int getSlotLimit(int slot) {
-		return getStackInSlot(slot).getOrDefault(DataComponents.MAX_STACK_SIZE, 64);
+	public void set(int index, ItemResource resource, int amount) {
+		ItemStack stack = resource.toStack(amount);
+		if (isHeldSlot(index))
+			set(stack);
+		else
+			be.overflowItems.set(index, stack);
 	}
 
-	@Override
-	public boolean isItemValid(int slot, ItemStack stack) {
-		FilteringBehaviour filteringBehaviour = be.getBehaviour(FilteringBehaviour.TYPE);
-		return filteringBehaviour == null || filteringBehaviour.test(stack);
-	}
-
-	@Override
-	public void setStackInSlot(int slot, ItemStack stack) {
-		if (slot < be.overflowItems.size()) {
-			be.overflowItems.set(slot, stack);
-			return;
+	private class ContentsJournal extends SnapshotJournal<ContentsJournal.Snapshot> {
+		private record Snapshot(ItemStack held, List<ItemStack> overflow) {
 		}
-		set(stack);
+
+		@Override
+		protected Snapshot createSnapshot() {
+			List<ItemStack> overflow = new ArrayList<>(be.overflowItems.size());
+			for (ItemStack stack : be.overflowItems)
+				overflow.add(stack.copy());
+			return new Snapshot(getHeld().copy(), overflow);
+		}
+
+		@Override
+		protected void revertToSnapshot(Snapshot snapshot) {
+			set(snapshot.held());
+			be.overflowItems.clear();
+			be.overflowItems.addAll(snapshot.overflow());
+		}
+
+		@Override
+		protected void onRootCommit(Snapshot originalState) {
+			be.setChanged();
+			be.sendData();
+		}
 	}
 
 }

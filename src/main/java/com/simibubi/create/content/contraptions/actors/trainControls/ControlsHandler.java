@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.trainControls;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashSet;
@@ -50,7 +50,7 @@ public class ControlsHandler {
 		AbstractContraptionEntity abstractContraptionEntity = entityRef.get();
 
 		if (!currentlyPressed.isEmpty() && abstractContraptionEntity != null)
-			NetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(currentlyPressed, false,
+			ClientNetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(currentlyPressed, false,
 				abstractContraptionEntity.getId(), controlsPos, false));
 
 		packetCooldown = 0;
@@ -73,7 +73,7 @@ public class ControlsHandler {
 			.getWindow(), GLFW.GLFW_KEY_ESCAPE)) {
 			BlockPos pos = controlsPos;
 			stopControlling();
-			NetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(currentlyPressed, false, entity.getId(), pos, true));
+			ClientNetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(currentlyPressed, false, entity.getId(), pos, true));
 			return;
 		}
 
@@ -91,13 +91,13 @@ public class ControlsHandler {
 
 		// Released Keys
 		if (!releasedKeys.isEmpty()) {
-			NetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(releasedKeys, false, entity.getId(), controlsPos, false));
+			ClientNetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(releasedKeys, false, entity.getId(), controlsPos, false));
 //			AllSoundEvents.CONTROLLER_CLICK.playAt(player.level, player.blockPosition(), 1f, .5f, true);
 		}
 
 		// Newly Pressed Keys
 		if (!newKeys.isEmpty()) {
-			NetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(newKeys, true, entity.getId(), controlsPos, false));
+			ClientNetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(newKeys, true, entity.getId(), controlsPos, false));
 			packetCooldown = PACKET_RATE;
 //			AllSoundEvents.CONTROLLER_CLICK.playAt(player.level, player.blockPosition(), 1f, .75f, true);
 		}
@@ -105,7 +105,7 @@ public class ControlsHandler {
 		// Keepalive Pressed Keys
 		if (packetCooldown == 0) {
 //			if (!pressedKeys.isEmpty()) {
-			NetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(pressedKeys, true, entity.getId(), controlsPos, false));
+			ClientNetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(pressedKeys, true, entity.getId(), controlsPos, false));
 				packetCooldown = PACKET_RATE;
 //			}
 		}

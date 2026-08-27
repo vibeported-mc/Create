@@ -262,7 +262,7 @@ public class SlidingDoorBlock extends DoorBlock implements IWrenchable, IBE<Slid
 
 	@Override
 	public RenderShape getRenderShape(BlockState pState) {
-		return pState.getValue(VISIBLE) ? RenderShape.MODEL : RenderShape.ENTITYBLOCK_ANIMATED;
+		return pState.getValue(VISIBLE) ? RenderShape.MODEL : RenderShape.INVISIBLE;
 	}
 
 	private void playSound(@Nullable Entity pSource, Level pLevel, BlockPos pPos, boolean pIsOpening) {

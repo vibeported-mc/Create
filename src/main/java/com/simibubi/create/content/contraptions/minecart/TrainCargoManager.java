@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.minecart;
 
+import com.simibubi.create.foundation.item.CommitCallback;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -73,31 +75,33 @@ public class TrainCargoManager extends MountedStorageManager {
 	}
 
 	class CargoInvWrapper extends MountedItemStorageWrapper {
+		private final CommitCallback onChange = new CommitCallback(TrainCargoManager.this::changeDetected);
+
 		CargoInvWrapper(MountedItemStorageWrapper wrapped) {
 			super(wrapped.storages);
 		}
 
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			ItemStack remainder = super.insertItem(slot, stack, simulate);
-			if (!simulate && stack.getCount() != remainder.getCount())
-				changeDetected();
-			return remainder;
+		public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+			int inserted = super.insert(slot, resource, amount, transaction);
+			if (inserted > 0)
+				onChange.arm(transaction);
+			return inserted;
 		}
 
 		@Override
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			ItemStack extracted = super.extractItem(slot, amount, simulate);
-			if (!simulate && !extracted.isEmpty())
-				changeDetected();
+		public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+			int extracted = super.extract(slot, resource, amount, transaction);
+			if (extracted > 0)
+				onChange.arm(transaction);
 			return extracted;
 		}
 
 		@Override
-		public void setStackInSlot(int slot, ItemStack stack) {
-			if (!stack.equals(getStackInSlot(slot)))
+		public void set(int slot, ItemResource resource, int amount) {
+			if (!resource.matches(ItemHandlerHelpers.getStackInSlot(this, slot)))
 				changeDetected();
-			super.setStackInSlot(slot, stack);
+			super.set(slot, resource, amount);
 		}
 
 	}

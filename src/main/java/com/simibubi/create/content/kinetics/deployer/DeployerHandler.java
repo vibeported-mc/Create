@@ -162,7 +162,7 @@ public class DeployerHandler {
 		Item item = stack.getItem();
 
 		// Check for entities
-		final ServerLevel level = player.serverLevel();
+		final ServerLevel level = player.level();
 		List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(clickedPos))
 			.stream()
 			.filter(e -> !(e instanceof AbstractContraptionEntity))
@@ -378,7 +378,7 @@ public class DeployerHandler {
 	public static boolean tryHarvestBlock(ServerPlayer player, ServerPlayerGameMode interactionManager, BlockPos pos) {
 		// <> PlayerInteractionManager#tryHarvestBlock
 
-		ServerLevel world = player.serverLevel();
+		ServerLevel world = player.level();
 		BlockState blockstate = world.getBlockState(pos);
 		GameType gameType = interactionManager.getGameModeForPlayer();
 

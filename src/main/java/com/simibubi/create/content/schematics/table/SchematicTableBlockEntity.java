@@ -38,8 +38,8 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 		}
 
 		@Override
-		protected void onContentsChanged(int slot) {
-			super.onContentsChanged(slot);
+		protected void onContentsChanged(int slot, ItemStack previousContents) {
+			super.onContentsChanged(slot, previousContents);
 			setChanged();
 		}
 	}
@@ -53,7 +53,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		inventory.deserializeNBT(registries, compound.getCompoundOrEmpty("Inventory"));
+		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
 		super.read(compound, registries, clientPacket);
 		if (!clientPacket)
 			return;
@@ -70,7 +70,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 
 	@Override
 	protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		compound.put("Inventory", inventory.serializeNBT(registries));
+		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
 		super.write(compound, registries, clientPacket);
 		if (clientPacket && isUploading) {
 			compound.putBoolean("Uploading", true);

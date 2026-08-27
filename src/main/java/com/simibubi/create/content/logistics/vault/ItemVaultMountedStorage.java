@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.vault;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,7 @@ public class ItemVaultMountedStorage extends WrapperMountedItemStorage<ItemStack
 
 	public static ItemVaultMountedStorage fromLegacy(HolderLookup.Provider registries,  CompoundTag nbt) {
 		ItemStacksResourceHandler handler = new ItemStacksResourceHandler();
-		handler.deserializeNBT(registries, nbt);
+		ItemHandlerHelpers.deserializeNBT(handler, registries, nbt);
 		return new ItemVaultMountedStorage(handler);
 	}
 }

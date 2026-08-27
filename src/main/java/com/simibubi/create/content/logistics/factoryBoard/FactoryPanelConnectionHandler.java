@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllBlocks;
@@ -65,7 +65,7 @@ public class FactoryPanelConnectionHandler {
 		ItemStack filterFrom = panel.getFilter();
 		ItemStack filterTo = at.getFilter();
 
-		NetworkHelper.INSTANCE.sendToServer(new FactoryPanelConnectionPacket(panel.getPanelPosition(), connectingFrom, false));
+		ClientNetworkHelper.INSTANCE.sendToServer(new FactoryPanelConnectionPacket(panel.getPanelPosition(), connectingFrom, false));
 
 		player.sendOverlayMessage(CreateLang.translate("factory_panel.panels_connected", filterFrom.getHoverName()
 			.getString(),
@@ -217,7 +217,7 @@ public class FactoryPanelConnectionHandler {
 			if (mc.player.isShiftKeyDown())
 				validRelocationTarget = null;
 			if (validRelocationTarget != null)
-				NetworkHelper.INSTANCE.sendToServer(new FactoryPanelConnectionPacket(validRelocationTarget, connectingFrom, true));
+				ClientNetworkHelper.INSTANCE.sendToServer(new FactoryPanelConnectionPacket(validRelocationTarget, connectingFrom, true));
 
 			connectingFrom = null;
 			connectingFromBox = null;
@@ -264,7 +264,7 @@ public class FactoryPanelConnectionHandler {
 					bestPosition = panelPosition;
 				}
 
-				NetworkHelper.INSTANCE.sendToServer(new FactoryPanelConnectionPacket(bestPosition, connectingFrom, false));
+				ClientNetworkHelper.INSTANCE.sendToServer(new FactoryPanelConnectionPacket(bestPosition, connectingFrom, false));
 
 				mc.player.sendOverlayMessage(CreateLang
 					.translate("factory_panel.link_connected", blockEntity.getBlockState()

@@ -1,11 +1,12 @@
 package com.simibubi.create.content.logistics.packagePort;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.item.ItemHandlerWrapper;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class PackagePortAutomationInventoryWrapper extends ItemHandlerWrapper {
 	private final PackagePortBlockEntity ppbe;
@@ -15,27 +16,33 @@ public class PackagePortAutomationInventoryWrapper extends ItemHandlerWrapper {
 		this.ppbe = ppbe;
 	}
 
+	/**
+	 * Only packages addressed to this port may be taken out of it.
+	 */
 	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		ItemStack preview = super.extractItem(slot, 64, true);
-
-		if (!PackageItem.isPackage(preview))
-			return ItemStack.EMPTY;
-
-		String filterString = ppbe.getFilterString();
-		if (filterString == null || !PackageItem.matchAddress(preview, filterString))
-			return ItemStack.EMPTY;
-
-		return simulate ? preview : super.extractItem(slot, amount, false);
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		if (!isAddressedHere(resource))
+			return 0;
+		return super.extract(index, resource, amount, transaction);
 	}
 
+	/**
+	 * ...and a package already addressed here belongs in the port, not back in the automation.
+	 */
 	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		if (!PackageItem.isPackage(resource.toStack(1)))
+			return 0;
+		if (isAddressedHere(resource))
+			return 0;
+		return super.insert(index, resource, amount, transaction);
+	}
+
+	private boolean isAddressedHere(ItemResource resource) {
+		ItemStack stack = resource.toStack(1);
 		if (!PackageItem.isPackage(stack))
-			return stack;
+			return false;
 		String filterString = ppbe.getFilterString();
-		if (filterString != null && PackageItem.matchAddress(stack, filterString))
-			return stack;
-		return super.insertItem(slot, stack, simulate);
+		return filterString != null && PackageItem.matchAddress(stack, filterString);
 	}
 }

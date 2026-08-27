@@ -1,6 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static com.simibubi.create.content.equipment.toolbox.ToolboxInventory.STACKS_PER_COMPARTMENT;
 
@@ -237,9 +237,9 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 			if (state == State.DETACH)
 				return;
 			else if (state == State.SELECT_BOX)
-				toolboxes.forEach(be -> NetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(be.getBlockPos())));
+				toolboxes.forEach(be -> ClientNetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(be.getBlockPos())));
 			else
-				NetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(selectedBox.getBlockPos()));
+				ClientNetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(selectedBox.getBlockPos()));
 			return;
 		}
 
@@ -248,13 +248,13 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 		if (state == State.DETACH) {
 			if (selected == UNEQUIP)
-				NetworkHelper.INSTANCE.sendToServer(
+				ClientNetworkHelper.INSTANCE.sendToServer(
 					new ToolboxEquipPacket(null, selected, minecraft.player.getInventory().selected));
 			return;
 		}
 
 		if (selected == UNEQUIP)
-			NetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
+			ClientNetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
 				minecraft.player.getInventory().selected));
 
 		if (selected < 0)
@@ -267,7 +267,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 			.isEmpty())
 			return;
 
-		NetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
+		ClientNetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
 			minecraft.player.getInventory().selected));
 	}
 
@@ -340,7 +340,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 			if (state == State.SELECT_ITEM_UNEQUIP && selected == UNEQUIP) {
 				if (toolboxes.size() > 1) {
-					NetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
+					ClientNetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
 						minecraft.player.getInventory().selected));
 					state = State.SELECT_BOX;
 					return true;

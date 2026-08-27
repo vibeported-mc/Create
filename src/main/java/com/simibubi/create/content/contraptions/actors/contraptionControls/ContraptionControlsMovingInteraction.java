@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.contraptionControls;
 
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Iterator;
 import java.util.List;
@@ -139,7 +140,7 @@ public class ContraptionControlsMovingInteraction extends MovingInteractionBehav
 		if (efs.currentTargetY == contraption.clientYTarget)
 			return true;
 
-		NetworkHelper.INSTANCE.sendToServer(new ElevatorTargetFloorPacket(contraptionEntity, efs.currentTargetY));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ElevatorTargetFloorPacket(contraptionEntity, efs.currentTargetY));
 		if (contraption.getBlockEntityClientSide(ctx.localPos) instanceof ContraptionControlsBlockEntity cbe)
 			cbe.pressButton();
 		return true;

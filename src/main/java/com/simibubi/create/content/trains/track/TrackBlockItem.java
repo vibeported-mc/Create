@@ -1,6 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllSoundEvents;
@@ -173,7 +173,7 @@ public class TrackBlockItem extends BlockItem {
 		if (!AllTags.AllBlockTags.TRACKS.matches(stack))
 			return;
 		if (Minecraft.getInstance().options.keySprint.isDown())
-			NetworkHelper.INSTANCE.sendToServer(new PlaceExtendedCurvePacket(event.getHand() == InteractionHand.MAIN_HAND, true));
+			ClientNetworkHelper.INSTANCE.sendToServer(new PlaceExtendedCurvePacket(event.getHand() == InteractionHand.MAIN_HAND, true));
 	}
 
 	@Override

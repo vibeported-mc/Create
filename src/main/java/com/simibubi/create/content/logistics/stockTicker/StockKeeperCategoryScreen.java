@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,7 +106,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		editingIndex = index;
 		editingItem = index == -1 ? ItemStack.EMPTY : schedule.get(index);
 		ItemHandlerHelpers.setStackInSlot(menu.proxyInventory, 0, editingItem);
-		NetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(editingItem, 0));
+		ClientNetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(editingItem, 0));
 
 		addRenderableWidget(editorConfirm);
 		addRenderableWidget(editorEditBox);
@@ -137,7 +137,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 				schedule.set(editingIndex, stackInSlot);
 		}
 
-		NetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(ItemStack.EMPTY, 0));
+		ClientNetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(ItemStack.EMPTY, 0));
 
 		editingItem = null;
 		editorConfirm = null;
@@ -294,7 +294,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 					.component()), mx, my);
 				if (click == 0) {
 					if (!entry.isEmpty())
-						NetworkHelper.INSTANCE.sendToServer(new StockKeeperCategoryRefundPacket(menu.contentHolder.getBlockPos(), entry));
+						ClientNetworkHelper.INSTANCE.sendToServer(new StockKeeperCategoryRefundPacket(menu.contentHolder.getBlockPos(), entry));
 					entries.remove(entry);
 					init();
 				}
@@ -499,7 +499,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	@Override
 	public void removed() {
 		super.removed();
-		NetworkHelper.INSTANCE.sendToServer(new StockKeeperCategoryEditPacket(menu.contentHolder.getBlockPos(), schedule));
+		ClientNetworkHelper.INSTANCE.sendToServer(new StockKeeperCategoryEditPacket(menu.contentHolder.getBlockPos(), schedule));
 	}
 
 	@Override

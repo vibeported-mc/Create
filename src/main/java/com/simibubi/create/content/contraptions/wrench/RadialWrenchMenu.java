@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.wrench;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -353,7 +353,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 	private void submitChange() {
 		BlockState selectedState = allStates.get(selectedStateIndex);
 		if (selectedState != state) {
-			NetworkHelper.INSTANCE.sendToServer(new RadialWrenchMenuSubmitPacket(pos, selectedState));
+			ClientNetworkHelper.INSTANCE.sendToServer(new RadialWrenchMenuSubmitPacket(pos, selectedState));
 		}
 
 		onClose();

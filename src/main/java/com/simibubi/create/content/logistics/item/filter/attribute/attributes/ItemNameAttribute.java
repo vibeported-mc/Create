@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.item.filter.attribute.attributes;
 
+import com.simibubi.create.foundation.utility.ComponentJson;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public record ItemNameAttribute(String itemName) implements ItemAttribute {
 		if (stack.has(DataComponents.CUSTOM_NAME)) {
 			try {
 				String customName = stack.getOrDefault(DataComponents.CUSTOM_NAME, Component.empty()).getString();
-				Component component = Component.Serializer.fromJson(customName, level.registryAccess());
+				Component component = ComponentJson.fromJson(customName, level.registryAccess());
 				if (component != null) {
 					return component.getString();
 				}

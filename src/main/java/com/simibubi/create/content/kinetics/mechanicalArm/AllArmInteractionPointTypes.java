@@ -582,7 +582,7 @@ public class AllArmInteractionPointTypes {
 		@Override
 		public ItemStack extract(ArmBlockEntity armBlockEntity, int slot, int amount, boolean simulate) {
 			ResourceHandler<ItemResource> handler = new SidedInvWrapper(getContainer(), Direction.DOWN);
-			return handler.extractItem(slot, amount, simulate);
+			return ItemHandlerHelpers.extractItem(handler, slot, amount, simulate);
 		}
 
 		@Override

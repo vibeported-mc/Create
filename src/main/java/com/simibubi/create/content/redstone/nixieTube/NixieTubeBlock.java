@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.nixieTube;
 
+import com.simibubi.create.foundation.utility.ComponentJson;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.redstone.Orientation;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
@@ -105,7 +106,7 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 		if (level.isClientSide())
 			return InteractionResult.SUCCESS;
 
-		String tagUsed = Component.Serializer.toJson(component, level.registryAccess());
+		String tagUsed = ComponentJson.toJson(component, level.registryAccess());
 		// Skip computer check in this walk since it was already performed at the start.
 		walkNixies(level, pos, true, (currentPos, rowPosition) -> {
 			if (display)

@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.filter;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -68,7 +68,7 @@ public class PackageFilterScreen extends AbstractFilterScreen<PackageFilterMenu>
 		menu.address = s;
 		CompoundTag tag = new CompoundTag();
 		tag.putString("Address", s);
-		NetworkHelper.INSTANCE.sendToServer(new FilterScreenPacket(Option.UPDATE_ADDRESS, tag));
+		ClientNetworkHelper.INSTANCE.sendToServer(new FilterScreenPacket(Option.UPDATE_ADDRESS, tag));
 	}
 
 	@Override

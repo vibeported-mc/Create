@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.display;
 
+import com.simibubi.create.foundation.utility.ComponentJson;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -132,7 +133,7 @@ public class FlapDisplaySection {
 		if (wideFlaps)
 			NBTHelper.putMarker(tag, "Wide");
 		if (component != null)
-			tag.putString("Text", Component.Serializer.toJson(component, registries));
+			tag.putString("Text", ComponentJson.toJson(component, registries));
 		if (sendTransition)
 			NBTHelper.putMarker(tag, "Transition");
 		sendTransition = false;
@@ -153,7 +154,7 @@ public class FlapDisplaySection {
 		if (!tag.contains("Text"))
 			return section;
 
-		section.component = Component.Serializer.fromJson(tag.getStringOr("Text", ""), registries);
+		section.component = ComponentJson.fromJson(tag.getStringOr("Text", ""), registries);
 		section.refresh(tag.getBooleanOr("Transition", false));
 		return section;
 	}
@@ -161,7 +162,7 @@ public class FlapDisplaySection {
 	public void update(CompoundTag tag, HolderLookup.Provider registries) {
 		String text = tag.getStringOr("Text", "");
 		if (!text.isEmpty())
-			component = Component.Serializer.fromJson(text, registries);
+			component = ComponentJson.fromJson(text, registries);
 		if (cyclingOptions == null)
 			cyclingOptions = getFlapCycle(cycle);
 		refresh(tag.getBooleanOr("Transition", false));

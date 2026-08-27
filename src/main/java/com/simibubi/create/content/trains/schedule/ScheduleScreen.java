@@ -1,6 +1,6 @@
 package com.simibubi.create.content.trains.schedule;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -193,7 +193,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		for (int i = 0; i < field.slotsTargeted(); i++) {
 			ItemStack item = field.getItem(i);
 			ItemHandlerHelpers.setStackInSlot(menu.ghostInventory, i, item);
-			NetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(item, i));
+			ClientNetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(item, i));
 		}
 
 		if (field instanceof ScheduleInstruction instruction) {
@@ -278,7 +278,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		IScheduleInput editing = editingCondition == null ? editingDestination : editingCondition;
 		for (int i = 0; i < editing.slotsTargeted(); i++) {
 			editing.setItem(i, ItemHandlerHelpers.getStackInSlot(menu.ghostInventory, i));
-			NetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(ItemStack.EMPTY, i));
+			ClientNetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(ItemStack.EMPTY, i));
 		}
 
 		editorSubWidgets.save(editing.getData());
@@ -1075,7 +1075,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 	@Override
 	public void removed() {
 		super.removed();
-		NetworkHelper.INSTANCE.sendToServer(new ScheduleEditPacket(schedule));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ScheduleEditPacket(schedule));
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.TOOLBELT_HOTBAR_OFF;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.TOOLBELT_HOTBAR_ON;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.TOOLBELT_SELECTED_OFF;
@@ -91,7 +91,7 @@ public class ToolboxHandlerClient {
 				if (!ItemStack.matches(inSlot, result))
 					continue;
 
-				NetworkHelper.INSTANCE.sendToServer(
+				ClientNetworkHelper.INSTANCE.sendToServer(
 					new ToolboxEquipPacket(toolboxBlockEntity.getBlockPos(), comp, player.getInventory().selected));
 				return true;
 			}

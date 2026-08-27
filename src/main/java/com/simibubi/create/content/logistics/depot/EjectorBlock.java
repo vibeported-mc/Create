@@ -1,10 +1,10 @@
 package com.simibubi.create.content.logistics.depot;
 
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 import net.minecraft.world.level.redstone.Orientation;
-import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Optional;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -147,7 +147,7 @@ public class EjectorBlock extends HorizontalKineticBlock implements IBE<EjectorB
 		ejectorBlockEntity.activate();
 		ejectorBlockEntity.notifyUpdate();
 		if (entityIn.level().isClientSide())
-			NetworkHelper.INSTANCE.sendToServer(new EjectorTriggerPacket(ejectorBlockEntity.getBlockPos()));
+			ClientNetworkHelper.INSTANCE.sendToServer(new EjectorTriggerPacket(ejectorBlockEntity.getBlockPos()));
 	}
 
 	@Override

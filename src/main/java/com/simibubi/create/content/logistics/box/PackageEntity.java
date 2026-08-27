@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.box;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import net.createmod.catnip.api.network.NetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
@@ -399,7 +400,7 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 	@Override
 	public void addAdditionalSaveData(CompoundTag compound) {
 		super.addAdditionalSaveData(compound);
-		compound.put("Box", box.saveOptional(level().registryAccess()));
+		compound.put("Box", ItemHelper.saveOptional(box, level().registryAccess()));
 	}
 
 	@Override

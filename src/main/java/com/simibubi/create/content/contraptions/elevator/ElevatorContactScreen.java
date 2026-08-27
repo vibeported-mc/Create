@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.elevator;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.lwjgl.glfw.GLFW;
 
 import com.google.common.collect.ImmutableList;
@@ -177,7 +177,7 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 	}
 
 	private void confirm() {
-		NetworkHelper.INSTANCE.sendToServer(new ElevatorContactEditPacket(pos, shortName, longName, doorControl));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ElevatorContactEditPacket(pos, shortName, longName, doorControl));
 		onClose();
 	}
 

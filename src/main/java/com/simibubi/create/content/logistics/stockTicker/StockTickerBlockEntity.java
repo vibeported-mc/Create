@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -113,7 +113,7 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 
 	public void refreshClientStockSnapshot() {
 		ticksSinceLastUpdate = 0;
-		NetworkHelper.INSTANCE.sendToServer(new LogisticalStockRequestPacket(worldPosition));
+		ClientNetworkHelper.INSTANCE.sendToServer(new LogisticalStockRequestPacket(worldPosition));
 	}
 
 	public ResourceHandler<ItemResource> getReceivedPaymentsHandler() {

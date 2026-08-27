@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.schedule.condition;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -107,7 +108,7 @@ public class RedstoneLinkCondition extends ScheduleWaitCondition {
 	@Override
 	protected void readAdditional(HolderLookup.Provider registries, CompoundTag tag) {
 		if (tag.contains("Frequency"))
-			freq = Couple.deserializeEach(tag.getListOrEmpty("Frequency"), c -> Frequency.of(ItemStack.parseOptional(registries, c)));
+			freq = Couple.deserializeEach(tag.getListOrEmpty("Frequency"), c -> Frequency.of(ItemHelper.parseOptional(registries, c)));
 	}
 
 	@Override

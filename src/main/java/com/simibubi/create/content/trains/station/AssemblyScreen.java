@@ -1,6 +1,6 @@
 package com.simibubi.create.content.trains.station;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -66,14 +66,14 @@ public class AssemblyScreen extends AbstractStationScreen {
 		toggleAssemblyButton.active = false;
 		toggleAssemblyButton.setToolTip(CreateLang.translateDirect("station.assemble_train"));
 		toggleAssemblyButton.withCallback(() -> {
-			NetworkHelper.INSTANCE.sendToServer(StationEditPacket.tryAssemble(blockEntity.getBlockPos()));
+			ClientNetworkHelper.INSTANCE.sendToServer(StationEditPacket.tryAssemble(blockEntity.getBlockPos()));
 		});
 
 		quitAssembly = new IconButton(x + 73, by, AllIcons.I_DISABLE);
 		quitAssembly.active = true;
 		quitAssembly.setToolTip(CreateLang.translateDirect("station.cancel"));
 		quitAssembly.withCallback(() -> {
-			NetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
+			ClientNetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
 			minecraft.setScreen(new StationScreen(blockEntity, station));
 		});
 
@@ -91,7 +91,7 @@ public class AssemblyScreen extends AbstractStationScreen {
 		toggleAssemblyButton.active = blockEntity.bogeyCount > 0 || train != null;
 
 		if (train != null) {
-			NetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
+			ClientNetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
 			minecraft.setScreen(new StationScreen(blockEntity, station));
 			for (Carriage carriage : train.carriages)
 				carriage.updateConductors();
@@ -106,10 +106,10 @@ public class AssemblyScreen extends AbstractStationScreen {
 			toggleAssemblyButton.setToolTip(CreateLang.translateDirect("station.assemble_train"));
 			toggleAssemblyButton.setIcon(AllGuiTextures.I_ASSEMBLE_TRAIN);
 			toggleAssemblyButton.withCallback(() -> {
-				NetworkHelper.INSTANCE.sendToServer(StationEditPacket.tryAssemble(blockEntity.getBlockPos()));
+				ClientNetworkHelper.INSTANCE.sendToServer(StationEditPacket.tryAssemble(blockEntity.getBlockPos()));
 			});
 		} else {
-			NetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
+			ClientNetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
 			minecraft.setScreen(new StationScreen(blockEntity, station));
 		}
 	}
@@ -159,7 +159,7 @@ public class AssemblyScreen extends AbstractStationScreen {
 		if (train != null) {
 			Identifier iconId = iconTypes.get(iconTypeScroll.getState());
 			train.icon = TrainIconType.byId(iconId);
-			NetworkHelper.INSTANCE.sendToServer(new TrainEditPacket.Serverbound(train.id, "", iconId, train.mapColorIndex));
+			ClientNetworkHelper.INSTANCE.sendToServer(new TrainEditPacket.Serverbound(train.id, "", iconId, train.mapColorIndex));
 		}
 	}
 

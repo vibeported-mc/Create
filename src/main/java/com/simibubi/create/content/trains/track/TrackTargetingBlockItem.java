@@ -1,6 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -184,7 +184,7 @@ public class TrackTargetingBlockItem extends BlockItem {
 		boolean front = player.getLookAngle()
 			.dot(selection.direction()) < 0;
 
-		NetworkHelper.INSTANCE.sendToServer(new CurvedTrackSelectionPacket(be.getBlockPos(), loc.curveTarget(),
+		ClientNetworkHelper.INSTANCE.sendToServer(new CurvedTrackSelectionPacket(be.getBlockPos(), loc.curveTarget(),
 			front, loc.segment(), player.getInventory().selected));
 		return true;
 	}

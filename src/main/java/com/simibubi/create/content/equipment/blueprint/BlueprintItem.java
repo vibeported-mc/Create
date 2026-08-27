@@ -75,17 +75,17 @@ public class BlueprintItem extends Item {
 		NonNullList<Ingredient> ingredients = recipe.getIngredients();
 
 		for (int i = 0; i < 9; i++)
-			inv.setStackInSlot(i, ItemStack.EMPTY);
+			ItemHandlerHelpers.setStackInSlot(inv, i, ItemStack.EMPTY);
 		ItemHandlerHelpers.setStackInSlot(inv, 9, recipe.getResultItem(level.registryAccess()));
 
 		if (recipe instanceof ShapedRecipe shapedRecipe) {
 			for (int row = 0; row < shapedRecipe.getHeight(); row++)
 				for (int col = 0; col < shapedRecipe.getWidth(); col++)
-					inv.setStackInSlot(row * 3 + col,
+					ItemHandlerHelpers.setStackInSlot(inv, row * 3 + col,
 						convertIngredientToFilter(ingredients.get(row * shapedRecipe.getWidth() + col)));
 		} else {
 			for (int i = 0; i < ingredients.size(); i++)
-				inv.setStackInSlot(i, convertIngredientToFilter(ingredients.get(i)));
+				ItemHandlerHelpers.setStackInSlot(inv, i, convertIngredientToFilter(ingredients.get(i)));
 		}
 	}
 

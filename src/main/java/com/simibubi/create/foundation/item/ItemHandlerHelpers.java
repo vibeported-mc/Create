@@ -1,5 +1,11 @@
 package com.simibubi.create.foundation.item;
 
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.IndexModifier;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -148,6 +154,23 @@ public class ItemHandlerHelpers {
 	public static ItemStack insertItem(ResourceHandler<ItemResource> handler, ItemStack stack,
 		TransactionContext transaction) {
 		return ItemUtil.insertItemReturnRemaining(handler, stack, false, transaction);
+	}
+
+	/**
+	 * Bridge a handler's ValueIO form to and from a {@link CompoundTag}.
+	 * <p>
+	 * 26.2 serialises handlers through {@link ValueIOSerializable} rather than the old
+	 * {@code serializeNBT}/{@code deserializeNBT} pair. Create's block entities still read and write
+	 * CompoundTags, so these keep the stored shape identical while the call sites stay as they were.
+	 */
+	public static CompoundTag serializeNBT(ValueIOSerializable handler, HolderLookup.Provider registries) {
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+		handler.serialize(output);
+		return output.buildResult();
+	}
+
+	public static void deserializeNBT(ValueIOSerializable handler, HolderLookup.Provider registries, CompoundTag nbt) {
+		handler.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, nbt));
 	}
 
 }

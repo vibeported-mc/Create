@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.tank.storage.creative;
 
+import com.simibubi.create.foundation.fluid.FluidHelper;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +47,7 @@ public class CreativeFluidTankMountedStorage extends WrapperMountedFluidStorage<
 
 	public static CreativeFluidTankMountedStorage fromLegacy(HolderLookup.Provider registries, CompoundTag nbt) {
 		int capacity = nbt.getIntOr("Capacity", 0);
-		FluidStack fluid = FluidStack.parseOptional(registries, nbt.getCompoundOrEmpty("ProvidedStack"));
+		FluidStack fluid = FluidHelper.parseOptional(registries, nbt.getCompoundOrEmpty("ProvidedStack"));
 		CreativeSmartFluidTank tank = new CreativeSmartFluidTank(capacity, $ -> {});
 		tank.setContainedFluid(fluid);
 		return new CreativeFluidTankMountedStorage(tank);

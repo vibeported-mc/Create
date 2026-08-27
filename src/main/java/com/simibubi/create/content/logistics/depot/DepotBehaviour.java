@@ -67,7 +67,7 @@ public class DepotBehaviour extends BlockEntityBehaviour implements Clearable {
 		incoming = new ArrayList<>();
 		itemHandler = new DepotItemHandler(this);
 		processingOutputBuffer = new ItemStacksResourceHandler(8) {
-			protected void onContentsChanged(int slot) {
+			protected void onContentsChanged(int slot, ItemStack previousContents) {
 				be.notifyUpdate();
 			}
 		};
@@ -226,7 +226,7 @@ public class DepotBehaviour extends BlockEntityBehaviour implements Clearable {
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (heldItem != null)
 			compound.put("HeldItem", heldItem.serializeNBT(registries));
-		compound.put("OutputBuffer", processingOutputBuffer.serializeNBT(registries));
+		compound.put("OutputBuffer", ItemHandlerHelpers.serializeNBT(processingOutputBuffer, registries));
 		if (canMergeItems() && !incoming.isEmpty())
 			compound.put("Incoming", NBTHelper.writeCompoundList(incoming, stack -> stack.serializeNBT(registries)));
 	}
@@ -236,7 +236,7 @@ public class DepotBehaviour extends BlockEntityBehaviour implements Clearable {
 		heldItem = null;
 		if (compound.contains("HeldItem"))
 			heldItem = TransportedItemStack.read(compound.getCompoundOrEmpty("HeldItem"), registries);
-		processingOutputBuffer.deserializeNBT(registries, compound.getCompoundOrEmpty("OutputBuffer"));
+		ItemHandlerHelpers.deserializeNBT(processingOutputBuffer, registries, compound.getCompoundOrEmpty("OutputBuffer"));
 		if (canMergeItems()) {
 			ListTag list = compound.getListOrEmpty("Incoming");
 			incoming = NBTHelper.readCompoundList(list, c -> TransportedItemStack.read(c, registries));

@@ -103,7 +103,7 @@ public class ItemHatchBlock extends HorizontalDirectionalBlock
 		BlockEntity blockEntity = level.getBlockEntity(pos.relative(state.getValue(FACING)));
 		if (blockEntity == null)
 			return InteractionResult.FAIL;
-		ResourceHandler<ItemResource> targetInv = level.getCapability(ItemHandler.BLOCK, blockEntity.getBlockPos(), null);
+		ResourceHandler<ItemResource> targetInv = level.getCapability(Capabilities.Item.BLOCK, blockEntity.getBlockPos(), null);
 		if (targetInv == null)
 			return InteractionResult.FAIL;
 

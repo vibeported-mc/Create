@@ -1,6 +1,6 @@
 package com.simibubi.create.compat.jei;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jspecify.annotations.NullMarked;
 import java.util.LinkedList;
@@ -83,7 +83,7 @@ public class GhostIngredientHandler<T extends GhostItemMenu<?>>
 				return;
 
 			// sync new filter contents with server
-			NetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(stack, slotIndex));
+			ClientNetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(stack, slotIndex));
 		}
 	}
 }

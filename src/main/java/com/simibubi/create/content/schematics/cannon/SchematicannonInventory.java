@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllBlocks;
@@ -16,13 +17,14 @@ public class SchematicannonInventory extends ItemStacksResourceHandler implement
 	}
 
 	@Override
-	protected void onContentsChanged(int slot) {
-		super.onContentsChanged(slot);
+	protected void onContentsChanged(int slot, ItemStack previousContents) {
+		super.onContentsChanged(slot, previousContents);
 		blockEntity.setChanged();
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemStack stack) {
+	public boolean isValid(int slot, ItemResource resource) {
+		ItemStack stack = resource.toStack(1);
 		switch (slot) {
 		case 0: // Blueprint Slot
 			return AllItems.SCHEMATIC.isIn(stack);
@@ -36,7 +38,7 @@ public class SchematicannonInventory extends ItemStacksResourceHandler implement
 		case 4: // Gunpowder
 			return stack.is(Items.GUNPOWDER);
 		default:
-			return super.isItemValid(slot, stack);
+			return super.isValid(slot, resource);
 		}
 	}
 }

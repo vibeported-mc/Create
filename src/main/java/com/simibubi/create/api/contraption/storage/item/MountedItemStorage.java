@@ -62,7 +62,7 @@ public abstract class MountedItemStorage implements ModifiableItemHandler {
 	 * @return true if the interaction was successful
 	 */
 	public boolean handleInteraction(ServerPlayer player, Contraption contraption, StructureBlockInfo info) {
-		ServerLevel level = player.serverLevel();
+		ServerLevel level = player.level();
 		BlockPos localPos = info.pos();
 		Vec3 localPosVec = Vec3.atCenterOf(localPos);
 		Predicate<Player> stillValid = p -> {

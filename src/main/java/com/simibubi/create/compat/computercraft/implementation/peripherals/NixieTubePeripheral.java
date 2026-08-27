@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.computercraft.implementation.peripherals;
 
+import com.simibubi.create.foundation.utility.ComponentJson;
 import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +67,7 @@ public class NixieTubePeripheral extends SyncedPeripheral<NixieTubeBlockEntity> 
 			return;
 		blockEntity.computerSignal = null;
 
-		String tagElement = Component.Serializer.toJson(Component.literal(arguments.getStringOr(0, "")), level.registryAccess());
+		String tagElement = ComponentJson.toJson(Component.literal(arguments.getStringOr(0, "")), level.registryAccess());
 
 		@Nullable String colour = arguments.optString(1, null);
 		BlockState state = null;

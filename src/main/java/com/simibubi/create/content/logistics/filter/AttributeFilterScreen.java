@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.filter;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -230,7 +230,7 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterM
 		addInverted.active = false;
 		ItemAttribute itemAttribute = attributesOfItem.get(index);
 		CompoundTag tag = ItemAttribute.saveStatic(itemAttribute, Minecraft.getInstance().level.registryAccess());
-		NetworkHelper.INSTANCE.sendToServer(new FilterScreenPacket(inverted ? Option.ADD_INVERTED_TAG : Option.ADD_TAG, tag));
+		ClientNetworkHelper.INSTANCE.sendToServer(new FilterScreenPacket(inverted ? Option.ADD_INVERTED_TAG : Option.ADD_TAG, tag));
 		menu.appendSelectedAttribute(itemAttribute, inverted);
 		if (menu.selectedAttributes.size() == 1)
 			selectedAttributes.set(0, selectedT.plainCopy()

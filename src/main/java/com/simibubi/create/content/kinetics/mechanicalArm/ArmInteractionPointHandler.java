@@ -1,6 +1,6 @@
 package com.simibubi.create.content.kinetics.mechanicalArm;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -124,7 +124,7 @@ public class ArmInteractionPointHandler {
 					.sendStatus(player);
 		}
 
-		NetworkHelper.INSTANCE.sendToServer(new ArmPlacementPacket(currentSelection, pos));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ArmPlacementPacket(currentSelection, pos));
 		currentSelection.clear();
 		currentItem = null;
 	}

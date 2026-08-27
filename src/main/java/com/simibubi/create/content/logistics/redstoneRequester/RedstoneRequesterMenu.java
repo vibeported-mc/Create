@@ -43,7 +43,7 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 		ItemStacksResourceHandler inventory = new ItemStacksResourceHandler(9);
 		List<BigItemStack> stacks = contentHolder.encodedRequest.stacks();
 		for (int i = 0; i < stacks.size(); i++)
-			inventory.setStackInSlot(i, stacks.get(i).stack.copyWithCount(1));
+			ItemHandlerHelpers.setStackInSlot(inventory, i, stacks.get(i).stack.copyWithCount(1));
 		return inventory;
 	}
 

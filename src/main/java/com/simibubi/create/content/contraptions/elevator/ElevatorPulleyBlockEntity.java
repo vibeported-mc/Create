@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.elevator;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 
 import com.simibubi.create.AllBlocks;
@@ -54,7 +54,7 @@ public class ElevatorPulleyBlockEntity extends PulleyBlockEntity {
 		if (offset >= 0)
 			resetContraptionToOffset();
 		if (level.isClientSide()) {
-			NetworkHelper.INSTANCE.sendToServer(new ElevatorFloorListPacket.RequestFloorList(contraption));
+			ClientNetworkHelper.INSTANCE.sendToServer(new ElevatorFloorListPacket.RequestFloorList(contraption));
 			return;
 		}
 

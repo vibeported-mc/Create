@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.events;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.function.Supplier;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -346,7 +346,7 @@ public class ClientEvents {
 	public static void leftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
 		ItemStack stack = event.getItemStack();
 		if (stack.getItem() instanceof ZapperItem) {
-			NetworkHelper.INSTANCE.sendToServer(LeftClickPacket.INSTANCE);
+			ClientNetworkHelper.INSTANCE.sendToServer(LeftClickPacket.INSTANCE);
 		}
 	}
 

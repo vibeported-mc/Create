@@ -28,7 +28,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
  * Gets an item handler from the mounted block, copies it to an ItemStacksResourceHandler,
  * and then copies the inventory back to the target when unmounting.
  * All blocks for which this mounted storage is registered must provide an
- * {@link ModifiableItemHandler} to {@link ItemHandler#BLOCK}.
+ * {@link ModifiableItemHandler} to {@link Capabilities.Item#BLOCK}.
  * <br>
  * To use this implementation, either register {@link AllMountedStorageTypes#SIMPLE} to your block
  * manually, or add your block to the {@link AllTags.AllBlockTags#SIMPLE_MOUNTED_STORAGE} tag.
@@ -50,7 +50,7 @@ public class SimpleMountedStorage extends WrapperMountedItemStorage<ItemStacksRe
 		if (be == null)
 			return;
 
-		ResourceHandler<ItemResource> cap = level.getCapability(ItemHandler.BLOCK, pos, null);
+		ResourceHandler<ItemResource> cap = level.getCapability(Capabilities.Item.BLOCK, pos, null);
 		if (cap != null) {
 			validate(cap).ifPresent(handler -> {
 				for (int i = 0; i < handler.size(); i++) {

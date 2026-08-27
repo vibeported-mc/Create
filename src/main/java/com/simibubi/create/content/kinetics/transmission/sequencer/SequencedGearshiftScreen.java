@@ -1,6 +1,6 @@
 package com.simibubi.create.content.kinetics.transmission.sequencer;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.Vector;
 
 import com.simibubi.create.AllBlocks;
@@ -188,7 +188,7 @@ public class SequencedGearshiftScreen extends AbstractSimiScreen {
 	}
 
 	public void sendPacket() {
-		NetworkHelper.INSTANCE.sendToServer(new ConfigureSequencedGearshiftPacket(be.getBlockPos(), instructions));
+		ClientNetworkHelper.INSTANCE.sendToServer(new ConfigureSequencedGearshiftPacket(be.getBlockPos(), instructions));
 	}
 
 	@Override

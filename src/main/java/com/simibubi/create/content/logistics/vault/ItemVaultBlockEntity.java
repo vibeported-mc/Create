@@ -57,8 +57,8 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 
 		inventory = new ItemStacksResourceHandler(AllConfigs.server().logistics.vaultCapacity.get()) {
 			@Override
-			protected void onContentsChanged(int slot) {
-				super.onContentsChanged(slot);
+			protected void onContentsChanged(int slot, ItemStack previousContents) {
+				super.onContentsChanged(slot, previousContents);
 				updateComparators();
 				level.blockEntityChanged(worldPosition);
 			}
@@ -285,7 +285,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 		}
 
 		if (!clientPacket) {
-			inventory.deserializeNBT(registries, compound.getCompoundOrEmpty("Inventory"));
+			ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
 			return;
 		}
 
@@ -313,7 +313,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 
 		if (!clientPacket) {
 			compound.putString("StorageType", "CombinedInv");
-			compound.put("Inventory", inventory.serializeNBT(registries));
+			compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
 		}
 	}
 
@@ -334,7 +334,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 
 	public void applyInventoryToBlock(ItemStacksResourceHandler handler) {
 		for (int i = 0; i < inventory.size(); i++)
-			inventory.setStackInSlot(i, i < handler.size() ? ItemHandlerHelpers.getStackInSlot(handler, i) : ItemStack.EMPTY);
+			ItemHandlerHelpers.setStackInSlot(inventory, i, i < handler.size() ? ItemHandlerHelpers.getStackInSlot(handler, i) : ItemStack.EMPTY);
 	}
 
 	private void initCapability() {

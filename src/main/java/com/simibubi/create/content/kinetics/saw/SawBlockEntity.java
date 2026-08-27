@@ -114,7 +114,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		compound.put("Inventory", inventory.serializeNBT(registries));
+		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
 		compound.putInt("RecipeIndex", recipeIndex);
 		super.write(compound, registries, clientPacket);
 
@@ -127,7 +127,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
-		inventory.deserializeNBT(registries, compound.getCompoundOrEmpty("Inventory"));
+		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
 		recipeIndex = compound.getIntOr("RecipeIndex", 0);
 		if (compound.contains("PlayEvent"))
 			playEvent = compound.read("PlayEvent", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
@@ -346,7 +346,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 					ItemHelper.addToList(stack, list);
 			}
 			for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++)
-				inventory.setStackInSlot(slot + 1, list.get(slot));
+				ItemHandlerHelpers.setStackInSlot(inventory, slot + 1, list.get(slot));
 			return;
 		}
 
@@ -377,7 +377,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 		}
 
 		for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++)
-			inventory.setStackInSlot(slot + 1, list.get(slot));
+			ItemHandlerHelpers.setStackInSlot(inventory, slot + 1, list.get(slot));
 
 		award(AllAdvancements.SAW_PROCESSING);
 	}

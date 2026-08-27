@@ -161,7 +161,7 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (!clientPacket) {
-			inventory.deserializeNBT(registries, compound.getCompoundOrEmpty("Inventory"));
+			ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
 		}
 
 		// Gui information
@@ -235,7 +235,7 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (!clientPacket) {
-			compound.put("Inventory", inventory.serializeNBT(registries));
+			compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
 			if (state == State.RUNNING) {
 				compound.putBoolean("Running", true);
 			}
@@ -532,7 +532,7 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 						if (stack.getDamageValue() <= stack.getMaxDamage()) {
 							if (ItemHandlerHelpers.getStackInSlot(cap, slot)
 								.isEmpty())
-								cap.insertItem(slot, stack, false);
+								ItemHandlerHelpers.insertItem(cap, slot, stack, false);
 							else
 								ItemHandlerHelpers.insertItem(cap, stack, false);
 						}

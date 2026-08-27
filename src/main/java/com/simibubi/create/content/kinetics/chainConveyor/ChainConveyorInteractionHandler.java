@@ -1,6 +1,6 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.util.List;
 import java.util.Map.Entry;
@@ -135,7 +135,7 @@ public class ChainConveyorInteractionHandler {
 				return true;
 			}
 
-			NetworkHelper.INSTANCE.sendToServer(new ChainConveyorConnectionPacket(selectedLift, selectedLift.offset(selectedConnection),
+			ClientNetworkHelper.INSTANCE.sendToServer(new ChainConveyorConnectionPacket(selectedLift, selectedLift.offset(selectedConnection),
 				usedItem, false));
 			return true;
 		}
@@ -148,7 +148,7 @@ public class ChainConveyorInteractionHandler {
 		}
 
 		if (PackageItem.isPackage(mainHandItem)) {
-			NetworkHelper.INSTANCE.sendToServer(new ChainPackageInteractionPacket(selectedLift, selectedConnection, selectedChainPosition,
+			ClientNetworkHelper.INSTANCE.sendToServer(new ChainPackageInteractionPacket(selectedLift, selectedConnection, selectedChainPosition,
 				false));
 			return true;
 		}

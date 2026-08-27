@@ -1,6 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -344,7 +344,7 @@ public class SchematicHandler implements LayeredDraw.Layer {
 	public void sync() {
 		if (activeSchematicItem == null)
 			return;
-		NetworkHelper.INSTANCE.sendToServer(new SchematicSyncPacket(activeHotbarSlot, transformation.toSettings(),
+		ClientNetworkHelper.INSTANCE.sendToServer(new SchematicSyncPacket(activeHotbarSlot, transformation.toSettings(),
 			transformation.getAnchor(), deployed));
 	}
 
@@ -386,7 +386,7 @@ public class SchematicHandler implements LayeredDraw.Layer {
 	}
 
 	public void printInstantly() {
-		NetworkHelper.INSTANCE.sendToServer(new SchematicPlacePacket(activeSchematicItem.copy()));
+		ClientNetworkHelper.INSTANCE.sendToServer(new SchematicPlacePacket(activeSchematicItem.copy()));
 		activeSchematicItem.set(AllDataComponents.SCHEMATIC_DEPLOYED, false);
 		SchematicInstances.clearHash(activeSchematicItem);
 		active = false;

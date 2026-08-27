@@ -1,5 +1,6 @@
 package com.simibubi.create.api.contraption.storage.item;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
@@ -25,7 +26,7 @@ public class MountedItemStorageWrapper extends CombinedResourceHandler<ItemResou
 		this.storages = storages;
 		
 		// Build lookup arrays
-		int totalSlots = getSlots();
+		int totalSlots = size();
 		this.slotToStorage = new int[totalSlots];
 		this.slotOffsets = new int[itemHandler.length];
 		

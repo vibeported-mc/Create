@@ -1,6 +1,6 @@
 package com.simibubi.create.content.trains.graph;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +59,7 @@ public record TrackGraphRollCallPacket(List<Entry> entries) implements CustomPac
 		}
 
 		for (Integer failed : failedIds)
-			NetworkHelper.INSTANCE.sendToServer(new TrackGraphRequestPacket(failed));
+			ClientNetworkHelper.INSTANCE.sendToServer(new TrackGraphRequestPacket(failed));
 		for (UUID unused : unusedIds)
 			manager.trackNetworks.remove(unused);
 	}

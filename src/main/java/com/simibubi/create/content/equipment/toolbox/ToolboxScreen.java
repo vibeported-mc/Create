@@ -1,6 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 
 		disposeButton = new IconButton(leftPos + 30 + 81, topPos + 69, AllIcons.I_TOOLBOX);
 		disposeButton.withCallback(() -> {
-			NetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(menu.contentHolder.getBlockPos()));
+			ClientNetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(menu.contentHolder.getBlockPos()));
 		});
 		disposeButton.setToolTip(CreateLang.translateDirect("toolbox.depositBox"));
 		addRenderableWidget(disposeButton);

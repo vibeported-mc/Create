@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import static net.minecraft.world.entity.Entity.collideBoundingBox;
 
@@ -297,7 +297,7 @@ public class ContraptionCollider {
 				entity.fallDistance = 0;
 				for (Entity rider : entity.getIndirectPassengers())
 					if (getPlayerType(rider) == PlayerType.CLIENT)
-						NetworkHelper.INSTANCE.sendToServer(new ClientMotionPacket(rider.getDeltaMovement(), true, 0));
+						ClientNetworkHelper.INSTANCE.sendToServer(new ClientMotionPacket(rider.getDeltaMovement(), true, 0));
 				boolean canWalk = bounce != 0 || slide == 0;
 				if (canWalk || !rotation.hasVerticalRotation()) {
 					if (canWalk)
@@ -321,7 +321,7 @@ public class ContraptionCollider {
 			float limbSwing = Mth.sqrt((float) (d0 * d0 + d1 * d1)) * 4.0F;
 			if (limbSwing > 1.0F)
 				limbSwing = 1.0F;
-			NetworkHelper.INSTANCE.sendToServer(new ClientMotionPacket(entityMotion, true, limbSwing));
+			ClientNetworkHelper.INSTANCE.sendToServer(new ClientMotionPacket(entityMotion, true, limbSwing));
 
 			if (entity.onGround() && contraption instanceof TranslatingContraption) {
 				safetyLock.setLeft(new WeakReference<>(contraptionEntity));
@@ -351,7 +351,7 @@ public class ContraptionCollider {
 			if (packetCooldown > 0)
 				packetCooldown--;
 			if (packetCooldown == 0) {
-				NetworkHelper.INSTANCE.sendToServer(new ContraptionColliderLockPacketRequest(contraptionEntity.getId(), currentDiff));
+				ClientNetworkHelper.INSTANCE.sendToServer(new ContraptionColliderLockPacketRequest(contraptionEntity.getId(), currentDiff));
 				packetCooldown = 3;
 			}
 		}
@@ -463,7 +463,7 @@ public class ContraptionCollider {
 			return entityMotion;
 
 		if (playerType == PlayerType.CLIENT) {
-			NetworkHelper.INSTANCE.sendToServer(new TrainCollisionPacket((int) (damage * 16), contraptionEntity.getId()));
+			ClientNetworkHelper.INSTANCE.sendToServer(new TrainCollisionPacket((int) (damage * 16), contraptionEntity.getId()));
 			world.playSound((Player) entity, entity.blockPosition(), SoundEvents.PLAYER_ATTACK_CRIT,
 				SoundSource.NEUTRAL, 1, .75f);
 		} else {

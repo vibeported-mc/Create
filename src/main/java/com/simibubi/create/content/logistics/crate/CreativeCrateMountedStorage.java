@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.crate;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,44 +40,52 @@ public class CreativeCrateMountedStorage extends MountedItemStorage {
 	}
 
 	@Override
-	public int getSlots() {
+	public int size() {
 		return 2; // 0 holds the supplied stack endlessly, 1 is always empty to accept
 	}
 
 	@Override
-	@NotNull
-	public ItemStack getStackInSlot(int slot) {
-		return slot == 0 ? this.cachedStackInSlot : ItemStack.EMPTY;
+	public ItemResource getResource(int index) {
+		return index == 0 ? ItemResource.of(this.cachedStackInSlot) : ItemResource.EMPTY;
 	}
 
 	@Override
-	public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+	public long getAmountAsLong(int index) {
+		return index == 0 ? this.cachedStackInSlot.getCount() : 0;
 	}
 
 	@Override
-	@NotNull
-	public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-		return ItemStack.EMPTY; // no remainder, accept any input
-	}
-
-	@Override
-	@NotNull
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		if (slot == 0 && !this.suppliedStack.isEmpty()) {
-			int count = Math.min(amount, this.suppliedStack.getMaxStackSize());
-			return this.suppliedStack.copyWithCount(count);
-		}
-
-		return ItemStack.EMPTY;
-	}
-
-	@Override
-	public int getSlotLimit(int slot) {
+	public long getCapacityAsLong(int index, ItemResource resource) {
 		return 64;
 	}
 
 	@Override
-	public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+	public boolean isValid(int index, ItemResource resource) {
 		return true;
 	}
+
+	/**
+	 * Anything inserted is voided, so the whole amount is reported as accepted.
+	 */
+	@Override
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return amount;
+	}
+
+	/**
+	 * Slot 0 supplies its stack endlessly, so nothing is consumed and no transaction state is needed.
+	 */
+	@Override
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		if (index != 0 || this.suppliedStack.isEmpty())
+			return 0;
+		if (!resource.matches(this.suppliedStack))
+			return 0;
+		return Math.min(amount, this.suppliedStack.getMaxStackSize());
+	}
+
+	@Override
+	public void set(int index, ItemResource resource, int amount) {
+	}
+
 }

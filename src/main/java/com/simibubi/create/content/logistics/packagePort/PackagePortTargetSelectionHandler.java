@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.packagePort;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.content.trains.station.StationBlockEntity;
@@ -39,7 +39,7 @@ public class PackagePortTargetSelectionHandler {
 
 		if (validateDiff(exactPositionOfTarget, pos) == null) {
 			activePackageTarget.relativePos = activePackageTarget.relativePos.subtract(pos);
-			NetworkHelper.INSTANCE.sendToServer(new PackagePortPlacementPacket(activePackageTarget, pos));
+			ClientNetworkHelper.INSTANCE.sendToServer(new PackagePortPlacementPacket(activePackageTarget, pos));
 		}
 
 		activePackageTarget = null;

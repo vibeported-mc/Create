@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.glue;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -194,7 +194,7 @@ public class SuperGlueSelectionHandler {
 		if (attack) {
 			if (selected == null)
 				return false;
-			NetworkHelper.INSTANCE.sendToServer(new SuperGlueRemovalPacket(selected.getId(), soundSourceForRemoval));
+			ClientNetworkHelper.INSTANCE.sendToServer(new SuperGlueRemovalPacket(selected.getId(), soundSourceForRemoval));
 			selected = null;
 			clusterCooldown = 0;
 			return true;
@@ -252,7 +252,7 @@ public class SuperGlueSelectionHandler {
 
 	public void confirm() {
 		LocalPlayer player = Minecraft.getInstance().player;
-		NetworkHelper.INSTANCE.sendToServer(new SuperGlueSelectionPacket(firstPos, hoveredPos));
+		ClientNetworkHelper.INSTANCE.sendToServer(new SuperGlueSelectionPacket(firstPos, hoveredPos));
 		AllSoundEvents.SLIME_ADDED.playAt(player.level(), hoveredPos, 0.5F, 0.95F, false);
 		player.level().playSound(player, hoveredPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 0.75f, 1);
 

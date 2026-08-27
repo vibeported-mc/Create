@@ -1,6 +1,6 @@
 package com.simibubi.create.compat.jei;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.jspecify.annotations.NullMarked;
 import java.util.Optional;
 
@@ -42,7 +42,7 @@ public class BlueprintTransferHandler implements IRecipeTransferHandler<Blueprin
 		if (!doTransfer)
 			return null;
 
-		NetworkHelper.INSTANCE.sendToServer(new BlueprintAssignCompleteRecipePacket(craftingRecipe.id()));
+		ClientNetworkHelper.INSTANCE.sendToServer(new BlueprintAssignCompleteRecipePacket(craftingRecipe.id()));
 		return null;
 	}
 

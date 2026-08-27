@@ -123,7 +123,7 @@ public class ArmInteractionPoint {
 		ResourceHandler<ItemResource> handler = getHandler(armBlockEntity);
 		if (handler == null)
 			return ItemStack.EMPTY;
-		return handler.extractItem(slot, amount, simulate);
+		return ItemHandlerHelpers.extractItem(handler, slot, amount, simulate);
 	}
 
 	public ItemStack extract(ArmBlockEntity armBlockEntity, int slot, boolean simulate) {

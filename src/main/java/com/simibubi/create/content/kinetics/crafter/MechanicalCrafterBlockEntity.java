@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import com.simibubi.create.foundation.item.CommitCallback;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.minecraft.world.level.block.Block;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -63,6 +65,10 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 
 		private MechanicalCrafterBlockEntity blockEntity;
 
+		private final CommitCallback insertSound = new CommitCallback(() -> blockEntity.getLevel()
+			.playSound(null, blockEntity.getBlockPos(), SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .25f,
+				.5f));
+
 		public Inventory(MechanicalCrafterBlockEntity blockEntity) {
 			super(1, blockEntity, 1, false);
 			this.blockEntity = blockEntity;
@@ -76,16 +82,16 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 		}
 
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
 			if (blockEntity.phase != Phase.IDLE)
-				return stack;
+				return 0;
 			if (blockEntity.covered)
-				return stack;
-			ItemStack insertItem = super.insertItem(slot, stack, simulate);
-			if (insertItem.getCount() != stack.getCount() && !simulate)
-				blockEntity.getLevel()
-					.playSound(null, blockEntity.getBlockPos(), SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .25f, .5f);
-			return insertItem;
+				return 0;
+			int inserted = super.insert(index, resource, amount, transaction);
+			// The click only plays once the transfer is actually kept.
+			if (inserted > 0)
+				insertSound.arm(transaction);
+			return inserted;
 		}
 
 	}

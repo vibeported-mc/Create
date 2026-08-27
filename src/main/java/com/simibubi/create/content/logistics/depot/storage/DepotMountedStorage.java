@@ -43,7 +43,7 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 	@Override
 	public void unmount(Level level, BlockState state, BlockPos pos, @Nullable BlockEntity be) {
 		if (be instanceof DepotBlockEntity depot) {
-			depot.setHeldItem(this.getStackInSlot(0));
+			depot.setHeldItem(ItemHandlerHelpers.getStackInSlot(this, 0));
 		}
 	}
 
@@ -72,11 +72,11 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 	}
 
 	public void setItem(ItemStack stack) {
-		this.setStackInSlot(0, stack);
+		ItemHandlerHelpers.setStackInSlot(this, 0, stack);
 	}
 
 	public ItemStack getItem() {
-		return this.getStackInSlot(0);
+		return ItemHandlerHelpers.getStackInSlot(this, 0);
 	}
 
 	public static DepotMountedStorage fromDepot(DepotBlockEntity depot) {
@@ -86,7 +86,7 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 
 	public static DepotMountedStorage fromLegacy(HolderLookup.Provider registries, CompoundTag nbt) {
 		ItemStacksResourceHandler handler = new ItemStacksResourceHandler();
-		handler.deserializeNBT(registries, nbt);
+		ItemHandlerHelpers.deserializeNBT(handler, registries, nbt);
 		if (handler.size() == 1) {
 			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, 0);
 			return new DepotMountedStorage(stack);
@@ -100,11 +100,11 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 
 		private Handler(ItemStack stack) {
 			super(1);
-			this.setStackInSlot(0, stack);
+			ItemHandlerHelpers.setStackInSlot(this, 0, stack);
 		}
 
 		@Override
-		protected void onContentsChanged(int slot) {
+		protected void onContentsChanged(int slot, ItemStack previousContents) {
 			this.onChange.run();
 		}
 	}

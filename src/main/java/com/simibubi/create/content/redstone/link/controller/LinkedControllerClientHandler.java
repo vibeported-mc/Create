@@ -1,6 +1,6 @@
 package com.simibubi.create.content.redstone.link.controller;
 
-import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -92,11 +92,11 @@ public class LinkedControllerClientHandler {
 		selectedLocation = BlockPos.ZERO;
 
 		if (inLectern())
-			NetworkHelper.INSTANCE.sendToServer(new LinkedControllerStopLecternPacket(lecternPos));
+			ClientNetworkHelper.INSTANCE.sendToServer(new LinkedControllerStopLecternPacket(lecternPos));
 		lecternPos = null;
 
 		if (!currentlyPressed.isEmpty())
-			NetworkHelper.INSTANCE.sendToServer(new LinkedControllerInputPacket(currentlyPressed, false));
+			ClientNetworkHelper.INSTANCE.sendToServer(new LinkedControllerInputPacket(currentlyPressed, false));
 		currentlyPressed.clear();
 
 		LinkedControllerItemRenderer.resetButtons();
@@ -165,13 +165,13 @@ public class LinkedControllerClientHandler {
 		if (MODE == Mode.ACTIVE) {
 			// Released Keys
 			if (!releasedKeys.isEmpty()) {
-				NetworkHelper.INSTANCE.sendToServer(new LinkedControllerInputPacket(releasedKeys, false, lecternPos));
+				ClientNetworkHelper.INSTANCE.sendToServer(new LinkedControllerInputPacket(releasedKeys, false, lecternPos));
 				AllSoundEvents.CONTROLLER_CLICK.playAt(player.level(), player.blockPosition(), 1f, .5f, true);
 			}
 
 			// Newly Pressed Keys
 			if (!newKeys.isEmpty()) {
-				NetworkHelper.INSTANCE.sendToServer(new LinkedControllerInputPacket(newKeys, true, lecternPos));
+				ClientNetworkHelper.INSTANCE.sendToServer(new LinkedControllerInputPacket(newKeys, true, lecternPos));
 				packetCooldown = PACKET_RATE;
 				AllSoundEvents.CONTROLLER_CLICK.playAt(player.level(), player.blockPosition(), 1f, .75f, true);
 			}
@@ -179,7 +179,7 @@ public class LinkedControllerClientHandler {
 			// Keepalive Pressed Keys
 			if (packetCooldown == 0) {
 				if (!pressedKeys.isEmpty()) {
-					NetworkHelper.INSTANCE.sendToServer(new LinkedControllerInputPacket(pressedKeys, true, lecternPos));
+					ClientNetworkHelper.INSTANCE.sendToServer(new LinkedControllerInputPacket(pressedKeys, true, lecternPos));
 					packetCooldown = PACKET_RATE;
 				}
 			}
@@ -197,7 +197,7 @@ public class LinkedControllerClientHandler {
 			for (Integer integer : newKeys) {
 				LinkBehaviour linkBehaviour = BlockEntityBehaviour.get(mc.level, selectedLocation, LinkBehaviour.TYPE);
 				if (linkBehaviour != null) {
-					NetworkHelper.INSTANCE.sendToServer(new LinkedControllerBindPacket(integer, selectedLocation));
+					ClientNetworkHelper.INSTANCE.sendToServer(new LinkedControllerBindPacket(integer, selectedLocation));
 					CreateLang.translate("linked_controller.key_bound", controls.get(integer)
 							.getTranslatedKeyMessage()
 							.getString())

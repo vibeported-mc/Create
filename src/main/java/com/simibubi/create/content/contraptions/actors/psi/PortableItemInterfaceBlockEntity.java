@@ -1,5 +1,8 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
+import com.simibubi.create.foundation.item.CommitCallback;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
@@ -59,28 +62,39 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 
 	class InterfaceItemHandler extends ItemHandlerWrapper {
 
+		private final CommitCallback transferred =
+			new CommitCallback(PortableItemInterfaceBlockEntity.this::onContentTransferred);
+
 		public InterfaceItemHandler(ModifiableItemHandler wrapped) {
 			super(wrapped);
 		}
 
 		@Override
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
 			if (!canTransfer())
-				return ItemStack.EMPTY;
-			ItemStack extractItem = super.extractItem(slot, amount, simulate);
-			if (!simulate && !extractItem.isEmpty())
-				onContentTransferred();
-			return extractItem;
+				return 0;
+			int extracted = super.extract(index, resource, amount, transaction);
+			if (extracted > 0)
+				afterTransfer(transaction);
+			return extracted;
 		}
 
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
 			if (!canTransfer())
-				return stack;
-			ItemStack insertItem = super.insertItem(slot, stack, simulate);
-			if (!simulate && !ItemStack.matches(insertItem, stack))
-				onContentTransferred();
-			return insertItem;
+				return 0;
+			int inserted = super.insert(index, resource, amount, transaction);
+			if (inserted > 0)
+				afterTransfer(transaction);
+			return inserted;
+		}
+
+		/**
+		 * The interface keeps itself open for a while after a transfer, which only counts once the
+		 * transaction is actually kept.
+		 */
+		private void afterTransfer(TransactionContext transaction) {
+			transferred.arm(transaction);
 		}
 
 	}
