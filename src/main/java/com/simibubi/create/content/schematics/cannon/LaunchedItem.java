@@ -105,7 +105,7 @@ public abstract class LaunchedItem {
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-			CompoundTag serializeNBT = super.serializeNBT(registries);
+			CompoundTag serializeNBT = ItemHandlerHelpers.serializeNBT(super, registries);
 			serializeNBT.put("BlockState", NbtUtils.writeBlockState(state));
 			if (data != null) {
 				data.remove("x");
@@ -141,7 +141,7 @@ public abstract class LaunchedItem {
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-			CompoundTag serializeNBT = super.serializeNBT(registries);
+			CompoundTag serializeNBT = ItemHandlerHelpers.serializeNBT(super, registries);
 			serializeNBT.putInt("Length", length);
 			serializeNBT.putIntArray("Casing", Arrays.stream(casings)
 				.map(CasingType::ordinal)
@@ -221,7 +221,7 @@ public abstract class LaunchedItem {
 
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-			CompoundTag serializeNBT = super.serializeNBT(registries);
+			CompoundTag serializeNBT = ItemHandlerHelpers.serializeNBT(super, registries);
 			if (entity != null)
 				serializeNBT.put("Entity", ItemHandlerHelpers.serializeNBT(entity, registries));
 			return serializeNBT;

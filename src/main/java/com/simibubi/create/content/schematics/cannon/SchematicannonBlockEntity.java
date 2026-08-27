@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.minecraft.core.component.DataComponentGetter;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -176,7 +177,8 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 
 		missingItem = null;
 		if (compound.contains("MissingItem")) {
-			ItemStack.parse(registries, compound.getCompoundOrEmpty("MissingItem")).ifPresent(i -> missingItem = i);
+			compound.read("MissingItem", ItemStack.CODEC)
+				.ifPresent(i -> missingItem = i);
 		}
 
 		// Settings
@@ -198,7 +200,7 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 	}
 
 	protected void readFlyingBlocks(CompoundTag compound, HolderLookup.Provider registries) {
-		ListTag tagBlocks = compound.getListOrEmpty("FlyingBlocks", 10);
+		ListTag tagBlocks = compound.getListOrEmpty("FlyingBlocks");
 		if (tagBlocks.isEmpty())
 			flyingBlocks.clear();
 
@@ -264,7 +266,7 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 
 		ListTag tagFlyingBlocks = new ListTag();
 		for (LaunchedItem b : flyingBlocks)
-			tagFlyingBlocks.add(b.serializeNBT(registries));
+			tagFlyingBlocks.add(ItemHandlerHelpers.serializeNBT(b, registries));
 		compound.put("FlyingBlocks", tagFlyingBlocks);
 
 		compound.putFloat("DefaultYaw", defaultYaw);

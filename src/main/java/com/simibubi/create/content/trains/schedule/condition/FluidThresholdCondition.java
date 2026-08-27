@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.schedule.condition;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -63,7 +64,7 @@ public class FluidThresholdCondition extends CargoThresholdCondition {
 	@Override
 	protected void writeAdditional(HolderLookup.Provider registries, CompoundTag tag) {
 		super.writeAdditional(registries, tag);
-		tag.put("Bucket", compareStack.serializeNBT(registries));
+		tag.put("Bucket", ItemHandlerHelpers.serializeNBT(compareStack, registries));
 	}
 
 	@Override

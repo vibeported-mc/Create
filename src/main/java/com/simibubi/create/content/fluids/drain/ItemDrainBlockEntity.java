@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.drain;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.world.Containers;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import java.util.IdentityHashMap;
@@ -292,7 +293,7 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		compound.putInt("ProcessingTicks", processingTicks);
 		if (heldItem != null)
-			compound.put("HeldItem", heldItem.serializeNBT(registries));
+			compound.put("HeldItem", ItemHandlerHelpers.serializeNBT(heldItem, registries));
 		super.write(compound, registries, clientPacket);
 	}
 

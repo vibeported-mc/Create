@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
@@ -59,7 +60,7 @@ public class ToolboxMountedStorage extends WrapperMountedItemStorage<ToolboxInve
 
 	public static ToolboxMountedStorage fromLegacy(HolderLookup.Provider registries, CompoundTag nbt) {
 		ToolboxInventory inv = new ToolboxInventory(null);
-		inv.deserializeNBT(registries, nbt);
+		ItemHandlerHelpers.deserializeNBT(inv, registries, nbt);
 		return new ToolboxMountedStorage(inv);
 	}
 }

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.minecraft.core.component.DataComponentGetter;
 import com.simibubi.create.foundation.utility.ComponentJson;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.core.UUIDUtil;
@@ -285,11 +286,11 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		inventory.deserializeNBT(registries, compound.getCompoundOrEmpty("Inventory"));
+		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
 		super.read(compound, registries, clientPacket);
-		if (compound.contains("UniqueId", 11))
+		if (compound.contains("UniqueId"))
 			this.uniqueId = compound.read("UniqueId", UUIDUtil.CODEC).orElse(null);
-		if (compound.contains("CustomName", 8))
+		if (compound.contains("CustomName"))
 			this.customName = ComponentJson.fromJson(compound.getStringOr("CustomName", ""), registries);
 	}
 
@@ -298,7 +299,7 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 		if (uniqueId == null)
 			uniqueId = UUID.randomUUID();
 
-		compound.put("Inventory", inventory.serializeNBT(registries));
+		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
 		compound.store("UniqueId", UUIDUtil.CODEC, uniqueId);
 
 		if (customName != null)
@@ -335,7 +336,7 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 		if (inv != null) {
 			this.inventory.filters = new ArrayList<>(inv.filters);
 			for (int i = 0; i < inv.size(); i++)
-				this.inventory.setStackInSlot(i, ItemHandlerHelpers.getStackInSlot(inv, i));
+				ItemHandlerHelpers.setStackInSlot(this.inventory, i, ItemHandlerHelpers.getStackInSlot(inv, i));
 		}
 	}
 

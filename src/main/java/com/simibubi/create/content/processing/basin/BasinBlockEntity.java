@@ -167,8 +167,8 @@ public class BasinBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
-		inputInventory.deserializeNBT(registries, compound.getCompoundOrEmpty("InputItems"));
-		outputInventory.deserializeNBT(registries, compound.getCompoundOrEmpty("OutputItems"));
+		ItemHandlerHelpers.deserializeNBT(inputInventory, registries, compound.getCompoundOrEmpty("InputItems"));
+		ItemHandlerHelpers.deserializeNBT(outputInventory, registries, compound.getCompoundOrEmpty("OutputItems"));
 
 		preferredSpoutput = null;
 		if (compound.contains("PreferredSpoutput"))
@@ -192,8 +192,8 @@ public class BasinBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.write(compound, registries, clientPacket);
-		compound.put("InputItems", inputInventory.serializeNBT(registries));
-		compound.put("OutputItems", outputInventory.serializeNBT(registries));
+		compound.put("InputItems", ItemHandlerHelpers.serializeNBT(inputInventory, registries));
+		compound.put("OutputItems", ItemHandlerHelpers.serializeNBT(outputInventory, registries));
 
 		if (preferredSpoutput != null)
 			NBTHelper.writeEnum(compound, "PreferredSpoutput", preferredSpoutput);
@@ -611,8 +611,8 @@ public class BasinBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	}
 
 	public void readOnlyItems(CompoundTag compound, HolderLookup.Provider registries) {
-		inputInventory.deserializeNBT(registries, compound.getCompoundOrEmpty("InputItems"));
-		outputInventory.deserializeNBT(registries, compound.getCompoundOrEmpty("OutputItems"));
+		ItemHandlerHelpers.deserializeNBT(inputInventory, registries, compound.getCompoundOrEmpty("InputItems"));
+		ItemHandlerHelpers.deserializeNBT(outputInventory, registries, compound.getCompoundOrEmpty("OutputItems"));
 	}
 
 	public static HeatLevel getHeatLevelOf(BlockState state) {

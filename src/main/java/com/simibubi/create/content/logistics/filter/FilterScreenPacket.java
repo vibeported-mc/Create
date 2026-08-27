@@ -46,7 +46,7 @@ public record FilterScreenPacket(Option option, @Nullable CompoundTag data) impl
 			if (this.option == Option.IGNORE_DATA)
 				c.respectNBT = false;
 			if (this.option == Option.UPDATE_FILTER_ITEM)
-				c.ghostInventory.setStackInSlot(tag.getIntOr("Slot", 0),
+				ItemHandlerHelpers.setStackInSlot(c.ghostInventory, tag.getIntOr("Slot", 0),
 					tag.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
 		}
 

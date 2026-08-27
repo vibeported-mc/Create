@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.minecart.capability;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +28,7 @@ public record MinecartControllerUpdatePacket(int entityId, @Nullable CompoundTag
 	);
 
 	public MinecartControllerUpdatePacket(MinecartController controller, @NotNull HolderLookup.Provider registries) {
-		this(controller.cart().getId(), controller.isEmpty() ? null : controller.serializeNBT(registries));
+		this(controller.cart().getId(), controller.isEmpty() ? null : ItemHandlerHelpers.serializeNBT(controller, registries));
 	}
 
 	@OnlyIn(Dist.CLIENT)

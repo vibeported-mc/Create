@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.observer;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.core.UUIDUtil;
 import java.util.UUID;
 
@@ -101,7 +102,7 @@ public class TrackObserver extends SingleBlockEntityEdgePoint {
 	public void write(CompoundTag nbt, HolderLookup.Provider registries, DimensionPalette dimensions) {
 		super.write(nbt, registries, dimensions);
 		nbt.putInt("Activated", activated);
-		nbt.put("Filter", filter.serializeNBT(registries));
+		nbt.put("Filter", ItemHandlerHelpers.serializeNBT(filter, registries));
 		if (currentTrain != null)
 			nbt.store("TrainId", UUIDUtil.CODEC, currentTrain);
 	}

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.armor;
 
+import net.minecraft.core.component.DataComponentGetter;
 import com.simibubi.create.foundation.utility.ComponentJson;
 import java.util.List;
 
@@ -137,7 +138,7 @@ public class BacktankBlockEntity extends KineticBlockEntity implements Nameable 
 		airLevelTimer = compound.getIntOr("Timer", 0);
 		capacityEnchantLevel = compound.getIntOr("CapacityEnchantment", 0);
 
-		if (compound.contains("CustomName", 8))
+		if (compound.contains("CustomName"))
 			this.customName = ComponentJson.fromJson(compound.getStringOr("CustomName", ""), registries);
 
 		componentPatch = CatnipCodecUtils.decode(DataComponentPatch.CODEC, registries, compound.getCompoundOrEmpty("Components")).orElse(DataComponentPatch.EMPTY);

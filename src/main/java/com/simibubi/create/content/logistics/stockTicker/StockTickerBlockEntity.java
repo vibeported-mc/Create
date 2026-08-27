@@ -165,7 +165,7 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 	protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		super.write(tag, registries, clientPacket);
 		tag.putString("PreviousAddress", previouslyUsedAddress);
-		tag.put("ReceivedPayments", receivedPayments.serializeNBT(registries));
+		tag.put("ReceivedPayments", ItemHandlerHelpers.serializeNBT(receivedPayments, registries));
 		tag.put("Categories", NBTHelper.writeItemList(categories, registries));
 		tag.put("HiddenCategories", NBTHelper.writeCompoundList(hiddenCategoriesByPlayer.entrySet(), e -> {
 			CompoundTag c = new CompoundTag();
@@ -182,7 +182,7 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(tag, registries, clientPacket);
 		previouslyUsedAddress = tag.getStringOr("PreviousAddress", "");
-		receivedPayments.deserializeNBT(registries, tag.getCompoundOrEmpty("ReceivedPayments"));
+		ItemHandlerHelpers.deserializeNBT(receivedPayments, registries, tag.getCompoundOrEmpty("ReceivedPayments"));
 		categories = NBTHelper.readItemList(tag.getListOrEmpty("Categories"), registries);
 		categories.removeIf(stack -> !stack.isEmpty() && !(stack.getItem() instanceof FilterItem));
 		hiddenCategoriesByPlayer.clear();

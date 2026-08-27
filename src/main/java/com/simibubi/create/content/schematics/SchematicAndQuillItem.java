@@ -32,7 +32,7 @@ public class SchematicAndQuillItem extends Item {
 		String structureVoid = RegisteredObjectsHelper.getKeyOrThrow(Blocks.STRUCTURE_VOID)
 			.toString();
 
-		NBTHelper.iterateCompoundList(nbt.getListOrEmpty("palette", 10), c -> {
+		NBTHelper.iterateCompoundList(nbt.getListOrEmpty("palette"), c -> {
 			if (c.contains("Name") && c.getStringOr("Name", "")
 				.equals(structureVoid)) {
 				c.putString("Name", air);
@@ -41,7 +41,7 @@ public class SchematicAndQuillItem extends Item {
 	}
 
 	public static void clampGlueBoxes(Level level, AABB aabb, CompoundTag nbt) {
-		ListTag listtag = nbt.getListOrEmpty("entities", 10)
+		ListTag listtag = nbt.getListOrEmpty("entities")
 			.copy();
 
 		for (Iterator<Tag> iterator = listtag.iterator(); iterator.hasNext();) {
