@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
@@ -359,7 +361,10 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	}
 
 	@Override
-	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
 		if (editorConfirm != null && editorConfirm.isMouseOver(pMouseX, pMouseY)) {
 			stopEditing();
 			return true;
@@ -370,7 +375,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		}
 
 		boolean wasNotFocused = editorEditBox != null && !editorEditBox.isFocused();
-		boolean mouseClicked = super.mouseClicked(pMouseX, pMouseY, pButton);
+		boolean mouseClicked = super.mouseClicked(event, doubleClick);
 
 		if (editorEditBox != null && editorEditBox.isMouseOver(pMouseX, pMouseY) && wasNotFocused) {
 			editorEditBox.moveCursorToEnd(false);
@@ -381,9 +386,12 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	}
 
 	@Override
-	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+	public boolean keyPressed(KeyEvent event) {
+		int pKeyCode = event.key();
+		int pScanCode = event.scancode();
+		int pModifiers = event.modifiers();
 		if (editingItem == null)
-			return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+			return super.keyPressed(event);
 
 		InputConstants.Key mouseKey = InputConstants.getKey(pKeyCode, pScanCode);
 		boolean hitEscape = pKeyCode == GLFW.GLFW_KEY_ESCAPE;
@@ -394,7 +402,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 			return true;
 		}
 
-		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+		return super.keyPressed(event);
 	}
 
 	@Override

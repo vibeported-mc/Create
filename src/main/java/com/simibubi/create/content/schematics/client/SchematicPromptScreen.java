@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
+import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 
 import com.simibubi.create.AllItems;
@@ -93,7 +94,10 @@ public class SchematicPromptScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int p_keyPressed_2_, int p_keyPressed_3_) {
+	public boolean keyPressed(KeyEvent event) {
+		int keyCode = event.key();
+		int p_keyPressed_2_ = event.scancode();
+		int p_keyPressed_3_ = event.modifiers();
 		if (keyCode == GLFW.GLFW_KEY_ENTER) {
 			confirm(false);
 			return true;
@@ -102,7 +106,7 @@ public class SchematicPromptScreen extends AbstractSimiScreen {
 			this.onClose();
 			return true;
 		}
-		return nameField.keyPressed(keyCode, p_keyPressed_2_, p_keyPressed_3_);
+		return nameField.keyPressed(event);
 	}
 
 	private void confirm(boolean convertImmediately) {

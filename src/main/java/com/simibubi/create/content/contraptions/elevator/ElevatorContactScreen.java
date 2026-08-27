@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.elevator;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.lwjgl.glfw.GLFW;
 
@@ -138,8 +140,11 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-		boolean consumed = super.mouseClicked(pMouseX, pMouseY, pButton);
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
+		boolean consumed = super.mouseClicked(event, doubleClick);
 
 		if (!shortNameInput.isFocused()) {
 			int length = shortNameInput.getValue()
@@ -149,7 +154,7 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 		}
 
 		if (shortNameInput.isHoveredOrFocused())
-			longNameInput.mouseClicked(0, 0, 0);
+			longNameInput.mouseClicked(event, doubleClick);
 
 		if (!consumed && pMouseX > guiLeft + 22 && pMouseY > guiTop + 24 && pMouseX < guiLeft + 50
 			&& pMouseY < guiTop + 40) {
@@ -162,8 +167,11 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int p_keyPressed_2_, int p_keyPressed_3_) {
-		if (super.keyPressed(keyCode, p_keyPressed_2_, p_keyPressed_3_))
+	public boolean keyPressed(KeyEvent event) {
+		int keyCode = event.key();
+		int p_keyPressed_2_ = event.scancode();
+		int p_keyPressed_3_ = event.modifiers();
+		if (super.keyPressed(event))
 			return true;
 		if (keyCode == GLFW.GLFW_KEY_ENTER) {
 			confirm();

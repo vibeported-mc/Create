@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.computercraft;
 
+import net.minecraft.client.Minecraft;
 import com.simibubi.create.compat.Mods;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
@@ -43,7 +44,7 @@ public class ComputerScreen extends AbstractSimiScreen {
 	@Override
 	public void tick() {
 		if (!hasAttachedComputer.get())
-			minecraft.setScreen(previousScreen);
+			minecraft.gui.setScreen(previousScreen);
 
 		super.tick();
 	}

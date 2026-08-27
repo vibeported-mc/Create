@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.station;
 
+import net.minecraft.client.Minecraft;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -74,7 +75,7 @@ public class AssemblyScreen extends AbstractStationScreen {
 		quitAssembly.setToolTip(CreateLang.translateDirect("station.cancel"));
 		quitAssembly.withCallback(() -> {
 			ClientNetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
-			minecraft.setScreen(new StationScreen(blockEntity, station));
+			minecraft.gui.setScreen(new StationScreen(blockEntity, station));
 		});
 
 		addRenderableWidget(toggleAssemblyButton);
@@ -92,7 +93,7 @@ public class AssemblyScreen extends AbstractStationScreen {
 
 		if (train != null) {
 			ClientNetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
-			minecraft.setScreen(new StationScreen(blockEntity, station));
+			minecraft.gui.setScreen(new StationScreen(blockEntity, station));
 			for (Carriage carriage : train.carriages)
 				carriage.updateConductors();
 		}
@@ -110,7 +111,7 @@ public class AssemblyScreen extends AbstractStationScreen {
 			});
 		} else {
 			ClientNetworkHelper.INSTANCE.sendToServer(StationEditPacket.configure(blockEntity.getBlockPos(), false, station.name, null));
-			minecraft.setScreen(new StationScreen(blockEntity, station));
+			minecraft.gui.setScreen(new StationScreen(blockEntity, station));
 		}
 	}
 

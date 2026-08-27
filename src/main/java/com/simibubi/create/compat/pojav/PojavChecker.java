@@ -65,7 +65,7 @@ public class PojavChecker {
 
 	public static void onScreenInit(ScreenEvent.Init.Post event) {
 		if (!screenShown && event.getScreen() instanceof TitleScreen titleScreen) {
-			Minecraft.getInstance().setScreen(new PojavWarningScreen(titleScreen));
+			Minecraft.getInstance().gui.setScreen(new PojavWarningScreen(titleScreen));
 			screenShown = true;
 		}
 	}

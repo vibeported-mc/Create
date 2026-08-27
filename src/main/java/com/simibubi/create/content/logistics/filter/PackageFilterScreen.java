@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.filter;
 
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.lwjgl.glfw.GLFW;
 
@@ -72,8 +75,11 @@ public class PackageFilterScreen extends AbstractFilterScreen<PackageFilterMenu>
 	}
 
 	@Override
-	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-		return super.mouseClicked(pMouseX, pMouseY, pButton);
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
@@ -84,15 +90,20 @@ public class PackageFilterScreen extends AbstractFilterScreen<PackageFilterMenu>
 	}
 
 	@Override
-	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+	public boolean keyPressed(KeyEvent event) {
+		int pKeyCode = event.key();
+		int pScanCode = event.scancode();
+		int pModifiers = event.modifiers();
 		if (pKeyCode == GLFW.GLFW_KEY_ENTER)
 			setFocused(null);
-		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+		return super.keyPressed(event);
 	}
 
 	@Override
-	public boolean charTyped(char pCodePoint, int pModifiers) {
-		return super.charTyped(pCodePoint, pModifiers);
+	public boolean charTyped(CharacterEvent event) {
+		char pCodePoint = (char) event.codepoint();
+		int pModifiers = 0;
+		return super.charTyped(event);
 	}
 
 	@Override

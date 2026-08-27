@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static com.simibubi.create.content.equipment.toolbox.ToolboxInventory.STACKS_PER_COMPARTMENT;
@@ -307,7 +309,10 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double x, double y, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double x = event.x();
+		double y = event.y();
+		int button = event.button();
 		int selected = scrollMode ? scrollSlot : hoveredSlot;
 
 		if (button == 0) {
@@ -352,11 +357,14 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 			}
 		}
 
-		return super.mouseClicked(x, y, button);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean keyPressed(int code, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent event) {
+		int code = event.key();
+		int scanCode = event.scancode();
+		int modifiers = event.modifiers();
 		KeyMapping[] hotbarBinds = minecraft.options.keyHotbarSlots;
 		for (int i = 0; i < hotbarBinds.length && i < 8; i++) {
 			if (hotbarBinds[i].matches(code, scanCode)) {
@@ -380,18 +388,21 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 			}
 		}
 
-		return super.keyPressed(code, scanCode, modifiers);
+		return super.keyPressed(event);
 	}
 
 	@Override
-	public boolean keyReleased(int code, int scanCode, int modifiers) {
+	public boolean keyReleased(KeyEvent event) {
+		int code = event.key();
+		int scanCode = event.scancode();
+		int modifiers = event.modifiers();
 		InputConstants.Key mouseKey = InputConstants.getKey(code, scanCode);
 		if (AllKeys.TOOLBELT.getKeybind()
 			.isActiveAndMatches(mouseKey)) {
 			onClose();
 			return true;
 		}
-		return super.keyReleased(code, scanCode, modifiers);
+		return super.keyReleased(event);
 	}
 
 	public static enum State {

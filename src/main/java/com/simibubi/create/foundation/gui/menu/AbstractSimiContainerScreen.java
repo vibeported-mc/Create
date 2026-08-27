@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.gui.menu;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import org.jspecify.annotations.NullMarked;
 import java.util.Collection;
 import java.util.Collections;
@@ -146,17 +148,23 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 	}
 
 	@Override
-	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+	public boolean keyPressed(KeyEvent event) {
+		int pKeyCode = event.key();
+		int pScanCode = event.scancode();
+		int pModifiers = event.modifiers();
 		if (getFocused() instanceof EditBox && pKeyCode != GLFW.GLFW_KEY_ESCAPE)
-			return getFocused().keyPressed(pKeyCode, pScanCode, pModifiers);
-		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+			return getFocused().keyPressed(event);
+		return super.keyPressed(event);
 	}
 
 	@Override
-	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
 		if (getFocused() != null && !getFocused().isMouseOver(pMouseX, pMouseY))
 			setFocused(null);
-		return super.mouseClicked(pMouseX, pMouseY, pButton);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override

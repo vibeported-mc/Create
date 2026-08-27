@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.transmission.sequencer;
 
+import net.minecraft.client.Minecraft;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.Vector;
 
@@ -38,7 +39,7 @@ public class SequencedGearshiftScreen extends AbstractSimiScreen {
 	@Override
 	protected void init() {
 		if (be.computerBehaviour.hasAttachedComputer())
-			minecraft.setScreen(
+			minecraft.gui.setScreen(
 				new ComputerScreen(title, this::renderAdditional, this, be.computerBehaviour::hasAttachedComputer));
 
 		setWindowSize(background.getWidth(), background.getHeight());
@@ -131,7 +132,7 @@ public class SequencedGearshiftScreen extends AbstractSimiScreen {
 		super.tick();
 
 		if (be.computerBehaviour.hasAttachedComputer())
-			minecraft.setScreen(
+			minecraft.gui.setScreen(
 				new ComputerScreen(title, this::renderAdditional, this, be.computerBehaviour::hasAttachedComputer));
 	}
 

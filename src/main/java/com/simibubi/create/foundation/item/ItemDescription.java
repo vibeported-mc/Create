@@ -101,9 +101,9 @@ public record ItemDescription(ImmutableList<Component> lines, ImmutableList<Comp
 	}
 
 	public ImmutableList<Component> getCurrentLines() {
-		if (Screen.hasShiftDown()) {
+		if (Minecraft.getInstance().hasShiftDown()) {
 			return linesOnShift;
-		} else if (Screen.hasControlDown()) {
+		} else if (Minecraft.getInstance().hasControlDown()) {
 			return linesOnCtrl;
 		} else {
 			return lines;

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.thresholdSwitch;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,14 +127,17 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int pButton) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int pButton = event.button();
 		int itemX = guiLeft + 13;
 		int itemY = guiTop + 80;
 		if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
 			ScreenOpener.open(new PonderTagScreen(AllCreatePonderTags.THRESHOLD_SWITCH_TARGETS));
 			return true;
 		}
-		return super.mouseClicked(mouseX, mouseY, pButton);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override

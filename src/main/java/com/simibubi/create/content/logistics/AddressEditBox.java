@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -48,8 +50,11 @@ public class AddressEditBox extends EditBox {
 	}
 
 	@Override
-	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-		if (destinationSuggestions.keyPressed(pKeyCode, pScanCode, pModifiers))
+	public boolean keyPressed(KeyEvent event) {
+		int pKeyCode = event.key();
+		int pScanCode = event.scancode();
+		int pModifiers = event.modifiers();
+		if (destinationSuggestions.keyPressed(event))
 			return true;
 		if (isFocused() && pKeyCode == GLFW.GLFW_KEY_ENTER) {
 			setFocused(false);
@@ -57,7 +62,7 @@ public class AddressEditBox extends EditBox {
 			mouseClicked(0, 0, 0);
 			return true;
 		}
-		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+		return super.keyPressed(event);
 	}
 
 	@Override
@@ -68,7 +73,10 @@ public class AddressEditBox extends EditBox {
 	}
 
 	@Override
-	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
 		if (pButton == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
 			if (isMouseOver(pMouseX, pMouseY)) {
 				setValue("");
@@ -77,7 +85,7 @@ public class AddressEditBox extends EditBox {
 		}
 
 		boolean wasFocused = isFocused();
-		if (super.mouseClicked(pMouseX, pMouseY, pButton)) {
+		if (super.mouseClicked(event, doubleClick)) {
 			if (!wasFocused) {
 				setHighlightPos(0);
 				setCursorPosition(getValue().length());

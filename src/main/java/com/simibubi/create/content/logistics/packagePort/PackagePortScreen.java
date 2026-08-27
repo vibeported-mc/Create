@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packagePort;
 
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.Collections;
 import java.util.List;
@@ -163,7 +164,10 @@ public class PackagePortScreen extends AbstractSimiContainerScreen<PackagePortMe
 	}
 
 	@Override
-	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+	public boolean keyPressed(KeyEvent event) {
+		int pKeyCode = event.key();
+		int pScanCode = event.scancode();
+		int pModifiers = event.modifiers();
 		boolean hitEnter = getFocused() instanceof EditBox
 			&& (pKeyCode == InputConstants.KEY_RETURN || pKeyCode == InputConstants.KEY_NUMPADENTER);
 
@@ -172,7 +176,7 @@ public class PackagePortScreen extends AbstractSimiContainerScreen<PackagePortMe
 			return true;
 		}
 
-		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+		return super.keyPressed(event);
 	}
 
 	@Override

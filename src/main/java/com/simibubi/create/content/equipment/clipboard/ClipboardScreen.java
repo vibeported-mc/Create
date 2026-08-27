@@ -1,5 +1,8 @@
 package com.simibubi.create.content.equipment.clipboard;
 
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,7 +137,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		});
 		clearBtn.setToolTip(CreateLang.translateDirect("gui.clipboard.erase_checked"));
 		closeBtn = new IconButton(x + 234, y + 175, AllIcons.I_PRIORITY_VERY_LOW)
-			.withCallback(() -> minecraft.setScreen(null));
+			.withCallback(() -> minecraft.gui.setScreen(null));
 		closeBtn.setToolTip(CreateLang.translateDirect("station.close"));
 		addRenderableWidget(closeBtn);
 		addRenderableWidget(clearBtn);
@@ -158,11 +161,11 @@ public class ClipboardScreen extends AbstractSimiScreen {
 
 		if (targetedBlock != null) {
 			if (!minecraft.player.isWithinBlockInteractionRange(targetedBlock, 10)) {
-				minecraft.setScreen(null);
+				minecraft.gui.setScreen(null);
 				return;
 			}
 			if (!AllBlocks.CLIPBOARD.has(minecraft.level.getBlockState(targetedBlock))) {
-				minecraft.setScreen(null);
+				minecraft.gui.setScreen(null);
 				return;
 			}
 		}
@@ -380,7 +383,10 @@ public class ClipboardScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+	public boolean keyPressed(KeyEvent event) {
+		int pKeyCode = event.key();
+		int pScanCode = event.scancode();
+		int pModifiers = event.modifiers();
 		if (pKeyCode == 266) {
 			backward.onPress();
 			return true;
@@ -394,13 +400,15 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			clearDisplayCache();
 			return true;
 		}
-		super.keyPressed(pKeyCode, pScanCode, pModifiers);
+		super.keyPressed(event);
 		return true;
 	}
 
 	@Override
-	public boolean charTyped(char pCodePoint, int pModifiers) {
-		if (super.charTyped(pCodePoint, pModifiers))
+	public boolean charTyped(CharacterEvent event) {
+		char pCodePoint = (char) event.codepoint();
+		int pModifiers = 0;
+		if (super.charTyped(event))
 			return true;
 		if (!StringUtil.isAllowedChatCharacter(pCodePoint))
 			return false;
@@ -475,17 +483,17 @@ public class ClipboardScreen extends AbstractSimiScreen {
 				return true;
 			case 262:
 				if (hasControlDown()) {
-					editContext.moveByWords(1, Screen.hasShiftDown());
+					editContext.moveByWords(1, Minecraft.getInstance().hasShiftDown());
 					return true;
 				}
-				editContext.moveByChars(1, Screen.hasShiftDown());
+				editContext.moveByChars(1, Minecraft.getInstance().hasShiftDown());
 				return true;
 			case 263:
 				if (hasControlDown()) {
-					editContext.moveByWords(-1, Screen.hasShiftDown());
+					editContext.moveByWords(-1, Minecraft.getInstance().hasShiftDown());
 					return true;
 				}
-				editContext.moveByChars(-1, Screen.hasShiftDown());
+				editContext.moveByChars(-1, Minecraft.getInstance().hasShiftDown());
 				return true;
 			case 264:
 				keyDown();
@@ -516,20 +524,20 @@ public class ClipboardScreen extends AbstractSimiScreen {
 	private void changeLine(int pYChange) {
 		int i = editContext.getCursorPos();
 		int j = getDisplayCache().changeLine(i, pYChange);
-		editContext.setCursorPos(j, Screen.hasShiftDown());
+		editContext.setCursorPos(j, Minecraft.getInstance().hasShiftDown());
 	}
 
 	private void keyHome() {
 		int i = editContext.getCursorPos();
 		int j = getDisplayCache().findLineStart(i);
-		editContext.setCursorPos(j, Screen.hasShiftDown());
+		editContext.setCursorPos(j, Minecraft.getInstance().hasShiftDown());
 	}
 
 	private void keyEnd() {
 		DisplayCache cache = getDisplayCache();
 		int i = editContext.getCursorPos();
 		int j = cache.findLineEnd(i);
-		editContext.setCursorPos(j, Screen.hasShiftDown());
+		editContext.setCursorPos(j, Minecraft.getInstance().hasShiftDown());
 	}
 
 	private void renderCursor(GuiGraphicsExtractor graphics, Pos2i pCursorPos, boolean pIsEndOfText) {
@@ -580,8 +588,11 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			pLocalScreenPos.y + 32 + 24 + yOffsetOfEditingEntry() + guiTop - 14);
 	}
 
-	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-		if (super.mouseClicked(pMouseX, pMouseY, pButton))
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
+		if (super.mouseClicked(event, doubleClick))
 			return true;
 		if (pButton != 0)
 			return true;
@@ -641,7 +652,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 					editContext.selectAll();
 				}
 			} else {
-				editContext.setCursorPos(j, Screen.hasShiftDown());
+				editContext.setCursorPos(j, Minecraft.getInstance().hasShiftDown());
 			}
 
 			clearDisplayCache();
@@ -658,8 +669,11 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			StringSplitter.getWordPosition(s, 1, pIndex, false));
 	}
 
-	public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
-		if (super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY))
+	public boolean mouseDragged(MouseButtonEvent event, double pDragX, double pDragY) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
+		if (super.mouseDragged(event, pDragX, pDragY))
 			return true;
 		if (pButton != 0)
 			return true;

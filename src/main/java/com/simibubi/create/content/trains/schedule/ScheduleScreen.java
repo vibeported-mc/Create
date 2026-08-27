@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains.schedule;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
@@ -868,7 +870,10 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 	}
 
 	@Override
-	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
 		if (destinationSuggestions != null
 			&& destinationSuggestions.mouseClicked((int) pMouseX, (int) pMouseY, pButton))
 			return true;
@@ -885,15 +890,18 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		if (action(null, pMouseX, pMouseY, pButton))
 			return true;
 
-		return super.mouseClicked(pMouseX, pMouseY, pButton);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-		if (destinationSuggestions != null && destinationSuggestions.keyPressed(pKeyCode, pScanCode, pModifiers))
+	public boolean keyPressed(KeyEvent event) {
+		int pKeyCode = event.key();
+		int pScanCode = event.scancode();
+		int pModifiers = event.modifiers();
+		if (destinationSuggestions != null && destinationSuggestions.keyPressed(event))
 			return true;
 		if (editingCondition == null && editingDestination == null)
-			return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+			return super.keyPressed(event);
 		InputConstants.Key mouseKey = InputConstants.getKey(pKeyCode, pScanCode);
 		boolean hitEnter = getFocused() instanceof EditBox && (pKeyCode == 257 || pKeyCode == 335);
 		boolean hitE = getFocused() == null || minecraft.options.keyInventory.isActiveAndMatches(mouseKey);
@@ -904,7 +912,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		} else if (hitE) {
 			return false;
 		}
-		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+		return super.keyPressed(event);
 	}
 
 	@Override

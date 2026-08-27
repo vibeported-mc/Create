@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.function.Consumer;
 
@@ -299,7 +301,10 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	public boolean keyReleased(int pKeyCode, int pScanCode, int pModifiers) {
+	public boolean keyReleased(KeyEvent event) {
+		int pKeyCode = event.key();
+		int pScanCode = event.scancode();
+		int pModifiers = event.modifiers();
 		if (minecraft.options.keyUse.matches(pKeyCode, pScanCode)) {
 			Window window = minecraft.getWindow();
 			double x = minecraft.mouseHandler.xpos() * window.getGuiScaledWidth() / window.getScreenWidth();
@@ -307,16 +312,19 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 			saveAndClose(x, y);
 			return true;
 		}
-		return super.keyReleased(pKeyCode, pScanCode, pModifiers);
+		return super.keyReleased(event);
 	}
 
 	@Override
-	public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
+	public boolean mouseReleased(MouseButtonEvent event) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
 		if (minecraft.options.keyUse.matchesMouse(pButton)) {
 			saveAndClose(pMouseX, pMouseY);
 			return true;
 		}
-		return super.mouseReleased(pMouseX, pMouseY, pButton);
+		return super.mouseReleased(event);
 	}
 
 	protected void saveAndClose(double pMouseX, double pMouseY) {

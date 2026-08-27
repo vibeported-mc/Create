@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.wrench;
 
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -177,7 +179,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 	public void tick() {
 		ticksOpen++;
 		if (!level.getBlockState(pos).is(state.getBlock()))
-			Minecraft.getInstance().setScreen(null);
+			Minecraft.getInstance().gui.setScreen(null);
 		super.tick();
 	}
 
@@ -387,17 +389,23 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 	}
 
 	@Override
-	public boolean keyReleased(int code, int scanCode, int modifiers) {
+	public boolean keyReleased(KeyEvent event) {
+		int code = event.key();
+		int scanCode = event.scancode();
+		int modifiers = event.modifiers();
 		InputConstants.Key mouseKey = InputConstants.getKey(code, scanCode);
 		if (AllKeys.ROTATE_MENU.getKeybind().isActiveAndMatches(mouseKey)) {
 			submitChange();
 			return true;
 		}
-		return super.keyReleased(code, scanCode, modifiers);
+		return super.keyReleased(event);
 	}
 
 	@Override
-	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double pMouseX = event.x();
+		double pMouseY = event.y();
+		int pButton = event.button();
 		if (pButton == InputConstants.MOUSE_BUTTON_LEFT) {
 			submitChange();
 			return true;
@@ -406,7 +414,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 			return true;
 		}
 
-		return super.mouseClicked(pMouseX, pMouseY, pButton);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
