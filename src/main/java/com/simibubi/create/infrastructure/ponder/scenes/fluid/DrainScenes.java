@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.content.fluids.drain.ItemDrainBlockEntity;
@@ -58,7 +59,7 @@ public class DrainScenes {
 				.allowInsertion();
 			ResourceHandler<FluidResource> fh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (fh != null)
-				fh.fill(new FluidStack(Fluids.LAVA, 1000), false);
+				FluidHandlerHelpers.fill(fh, new FluidStack(Fluids.LAVA, 1000), false);
 		});
 		scene.idle(10);
 

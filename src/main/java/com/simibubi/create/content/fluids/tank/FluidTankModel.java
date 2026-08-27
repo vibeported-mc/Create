@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.tank;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

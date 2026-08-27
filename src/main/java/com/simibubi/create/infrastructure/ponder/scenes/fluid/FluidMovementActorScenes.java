@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllFluids;
@@ -52,7 +53,7 @@ public class FluidMovementActorScenes {
 		scene.world().modifyBlockEntity(st, type, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(FluidHelper.copyStackWithAmount(chocolate, 10000), false);
+				FluidHandlerHelpers.fill(ifh, FluidHelper.copyStackWithAmount(chocolate, 10000), false);
 		});
 
 		BlockPos bearing = util.grid().at(5, 1, 2);
@@ -154,7 +155,7 @@ public class FluidMovementActorScenes {
 			scene.world().modifyBlockEntity(ct1, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					ifh.fill(chocolate, false);
+					FluidHandlerHelpers.fill(ifh, chocolate, false);
 			});
 			scene.idle(2);
 		}
@@ -167,7 +168,7 @@ public class FluidMovementActorScenes {
 			scene.world().modifyBlockEntity(ct2, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					ifh.fill(chocolate, false);
+					FluidHandlerHelpers.fill(ifh, chocolate, false);
 			});
 			scene.idle(2);
 		}
@@ -191,7 +192,7 @@ public class FluidMovementActorScenes {
 			scene.world().modifyBlockEntity(st, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					ifh.fill(chocolate, false);
+					FluidHandlerHelpers.fill(ifh, chocolate, false);
 			});
 			scene.idle(2);
 		}
@@ -204,7 +205,7 @@ public class FluidMovementActorScenes {
 			scene.world().modifyBlockEntity(st, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					ifh.fill(chocolate, false);
+					FluidHandlerHelpers.fill(ifh, chocolate, false);
 			});
 			scene.idle(2);
 		}

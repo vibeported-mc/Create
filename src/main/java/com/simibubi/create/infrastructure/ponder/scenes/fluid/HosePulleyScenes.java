@@ -128,7 +128,7 @@ public class HosePulleyScenes {
 		scene.world().modifyBlockEntity(util.grid().at(1, 5, 1), HosePulleyBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(new FluidStack(Fluids.WATER, 100), false);
+				FluidHandlerHelpers.fill(ifh, new FluidStack(Fluids.WATER, 100), false);
 		});
 
 		scene.idle(20);
@@ -232,7 +232,7 @@ public class HosePulleyScenes {
 		scene.world().modifyBlockEntity(util.grid().at(1, 6, 1), HosePulleyBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(new FluidStack(Fluids.WATER, 100), false);
+				FluidHandlerHelpers.fill(ifh, new FluidStack(Fluids.WATER, 100), false);
 		});
 		scene.world().propagatePipeChange(util.grid().at(3, 2, 1));
 
@@ -348,7 +348,7 @@ public class HosePulleyScenes {
 		scene.world().modifyBlockEntity(util.grid().at(1, 3, 2), HosePulleyBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(new FluidStack(Fluids.WATER, 1000), false);
+				FluidHandlerHelpers.fill(ifh, new FluidStack(Fluids.WATER, 1000), false);
 		});
 		scene.world().setKineticSpeed(hose, 0);
 		scene.world().modifyBlock(pumpPos, s -> s.setValue(PumpBlock.FACING, Direction.DOWN), true);

@@ -167,7 +167,7 @@ public class FluidTankScenes {
 			be -> {
 				ResourceHandler<FluidResource> handler = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (handler != null)
-					handler.fill(content, false);
+					FluidHandlerHelpers.fill(handler, content, false);
 			});
 
 		scene.world().moveSection(tankLink, util.vector().of(0, 0, 1), 7);

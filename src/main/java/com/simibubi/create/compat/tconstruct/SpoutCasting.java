@@ -47,7 +47,7 @@ public enum SpoutCasting implements BlockSpoutingBehaviour {
 			return 0;
 
 		// Return amount filled into the table/basin
-		return handler.fill(availableFluid, simulate);
+		return FluidHandlerHelpers.fill(handler, availableFluid, simulate);
 	}
 
 	private boolean enabled() {

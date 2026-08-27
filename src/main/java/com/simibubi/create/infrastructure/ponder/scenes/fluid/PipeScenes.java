@@ -579,7 +579,7 @@ public class PipeScenes {
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(chocolate, false);
+				FluidHandlerHelpers.fill(ifh, chocolate, false);
 		});
 		scene.idle(10);
 
