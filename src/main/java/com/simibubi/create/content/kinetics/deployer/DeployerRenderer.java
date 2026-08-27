@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -210,8 +211,8 @@ public class DeployerRenderer
 		return buffer;
 	}
 
-	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-										   ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public static void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState blockState = context.state;
 		Mode mode = NBTHelper.readEnum(context.blockEntityData, "Mode", Mode.class);
 		PartialModel handPose = getHandPose(mode);
@@ -269,10 +270,11 @@ public class DeployerRenderer
 		transform(hand, blockState, false);
 
 		int contraptionLight = LightCoordsUtil.getLightCoords(renderWorld, context.localPos);
-		for (SuperByteBuffer buf : new SuperByteBuffer[] { shaft, pole, hand })
+		for (SuperByteBuffer buf : new SuperByteBuffer[] { shaft, pole, hand }) {
 			buf.light(contraptionLight)
-				.useLevelLight(context.world, matrices.getWorld())
-				.submit(matrices.getViewProjection(), RenderTypes.solidMovingBlock(), buffer);
+				.useLevelLight(context.world, matrices.getWorld());
+			out.add(ActorGeometry.of(matrices.getViewProjection(), buf, RenderTypes.solidMovingBlock()));
+		}
 
 		m.popPose();
 	}

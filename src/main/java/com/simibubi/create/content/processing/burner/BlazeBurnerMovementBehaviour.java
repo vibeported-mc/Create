@@ -1,6 +1,7 @@
 package com.simibubi.create.content.processing.burner;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
@@ -120,11 +121,11 @@ public class BlazeBurnerMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (!shouldRender(context))
 			return;
-		BlazeBurnerRenderer.renderInContraption(context, renderWorld, matrices, buffer, getHeadAngle(context),
+		BlazeBurnerRenderer.extractInContraption(context, renderWorld, matrices, out, getHeadAngle(context),
 			shouldRenderHat(context));
 	}
 

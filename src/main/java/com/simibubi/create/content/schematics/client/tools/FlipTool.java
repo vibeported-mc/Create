@@ -1,9 +1,9 @@
 package com.simibubi.create.content.schematics.client.tools;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllSpecialTextures;
 
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.client.outliner.AABBOutline;
 import net.minecraft.core.BlockPos;
@@ -49,10 +49,10 @@ public class FlipTool extends PlacementToolBase {
 	}
 
 	@Override
-	public void renderOnSchematic(PoseStack ms, SuperRenderTypeBuffer buffer) {
+	public void submitOnSchematic(PoseStack ms, SubmitNodeCollector queue) {
 		if (!schematicSelected || !selectedFace.getAxis()
 			.isHorizontal()) {
-			super.renderOnSchematic(ms, buffer);
+			super.submitOnSchematic(ms, queue);
 			return;
 		}
 
@@ -75,9 +75,9 @@ public class FlipTool extends PlacementToolBase {
 			.disableLineNormals()
 			.colored(0xdddddd)
 			.withFaceTextures(tex, tex);
-		outline.render(ms, buffer, Vec3.ZERO, AnimationTickHolder.getPartialTicks());
+		outline.render(ms, queue, Vec3.ZERO, AnimationTickHolder.getPartialTicks());
 
-		super.renderOnSchematic(ms, buffer);
+		super.submitOnSchematic(ms, queue);
 	}
 
 }

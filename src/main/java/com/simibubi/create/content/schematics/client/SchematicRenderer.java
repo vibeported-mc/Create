@@ -1,10 +1,14 @@
 package com.simibubi.create.content.schematics.client;
 
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.block.BlockStateModelSet;
+import net.minecraft.client.renderer.block.BlockModelLighter;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.render.BlockEntityRenderHelper;
@@ -13,13 +17,9 @@ import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.level.wrapper.SchematicLevel;
 import net.createmod.catnip.api.client.render.ShadedBlockSbbBuilder;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.RenderShape;
@@ -27,13 +27,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
-import net.neoforged.neoforge.model.data.ModelData;
 
 public class SchematicRenderer {
 
 	private static final ThreadLocal<ThreadLocalObjects> THREAD_LOCAL_OBJECTS = ThreadLocal.withInitial(ThreadLocalObjects::new);
 
-	private final Map<RenderType, SuperByteBuffer> bufferCache = new LinkedHashMap<>(getLayerCount());
+	private @Nullable SuperByteBuffer buffer;
 	private boolean changed;
 	protected final SchematicLevel schematic;
 	private final BlockPos anchor;
@@ -56,7 +55,7 @@ public class SchematicRenderer {
 		changed = true;
 	}
 
-	public void render(PoseStack ms, SuperRenderTypeBuffer buffers) {
+	public void submit(PoseStack ms, SubmitNodeCollector queue, CameraRenderState camera) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null || mc.player == null)
 			return;
@@ -64,32 +63,29 @@ public class SchematicRenderer {
 			redraw();
 		changed = false;
 
-		bufferCache.forEach((layer, buffer) -> {
-			buffer.renderInto(ms, buffers.getBuffer(layer));
-		});
+		if (buffer != null && !buffer.isEmpty())
+			buffer.submit(ms, RenderTypes.solidMovingBlock(), queue);
+
 		scratchErroredBlockEntities.clear();
-		BlockEntityRenderHelper.renderBlockEntities(renderedBlockEntities, shouldRenderBlockEntities, scratchErroredBlockEntities, null, schematic, ms, null, buffers, AnimationTickHolder.getPartialTicks());
+		float pt = AnimationTickHolder.getPartialTicks();
+		// The schematic is not in the level's render pass, so its block entities are extracted and
+		// submitted together here.
+		BlockEntityRenderHelper
+			.extractBlockEntities(renderedBlockEntities, shouldRenderBlockEntities, scratchErroredBlockEntities, null,
+				schematic, null, camera.pos, pt)
+			.submit(ms, queue, camera);
 
 		// Don't bother looping over errored BEs again.
 		shouldRenderBlockEntities.andNot(scratchErroredBlockEntities);
 	}
 
 	protected void redraw() {
-		bufferCache.clear();
-
-		for (RenderType layer : RenderType.chunkBufferLayers()) {
-			SuperByteBuffer buffer = drawLayer(layer);
-			if (!buffer.isEmpty())
-				bufferCache.put(layer, buffer);
-		}
+		buffer = drawSchematic();
 	}
 
-	protected SuperByteBuffer drawLayer(RenderType layer) {
-		BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-		ModelBlockRenderer renderer = dispatcher.getModelRenderer();
+	protected SuperByteBuffer drawSchematic() {
 		ThreadLocalObjects objects = THREAD_LOCAL_OBJECTS.get();
 
-		PoseStack poseStack = objects.poseStack;
 		RandomSource random = objects.random;
 		BlockPos.MutableBlockPos mutableBlockPos = objects.mutableBlockPos;
 		SchematicLevel renderWorld = schematic;
@@ -98,43 +94,33 @@ public class SchematicRenderer {
 		ShadedBlockSbbBuilder sbbBuilder = objects.sbbBuilder;
 		sbbBuilder.begin();
 
+		Minecraft mc = Minecraft.getInstance();
+		BlockStateModelSet models = mc.getModelManager()
+			.getBlockStateModelSet();
+		ModelBlockRenderer renderer = new ModelBlockRenderer(mc.options.ambientOcclusion()
+			.get(), false, mc.getBlockColors());
+
 		renderWorld.renderMode = true;
-		ModelBlockRenderer.enableCaching();
+		BlockModelLighter.enableCaching();
 		for (BlockPos localPos : BlockPos.betweenClosed(bounds.minX(), bounds.minY(), bounds.minZ(), bounds.maxX(), bounds.maxY(), bounds.maxZ())) {
 			BlockPos pos = mutableBlockPos.setWithOffset(localPos, anchor);
 			BlockState state = renderWorld.getBlockState(pos);
 
-			if (state.getRenderShape() == RenderShape.MODEL) {
-				BakedModel model = dispatcher.getBlockModel(state);
-				BlockEntity blockEntity = renderWorld.getBlockEntity(localPos);
-				ModelData modelData = blockEntity != null ? blockEntity.getModelData() : ModelData.EMPTY;
-				modelData = model.getModelData(renderWorld, pos, state, modelData);
-				long seed = state.getSeed(pos);
-				random.setSeed(seed);
-				if (model.getRenderTypes(state, random, modelData).contains(layer)) {
-					poseStack.pushPose();
-					poseStack.translate(localPos.getX(), localPos.getY(), localPos.getZ());
+			if (state.getRenderShape() != RenderShape.MODEL)
+				continue;
 
-					renderer.tesselateBlock(renderWorld, model, state, pos, poseStack, sbbBuilder, true,
-						random, seed, OverlayTexture.NO_OVERLAY, modelData, layer);
-
-					poseStack.popPose();
-				}
-			}
+			long seed = state.getSeed(pos);
+			random.setSeed(seed);
+			renderer.tesselateBlock(sbbBuilder::putBlockBakedQuad, localPos.getX(), localPos.getY(), localPos.getZ(),
+				renderWorld, pos, state, models.get(state), seed);
 		}
-		ModelBlockRenderer.clearCache();
+		BlockModelLighter.clearCache();
 		renderWorld.renderMode = false;
 
 		return sbbBuilder.end();
 	}
 
-	private static int getLayerCount() {
-		return RenderType.chunkBufferLayers()
-			.size();
-	}
-
 	private static class ThreadLocalObjects {
-		public final PoseStack poseStack = new PoseStack();
 		public final RandomSource random = RandomSource.createNewThreadLocalInstance();
 		public final BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
 		public final ShadedBlockSbbBuilder sbbBuilder = ShadedBlockSbbBuilder.create();

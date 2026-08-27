@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.actors.harvester;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import com.simibubi.create.compat.Mods;
 
 import com.simibubi.create.compat.farmersdelight.FarmersDelightCompat;
@@ -225,10 +226,10 @@ public class HarvesterMovementBehaviour implements MovementBehaviour {
 	}
 
 	@Override
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-									ContraptionMatrices matrices, SubmitNodeCollector buffers) {
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+									ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (!VisualizationManager.supportsVisualization(context.world))
-			HarvesterRenderer.renderInContraption(context, renderWorld, matrices, buffers);
+			HarvesterRenderer.extractInContraption(context, renderWorld, matrices, out);
 	}
 
 	@Nullable

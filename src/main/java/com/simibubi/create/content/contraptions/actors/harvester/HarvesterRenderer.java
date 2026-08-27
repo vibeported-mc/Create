@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.actors.harvester;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 import org.jspecify.annotations.Nullable;
@@ -62,8 +64,8 @@ public class HarvesterRenderer
 			state.blade.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
 	}
 
-	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffers) {
+	public static void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState blockState = context.state;
 		Direction facing = blockState.getValue(HORIZONTAL_FACING);
 		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.HARVESTER_BLADE, blockState);
@@ -77,8 +79,8 @@ public class HarvesterRenderer
 		transform(context.world, facing, superBuffer, speed, PIVOT);
 
 		superBuffer.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld())
-			.submit(matrices.getViewProjection(), RenderTypes.cutoutMovingBlock(), buffers);
+			.useLevelLight(context.world, matrices.getWorld());
+		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.cutoutMovingBlock()));
 	}
 
 	public static void transform(Level world, Direction facing, SuperByteBuffer superBuffer, float speed, Vec3 pivot) {

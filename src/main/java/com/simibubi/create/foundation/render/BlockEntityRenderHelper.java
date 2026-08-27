@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.render;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -27,23 +28,50 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * Renders the block entities of a contraption, which are not part of the level's own render pass.
+ * <p>
+ * Minecraft 26.2 splits a block entity renderer into an extract phase, which may read the block
+ * entity, and a submit phase, which may not. Contraption block entities live in a virtual level and
+ * nothing else is going to extract them, so that happens here:
+ * {@link #extractBlockEntities} produces the states and {@link Extracted#submit} replays them.
+ */
 public class BlockEntityRenderHelper {
+
 	/**
-	 * Renders the given list of BlockEntities, skipping those not marked in shouldRenderBEs,
-	 * and marking those that error in erroredBEsOut.
-	 * <p>
-	 * Minecraft 26.2 splits a block entity renderer into an extract phase and a submit phase. Both
-	 * run back to back here: a contraption's block entities are not part of the level's own render
-	 * pass, so nothing else is going to extract them, and their state is discarded straight after.
-	 *
-	 * @param blockEntities   The list of BlockEntities to render.
-	 * @param shouldRenderBEs A BitSet marking which BlockEntities in the list should be rendered. This will not be modified.
-	 * @param erroredBEsOut   A BitSet to mark BlockEntities that error during rendering. This will be modified.
+	 * A block entity's renderer paired with the state it produced, positioned within the contraption.
 	 */
-	public static void renderBlockEntities(List<BlockEntity> blockEntities, BitSet shouldRenderBEs,
-		BitSet erroredBEsOut, @javax.annotation.Nullable VirtualRenderWorld renderLevel, Level realLevel, PoseStack ms,
-		@javax.annotation.Nullable Matrix4f lightTransform, SubmitNodeCollector queue, CameraRenderState camera,
-		Vec3 cameraPosition, float pt) {
+	private record Entry(BlockEntityRenderer<?, BlockEntityRenderState> renderer, BlockEntityRenderState state,
+		BlockPos pos) {
+	}
+
+	public record Extracted(List<Entry> entries) {
+		@SuppressWarnings("unchecked")
+		public void submit(PoseStack ms, SubmitNodeCollector queue, CameraRenderState camera) {
+			for (Entry entry : entries) {
+				ms.pushPose();
+				TransformStack.of(ms)
+					.translate(entry.pos());
+				((BlockEntityRenderer<?, BlockEntityRenderState>) entry.renderer()).submit(entry.state(), ms, queue,
+					camera);
+				ms.popPose();
+			}
+		}
+	}
+
+	/**
+	 * Extracts the given list of BlockEntities, skipping those not marked in shouldRenderBEs,
+	 * and marking those that error in erroredBEsOut.
+	 *
+	 * @param blockEntities   The list of BlockEntities to extract.
+	 * @param shouldRenderBEs A BitSet marking which BlockEntities in the list should be rendered. This will not be modified.
+	 * @param erroredBEsOut   A BitSet to mark BlockEntities that error during extraction. This will be modified.
+	 */
+	public static Extracted extractBlockEntities(List<BlockEntity> blockEntities, BitSet shouldRenderBEs,
+		BitSet erroredBEsOut, @javax.annotation.Nullable VirtualRenderWorld renderLevel, Level realLevel,
+		@javax.annotation.Nullable Matrix4f lightTransform, Vec3 cameraPosition, float pt) {
+		List<Entry> entries = new ArrayList<>();
+
 		for (int i = shouldRenderBEs.nextSetBit(0); i >= 0 && i < blockEntities.size(); i = shouldRenderBEs.nextSetBit(i + 1)) {
 			BlockEntity blockEntity = blockEntities.get(i);
 			if (VisualizationManager.supportsVisualization(realLevel) && VisualizationHelper.skipVanillaRender(blockEntity))
@@ -57,9 +85,6 @@ public class BlockEntityRenderHelper {
 			}
 
 			BlockPos pos = blockEntity.getBlockPos();
-			ms.pushPose();
-			TransformStack.of(ms)
-				.translate(pos);
 
 			try {
 				int realLevelLight = LightCoordsUtil.getLightCoords(realLevel, getLightPos(lightTransform, pos));
@@ -77,7 +102,7 @@ public class BlockEntityRenderHelper {
 				// Extraction takes the light from the block entity's own level; inside a contraption
 				// the position it is drawn at is not where it lives, so the light is overridden.
 				state.lightCoords = light;
-				renderer.submit(state, ms, queue, camera);
+				entries.add(new Entry(renderer, state, pos));
 
 			} catch (Exception e) {
 				// Prevent this BE from causing more issues in the future.
@@ -87,13 +112,13 @@ public class BlockEntityRenderHelper {
 				if (AllConfigs.client().explainRenderErrors.get()) Create.LOGGER.error(message, e);
 				else Create.LOGGER.error(message);
 			}
-
-			ms.popPose();
 		}
 
 		if (renderLevel != null) {
 			renderLevel.resetExternalLight();
 		}
+
+		return new Extracted(entries);
 	}
 
 	/**

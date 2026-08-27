@@ -1,5 +1,7 @@
 package com.simibubi.create.content.processing.burner;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
@@ -86,8 +88,8 @@ public class BlazeBurnerRenderer
 			state.horizontalAngle, state.canDrawFlame, state.drawGoggles, state.drawHat, state.hashCode);
 	}
 
-	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-										   ContraptionMatrices matrices, SubmitNodeCollector bufferSource, LerpedFloat headAngle, boolean conductor) {
+	public static void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out, LerpedFloat headAngle, boolean conductor) {
 		BlockState state = context.state;
 		HeatLevel heatLevel = BlazeBurnerBlock.getHeatLevelOf(state);
 		if (heatLevel == HeatLevel.NONE)
@@ -102,14 +104,20 @@ public class BlazeBurnerRenderer
 		boolean drawHat = conductor || context.blockEntityData.contains("TrainHat");
 		int hashCode = context.hashCode();
 
-		submitShared(matrices.getViewProjection(), matrices.getModel(), bufferSource,
-				level, state, heatLevel, 0, horizontalAngle,
-				false, drawGoggles, drawHat ? AllPartialModels.TRAIN_HAT : null, hashCode);
+		// Everything the shared body reads is a plain value by this point - the models it builds are
+		// client-side cache lookups - so it can run during submission like the block entity's does.
+		PoseStack modelTransform = new PoseStack();
+		modelTransform.last()
+			.set(matrices.getModel()
+				.last());
+		PartialModel hat = drawHat ? AllPartialModels.TRAIN_HAT : null;
+		out.add(ActorGeometry.at(matrices.getViewProjection(), (ms, queue) -> submitShared(ms, modelTransform, queue,
+			level, state, heatLevel, 0, horizontalAngle, false, drawGoggles, hat, hashCode)));
 	}
 
 	public static void submitShared(PoseStack ms, @Nullable PoseStack modelTransform, SubmitNodeCollector queue,
-									 Level level, BlockState blockState, HeatLevel heatLevel, float animation, float horizontalAngle,
-									 boolean canDrawFlame, boolean drawGoggles, PartialModel drawHat, int hashCode) {
+		Level level, BlockState blockState, HeatLevel heatLevel, float animation, float horizontalAngle,
+		boolean canDrawFlame, boolean drawGoggles, PartialModel drawHat, int hashCode) {
 
 		boolean blockAbove = animation > 0.125f;
 		float time = AnimationTickHolder.getRenderTime(level);

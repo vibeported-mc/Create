@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
@@ -24,7 +25,6 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.level.wrapper.SchematicLevel;
 import net.createmod.catnip.api.client.outliner.AABBOutline;
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -207,7 +207,7 @@ public class SchematicHandler implements LayeredDraw.Layer {
 		}
 	}
 
-	public void submit(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
+	public void submit(PoseStack ms, SubmitNodeCollector queue, Vec3 camera, CameraRenderState camera3d) {
 		if (!active) {
 			return;
 		}
@@ -218,7 +218,7 @@ public class SchematicHandler implements LayeredDraw.Layer {
 
 		ms.pushPose();
 		currentTool.getTool()
-			.renderTool(ms, buffer, camera);
+			.submitTool(ms, queue, camera);
 		ms.popPose();
 
 		ms.pushPose();
@@ -231,16 +231,16 @@ public class SchematicHandler implements LayeredDraw.Layer {
 			boolean fb = transformation.getScaleFB()
 				.getValue(pt) < 0;
 			if (lr && !fb && renderers[2] != null) {
-				renderers[2].render(ms, buffer);
+				renderers[2].submit(ms, queue, camera3d);
 			} else if (fb && !lr && renderers[1] != null) {
-				renderers[1].render(ms, buffer);
+				renderers[1].submit(ms, queue, camera3d);
 			} else if (renderers[0] != null) {
-				renderers[0].render(ms, buffer);
+				renderers[0].submit(ms, queue, camera3d);
 			}
 		}
 
 		currentTool.getTool()
-			.renderOnSchematic(ms, buffer);
+			.submitOnSchematic(ms, queue);
 
 		ms.popPose();
 	}

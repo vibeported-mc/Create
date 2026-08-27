@@ -1,5 +1,8 @@
 package com.simibubi.create.content.kinetics.drill;
 
+import net.minecraft.util.LightCoordsUtil;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import com.simibubi.create.AllPartialModels;
@@ -13,13 +16,12 @@ import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.math.AngleHelper;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class DrillRenderer extends KineticBlockEntityRenderer<DrillBlockEntity> {
+public class DrillRenderer extends KineticBlockEntityRenderer<DrillBlockEntity, KineticBlockEntityRenderer.KineticRenderState> {
 
 	public DrillRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);
@@ -30,8 +32,8 @@ public class DrillRenderer extends KineticBlockEntityRenderer<DrillBlockEntity> 
 		return CachedBuffers.partialFacing(AllPartialModels.DRILL_HEAD, state);
 	}
 
-	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public static void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState state = context.state;
 		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.DRILL_HEAD, state);
 		Direction facing = state.getValue(DrillBlock.FACING);
@@ -49,9 +51,9 @@ public class DrillRenderer extends KineticBlockEntityRenderer<DrillBlockEntity> 
 			.rotateXDegrees(AngleHelper.verticalAngle(facing))
 			.rotateZDegrees(angle)
 			.uncenter()
-			.light(LevelRenderer.getLightColor(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld())
-			.submit(matrices.getViewProjection(), RenderTypes.solidMovingBlock(), buffer);
+			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
+			.useLevelLight(context.world, matrices.getWorld());
+		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.solidMovingBlock()));
 	}
 
 }

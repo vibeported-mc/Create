@@ -1,5 +1,8 @@
 package com.simibubi.create.content.contraptions.actors.trainControls;
 
+import net.minecraft.util.LightCoordsUtil;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllPartialModels;
@@ -12,8 +15,6 @@ import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -21,8 +22,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class ControlsRenderer {
 
-	public static void render(MovementContext context, VirtualRenderWorld renderWorld, ContraptionMatrices matrices,
-		MultiBufferSource buffer, float equipAnimation, float firstLever, float secondLever) {
+	public static void extract(MovementContext context, VirtualRenderWorld renderWorld, ContraptionMatrices matrices,
+		List<ActorGeometry> out, float equipAnimation, float firstLever, float secondLever) {
 		BlockState state = context.state;
 		Direction facing = state.getValue(ControlsBlock.FACING);
 
@@ -33,9 +34,9 @@ public class ControlsRenderer {
 			.center()
 			.rotateYDegrees(hAngle)
 			.uncenter()
-			.light(LevelRenderer.getLightColor(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld())
-			.renderInto(matrices.getViewProjection(), buffer.getBuffer(RenderTypes.cutoutMovingBlock()));
+			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
+			.useLevelLight(context.world, matrices.getWorld());
+		out.add(ActorGeometry.of(matrices.getViewProjection(), cover, RenderTypes.cutoutMovingBlock()));
 
 		double yOffset = Mth.lerp(equipAnimation * equipAnimation, -0.15f, 0.05f);
 
@@ -54,9 +55,9 @@ public class ControlsRenderer {
 				.translate(0, -6 / 16f, -3 / 16f)
 				.translate(first ? 0 : 6 / 16f, 0, 0);
 			lever.transform(ms)
-				.light(LevelRenderer.getLightColor(renderWorld, context.localPos))
-				.useLevelLight(context.world, matrices.getWorld())
-				.renderInto(matrices.getViewProjection(), buffer.getBuffer(RenderTypes.solidMovingBlock()));
+				.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
+				.useLevelLight(context.world, matrices.getWorld());
+			out.add(ActorGeometry.of(matrices.getViewProjection(), lever, RenderTypes.solidMovingBlock()));
 			ms.popPose();
 		}
 

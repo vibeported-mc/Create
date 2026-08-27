@@ -8,7 +8,7 @@ import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class MillstoneRenderer extends KineticBlockEntityRenderer<MillstoneBlockEntity> {
+public class MillstoneRenderer extends KineticBlockEntityRenderer<MillstoneBlockEntity, KineticBlockEntityRenderer.KineticRenderState> {
 
 	public MillstoneRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);

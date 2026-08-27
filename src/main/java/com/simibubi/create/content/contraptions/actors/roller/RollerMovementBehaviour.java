@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.roller;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -83,10 +83,10 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 	}
 
 	@Override
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffers) {
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (!VisualizationManager.supportsVisualization(context.world))
-			RollerRenderer.renderInContraption(context, renderWorld, matrices, buffers);
+			RollerRenderer.extractInContraption(context, renderWorld, matrices, out);
 	}
 
 	@Override

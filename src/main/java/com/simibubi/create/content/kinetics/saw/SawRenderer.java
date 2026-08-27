@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import net.minecraft.util.LightCoordsUtil;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -34,7 +36,6 @@ import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
@@ -241,8 +242,8 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity, SawRend
 		return KineticBlockEntityRenderer.shaft(KineticBlockEntityRenderer.getRotationAxisOf(be));
 	}
 
-	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public static void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState state = context.state;
 		Direction facing = state.getValue(SawBlock.FACING);
 
@@ -282,9 +283,9 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity, SawRend
 		}
 
 		superBuffer.uncenter()
-			.light(LevelRenderer.getLightColor(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld())
-			.submit(matrices.getViewProjection(), RenderTypes.cutoutMovingBlock(), buffer);
+			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
+			.useLevelLight(context.world, matrices.getWorld());
+		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.cutoutMovingBlock()));
 	}
 
 }

@@ -6,7 +6,7 @@ import com.simibubi.create.content.contraptions.OrientedContraptionEntity;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
-public class OrientedContraptionEntityRenderer extends ContraptionEntityRenderer<OrientedContraptionEntity> {
+public class OrientedContraptionEntityRenderer extends ContraptionEntityRenderer<OrientedContraptionEntity, ContraptionEntityRenderer.ContraptionRenderState> {
 	public OrientedContraptionEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
 	}

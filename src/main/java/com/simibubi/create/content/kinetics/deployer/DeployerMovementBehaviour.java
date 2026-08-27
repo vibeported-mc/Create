@@ -1,8 +1,8 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.UUIDUtil;
 import java.util.Arrays;
 import java.util.List;
@@ -300,10 +300,10 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 	}
 
 	@Override
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffers) {
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (!VisualizationManager.supportsVisualization(context.world))
-			DeployerRenderer.renderInContraption(context, renderWorld, matrices, buffers);
+			DeployerRenderer.extractInContraption(context, renderWorld, matrices, out);
 	}
 
 	@Nullable

@@ -8,7 +8,7 @@ import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CreativeMotorRenderer extends KineticBlockEntityRenderer<CreativeMotorBlockEntity> {
+public class CreativeMotorRenderer extends KineticBlockEntityRenderer<CreativeMotorBlockEntity, KineticBlockEntityRenderer.KineticRenderState> {
 
 	public CreativeMotorRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);

@@ -1,6 +1,8 @@
 package com.simibubi.create.content.contraptions.bearing;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +25,6 @@ import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -46,8 +47,8 @@ public class StabilizedBearingMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-									ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+									ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (VisualizationManager.supportsVisualization(context.world))
 			return;
 
@@ -74,9 +75,9 @@ public class StabilizedBearingMovementBehaviour implements MovementBehaviour {
 		superBuffer.rotateCentered(orientation);
 
 		// render
-		superBuffer.light(LevelRenderer.getLightColor(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld())
-			.submit(matrices.getViewProjection(), RenderTypes.solidMovingBlock(), buffer);
+		superBuffer.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
+			.useLevelLight(context.world, matrices.getWorld());
+		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.solidMovingBlock()));
 	}
 
 	@Nullable

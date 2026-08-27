@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.actors.roller;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 import org.jspecify.annotations.Nullable;
@@ -84,8 +86,8 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 			state.frame.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
 	}
 
-	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffers) {
+	public static void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState blockState = context.state;
 		Direction facing = blockState.getValue(HORIZONTAL_FACING);
 		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.ROLLER_WHEEL, blockState);
@@ -109,8 +111,8 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 			.translate(0, -.5, .5)
 			.rotateYDegrees(90);
 		superBuffer.light(contraptionWorldLight)
-			.useLevelLight(context.world, matrices.getWorld())
-			.submit(viewProjection, RenderTypes.cutoutMovingBlock(), buffers);
+			.useLevelLight(context.world, matrices.getWorld());
+		out.add(ActorGeometry.of(viewProjection, superBuffer, RenderTypes.cutoutMovingBlock()));
 		viewProjection.popPose();
 
 		SuperByteBuffer frame = CachedBuffers.partial(AllPartialModels.ROLLER_FRAME, blockState);
@@ -118,8 +120,8 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 		TransformStack.of(frame.getTransforms())
 			.rotateCentered(AngleHelper.rad(AngleHelper.horizontalAngle(facing) + 180), Direction.UP);
 		frame.light(contraptionWorldLight)
-			.useLevelLight(context.world, matrices.getWorld())
-			.submit(viewProjection, RenderTypes.cutoutMovingBlock(), buffers);
+			.useLevelLight(context.world, matrices.getWorld());
+		out.add(ActorGeometry.of(viewProjection, frame, RenderTypes.cutoutMovingBlock()));
 	}
 
 }

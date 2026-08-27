@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -73,8 +74,8 @@ public class PortableStorageInterfaceRenderer
 			part.submit(ms, RenderTypes.solidMovingBlock(), queue);
 	}
 
-	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public static void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState blockState = context.state;
 		float renderPartialTicks = AnimationTickHolder.getPartialTicks();
 
@@ -82,9 +83,11 @@ public class PortableStorageInterfaceRenderer
 		float progress = animation.getValue(renderPartialTicks);
 		boolean lit = animation.settled();
 		transform(blockState, lit, progress, matrices.getModel(),
-			sbb -> sbb.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-				.useLevelLight(context.world, matrices.getWorld())
-				.submit(matrices.getViewProjection(), RenderTypes.solidMovingBlock(), buffer));
+			sbb -> {
+				sbb.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
+					.useLevelLight(context.world, matrices.getWorld());
+				out.add(ActorGeometry.of(matrices.getViewProjection(), sbb, RenderTypes.solidMovingBlock()));
+			});
 	}
 
 	/**

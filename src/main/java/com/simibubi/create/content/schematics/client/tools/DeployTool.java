@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client.tools;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import com.simibubi.create.AllDataComponents;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
@@ -7,7 +8,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.content.schematics.client.SchematicTransformation;
 
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.client.outliner.AABBOutline;
 import net.minecraft.core.BlockPos;
@@ -37,8 +37,8 @@ public class DeployTool extends PlacementToolBase {
 	}
 
 	@Override
-	public void renderTool(PoseStack ms, SuperRenderTypeBuffer buffer, Vec3 camera) {
-		super.renderTool(ms, buffer, camera);
+	public void submitTool(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
+		super.submitTool(ms, queue, camera);
 
 		if (selectedPos == null)
 			return;
@@ -68,7 +68,7 @@ public class DeployTool extends PlacementToolBase {
 			.translateBack(origin);
 
 		AABBOutline outline = schematicHandler.getOutline();
-		outline.render(ms, buffer, Vec3.ZERO, pt);
+		outline.render(ms, queue, Vec3.ZERO, pt);
 		outline.getParams()
 			.clearTextures();
 		ms.popPose();

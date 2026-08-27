@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
@@ -55,10 +56,10 @@ public class PortableStorageInterfaceMovement implements MovementBehaviour {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (!VisualizationManager.supportsVisualization(context.world))
-			PortableStorageInterfaceRenderer.renderInContraption(context, renderWorld, matrices, buffer);
+			PortableStorageInterfaceRenderer.extractInContraption(context, renderWorld, matrices, out);
 	}
 
 	@Override

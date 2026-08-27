@@ -1,6 +1,7 @@
 package com.simibubi.create.content.kinetics.drill;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllTags;
@@ -44,10 +45,10 @@ public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 
 	@Override
 	@OnlyIn(value = Dist.CLIENT)
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
         if (!VisualizationManager.supportsVisualization(context.world))
-			DrillRenderer.renderInContraption(context, renderWorld, matrices, buffer);
+			DrillRenderer.extractInContraption(context, renderWorld, matrices, out);
 	}
 
 	@Nullable

@@ -8,7 +8,7 @@ import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class PumpRenderer extends KineticBlockEntityRenderer<PumpBlockEntity> {
+public class PumpRenderer extends KineticBlockEntityRenderer<PumpBlockEntity, KineticBlockEntityRenderer.KineticRenderState> {
 
 	public PumpRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);

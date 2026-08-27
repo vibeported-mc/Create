@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client.tools;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.AllSpecialTextures;
@@ -12,7 +13,6 @@ import com.simibubi.create.foundation.utility.RaycastHelper.PredicateTraceResult
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.client.outliner.AABBOutline;
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -116,7 +116,7 @@ public abstract class SchematicToolBase implements ISchematicTool {
 	}
 
 	@Override
-	public void renderTool(PoseStack ms, SuperRenderTypeBuffer buffer, Vec3 camera) {
+	public void submitTool(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public abstract class SchematicToolBase implements ISchematicTool {
 	}
 
 	@Override
-	public void renderOnSchematic(PoseStack ms, SuperRenderTypeBuffer buffer) {
+	public void submitOnSchematic(PoseStack ms, SubmitNodeCollector queue) {
 		if (!schematicHandler.isDeployed())
 			return;
 
@@ -140,7 +140,7 @@ public abstract class SchematicToolBase implements ISchematicTool {
 			.colored(0x6886c5)
 			.withFaceTexture(AllSpecialTextures.CHECKERED)
 			.lineWidth(1 / 16f);
-		outline.render(ms, buffer, Vec3.ZERO, AnimationTickHolder.getPartialTicks());
+		outline.render(ms, queue, Vec3.ZERO, AnimationTickHolder.getPartialTicks());
 		outline.getParams()
 			.clearTextures();
 		ms.popPose();

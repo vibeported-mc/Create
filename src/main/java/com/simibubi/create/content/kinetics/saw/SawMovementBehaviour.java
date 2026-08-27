@@ -1,7 +1,8 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
@@ -105,9 +106,9 @@ public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 
 	@Override
 	@OnlyIn(value = Dist.CLIENT)
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
-		SawRenderer.renderInContraption(context, renderWorld, matrices, buffer);
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
+		SawRenderer.extractInContraption(context, renderWorld, matrices, out);
 	}
 
 	@Override

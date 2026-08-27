@@ -247,7 +247,7 @@ public class ClientEvents {
 		TrackTargetingClient.submit(ms, queue, camera);
 		CouplingRenderer.submitAll(ms, queue, camera);
 		CarriageCouplingRenderer.submitAll(ms, queue, camera);
-		CreateClient.SCHEMATIC_HANDLER.submit(ms, queue, camera);
+		CreateClient.SCHEMATIC_HANDLER.submit(ms, queue, camera, state.cameraRenderState);
 		ChainConveyorInteractionHandler.submitCustomBlockSelection(ms, queue, camera);
 		SymmetryHandler.onSubmitFeatures(state, queue, ms);
 

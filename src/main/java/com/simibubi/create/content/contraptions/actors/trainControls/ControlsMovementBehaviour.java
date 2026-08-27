@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.actors.trainControls;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import java.util.Collection;
 
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
@@ -55,8 +56,8 @@ public class ControlsMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
+	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (!(context.temporaryData instanceof LeverAngles angles))
 			return;
 
@@ -88,7 +89,7 @@ public class ControlsMovementBehaviour implements MovementBehaviour {
 		}
 
 		float pt = AnimationTickHolder.getPartialTicks(context.world);
-		ControlsRenderer.render(context, renderWorld, matrices, buffer, angles.equipAnimation.getValue(pt),
+		ControlsRenderer.extract(context, renderWorld, matrices, out, angles.equipAnimation.getValue(pt),
 			angles.speed.getValue(pt), angles.steering.getValue(pt));
 	}
 

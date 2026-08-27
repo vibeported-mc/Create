@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.actors.contraptionControls;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
@@ -142,8 +143,8 @@ public class ContraptionControlsMovement implements MovementBehaviour {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void renderInContraption(MovementContext ctx, VirtualRenderWorld renderWorld, ContraptionMatrices matrices, SubmitNodeCollector buffer) {
-		ContraptionControlsRenderer.renderInContraption(ctx, renderWorld, matrices, buffer);
+	public void extractInContraption(MovementContext ctx, VirtualRenderWorld renderWorld, ContraptionMatrices matrices, List<ActorGeometry> out) {
+		ContraptionControlsRenderer.extractInContraption(ctx, renderWorld, matrices, out);
 	}
 
 	public static class ElevatorFloorSelection {

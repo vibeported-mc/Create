@@ -1,7 +1,8 @@
 package com.simibubi.create.api.behaviour.movement;
 
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import java.util.List;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,9 +112,13 @@ public interface MovementBehaviour {
 		return false;
 	}
 
+	/**
+	 * Collect this actor's geometry. 26.2 runs this on the client thread, ahead of submission, so
+	 * this is the only place the contraption and its virtual level may be read.
+	 */
 	@OnlyIn(Dist.CLIENT)
-	default void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, SubmitNodeCollector buffer) {}
+	default void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
+		ContraptionMatrices matrices, List<ActorGeometry> out) {}
 
 	@OnlyIn(Dist.CLIENT)
 	@Nullable
