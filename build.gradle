@@ -202,7 +202,9 @@ sourceSets.main {
         exclude("com/simibubi/create/foundation/data/SpecialBlockStateGen.java")
         exclude("com/simibubi/create/content/decoration/copycat/SpecialCopycatPanelBlockState.java")
         exclude("com/simibubi/create/infrastructure/data/**")
-        exclude("**/*Generator.java")
+        // RuntimeDataGenerator is not datagen at all - it fills Create's dynamic pack with generated
+        // recipes and tags while the game runs - so it stays in the build.
+        exclude { it.file.name.endsWith("Generator.java") && it.file.name != "RuntimeDataGenerator.java" }
         exclude("**/*BlockStateGen*.java")
 
         // 26.2 rebuilt the recipe framework around it: RecipeProvider#buildRecipes takes no
