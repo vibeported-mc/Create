@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.filter;
 
+import net.minecraft.client.Minecraft;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
 
@@ -105,11 +106,11 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterMenu> extends
 				button.setToolTip(button.getToolTip()
 					.get(0));
 				button.getToolTip()
-					.add(TooltipHelper.holdShift(Palette.YELLOW, hasShiftDown()));
+					.add(TooltipHelper.holdShift(Palette.YELLOW, Minecraft.getInstance().hasShiftDown()));
 			}
 		}
 
-		if (hasShiftDown()) {
+		if (Minecraft.getInstance().hasShiftDown()) {
 			List<MutableComponent> tooltipDescriptions = getTooltipDescriptions();
 			for (int i = 0; i < tooltipButtons.size(); i++)
 				fillToolTip(tooltipButtons.get(i), tooltipDescriptions.get(i));

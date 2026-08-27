@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
@@ -90,7 +91,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 	public ValueSettings getClosestCoordinate(int mouseX, int mouseY) {
 		int row = 0;
 		int column = 0;
-		boolean milestonesOnly = hasShiftDown();
+		boolean milestonesOnly = Minecraft.getInstance().hasShiftDown();
 
 		double bestDiff = Double.MAX_VALUE;
 		for (; row < board.rows()
@@ -286,7 +287,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 	@Override
 	public boolean mouseScrolled(double pMouseX, double pMouseY, double pScrollX, double pScrollY) {
 		ValueSettings closest = getClosestCoordinate((int) pMouseX, (int) pMouseY);
-		int column = closest.value() + ((int) Math.signum(pScrollY)) * (hasShiftDown() ? board.milestoneInterval() : 1);
+		int column = closest.value() + ((int) Math.signum(pScrollY)) * (Minecraft.getInstance().hasShiftDown() ? board.milestoneInterval() : 1);
 		column = Mth.clamp(column, 0, board.maxValue());
 		if (column == closest.value())
 			return false;

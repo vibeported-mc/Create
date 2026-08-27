@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import net.minecraft.client.Minecraft;
 import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -188,7 +189,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 				if (itemStack.isEmpty())
 					return true;
 				amounts.set(i,
-					Mth.clamp((int) (amounts.get(i) + Math.signum(scrollY) * (hasShiftDown() ? 10 : 1)), 1, 256));
+					Mth.clamp((int) (amounts.get(i) + Math.signum(scrollY) * (Minecraft.getInstance().hasShiftDown() ? 10 : 1)), 1, 256));
 				return true;
 			}
 		}

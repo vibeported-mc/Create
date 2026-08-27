@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.minecraft.client.Minecraft;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static net.minecraft.ChatFormatting.BLUE;
@@ -244,11 +245,11 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 					button.setToolTip(button.getToolTip()
 						.get(0));
 					button.getToolTip()
-						.add(TooltipHelper.holdShift(Palette.BLUE, hasShiftDown()));
+						.add(TooltipHelper.holdShift(Palette.BLUE, Minecraft.getInstance().hasShiftDown()));
 				}
 			}
 
-		if (hasShiftDown()) {
+		if (Minecraft.getInstance().hasShiftDown()) {
 			fillToolTip(skipMissingButton, skipMissingIndicator, "skipMissing");
 			fillToolTip(skipBlockEntitiesButton, skipBlockEntitiesIndicator, "skipBlockEntities");
 			fillToolTip(replaceLevelButtons.get(0), replaceLevelIndicators.get(0), "dontReplaceSolid");

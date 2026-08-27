@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.minecraft.client.Minecraft;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -315,7 +316,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 						mx, my);
 					if (click == 0) {
 						entries.remove(entry);
-						entries.add(hasShiftDown() ? 0 : i - 1, entry);
+						entries.add(Minecraft.getInstance().hasShiftDown() ? 0 : i - 1, entry);
 						init();
 					}
 					return true;
@@ -330,7 +331,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 						mx, my);
 					if (click == 0) {
 						entries.remove(entry);
-						entries.add(hasShiftDown() ? entries.size() : i + 1, entry);
+						entries.add(Minecraft.getInstance().hasShiftDown() ? entries.size() : i + 1, entry);
 						init();
 					}
 					return true;

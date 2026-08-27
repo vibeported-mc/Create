@@ -1,16 +1,16 @@
 package com.simibubi.create.foundation.mixin.accessor;
 
-import java.util.function.Function;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.font.FontSet;
-import net.minecraft.resources.Identifier;
 
+/**
+ * A font is built from a glyph provider, which it keeps to itself; Create wraps a font to suppress
+ * its shadow and needs the same one.
+ */
 @Mixin(Font.class)
 public interface FontAccessor {
-	@Accessor("fonts")
-	Function<Identifier, FontSet> create$getFonts();
+	@Accessor("provider")
+	Font.Provider create$getProvider();
 }

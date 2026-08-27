@@ -1212,7 +1212,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			.get(hoveredSlot.getSecond());
 
 		ItemStack itemStack = entry.stack;
-		int transfer = hasShiftDown() ? itemStack.getMaxStackSize() : hasControlDown() ? 10 : 1;
+		int transfer = Minecraft.getInstance().hasShiftDown() ? itemStack.getMaxStackSize() : Minecraft.getInstance().hasControlDown() ? 10 : 1;
 
 		if (recipeClicked && entry instanceof CraftableBigItemStack cbis) {
 			if (rmb && cbis.count == 0) {
@@ -1270,7 +1270,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		Couple<Integer> hoveredSlot = getHoveredSlot((int) mouseX, (int) mouseY);
 		boolean noHover = hoveredSlot == noneHovered;
 
-		if (noHover || hoveredSlot.getFirst() >= 0 && !hasShiftDown() && getMaxScroll() != 0) {
+		if (noHover || hoveredSlot.getFirst() >= 0 && !Minecraft.getInstance().hasShiftDown() && getMaxScroll() != 0) {
 			int maxScroll = getMaxScroll();
 			int direction = (int) (Math.ceil(Math.abs(scrollY)) * -Math.signum(scrollY));
 			float newTarget = Mth.clamp(Math.round(itemScroll.getChaseTarget() + direction), 0, maxScroll);
@@ -1286,7 +1286,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			.get(hoveredSlot.getSecond());
 
 		boolean remove = scrollY < 0;
-		int transfer = Mth.ceil(Math.abs(scrollY)) * (hasControlDown() ? 10 : 1);
+		int transfer = Mth.ceil(Math.abs(scrollY)) * (Minecraft.getInstance().hasControlDown() ? 10 : 1);
 
 		if (recipeClicked && entry instanceof CraftableBigItemStack cbis) {
 			requestCraftable(cbis, remove ? -transfer : transfer);
@@ -1419,7 +1419,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			return true;
 		}
 
-		if (pKeyCode == GLFW.GLFW_KEY_ENTER && hasShiftDown()) {
+		if (pKeyCode == GLFW.GLFW_KEY_ENTER && Minecraft.getInstance().hasShiftDown()) {
 			sendIt();
 			return true;
 		}

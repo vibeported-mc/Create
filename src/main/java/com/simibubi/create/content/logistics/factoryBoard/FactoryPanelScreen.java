@@ -619,7 +619,7 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 				if (itemStack.stack.isEmpty())
 					return true;
 				itemStack.count =
-					Mth.clamp((int) (itemStack.count + Math.signum(scrollY) * (hasShiftDown() ? 10 : 1)), 1, 64);
+					Mth.clamp((int) (itemStack.count + Math.signum(scrollY) * (Minecraft.getInstance().hasShiftDown() ? 10 : 1)), 1, 64);
 				return true;
 			}
 		}
@@ -630,7 +630,7 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 			if (mouseX >= outputX && mouseX < outputX + 16 && mouseY >= outputY && mouseY < outputY + 16) {
 				BigItemStack itemStack = outputConfig;
 				itemStack.count =
-					Mth.clamp((int) (itemStack.count + Math.signum(scrollY) * (hasShiftDown() ? 10 : 1)), 1, 64);
+					Mth.clamp((int) (itemStack.count + Math.signum(scrollY) * (Minecraft.getInstance().hasShiftDown() ? 10 : 1)), 1, 64);
 				return true;
 			}
 		}

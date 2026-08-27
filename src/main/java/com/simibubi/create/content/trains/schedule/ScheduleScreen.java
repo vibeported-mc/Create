@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.schedule;
 
+import net.minecraft.client.Minecraft;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -920,7 +921,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		if (editingCondition != null || editingDestination != null)
 			return super.mouseScrolled(pMouseX, pMouseY, pScrollX, pScrollY);
 
-		if (hasShiftDown()) {
+		if (Minecraft.getInstance().hasShiftDown()) {
 			List<ScheduleEntry> entries = schedule.entries;
 			int y = (int) (pMouseY - topPos - 25 + scroll.getValue());
 			for (int i = 0; i < entries.size(); i++) {

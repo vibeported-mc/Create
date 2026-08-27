@@ -436,10 +436,10 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			switch (pKeyCode) {
 			case 257:
 			case 335:
-				if (hasShiftDown()) {
+				if (Minecraft.getInstance().hasShiftDown()) {
 					editContext.insertText("\n");
 					return true;
-				} else if (!hasControlDown()) {
+				} else if (!Minecraft.getInstance().hasControlDown()) {
 					if (currentEntries.size() <= editingIndex + 1
 						|| !currentEntries.get(editingIndex + 1).text.getString()
 							.isEmpty())
@@ -462,7 +462,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 					editingIndex = Math.max(0, editingIndex - 1);
 					editContext.setCursorToEnd();
 					return true;
-				} else if (hasControlDown()) {
+				} else if (Minecraft.getInstance().hasControlDown()) {
 					int prevPos = editContext.getCursorPos();
 					editContext.moveByWords(-1);
 					if (prevPos != editContext.getCursorPos())
@@ -472,7 +472,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 				editContext.removeCharsFromCursor(-1);
 				return true;
 			case 261:
-				if (hasControlDown()) {
+				if (Minecraft.getInstance().hasControlDown()) {
 					int prevPos = editContext.getCursorPos();
 					editContext.moveByWords(1);
 					if (prevPos != editContext.getCursorPos())
@@ -482,14 +482,14 @@ public class ClipboardScreen extends AbstractSimiScreen {
 				editContext.removeCharsFromCursor(1);
 				return true;
 			case 262:
-				if (hasControlDown()) {
+				if (Minecraft.getInstance().hasControlDown()) {
 					editContext.moveByWords(1, Minecraft.getInstance().hasShiftDown());
 					return true;
 				}
 				editContext.moveByChars(1, Minecraft.getInstance().hasShiftDown());
 				return true;
 			case 263:
-				if (hasControlDown()) {
+				if (Minecraft.getInstance().hasControlDown()) {
 					editContext.moveByWords(-1, Minecraft.getInstance().hasShiftDown());
 					return true;
 				}

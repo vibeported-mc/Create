@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import net.minecraft.client.Minecraft;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllPartialModels;
@@ -146,11 +147,11 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintMenu> 
 //				button.setToolTip(button.getToolTip()
 //					.get(0));
 //				button.getToolTip()
-//					.add(TooltipHelper.holdShift(Palette.Yellow, hasShiftDown()));
+//					.add(TooltipHelper.holdShift(Palette.Yellow, Minecraft.getInstance().hasShiftDown()));
 //			}
 //		}
 //
-//		if (hasShiftDown()) {
+//		if (Minecraft.getInstance().hasShiftDown()) {
 //			List<IFormattableTextComponent> tooltipDescriptions = getTooltipDescriptions();
 //			for (int i = 0; i < tooltipButtons.size(); i++)
 //				fillToolTip(tooltipButtons.get(i), tooltipDescriptions.get(i));
