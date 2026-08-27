@@ -55,7 +55,7 @@ public class ContraptionWorld extends WrappedLevel {
 	}
 
 	@Override
-	public int getMinBuildHeight() {
+	public int getMinY() {
 		return minY;
 	}
 }

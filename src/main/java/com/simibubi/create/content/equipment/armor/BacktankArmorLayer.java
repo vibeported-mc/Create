@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.armor;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.mixin.accessor.EntityRenderDispatcherAccessor;
 
@@ -52,14 +53,14 @@ public class BacktankArmorLayer<S extends HumanoidRenderState, M extends Humanoi
 			.light(light)
 			.extractRenderState();
 
-		SuperByteBufferRenderState nob = CachedBuffers
+		SuperByteBufferRenderState nob = CachedBufferer
 			.partial(BacktankRenderer.getShaftModel(renderedState), renderedState)
 			.disableDiffuse()
 			.translate(0, -3f / 16, 0)
 			.light(light)
 			.extractRenderState();
 
-		SuperByteBufferRenderState cogs = CachedBuffers
+		SuperByteBufferRenderState cogs = CachedBufferer
 			.partial(BacktankRenderer.getCogsModel(renderedState), renderedState)
 			.center()
 			.rotateYDegrees(180)

@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.item;
 
+import net.minecraft.locale.Language;
 import static net.minecraft.ChatFormatting.DARK_GRAY;
 import static net.minecraft.ChatFormatting.GRAY;
 import static net.minecraft.ChatFormatting.WHITE;
@@ -50,13 +51,13 @@ public record ItemDescription(ImmutableList<Component> lines, ImmutableList<Comp
 	}
 
 	public static boolean canFillBuilder(String translationKey) {
-		return I18n.exists(translationKey);
+		return Language.getInstance().has(translationKey);
 	}
 
 	public static void fillBuilder(Builder builder, String translationKey) {
 		// Summary
 		String summaryKey = translationKey + ".summary";
-		if (I18n.exists(summaryKey)) {
+		if (Language.getInstance().has(summaryKey)) {
 			builder.addSummary(I18n.get(summaryKey));
 		}
 
@@ -64,7 +65,7 @@ public record ItemDescription(ImmutableList<Component> lines, ImmutableList<Comp
 		for (int i = 1; i < 100; i++) {
 			String conditionKey = translationKey + ".condition" + i;
 			String behaviourKey = translationKey + ".behaviour" + i;
-			if (!I18n.exists(conditionKey))
+			if (!Language.getInstance().has(conditionKey))
 				break;
 			builder.addBehaviour(I18n.get(conditionKey), I18n.get(behaviourKey));
 		}
@@ -73,7 +74,7 @@ public record ItemDescription(ImmutableList<Component> lines, ImmutableList<Comp
 		for (int i = 1; i < 100; i++) {
 			String controlKey = translationKey + ".control" + i;
 			String actionKey = translationKey + ".action" + i;
-			if (!I18n.exists(controlKey))
+			if (!Language.getInstance().has(controlKey))
 				break;
 			builder.addAction(I18n.get(controlKey), I18n.get(actionKey));
 		}
@@ -244,7 +245,7 @@ public record ItemDescription(ImmutableList<Component> lines, ImmutableList<Comp
 		protected boolean checkLocale() {
 			String currentLanguage = Minecraft.getInstance()
 				.getLanguageManager()
-				.getSelectedItem();
+				.getSelected();
 			if (!currentLanguage.equals(cachedLanguage)) {
 				cachedLanguage = currentLanguage;
 				return true;

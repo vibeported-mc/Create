@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.utility.worldWrappers;
 
+import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -38,13 +39,13 @@ public class WrappedBlockAndTintGetter implements BlockAndTintGetter {
 	}
 
 	@Override
-	public int getMinBuildHeight() {
+	public int getMinY() {
 		return wrapped.getMinY();
 	}
 
 	@Override
-	public float getShade(Direction pDirection, boolean pShade) {
-		return wrapped.getShade(pDirection, pShade);
+	public CardinalLighting cardinalLighting() {
+		return wrapped.cardinalLighting();
 	}
 
 	@Override

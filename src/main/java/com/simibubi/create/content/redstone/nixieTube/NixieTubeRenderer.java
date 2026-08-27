@@ -214,7 +214,7 @@ public class NixieTubeRenderer
 						net.minecraft.client.renderer.rendertype.RenderTypes.translucentMovingBlock(),
 						vert ? longSide : 1, vert ? 1 : longSide, 1);
 
-					submitScaled(CachedBuffers
+					submitScaled(CachedBufferer
 						.partial(
 							first ? AllPartialModels.SIGNAL_RED_GLOW
 								: yellow ? AllPartialModels.SIGNAL_YELLOW_GLOW : AllPartialModels.SIGNAL_WHITE_GLOW,
@@ -223,7 +223,7 @@ public class NixieTubeRenderer
 						.disableDiffuse(), ms, queue, RenderTypes.additive(), vert ? longSideGlow : 2, vert ? 2 : longSideGlow, 2);
 				}
 
-				submitScaled(CachedBuffers
+				submitScaled(CachedBufferer
 					.partial(first ? AllPartialModels.SIGNAL_RED
 						: yellow ? AllPartialModels.SIGNAL_YELLOW : AllPartialModels.SIGNAL_WHITE, blockState)
 					.light(0xF000F0)
@@ -252,7 +252,7 @@ public class NixieTubeRenderer
 						.light(0xf000f0)
 						.disableDiffuse(), ms, queue, net.minecraft.client.renderer.rendertype.RenderTypes.translucentMovingBlock(), width, height,  1);
 
-					submitScaled(CachedBuffers
+					submitScaled(CachedBufferer
 						.partial(AllPartialModels.SIGNAL_COMPUTER_WHITE_GLOW, blockState)
 						.light(0xf000f0)
 						.color(
@@ -263,13 +263,13 @@ public class NixieTubeRenderer
 						.disableDiffuse(), ms, queue, RenderTypes.additive(), width + 1.125f, height + 1.125f, 2);
 				}
 
-				submitScaled(CachedBuffers
+				submitScaled(CachedBufferer
 					.partial(AllPartialModels.SIGNAL_COMPUTER_WHITE_BASE, blockState)
 					.light(0xF000F0)
 					.color(12, 12, 12, 255)
 					.disableDiffuse(), ms, queue, RenderTypes.additive(), 1 + 1.25f / 16f);
 
-				submitScaled(CachedBuffers
+				submitScaled(CachedBufferer
 					.partial(AllPartialModels.SIGNAL_COMPUTER_WHITE, blockState)
 					.light(0xF000F0)
 					.color(tubeDisplay.r, tubeDisplay.g, tubeDisplay.b, 255)
