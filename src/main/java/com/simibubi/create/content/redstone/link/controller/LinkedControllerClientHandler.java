@@ -144,8 +144,7 @@ public class LinkedControllerClientHandler {
 			return;
 		}
 
-		if (InputConstants.isKeyDown(mc.getWindow()
-			.handle(), GLFW.GLFW_KEY_ESCAPE)) {
+		if (InputConstants.isKeyDown(mc.getWindow(), GLFW.GLFW_KEY_ESCAPE)) {
 			MODE = Mode.IDLE;
 			onReset();
 			return;
@@ -227,7 +226,7 @@ public class LinkedControllerClientHandler {
 		poseStack.pushMatrix();
 		Screen tooltipScreen = new Screen(CommonComponents.EMPTY) {
 		};
-		tooltipScreen.init(mc, width1, height1);
+		tooltipScreen.init(width1, height1);
 
 		Object[] keys = new Object[6];
 		List<KeyMapping> controls = ControlsUtil.getControls();

@@ -13,6 +13,7 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.render.BlockEntityRenderHelper;
 
+import net.createmod.catnip.api.client.level.wrapper.WrappedClientLevel;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.level.wrapper.SchematicLevel;
 import net.createmod.catnip.api.client.render.ShadedBlockSbbBuilder;
@@ -112,7 +113,7 @@ public class SchematicRenderer {
 			long seed = state.getSeed(pos);
 			random.setSeed(seed);
 			renderer.tesselateBlock(sbbBuilder::putBlockBakedQuad, localPos.getX(), localPos.getY(), localPos.getZ(),
-				renderWorld, pos, state, models.get(state), seed);
+				WrappedClientLevel.of(renderWorld), pos, state, models.get(state), seed);
 		}
 		BlockModelLighter.clearCache();
 		renderWorld.renderMode = false;
@@ -121,7 +122,7 @@ public class SchematicRenderer {
 	}
 
 	private static class ThreadLocalObjects {
-		public final RandomSource random = RandomSource.createNewThreadLocalInstance();
+		public final RandomSource random = RandomSource.createThreadLocalInstance();
 		public final BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
 		public final ShadedBlockSbbBuilder sbbBuilder = ShadedBlockSbbBuilder.create();
 	}

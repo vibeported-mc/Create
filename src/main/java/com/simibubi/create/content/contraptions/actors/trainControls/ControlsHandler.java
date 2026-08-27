@@ -69,8 +69,7 @@ public class ControlsHandler {
 			packetCooldown--;
 
 		if (entity.isRemoved() || InputConstants.isKeyDown(Minecraft.getInstance()
-			.getWindow()
-			.handle(), GLFW.GLFW_KEY_ESCAPE)) {
+			.getWindow(), GLFW.GLFW_KEY_ESCAPE)) {
 			BlockPos pos = controlsPos;
 			stopControlling();
 			ClientNetworkHelper.INSTANCE.sendToServer(new ControlsInputPacket(currentlyPressed, false, entity.getId(), pos, true));

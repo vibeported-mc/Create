@@ -112,13 +112,13 @@ public class BeltTunnelBlockEntity extends SmartBlockEntity {
 		ListTag flapsNBT = compound.getListOrEmpty("Flaps");
 		for (Tag inbt : flapsNBT)
 			if (inbt instanceof IntTag)
-				newFlaps.add(Direction.from3DDataValue(((IntTag) inbt).getAsInt()));
+				newFlaps.add(Direction.from3DDataValue(((IntTag) inbt).intValue()));
 
 		sides.clear();
 		ListTag sidesNBT = compound.getListOrEmpty("Sides");
 		for (Tag inbt : sidesNBT)
 			if (inbt instanceof IntTag)
-				sides.add(Direction.from3DDataValue(((IntTag) inbt).getAsInt()));
+				sides.add(Direction.from3DDataValue(((IntTag) inbt).intValue()));
 
 		for (Direction d : Iterate.directions)
 			if (!newFlaps.contains(d))
