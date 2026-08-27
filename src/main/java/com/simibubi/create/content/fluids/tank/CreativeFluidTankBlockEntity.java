@@ -50,8 +50,8 @@ public class CreativeFluidTankBlockEntity extends FluidTankBlockEntity {
 
 	public static class CreativeSmartFluidTank extends SmartFluidTank {
 		public static final Codec<CreativeSmartFluidTank> CODEC = RecordCodecBuilder.create(i -> i.group(
-			FluidStack.OPTIONAL_CODEC.fieldOf("fluid").forGetter(FluidStacksResourceHandler::getFluid),
-			ExtraCodecs.NON_NEGATIVE_INT.fieldOf("capacity").forGetter(FluidStacksResourceHandler::getCapacity)
+			FluidStack.OPTIONAL_CODEC.fieldOf("fluid").forGetter(CreativeSmartFluidTank::getFluid),
+			ExtraCodecs.NON_NEGATIVE_INT.fieldOf("capacity").forGetter(CreativeSmartFluidTank::getCapacity)
 		).apply(i, (fluid, capacity) -> {
 			CreativeSmartFluidTank tank = new CreativeSmartFluidTank(capacity, $ -> {
 			});
@@ -65,14 +65,14 @@ public class CreativeFluidTankBlockEntity extends FluidTankBlockEntity {
 
 		@Override
 		public int getFluidAmount() {
-			return getFluid().isEmpty() ? 0 : getTankCapacity(0);
+			return getFluid().isEmpty() ? 0 : getCapacity();
 		}
 
 		public void setContainedFluid(FluidStack fluidStack) {
-			fluid = fluidStack.copy();
-			if (!fluidStack.isEmpty())
-				fluid.setAmount(getTankCapacity(0));
-			onContentsChanged();
+			FluidStack contained = fluidStack.copy();
+			if (!contained.isEmpty())
+				contained.setAmount(getCapacity());
+			setFluid(contained);
 		}
 
 		/**

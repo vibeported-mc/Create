@@ -1,5 +1,8 @@
 package com.simibubi.create.content.schematics;
 
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.util.ProblemReporter;
 import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
@@ -10,18 +13,15 @@ import com.simibubi.create.AllStructureProcessorTypes;
 import net.createmod.catnip.api.nbt.NBTProcessors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-public class SchematicProcessor extends StructureProcessor {
+public class SchematicProcessor implements StructureProcessor {
 	public static final SchematicProcessor INSTANCE = new SchematicProcessor();
 	public static final MapCodec<SchematicProcessor> CODEC = MapCodec.unit(() -> INSTANCE);
 
@@ -47,19 +47,15 @@ public class SchematicProcessor extends StructureProcessor {
 	@Override
 	public StructureTemplate.StructureEntityInfo processEntity(LevelReader world, BlockPos pos, StructureTemplate.StructureEntityInfo rawInfo,
 			StructureTemplate.StructureEntityInfo info, StructurePlaceSettings settings, StructureTemplate template) {
-		return EntityType.by(info.nbt).flatMap(type -> {
-			if (world instanceof Level) {
-				Entity e = type.create((Level) world);
-				if (e != null && !e.onlyOpCanSetNbt()) {
-					return Optional.of(info);
-				}
-			}
-			return Optional.empty();
-		}).orElse(null);
+		ValueInput input = TagValueInput.create(ProblemReporter.DISCARDING, world.registryAccess(), info.nbt);
+		return EntityType.by(input)
+			.flatMap(type -> type.onlyOpCanSetNbt() ? Optional.<StructureTemplate.StructureEntityInfo>empty()
+				: Optional.of(info))
+			.orElse(null);
 	}
 
 	@Override
-	protected StructureProcessorType<?> getType() {
-		return AllStructureProcessorTypes.SCHEMATIC.get();
+	public MapCodec<? extends StructureProcessor> codec() {
+		return CODEC;
 	}
 }
