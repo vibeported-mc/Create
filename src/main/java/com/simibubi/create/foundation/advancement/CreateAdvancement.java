@@ -209,8 +209,7 @@ public class CreateAdvancement {
 		}
 
 		Builder whenItemCollected(ItemProviderEntry<?, ?> item) {
-			return whenItemCollected(item.asStack()
-				.getItem());
+			return whenItemCollected(item.asItem());
 		}
 
 		Builder whenItemCollected(ItemLike itemProvider) {
