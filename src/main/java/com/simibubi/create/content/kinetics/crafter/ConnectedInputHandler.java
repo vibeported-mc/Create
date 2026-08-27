@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import com.simibubi.create.foundation.item.CombinedItemHandler;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -177,7 +178,7 @@ public class ConnectedInputHandler {
 
 		public ResourceHandler<ItemResource> getItemHandler(Level world, BlockPos pos) {
 			List<Inventory> inventories = this.getInventories(world, pos);
-			return new CombinedResourceHandler<>(inventories.toArray(ModifiableItemHandler[]::new));
+			return new CombinedItemHandler(inventories.toArray(ModifiableItemHandler[]::new));
 		}
 
 		public List<Inventory> getInventories(Level world, BlockPos pos) {
