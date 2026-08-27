@@ -35,7 +35,7 @@ public class ControlsRenderer {
 			.rotateYDegrees(hAngle)
 			.uncenter()
 			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld());
+			.useLevelLight(renderWorld, matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), cover, RenderTypes.cutoutMovingBlock()));
 
 		double yOffset = Mth.lerp(equipAnimation * equipAnimation, -0.15f, 0.05f);
@@ -56,7 +56,7 @@ public class ControlsRenderer {
 				.translate(first ? 0 : 6 / 16f, 0, 0);
 			lever.transform(ms)
 				.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-				.useLevelLight(context.world, matrices.getWorld());
+				.useLevelLight(renderWorld, matrices.getWorld());
 			out.add(ActorGeometry.of(matrices.getViewProjection(), lever, RenderTypes.solidMovingBlock()));
 			ms.popPose();
 		}

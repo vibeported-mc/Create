@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.virtualWorld;
 
+import net.minecraft.world.level.ColorResolver;
+import net.minecraft.world.level.CardinalLighting;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.damagesource.DamageSource;
@@ -69,7 +72,7 @@ import net.minecraft.world.ticks.LevelTickAccess;
 
 import net.neoforged.neoforge.model.data.ModelData;
 
-public class VirtualRenderWorld extends Level implements VisualizationLevel {
+public class VirtualRenderWorld extends Level implements VisualizationLevel, BlockAndTintGetter {
 	protected final Level level;
 	protected final int minBuildHeight;
 	protected final int height;
@@ -562,5 +565,23 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 	@Override
 	public int getSectionYFromSectionIndex(int sectionIndex) {
 		return sectionIndex + this.getMinSection();
+	}
+
+	/**
+	 * A contraption is drawn with the tint and directional lighting of the world it moves through,
+	 * which 26.2 asks for through this interface rather than through Level itself.
+	 */
+	@Override
+	public int getBlockTint(BlockPos pos, ColorResolver color) {
+		if (level instanceof BlockAndTintGetter tintGetter)
+			return tintGetter.getBlockTint(pos, color);
+		return 0xFF_FFFFFF;
+	}
+
+	@Override
+	public CardinalLighting cardinalLighting() {
+		if (level instanceof BlockAndTintGetter tintGetter)
+			return tintGetter.cardinalLighting();
+		return CardinalLighting.DEFAULT;
 	}
 }

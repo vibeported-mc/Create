@@ -189,8 +189,7 @@ public class MechanicalCrafterRenderer
 
 	private ItemStackRenderState resolve(MechanicalCrafterBlockEntity be, ItemStack stack) {
 		ItemStackRenderState item = new ItemStackRenderState();
-		item.displayContext = ItemDisplayContext.FIXED;
-		itemModelResolver.appendItemLayers(item, stack, ItemDisplayContext.FIXED, be.getLevel(), null, 0);
+		itemModelResolver.updateForTopItem(item, stack, ItemDisplayContext.FIXED, be.getLevel(), null, 0);
 		return item;
 	}
 

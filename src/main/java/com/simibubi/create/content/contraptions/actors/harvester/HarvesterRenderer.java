@@ -79,7 +79,7 @@ public class HarvesterRenderer
 		transform(context.world, facing, superBuffer, speed, PIVOT);
 
 		superBuffer.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld());
+			.useLevelLight(renderWorld, matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.cutoutMovingBlock()));
 	}
 

@@ -83,8 +83,7 @@ public class ChuteRenderer extends SafeBlockEntityRenderer<ChuteBlockEntity, Chu
 	public static ItemRenderState extractItem(ChuteBlockEntity be, float partialTicks,
 		ItemModelResolver itemModelResolver) {
 		ItemStackRenderState item = new ItemStackRenderState();
-		item.displayContext = ItemDisplayContext.FIXED;
-		itemModelResolver.appendItemLayers(item, be.item, ItemDisplayContext.FIXED, be.getLevel(), null, 0);
+		itemModelResolver.updateForTopItem(item, be.item, ItemDisplayContext.FIXED, be.getLevel(), null, 0);
 		return new ItemRenderState(item, be.itemPosition.getValue(partialTicks), PackageItem.isPackage(be.item));
 	}
 

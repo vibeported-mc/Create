@@ -193,8 +193,7 @@ public class FilteringRenderer {
 			BlockPos pos, ItemModelResolver itemModelResolver, ItemStack filter, boolean flat) {
 			ItemStackRenderState item = new ItemStackRenderState();
 			ItemDisplayContext context = flat ? ItemDisplayContext.GUI : ItemDisplayContext.FIXED;
-			item.displayContext = context;
-			itemModelResolver.appendItemLayers(item, filter, context, level, null, 0);
+			itemModelResolver.updateForTopItem(item, filter, context, level, null, 0);
 			return new SingleFilterRenderState(slotPositioning, side, level, pos, item, flat,
 				flat ? 0 : ValueBoxRenderer.customZOffset(filter.getItem()));
 		}

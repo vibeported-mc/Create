@@ -186,8 +186,7 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity, SawRend
 				continue;
 
 			ItemStackRenderState item = new ItemStackRenderState();
-			item.displayContext = ItemDisplayContext.FIXED;
-			itemModelResolver.appendItemLayers(item, stack, ItemDisplayContext.FIXED, be.getLevel(), null, 0);
+			itemModelResolver.updateForTopItem(item, stack, ItemDisplayContext.FIXED, be.getLevel(), null, 0);
 			state.items.add(new SawItem(item, i, renderedI, item.usesBlockLight(), PackageItem.isPackage(stack)));
 			renderedI++;
 		}
@@ -285,7 +284,7 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity, SawRend
 
 		superBuffer.uncenter()
 			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld());
+			.useLevelLight(renderWorld, matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.cutoutMovingBlock()));
 	}
 

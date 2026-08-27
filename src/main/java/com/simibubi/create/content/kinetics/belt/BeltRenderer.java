@@ -371,7 +371,7 @@ public class BeltRenderer extends SafeBlockEntityRenderer<BeltBlockEntity, BeltR
 		}
 
 		if (renderUpright) {
-			Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+			Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.mainCamera().position();
 			Vec3 diff = transported.itemPosition().subtract(cameraPosition);
 			float yRot = (float) (Mth.atan2(diff.x, diff.z) + Math.PI);
 			ms.mulPose(Axis.YP.rotation(yRot));

@@ -47,8 +47,7 @@ public class DepotRenderer extends SafeBlockEntityRenderer<DepotBlockEntity, Dep
 	public record ItemState(ItemStackRenderState item, boolean blockItem, boolean upright, boolean box, int count) {
 		public static ItemState create(ItemModelResolver itemModelResolver, ItemStack stack, @Nullable Level level) {
 			ItemStackRenderState item = new ItemStackRenderState();
-			item.displayContext = ItemDisplayContext.FIXED;
-			itemModelResolver.appendItemLayers(item, stack, ItemDisplayContext.FIXED, level, null, 0);
+			itemModelResolver.updateForTopItem(item, stack, ItemDisplayContext.FIXED, level, null, 0);
 			return new ItemState(item, item.usesBlockLight(), BeltHelper.isItemUpright(stack),
 				PackageItem.isPackage(stack), Mth.log2(stack.getCount()) / 2);
 		}
@@ -180,8 +179,8 @@ public class DepotRenderer extends SafeBlockEntityRenderer<DepotBlockEntity, Dep
 		msr.rotateYDegrees(angle);
 
 		if (renderUpright) {
-			Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.getMainCamera()
-				.getPosition();
+			Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.mainCamera()
+				.position();
 			Vec3 diff = itemPosition.subtract(cameraPosition);
 			float yRot = (float) (Mth.atan2(diff.x, diff.z) + Math.PI);
 			ms.mulPose(Axis.YP.rotation(yRot));

@@ -110,8 +110,7 @@ public class LinkRenderer {
 			ItemStack stack = first ? behaviour.frequencyFirst.getStack() : behaviour.frequencyLast.getStack();
 
 			ItemStackRenderState item = new ItemStackRenderState();
-			item.displayContext = ItemDisplayContext.FIXED;
-			itemModelResolver.appendItemLayers(item, stack, ItemDisplayContext.FIXED, level, null, 0);
+			itemModelResolver.updateForTopItem(item, stack, ItemDisplayContext.FIXED, level, null, 0);
 			slots.add(new SlotRenderState(transform, level, pos, item,
 				ValueBoxRenderer.customZOffset(stack.getItem())));
 		}

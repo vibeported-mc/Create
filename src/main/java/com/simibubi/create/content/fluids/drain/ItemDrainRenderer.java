@@ -189,8 +189,8 @@ public class ItemDrainRenderer
 			msr.rotateZDegrees(-verticalAngle);
 
 		if (renderUpright) {
-			Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.getMainCamera()
-				.getPosition();
+			Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.mainCamera()
+				.position();
 			Vec3 vectorForOffset = held.itemPosition()
 				.add(offsetVec);
 			Vec3 diff = vectorForOffset.subtract(cameraPosition);

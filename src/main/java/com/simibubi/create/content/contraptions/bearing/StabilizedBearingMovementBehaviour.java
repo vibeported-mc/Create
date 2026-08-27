@@ -76,7 +76,7 @@ public class StabilizedBearingMovementBehaviour implements MovementBehaviour {
 
 		// render
 		superBuffer.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld());
+			.useLevelLight(renderWorld, matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.solidMovingBlock()));
 	}
 

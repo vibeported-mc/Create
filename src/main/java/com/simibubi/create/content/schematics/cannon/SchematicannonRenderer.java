@@ -216,8 +216,7 @@ public class SchematicannonRenderer
 
 			} else if (launched instanceof ForEntity) {
 				ItemStackRenderState item = new ItemStackRenderState();
-				item.displayContext = ItemDisplayContext.GROUND;
-				itemModelResolver.appendItemLayers(item, launched.stack, ItemDisplayContext.GROUND, be.getLevel(),
+				itemModelResolver.updateForTopItem(item, launched.stack, ItemDisplayContext.GROUND, be.getLevel(),
 					null, 0);
 				state.launched.add(new LaunchedRenderState(blockLocation, t, null, item));
 			}

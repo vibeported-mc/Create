@@ -123,8 +123,7 @@ public class DeployerRenderer
 		} else {
 			transform = punching ? ItemDisplayContext.THIRD_PERSON_RIGHT_HAND : ItemDisplayContext.FIXED;
 		}
-		item.displayContext = transform;
-		itemModelResolver.appendItemLayers(item, be.heldItem, transform, be.getLevel(), null, 0);
+		itemModelResolver.updateForTopItem(item, be.heldItem, transform, be.getLevel(), null, 0);
 		isBlockItem = be.heldItem.getItem() instanceof BlockItem && item.usesBlockLight();
 
 		state.heldItem = new HeldItem(item, offset, yRot, xRot, displayMode, punching, isBlockItem,
@@ -273,7 +272,7 @@ public class DeployerRenderer
 		int contraptionLight = LightCoordsUtil.getLightCoords(renderWorld, context.localPos);
 		for (SuperByteBuffer buf : new SuperByteBuffer[] { shaft, pole, hand }) {
 			buf.light(contraptionLight)
-				.useLevelLight(context.world, matrices.getWorld());
+				.useLevelLight(renderWorld, matrices.getWorld());
 			out.add(ActorGeometry.of(matrices.getViewProjection(), buf, RenderTypes.solidMovingBlock()));
 		}
 

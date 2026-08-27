@@ -52,7 +52,7 @@ public class DrillRenderer extends KineticBlockEntityRenderer<DrillBlockEntity, 
 			.rotateZDegrees(angle)
 			.uncenter()
 			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(context.world, matrices.getWorld());
+			.useLevelLight(renderWorld, matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.solidMovingBlock()));
 	}
 
