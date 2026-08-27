@@ -33,7 +33,7 @@ public interface FanProcessingType {
 
 	@Nullable
 	static FanProcessingType parse(String str) {
-		return CreateBuiltInRegistries.FAN_PROCESSING_TYPE.get(Identifier.tryParse(str));
+		return CreateBuiltInRegistries.FAN_PROCESSING_TYPE.getValue(Identifier.tryParse(str));
 	}
 
 	@Nullable

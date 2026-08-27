@@ -124,7 +124,7 @@ public class RedstoneRequesterPeripheral extends SyncedPeripheral<RedstoneReques
 				Object arg = arguments.get(i);
 				if (arg instanceof String itemName) {
 					Identifier resourceLocation = Identifier.tryParse(itemName);
-					ItemLike item = BuiltInRegistries.ITEM.get(resourceLocation);
+					ItemLike item = BuiltInRegistries.ITEM.getValue(resourceLocation);
 					list.add(new BigItemStack(new ItemStack(item), 1));
 				} else if (arg instanceof Map<?, ?> itemData) {
 					String itemName = "minecraft:air";
@@ -139,7 +139,7 @@ public class RedstoneRequesterPeripheral extends SyncedPeripheral<RedstoneReques
 							throw new LuaException("Count for item " + itemName + " exceeds 256");
 					}
 					Identifier resourceLocation = Identifier.tryParse(itemName);
-					ItemLike item = BuiltInRegistries.ITEM.get(resourceLocation);
+					ItemLike item = BuiltInRegistries.ITEM.getValue(resourceLocation);
 					list.add(new BigItemStack(new ItemStack(item), count));
 				}
 			}

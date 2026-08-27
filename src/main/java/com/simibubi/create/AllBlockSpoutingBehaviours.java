@@ -40,7 +40,7 @@ public class AllBlockSpoutingBehaviours {
 		for (String name : List.of("table", "basin")) {
 			Identifier id = Mods.TCONSTRUCT.rl(name);
 			if (BuiltInRegistries.BLOCK_ENTITY_TYPE.containsKey(id)) {
-				BlockEntityType<?> table = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(id);
+				BlockEntityType<?> table = BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(id);
 				BlockSpoutingBehaviour.BY_BLOCK_ENTITY.register(table, SpoutCasting.INSTANCE);
 			} else {
 				Create.LOGGER.warn("Block entity {} wasn't found. Outdated compat?", id);

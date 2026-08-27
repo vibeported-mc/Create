@@ -30,7 +30,7 @@ public class InItemGroupAttribute implements ItemAttribute {
 			.fieldOf("value");
 
 	public static final StreamCodec<ByteBuf, InItemGroupAttribute> STREAM_CODEC = CatnipStreamCodecBuilders.nullable(Identifier.STREAM_CODEC)
-		.map(i -> new InItemGroupAttribute(BuiltInRegistries.CREATIVE_MODE_TAB.get(i)),
+		.map(i -> new InItemGroupAttribute(BuiltInRegistries.CREATIVE_MODE_TAB.getValue(i)),
 			i -> i.group == null ? null : BuiltInRegistries.CREATIVE_MODE_TAB.getKey(i.group));
 
 	@Nullable

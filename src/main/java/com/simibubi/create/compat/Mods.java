@@ -62,11 +62,11 @@ public enum Mods {
 	}
 
 	public Block getBlock(String id) {
-		return BuiltInRegistries.BLOCK.get(rl(id));
+		return BuiltInRegistries.BLOCK.getValue(rl(id));
 	}
 
 	public Item getItem(String id) {
-		return BuiltInRegistries.ITEM.get(rl(id));
+		return BuiltInRegistries.ITEM.getValue(rl(id));
 	}
 
 	public boolean contains(ItemLike entry) {

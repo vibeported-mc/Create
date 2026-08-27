@@ -1,82 +1,122 @@
 package com.simibubi.create.foundation.model;
 
-import java.util.Arrays;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-
+import net.minecraft.client.model.geom.builders.UVPair;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.util.Mth;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * Reads and rebuilds the geometry of a {@link BakedQuad}.
+ * <p>
+ * Minecraft 26.2 turned baked quads into a record of four positions, four packed UVs and a shared
+ * material, in place of the packed {@code int[]} of vertex data Create used to poke at. Quads are
+ * immutable now, so the setters here take a working copy and hand back a new quad.
+ */
 public final class BakedQuadHelper {
 
-	public static final VertexFormat FORMAT = DefaultVertexFormat.BLOCK;
-	public static final int VERTEX_STRIDE = FORMAT.getVertexSize() / 4;
-
-	public static final int X_OFFSET = 0;
-	public static final int Y_OFFSET = 1;
-	public static final int Z_OFFSET = 2;
-	public static final int COLOR_OFFSET = 3;
-	public static final int U_OFFSET = 4;
-	public static final int V_OFFSET = 5;
-	public static final int LIGHT_OFFSET = 6;
-	public static final int NORMAL_OFFSET = 7;
+	public static final int VERTEX_COUNT = BakedQuad.VERTEX_COUNT;
+	public static final int MAX_LIGHT_EMISSION = 15;
 
 	private BakedQuadHelper() {}
 
-	public static BakedQuad clone(BakedQuad quad) {
-		return new BakedQuad(Arrays.copyOf(quad.getVertices(), quad.getVertices().length),
-			quad.getTintIndex(), quad.getDirection(), quad.getSprite(), quad.isShade());
+	/**
+	 * The quad's four corners, in a mutable array to edit before rebuilding.
+	 */
+	public static Vector3f[] positions(BakedQuad quad) {
+		Vector3f[] positions = new Vector3f[VERTEX_COUNT];
+		for (int vertex = 0; vertex < VERTEX_COUNT; vertex++)
+			positions[vertex] = new Vector3f(quad.position(vertex));
+		return positions;
 	}
 
-	public static BakedQuad cloneWithCustomGeometry(BakedQuad quad, int[] vertexData) {
-		return new BakedQuad(vertexData, quad.getTintIndex(), quad.getDirection(), quad.getSprite(), quad.isShade());
+	/**
+	 * The quad's four packed UVs, in a mutable array to edit before rebuilding.
+	 */
+	public static long[] uvs(BakedQuad quad) {
+		long[] uvs = new long[VERTEX_COUNT];
+		for (int vertex = 0; vertex < VERTEX_COUNT; vertex++)
+			uvs[vertex] = quad.packedUV(vertex);
+		return uvs;
 	}
 
-	public static Vec3 getXYZ(int[] vertexData, int vertex) {
-		float x = Float.intBitsToFloat(vertexData[vertex * VERTEX_STRIDE + X_OFFSET]);
-        float y = Float.intBitsToFloat(vertexData[vertex * VERTEX_STRIDE + Y_OFFSET]);
-        float z = Float.intBitsToFloat(vertexData[vertex * VERTEX_STRIDE + Z_OFFSET]);
-        return new Vec3(x, y, z);
+	public static Vec3 getXYZ(Vector3fc[] positions, int vertex) {
+		Vector3fc pos = positions[vertex];
+		return new Vec3(pos.x(), pos.y(), pos.z());
 	}
 
-	public static void setXYZ(int[] vertexData, int vertex, Vec3 xyz) {
-		vertexData[vertex * VERTEX_STRIDE + X_OFFSET] = Float.floatToRawIntBits((float) xyz.x);
-		vertexData[vertex * VERTEX_STRIDE + Y_OFFSET] = Float.floatToRawIntBits((float) xyz.y);
-		vertexData[vertex * VERTEX_STRIDE + Z_OFFSET] = Float.floatToRawIntBits((float) xyz.z);
+	public static void setXYZ(Vector3f[] positions, int vertex, Vec3 xyz) {
+		positions[vertex].set((float) xyz.x, (float) xyz.y, (float) xyz.z);
 	}
 
-	public static Vec3 getNormalXYZ(int[] vertexData, int vertex) {
-		int data = vertexData[vertex * VERTEX_STRIDE + NORMAL_OFFSET];
-		float x = (byte) (data >> 24 & 0xFF) / 127f;
-		float y = (byte) (data >> 16 & 0xFF) / 127f;
-		float z = (byte) (data >> 8 & 0xFF) / 127f;
-		return new Vec3(x, y, z);
+	public static float getU(long[] uvs, int vertex) {
+		return UVPair.unpackU(uvs[vertex]);
 	}
 
-	public static void setNormalXYZ(int[] vertexData, int vertex, Vec3 xyz) {
-		int x = Byte.toUnsignedInt((byte) (Mth.clamp(xyz.x, -1.0f, 1.0f) * 127));
-		int y = Byte.toUnsignedInt((byte) (Mth.clamp(xyz.y, -1.0f, 1.0f) * 127));
-		int z = Byte.toUnsignedInt((byte) (Mth.clamp(xyz.z, -1.0f, 1.0f) * 127));
-		int data = (x << 24) | (y << 16) | (z << 8);
-		vertexData[vertex * VERTEX_STRIDE + NORMAL_OFFSET] = data;
+	public static float getV(long[] uvs, int vertex) {
+		return UVPair.unpackV(uvs[vertex]);
 	}
 
-	public static float getU(int[] vertexData, int vertex) {
-		return Float.intBitsToFloat(vertexData[vertex * VERTEX_STRIDE + U_OFFSET]);
+	public static void setU(long[] uvs, int vertex, float u) {
+		uvs[vertex] = UVPair.pack(u, UVPair.unpackV(uvs[vertex]));
 	}
 
-	public static float getV(int[] vertexData, int vertex) {
-		return Float.intBitsToFloat(vertexData[vertex * VERTEX_STRIDE + V_OFFSET]);
+	public static void setV(long[] uvs, int vertex, float v) {
+		uvs[vertex] = UVPair.pack(UVPair.unpackU(uvs[vertex]), v);
 	}
 
-	public static void setU(int[] vertexData, int vertex, float u) {
-		vertexData[vertex * VERTEX_STRIDE + U_OFFSET] = Float.floatToRawIntBits(u);
+	/**
+	 * A copy of {@code quad} with the given geometry.
+	 */
+	public static BakedQuad withGeometry(BakedQuad quad, Vector3fc[] positions, long[] uvs) {
+		return new BakedQuad(positions[0], positions[1], positions[2], positions[3], uvs[0], uvs[1], uvs[2], uvs[3],
+			quad.direction(), quad.materialInfo(), quad.bakedNormals(), quad.bakedColors());
 	}
 
-	public static void setV(int[] vertexData, int vertex, float v) {
-		vertexData[vertex * VERTEX_STRIDE + V_OFFSET] = Float.floatToRawIntBits(v);
+	/**
+	 * A copy of {@code quad} facing a different way.
+	 */
+	public static BakedQuad withDirection(BakedQuad quad, Direction direction) {
+		return new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(), quad.packedUV0(),
+			quad.packedUV1(), quad.packedUV2(), quad.packedUV3(), direction, quad.materialInfo(), quad.bakedNormals(),
+			quad.bakedColors());
+	}
+
+	/**
+	 * A copy of {@code quad} drawn from a different sprite, keeping the same position within it.
+	 */
+	public static BakedQuad withSprite(BakedQuad quad, TextureAtlasSprite sprite) {
+		BakedQuad.MaterialInfo info = quad.materialInfo();
+		return new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(), quad.packedUV0(),
+			quad.packedUV1(), quad.packedUV2(), quad.packedUV3(), quad.direction(),
+			new BakedQuad.MaterialInfo(sprite, info.layer(), info.itemRenderType(), info.tintIndex(), info.shade(),
+				info.lightEmission(), info.ambientOcclusion()),
+			quad.bakedNormals(), quad.bakedColors());
+	}
+
+	/**
+	 * A copy of {@code quad} lit at full block light.
+	 * <p>
+	 * NeoForge's emissivity quad transformer is gone in 26.2; emission is a field of the quad's
+	 * material now.
+	 */
+	public static BakedQuad withMaxEmissivity(BakedQuad quad) {
+		BakedQuad.MaterialInfo info = quad.materialInfo();
+		if (info.lightEmission() >= MAX_LIGHT_EMISSION)
+			return quad;
+		return new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(), quad.packedUV0(),
+			quad.packedUV1(), quad.packedUV2(), quad.packedUV3(), quad.direction(),
+			new BakedQuad.MaterialInfo(info.sprite(), info.layer(), info.itemRenderType(), info.tintIndex(),
+				info.shade(), MAX_LIGHT_EMISSION, info.ambientOcclusion()),
+			quad.bakedNormals(), quad.bakedColors());
+	}
+
+	public static TextureAtlasSprite getSprite(BakedQuad quad) {
+		return quad.materialInfo()
+			.sprite();
 	}
 
 }

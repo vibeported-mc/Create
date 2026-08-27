@@ -1,18 +1,16 @@
 package com.simibubi.create.content.decoration.copycat;
 
+import org.jspecify.annotations.Nullable;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.model.BakedModelHelper;
-import com.simibubi.create.foundation.model.BakedQuadHelper;
 
 import net.createmod.catnip.api.data.Iterate;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -21,40 +19,35 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.neoforge.model.data.ModelData;
 
 public class CopycatPanelModel extends CopycatModel {
 
 	protected static final AABB CUBE_AABB = new AABB(BlockPos.ZERO);
 
-	public CopycatPanelModel(BakedModel originalModel) {
+	public CopycatPanelModel(BlockStateModel originalModel) {
 		super(originalModel);
 	}
 
 	@Override
-	protected List<BakedQuad> getCroppedQuads(BlockState state, Direction side, RandomSource rand, BlockState material,
-		ModelData wrappedData, RenderType renderType) {
+	protected List<BakedQuad> getCroppedQuads(BlockState state, @Nullable Direction side, RandomSource rand,
+		BlockState material, List<BlockStateModelPart> materialParts) {
 		Direction facing = state.getOptionalValue(CopycatPanelBlock.FACING)
 			.orElse(Direction.UP);
-		BlockRenderDispatcher blockRenderer = Minecraft.getInstance()
-			.getBlockRenderer();
 
 		BlockState specialCopycatModelState = null;
 		if (CopycatSpecialCases.isBarsMaterial(material))
 			specialCopycatModelState = AllBlocks.COPYCAT_BARS.getDefaultState();
 		if (CopycatSpecialCases.isTrapdoorMaterial(material))
-			return blockRenderer.getBlockModel(material)
-				.getQuads(material, side, rand, wrappedData, renderType);
+			return BakedModelHelper.quadsOf(materialParts, side);
 
 		if (specialCopycatModelState != null) {
-			BakedModel blockModel =
-				blockRenderer.getBlockModel(specialCopycatModelState.setValue(DirectionalBlock.FACING, facing));
+			BlockStateModel blockModel =
+				getModelOf(specialCopycatModelState.setValue(DirectionalBlock.FACING, facing));
 			if (blockModel instanceof CopycatModel cm)
-				return cm.getCroppedQuads(state, side, rand, material, wrappedData, renderType);
+				return cm.getCroppedQuads(state, side, rand, material, materialParts);
 		}
 
-		BakedModel model = getModelOf(material);
-		List<BakedQuad> templateQuads = model.getQuads(material, side, rand, wrappedData, renderType);
+		List<BakedQuad> templateQuads = BakedModelHelper.quadsOf(materialParts, side);
 		int size = templateQuads.size();
 
 		List<BakedQuad> quads = new ArrayList<>();
@@ -72,15 +65,14 @@ public class CopycatPanelModel extends CopycatModel {
 
 			for (int i = 0; i < size; i++) {
 				BakedQuad quad = templateQuads.get(i);
-				Direction direction = quad.getDirection();
+				Direction direction = quad.direction();
 
 				if (front && direction == facing)
 					continue;
 				if (!front && direction == facing.getOpposite())
 					continue;
 
-				quads.add(BakedQuadHelper.cloneWithCustomGeometry(quad,
-					BakedModelHelper.cropAndMove(quad.getVertices(), quad.getSprite(), bb, normalScaledN13)));
+				quads.add(BakedModelHelper.cropAndMove(quad, bb, normalScaledN13));
 			}
 
 		}

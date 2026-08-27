@@ -8,7 +8,7 @@ import com.google.common.collect.MultimapBuilder;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
@@ -16,15 +16,15 @@ import net.minecraft.world.level.block.Blocks;
 
 public class CustomBlockModels {
 
-	private final Multimap<Identifier, NonNullFunction<BakedModel, ? extends BakedModel>> modelFuncs = MultimapBuilder.hashKeys().arrayListValues().build();
-	private final Map<Block, NonNullFunction<BakedModel, ? extends BakedModel>> finalModelFuncs = new IdentityHashMap<>();
+	private final Multimap<Identifier, NonNullFunction<BlockStateModel, ? extends BlockStateModel>> modelFuncs = MultimapBuilder.hashKeys().arrayListValues().build();
+	private final Map<Block, NonNullFunction<BlockStateModel, ? extends BlockStateModel>> finalModelFuncs = new IdentityHashMap<>();
 	private boolean funcsLoaded = false;
 
-	public void register(Identifier block, NonNullFunction<BakedModel, ? extends BakedModel> func) {
+	public void register(Identifier block, NonNullFunction<BlockStateModel, ? extends BlockStateModel> func) {
 		modelFuncs.put(block, func);
 	}
 
-	public void forEach(NonNullBiConsumer<Block, NonNullFunction<BakedModel, ? extends BakedModel>> consumer) {
+	public void forEach(NonNullBiConsumer<Block, NonNullFunction<BlockStateModel, ? extends BlockStateModel>> consumer) {
 		loadEntriesIfMissing();
 		finalModelFuncs.forEach(consumer);
 	}
@@ -39,13 +39,13 @@ public class CustomBlockModels {
 	private void loadEntries() {
 		finalModelFuncs.clear();
 		modelFuncs.asMap().forEach((location, funcList) -> {
-			Block block = BuiltInRegistries.BLOCK.get(location);
+			Block block = BuiltInRegistries.BLOCK.getValue(location);
 			if (block == Blocks.AIR) {
 				return;
 			}
 
-			NonNullFunction<BakedModel, ? extends BakedModel> finalFunc = null;
-			for (NonNullFunction<BakedModel, ? extends BakedModel> func : funcList) {
+			NonNullFunction<BlockStateModel, ? extends BlockStateModel> finalFunc = null;
+			for (NonNullFunction<BlockStateModel, ? extends BlockStateModel> func : funcList) {
 				if (finalFunc == null) {
 					finalFunc = func;
 				} else {

@@ -1,49 +1,47 @@
 package com.simibubi.create.content.decoration.copycat;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import org.jspecify.annotations.Nullable;
+import com.simibubi.create.foundation.model.BakedModelHelper;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.simibubi.create.foundation.model.BakedQuadHelper;
 
-import net.createmod.catnip.api.client.render.SpriteShiftEntry;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.neoforge.model.data.ModelData;
 
 public class CopycatBarsModel extends CopycatModel {
 
-	public CopycatBarsModel(BakedModel originalModel) {
+	public CopycatBarsModel(BlockStateModel originalModel) {
 		super(originalModel);
 	}
 
 	@Override
-	public boolean useAmbientOcclusion() {
-		return false;
-	}
-
-	@Override
-	protected List<BakedQuad> getCroppedQuads(BlockState state, Direction side, RandomSource rand, BlockState material,
-											  ModelData wrappedData, RenderType renderType) {
-		BakedModel model = getModelOf(material);
-		List<BakedQuad> superQuads = originalModel.getQuads(state, side, rand, wrappedData, renderType);
-		TextureAtlasSprite targetSprite = model.getParticleIcon(wrappedData);
+	protected List<BakedQuad> getCroppedQuads(BlockState state, @Nullable Direction side, RandomSource rand,
+		BlockState material, List<BlockStateModelPart> materialParts) {
+		// The bars keep their own shape and only borrow the material's texture.
+		List<BakedQuad> superQuads = BakedModelHelper.quadsOf(
+			BakedModelHelper.collectParts(delegate, BlockAndTintGetter.EMPTY, BlockPos.ZERO, state, rand), side);
+		TextureAtlasSprite targetSprite = getModelOf(material).particleMaterial()
+			.sprite();
 
 		boolean vertical = state.getValue(CopycatPanelBlock.FACING)
 			.getAxis() == Axis.Y;
 
 		if (side != null && (vertical || side.getAxis() == Axis.Y)) {
-			List<BakedQuad> templateQuads = model.getQuads(material, null, rand, wrappedData, renderType);
-			for (BakedQuad quad : templateQuads) {
-				if (quad.getDirection() != Direction.UP)
+			for (BakedQuad quad : BakedModelHelper.quadsOf(materialParts, null)) {
+				if (quad.direction() != Direction.UP)
 					continue;
-				targetSprite = quad.getSprite();
+				targetSprite = BakedQuadHelper.getSprite(quad);
 				break;
 			}
 		}
@@ -51,21 +49,10 @@ public class CopycatBarsModel extends CopycatModel {
 		if (targetSprite == null)
 			return superQuads;
 
-		List<BakedQuad> quads = new ArrayList<>();
-
-		for (BakedQuad quad : superQuads) {
-			TextureAtlasSprite original = quad.getSprite();
-			BakedQuad newQuad = BakedQuadHelper.clone(quad);
-			int[] vertexData = newQuad.getVertices();
-			for (int vertex = 0; vertex < 4; vertex++) {
-				BakedQuadHelper.setU(vertexData, vertex, targetSprite
-					.getU(SpriteShiftEntry.getUnInterpolatedU(original, BakedQuadHelper.getU(vertexData, vertex))));
-				BakedQuadHelper.setV(vertexData, vertex, targetSprite
-					.getV(SpriteShiftEntry.getUnInterpolatedV(original, BakedQuadHelper.getV(vertexData, vertex))));
-			}
-			quads.add(newQuad);
-		}
-
+		TextureAtlasSprite sprite = targetSprite;
+		List<BakedQuad> quads = new ArrayList<>(superQuads.size());
+		for (BakedQuad quad : superQuads)
+			quads.add(BakedModelHelper.swapSprite(quad, ignored -> sprite));
 		return quads;
 	}
 

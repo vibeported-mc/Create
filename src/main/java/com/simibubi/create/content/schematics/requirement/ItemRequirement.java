@@ -116,8 +116,8 @@ public class ItemRequirement {
 			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(item, state.getValue(SnowLayerBlock.LAYERS)
 				.intValue()));
 		// FD's rich soil extends FarmlandBlock so this is to make sure the cost is correct (it should be rich soil not dirt)
-		if (block == BuiltInRegistries.BLOCK.get(Mods.FD.asResource("rich_soil_farmland")))
-			return new ItemRequirement(ItemUseType.CONSUME, BuiltInRegistries.ITEM.get(Mods.FD.asResource("rich_soil")));
+		if (block == BuiltInRegistries.BLOCK.getValue(Mods.FD.asResource("rich_soil_farmland")))
+			return new ItemRequirement(ItemUseType.CONSUME, BuiltInRegistries.ITEM.getValue(Mods.FD.asResource("rich_soil")));
 		if (block instanceof FarmlandBlock || block instanceof DirtPathBlock)
 			return new ItemRequirement(ItemUseType.CONSUME, Items.DIRT);
 		if (block instanceof AbstractBannerBlock && be instanceof BannerBlockEntity bannerBE)

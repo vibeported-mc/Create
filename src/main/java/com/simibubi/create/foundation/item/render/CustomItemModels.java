@@ -8,7 +8,7 @@ import com.google.common.collect.MultimapBuilder;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -16,15 +16,15 @@ import net.minecraft.world.item.Items;
 
 public class CustomItemModels {
 
-	private final Multimap<Identifier, NonNullFunction<BakedModel, ? extends BakedModel>> modelFuncs = MultimapBuilder.hashKeys().arrayListValues().build();
-	private final Map<Item, NonNullFunction<BakedModel, ? extends BakedModel>> finalModelFuncs = new IdentityHashMap<>();
+	private final Multimap<Identifier, NonNullFunction<ItemModel, ? extends ItemModel>> modelFuncs = MultimapBuilder.hashKeys().arrayListValues().build();
+	private final Map<Item, NonNullFunction<ItemModel, ? extends ItemModel>> finalModelFuncs = new IdentityHashMap<>();
 	private boolean funcsLoaded = false;
 
-	public void register(Identifier item, NonNullFunction<BakedModel, ? extends BakedModel> func) {
+	public void register(Identifier item, NonNullFunction<ItemModel, ? extends ItemModel> func) {
 		modelFuncs.put(item, func);
 	}
 
-	public void forEach(NonNullBiConsumer<Item, NonNullFunction<BakedModel, ? extends BakedModel>> consumer) {
+	public void forEach(NonNullBiConsumer<Item, NonNullFunction<ItemModel, ? extends ItemModel>> consumer) {
 		loadEntriesIfMissing();
 		finalModelFuncs.forEach(consumer);
 	}
@@ -39,13 +39,13 @@ public class CustomItemModels {
 	private void loadEntries() {
 		finalModelFuncs.clear();
 		modelFuncs.asMap().forEach((location, funcList) -> {
-			Item item = BuiltInRegistries.ITEM.get(location);
+			Item item = BuiltInRegistries.ITEM.getValue(location);
 			if (item == Items.AIR) {
 				return;
 			}
 
-			NonNullFunction<BakedModel, ? extends BakedModel> finalFunc = null;
-			for (NonNullFunction<BakedModel, ? extends BakedModel> func : funcList) {
+			NonNullFunction<ItemModel, ? extends ItemModel> finalFunc = null;
+			for (NonNullFunction<ItemModel, ? extends ItemModel> func : funcList) {
 				if (finalFunc == null) {
 					finalFunc = func;
 				} else {

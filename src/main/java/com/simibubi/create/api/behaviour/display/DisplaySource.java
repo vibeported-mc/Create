@@ -134,7 +134,7 @@ public abstract class DisplaySource {
 			return AllDisplaySources.LEGACY_NAMES.get(id.getPath()).get();
 		}
 
-		return CreateBuiltInRegistries.DISPLAY_SOURCE.get(id);
+		return CreateBuiltInRegistries.DISPLAY_SOURCE.getValue(id);
 	}
 
 	/**

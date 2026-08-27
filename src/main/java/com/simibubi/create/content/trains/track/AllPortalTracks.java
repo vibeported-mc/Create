@@ -40,7 +40,7 @@ public class AllPortalTracks {
 	 */
 	public static void tryRegisterIntegration(Identifier id, PortalTrackProvider provider) {
 		if (BuiltInRegistries.BLOCK.containsKey(id)) {
-			Block block = BuiltInRegistries.BLOCK.get(id);
+			Block block = BuiltInRegistries.BLOCK.getValue(id);
 			PortalTrackProvider.REGISTRY.register(block, provider);
 		} else {
 			Create.LOGGER.warn("Portal for integration wasn't found: {}. Compat outdated?", id);
@@ -71,7 +71,7 @@ public class AllPortalTracks {
 	 * @param levelKey   The resource key of the dimension to travel to
 	 */
 	private static void tryRegisterSimpleInteraction(Identifier portalBlockId, ResourceKey<Level> levelKey) {
-		tryRegisterSimpleInteraction(BuiltInRegistries.BLOCK.get(portalBlockId), levelKey);
+		tryRegisterSimpleInteraction(BuiltInRegistries.BLOCK.getValue(portalBlockId), levelKey);
 	}
 
 	/**

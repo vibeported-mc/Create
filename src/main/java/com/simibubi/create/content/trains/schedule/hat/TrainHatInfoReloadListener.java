@@ -40,7 +40,7 @@ public class TrainHatInfoReloadListener {
 
 			try (BufferedReader reader = resource.openAsReader()) {
 				JsonObject json = GsonHelper.parse(reader);
-				ENTITY_INFO_MAP.put(BuiltInRegistries.ENTITY_TYPE.get(entityName), TrainHatInfo.CODEC.parse(JsonOps.INSTANCE, json).resultOrPartial(Create.LOGGER::error).orElseThrow());
+				ENTITY_INFO_MAP.put(BuiltInRegistries.ENTITY_TYPE.getValue(entityName), TrainHatInfo.CODEC.parse(JsonOps.INSTANCE, json).resultOrPartial(Create.LOGGER::error).orElseThrow());
 			} catch (Exception e) {
 				Create.LOGGER.error("Failed to read train hat info for entity {}!", entityName, e);
 			}

@@ -148,7 +148,7 @@ public class RuntimeDataGenerator {
 	}
 
 	private static void washingRecipes(Identifier itemId) {
-		Block block = BuiltInRegistries.BLOCK.get(itemId);
+		Block block = BuiltInRegistries.BLOCK.getValue(itemId);
 		if (block instanceof ConcretePowderBlock concretePowderBlock) {
 			Block concreteBlock = ((ConcretePowderBlockAccessor) concretePowderBlock).create$getConcrete();
 			simpleSplashingRecipe(itemId, BuiltInRegistries.BLOCK.getKey(concreteBlock));
@@ -167,8 +167,8 @@ public class RuntimeDataGenerator {
 	private static void simpleWoodRecipe(Identifier inputId, Identifier outputId, int amount) {
 		if (BuiltInRegistries.ITEM.containsKey(outputId)) {
 			new StandardBuilder<>(inputId.getNamespace(), CuttingRecipe::new, inputId.getPath(), outputId.getPath())
-				.require(BuiltInRegistries.ITEM.get(inputId))
-				.output(BuiltInRegistries.ITEM.get(outputId), amount)
+				.require(BuiltInRegistries.ITEM.getValue(inputId))
+				.output(BuiltInRegistries.ITEM.getValue(outputId), amount)
 				.duration(50)
 				.build();
 		}
@@ -178,7 +178,7 @@ public class RuntimeDataGenerator {
 		if (BuiltInRegistries.ITEM.containsKey(outputId)) {
 			new StandardBuilder<>(inputTag.location().getNamespace(), CuttingRecipe::new, "tag_" + inputTag.location().getPath(), outputId.getPath())
 				.require(inputTag)
-				.output(BuiltInRegistries.ITEM.get(outputId), amount)
+				.output(BuiltInRegistries.ITEM.getValue(outputId), amount)
 				.duration(50)
 				.build();
 		}
@@ -186,8 +186,8 @@ public class RuntimeDataGenerator {
 
 	private static void simpleSplashingRecipe(Identifier first, Identifier second) {
 		new StandardBuilder<>(first.getNamespace(), SplashingRecipe::new, first.getPath(), second.getPath())
-			.require(BuiltInRegistries.BLOCK.get(first))
-			.output(BuiltInRegistries.BLOCK.get(second))
+			.require(BuiltInRegistries.BLOCK.getValue(first))
+			.output(BuiltInRegistries.BLOCK.getValue(second))
 			.build();
 	}
 

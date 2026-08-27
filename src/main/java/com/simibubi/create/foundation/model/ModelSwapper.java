@@ -1,26 +1,30 @@
 package com.simibubi.create.foundation.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import com.simibubi.create.foundation.block.render.CustomBlockModels;
 import com.simibubi.create.foundation.item.render.CustomItemModels;
-import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
-import com.simibubi.create.foundation.item.render.CustomRenderedItems;
 
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
-import net.minecraft.client.renderer.block.BlockModelShaper;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
+/**
+ * Replaces baked models with Create's own wrappers once baking has finished.
+ * <p>
+ * Minecraft 26.2 bakes straight to {@code BlockState -> BlockStateModel} and
+ * {@code Identifier -> ItemModel} rather than keying everything on a model location, so the swap
+ * walks a block's states rather than its model locations.
+ */
 public class ModelSwapper {
 
 	protected CustomBlockModels customBlockModels = new CustomBlockModels();
@@ -35,41 +39,29 @@ public class ModelSwapper {
 	}
 
 	public void onModelBake(ModelEvent.ModifyBakingResult event) {
-		Map<ModelResourceLocation, BakedModel> modelRegistry = event.getModels();
-		customBlockModels.forEach((block, modelFunc) -> swapModels(modelRegistry, getAllBlockStateModelLocations(block), modelFunc));
-		customItemModels.forEach((item, modelFunc) -> swapModels(modelRegistry, getItemModelLocation(item), modelFunc));
-		CustomRenderedItems.forEach(item -> swapModels(modelRegistry, getItemModelLocation(item), CustomRenderedItemModel::new));
+		ModelBakery.BakingResult result = event.getBakingResult();
+		Map<BlockState, BlockStateModel> blockStateModels = result.blockStateModels();
+		Map<Identifier, ItemModel> itemModels = result.itemStackModels();
+
+		customBlockModels.forEach((block, modelFunc) -> swapBlockModels(blockStateModels, block, modelFunc));
+		customItemModels.forEach((item, modelFunc) -> swapItemModel(itemModels, item, modelFunc));
 	}
 
 	public void registerListeners(IEventBus modEventBus) {
 		modEventBus.addListener(this::onModelBake);
 	}
 
-	public static <T extends BakedModel> void swapModels(Map<ModelResourceLocation, BakedModel> modelRegistry,
-		List<ModelResourceLocation> locations, Function<BakedModel, T> factory) {
-		locations.forEach(location -> {
-			swapModels(modelRegistry, location, factory);
-		});
-	}
-
-	public static <T extends BakedModel> void swapModels(Map<ModelResourceLocation, BakedModel> modelRegistry,
-		ModelResourceLocation location, Function<BakedModel, T> factory) {
-		modelRegistry.put(location, factory.apply(modelRegistry.get(location)));
-	}
-
-	public static List<ModelResourceLocation> getAllBlockStateModelLocations(Block block) {
-		List<ModelResourceLocation> models = new ArrayList<>();
-		Identifier blockRl = RegisteredObjectsHelper.getKeyOrThrow(block);
+	public static void swapBlockModels(Map<BlockState, BlockStateModel> models, Block block,
+		Function<BlockStateModel, ? extends BlockStateModel> factory) {
 		block.getStateDefinition()
 			.getPossibleStates()
-			.forEach(state -> {
-				models.add(BlockModelShaper.stateToModelLocation(blockRl, state));
-			});
-		return models;
+			.forEach(state -> models.computeIfPresent(state, (ignored, model) -> factory.apply(model)));
 	}
 
-	public static ModelResourceLocation getItemModelLocation(Item item) {
-		return new ModelResourceLocation(RegisteredObjectsHelper.getKeyOrThrow(item), "inventory");
+	public static void swapItemModel(Map<Identifier, ItemModel> models, Item item,
+		Function<ItemModel, ? extends ItemModel> factory) {
+		models.computeIfPresent(RegisteredObjectsHelper.getKeyOrThrow(item),
+			(ignored, model) -> factory.apply(model));
 	}
 
 }

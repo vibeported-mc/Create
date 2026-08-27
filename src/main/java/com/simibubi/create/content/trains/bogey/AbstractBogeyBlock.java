@@ -254,7 +254,7 @@ public abstract class AbstractBogeyBlock<T extends AbstractBogeyBlockEntity> ext
 
 		while (index != indexOf) {
 			Identifier id = bogeyCycle.get(index);
-			Block newBlock = BuiltInRegistries.BLOCK.get(id);
+			Block newBlock = BuiltInRegistries.BLOCK.getValue(id);
 			if (newBlock instanceof AbstractBogeyBlock<?> bogey) {
 				BlockState matchingBogey = bogey.getMatchingBogey(bogeyUpDirection, trackAxisAlongFirstCoordinate);
 				if (matchingBogey != null)

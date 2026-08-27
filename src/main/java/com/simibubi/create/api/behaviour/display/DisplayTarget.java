@@ -109,7 +109,7 @@ public abstract class DisplayTarget {
 			return AllDisplayTargets.LEGACY_NAMES.get(id.getPath()).get();
 		}
 
-		return CreateBuiltInRegistries.DISPLAY_TARGET.get(id);
+		return CreateBuiltInRegistries.DISPLAY_TARGET.getValue(id);
 	}
 
 	/**

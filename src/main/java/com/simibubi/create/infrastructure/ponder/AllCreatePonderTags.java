@@ -421,7 +421,7 @@ public class AllCreatePonderTags {
 			.add(Blocks.BARREL);
 
 		Mods.COMPUTERCRAFT.executeIfInstalled(() -> () -> {
-			Block computer = BuiltInRegistries.BLOCK.get(Mods.COMPUTERCRAFT.rl("computer_advanced"));
+			Block computer = BuiltInRegistries.BLOCK.getValue(Mods.COMPUTERCRAFT.rl("computer_advanced"));
 			if (computer != Blocks.AIR)
 				itemHelper.addToTag(DISPLAY_SOURCES).add(computer);
 		});
