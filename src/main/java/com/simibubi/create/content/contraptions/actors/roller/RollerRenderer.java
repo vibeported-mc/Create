@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.roller;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
@@ -111,7 +112,7 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 			.translate(0, -.5, .5)
 			.rotateYDegrees(90);
 		superBuffer.light(contraptionWorldLight)
-			.useLevelLight(renderWorld, matrices.getWorld());
+			.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 		out.add(ActorGeometry.of(viewProjection, superBuffer, RenderTypes.cutoutMovingBlock()));
 		viewProjection.popPose();
 
@@ -120,7 +121,7 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 		TransformStack.of(frame.getTransforms())
 			.rotateCentered(AngleHelper.rad(AngleHelper.horizontalAngle(facing) + 180), Direction.UP);
 		frame.light(contraptionWorldLight)
-			.useLevelLight(renderWorld, matrices.getWorld());
+			.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 		out.add(ActorGeometry.of(viewProjection, frame, RenderTypes.cutoutMovingBlock()));
 	}
 

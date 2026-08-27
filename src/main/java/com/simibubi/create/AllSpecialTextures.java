@@ -21,7 +21,8 @@ public enum AllSpecialTextures implements BindableTexture {
 		location = Create.asResource(ASSET_PATH + filename);
 	}
 
-	public Identifier getLocation() {
+	@Override
+	public Identifier getId() {
 		return location;
 	}
 

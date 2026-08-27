@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.harvester;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
@@ -79,7 +80,7 @@ public class HarvesterRenderer
 		transform(context.world, facing, superBuffer, speed, PIVOT);
 
 		superBuffer.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(renderWorld, matrices.getWorld());
+			.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.cutoutMovingBlock()));
 	}
 

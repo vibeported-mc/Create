@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.contraptionControls;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -133,7 +134,7 @@ public class ContraptionControlsRenderer
 		ms.translate(0, buttondepth, 0);
 		CachedBufferer.partialFacing(AllPartialModels.CONTRAPTION_CONTROLS_BUTTON, ctx.state, ctx.state.getValue(ContraptionControlsBlock.FACING).getOpposite())
 			.light(LightCoordsUtil.getLightCoords(renderWorld, ctx.localPos))
-			.useLevelLight(renderWorld, matrices.getWorld())
+			.useLevelLight(RenderLevels.lightSource(ctx.world, renderWorld), matrices.getWorld())
 			.submit(ms, RenderTypes.solidMovingBlock(), buffer);
 		ms.popPose();
 

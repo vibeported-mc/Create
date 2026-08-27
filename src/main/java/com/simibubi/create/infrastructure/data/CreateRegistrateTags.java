@@ -68,7 +68,7 @@ public class CreateRegistrateTags {
 
 		prov.tag(AllBlockTags.COPYCAT_DENY.tag)
 			.addTag(BlockTags.CAULDRONS)
-			.addTag(BlockTags.SAPLINGS)
+			.addTag(BlockItemTags.SAPLINGS.block())
 			.addTag(BlockTags.CLIMBABLE);
 
 		prov.tag(AllBlockTags.FAN_PROCESSING_CATALYSTS_HAUNTING.tag)

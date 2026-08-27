@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.trainControls;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
@@ -35,7 +36,7 @@ public class ControlsRenderer {
 			.rotateYDegrees(hAngle)
 			.uncenter()
 			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(renderWorld, matrices.getWorld());
+			.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), cover, RenderTypes.cutoutMovingBlock()));
 
 		double yOffset = Mth.lerp(equipAnimation * equipAnimation, -0.15f, 0.05f);
@@ -56,7 +57,7 @@ public class ControlsRenderer {
 				.translate(first ? 0 : 6 / 16f, 0, 0);
 			lever.transform(ms)
 				.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-				.useLevelLight(renderWorld, matrices.getWorld());
+				.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 			out.add(ActorGeometry.of(matrices.getViewProjection(), lever, RenderTypes.solidMovingBlock()));
 			ms.popPose();
 		}

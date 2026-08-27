@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.minecraft.util.LightCoordsUtil;
@@ -272,7 +273,7 @@ public class DeployerRenderer
 		int contraptionLight = LightCoordsUtil.getLightCoords(renderWorld, context.localPos);
 		for (SuperByteBuffer buf : new SuperByteBuffer[] { shaft, pole, hand }) {
 			buf.light(contraptionLight)
-				.useLevelLight(renderWorld, matrices.getWorld());
+				.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 			out.add(ActorGeometry.of(matrices.getViewProjection(), buf, RenderTypes.solidMovingBlock()));
 		}
 

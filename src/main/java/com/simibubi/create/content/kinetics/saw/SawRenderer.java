@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
@@ -284,7 +285,7 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity, SawRend
 
 		superBuffer.uncenter()
 			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(renderWorld, matrices.getWorld());
+			.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.cutoutMovingBlock()));
 	}
 

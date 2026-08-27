@@ -49,7 +49,7 @@ public record ControlsInputPacket(List<Integer> activatedButtons, boolean press,
 			return;
 		}
 
-		if (ace.isWithinBlockInteractionRange(player, controlsPos, 16))
+		if (player.isWithinBlockInteractionRange(controlsPos, 16))
 			ControlsServerHandler.receivePressed(world, ace, controlsPos, uniqueID, activatedButtons, press);
 	}
 

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.drill;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
@@ -52,7 +53,7 @@ public class DrillRenderer extends KineticBlockEntityRenderer<DrillBlockEntity, 
 			.rotateZDegrees(angle)
 			.uncenter()
 			.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(renderWorld, matrices.getWorld());
+			.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.solidMovingBlock()));
 	}
 

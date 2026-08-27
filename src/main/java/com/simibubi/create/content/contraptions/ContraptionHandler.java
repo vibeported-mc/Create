@@ -71,7 +71,7 @@ public class ContraptionHandler {
 
 		Vec3 position = VecHelper.readNBT(data.getListOrEmpty("ContraptionDismountLocation"));
 		if (entityLiving.getVehicle() == null)
-			entityLiving.absMoveTo(position.x, position.y, position.z, entityLiving.getYRot(), entityLiving.getXRot());
+			entityLiving.snapTo(position.x, position.y, position.z, entityLiving.getYRot(), entityLiving.getXRot());
 		data.remove("ContraptionDismountLocation");
 		entityLiving.setOnGround(false);
 	}

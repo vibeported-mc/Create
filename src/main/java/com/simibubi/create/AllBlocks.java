@@ -1,5 +1,7 @@
 package com.simibubi.create;
 
+import net.minecraft.client.color.block.BlockTintSource;
+import java.util.List;
 import net.minecraft.tags.BlockItemTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.api.behaviour.display.DisplaySource.displaySource;
@@ -1498,8 +1500,8 @@ public class AllBlocks {
 			// .blockstate(new ControllerRailGenerator()::generate)
 			
 			
-			.color(() -> () -> (state, world, pos, layer) -> RedStoneWireBlock
-				.getColorForPower(pos != null && world != null ? state.getValue(BlockStateProperties.POWER) : 0))
+			.color(() -> () -> List.of((BlockTintSource) state -> RedStoneWireBlock
+				.getColorForPower(state.getValue(BlockStateProperties.POWER))))
 			.tag(BlockTags.RAILS)
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator

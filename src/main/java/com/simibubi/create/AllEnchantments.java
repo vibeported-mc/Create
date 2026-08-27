@@ -43,7 +43,9 @@ public class AllEnchantments {
 						EnchantmentEffectComponents.AMMO_USE,
 						new SetValue(LevelBasedValue.perLevel(0.0F, 33.3333333333F)),
 						MatchTool.toolMatches(
-								ItemPredicate.Builder.item().of() // TODO - Fix potato recovery
+								// TODO - Fix potato recovery
+								ItemPredicate.Builder.item()
+									.of(context.lookup(Registries.ITEM))
 						)
 				)
 		);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.render;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -140,7 +141,7 @@ public class ContraptionEntityRenderer<C extends AbstractContraptionEntity, S ex
 			SuperByteBuffer sbb = getBuffer(contraption, renderWorld);
 			if (!sbb.isEmpty())
 				state.structure = sbb.transform(matrices.getModel())
-					.useLevelLight(renderWorld, matrices.getWorld())
+					.useLevelLight(RenderLevels.lightSource(level, renderWorld), matrices.getWorld())
 					.extractRenderState();
 		}
 

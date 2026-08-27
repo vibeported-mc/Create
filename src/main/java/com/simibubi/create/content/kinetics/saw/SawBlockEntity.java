@@ -2,6 +2,7 @@ package com.simibubi.create.content.kinetics.saw;
 
 import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
+import net.minecraft.tags.BlockItemTags;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jspecify.annotations.NullMarked;
@@ -506,7 +507,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 	}
 
 	public static boolean isSawable(BlockState stateToBreak) {
-		if (stateToBreak.is(BlockTags.SAPLINGS))
+		if (stateToBreak.is(BlockItemTags.SAPLINGS.block()))
 			return false;
 		if (TreeCutter.isLog(stateToBreak) || (stateToBreak.is(BlockTags.LEAVES)))
 			return true;

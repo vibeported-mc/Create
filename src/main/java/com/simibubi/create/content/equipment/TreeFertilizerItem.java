@@ -2,6 +2,7 @@ package com.simibubi.create.content.equipment;
 
 
 import net.createmod.catnip.api.level.wrapper.PlacementSimulationServerLevel;
+import net.minecraft.tags.BlockItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -27,7 +28,7 @@ public class TreeFertilizerItem extends Item {
 		BlockState state = context.getLevel()
 			.getBlockState(context.getClickedPos());
 		Block block = state.getBlock();
-		if (block instanceof BonemealableBlock bonemealableBlock && state.is(BlockTags.SAPLINGS)) {
+		if (block instanceof BonemealableBlock bonemealableBlock && state.is(BlockItemTags.SAPLINGS.block())) {
 
 			if (state.getOptionalValue(MangrovePropaguleBlock.HANGING)
 				.orElse(false))

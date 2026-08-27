@@ -194,7 +194,7 @@ public class SeatBlock extends Block implements ProperWaterloggedBlock {
 		SeatEntity seat = new SeatEntity(level);
 		seat.setPos(pos.getX() + .5, pos.getY(), pos.getZ() + .5);
 		level.addFreshEntity(seat);
-		entity.startRiding(seat, true);
+		entity.startRiding(seat, true, true);
 		if (entity instanceof TamableAnimal ta)
 			ta.setInSittingPose(true);
 	}

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
+import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.minecraft.world.phys.Vec3;
@@ -85,7 +86,7 @@ public class PortableStorageInterfaceRenderer
 		transform(blockState, lit, progress, matrices.getModel(),
 			sbb -> {
 				sbb.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-					.useLevelLight(renderWorld, matrices.getWorld());
+					.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
 				out.add(ActorGeometry.of(matrices.getViewProjection(), sbb, RenderTypes.solidMovingBlock()));
 			});
 	}

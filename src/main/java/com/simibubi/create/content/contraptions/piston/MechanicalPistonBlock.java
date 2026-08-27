@@ -71,7 +71,7 @@ public class MechanicalPistonBlock extends DirectionalAxisKineticBlock implement
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 		if (player.isShiftKeyDown())
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
-		if (!stack.is(Tags.Items.SLIMEBALLS)) {
+		if (!stack.is(Tags.Items.SLIME_BALLS)) {
 			if (stack.isEmpty()) {
 				withBlockEntityDo(level, pos, be -> be.assembleNextTick = true);
 				return InteractionResult.SUCCESS;

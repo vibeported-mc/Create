@@ -40,7 +40,7 @@ public abstract class AbstractChassisBlock extends RotatedPillarBlock implements
 		if (!player.mayBuild())
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
-		boolean isSlimeBall = stack.is(Tags.Items.SLIMEBALLS) || AllItems.SUPER_GLUE.isIn(stack);
+		boolean isSlimeBall = stack.is(Tags.Items.SLIME_BALLS) || AllItems.SUPER_GLUE.isIn(stack);
 
 		BooleanProperty affectedSide = getGlueableSide(state, hitResult.getDirection());
 		if (affectedSide == null)
