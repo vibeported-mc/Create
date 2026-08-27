@@ -24,7 +24,12 @@ public abstract class ChainConveyorShape {
 
 	public abstract float getChainPosition(Vec3 intersection);
 
-	protected abstract void drawOutline(BlockPos anchor, PoseStack ms, VertexConsumer vb);
+	/**
+	 * Applies whatever transform this shape's outline needs, before the geometry is submitted.
+	 */
+	protected void applyOutlineTransform(PoseStack ms) {}
+
+	protected abstract void drawOutline(BlockPos anchor, PoseStack.Pose pose, VertexConsumer vb);
 
 	public abstract Vec3 getVec(BlockPos anchor, float position);
 
@@ -84,13 +89,17 @@ public abstract class ChainConveyorShape {
 		}
 
 		@Override
-		public void drawOutline(BlockPos anchor, PoseStack ms, VertexConsumer vb) {
+		public void applyOutlineTransform(PoseStack ms) {
 			TransformStack.of(ms)
 				.translate(pivot)
 				.rotateYDegrees((float) yaw)
 				.rotateXDegrees((float) pitch)
 				.translateBack(pivot);
-			TrackBlockOutline.renderShape(voxelShape, ms.last(), vb, null);
+		}
+
+		@Override
+		public void drawOutline(BlockPos anchor, PoseStack.Pose pose, VertexConsumer vb) {
+			TrackBlockOutline.renderShape(voxelShape, pose, vb, null);
 		}
 
 		@Override
@@ -138,8 +147,8 @@ public abstract class ChainConveyorShape {
 		}
 
 		@Override
-		public void drawOutline(BlockPos anchor, PoseStack ms, VertexConsumer vb) {
-			TrackBlockOutline.renderShape(AllShapes.CHAIN_CONVEYOR_INTERACTION, ms.last(), vb, null);
+		public void drawOutline(BlockPos anchor, PoseStack.Pose pose, VertexConsumer vb) {
+			TrackBlockOutline.renderShape(AllShapes.CHAIN_CONVEYOR_INTERACTION, pose, vb, null);
 		}
 
 		@Override

@@ -99,7 +99,7 @@ public class ItemHandlerBeltSegment implements ResourceHandler<ItemResource> {
 			TransportedItemStack current = beltInventory.getStackAtOffset(offset);
 			if (current != null) {
 				beltInventory.toRemove.remove(current);
-				beltInventory.getItems()
+				beltInventory.getTransportedItems()
 					.remove(current);
 			}
 			if (snapshot != null)

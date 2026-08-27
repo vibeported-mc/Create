@@ -15,6 +15,7 @@ import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe.Builder;
 import com.simibubi.create.foundation.mixin.accessor.PotionBrewingAccessor;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -156,7 +157,7 @@ public class PotionMixingRecipes {
 				.requiresHeat(HeatCondition.HEATED)
 				.build();
 
-		return new RecipeHolder<>(recipeId, recipe);
+		return new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, recipeId), recipe);
 	}
 
 	private static Map<Item, List<MixingRecipe>> sortRecipesByItem(List<RecipeHolder<MixingRecipe>> all) {

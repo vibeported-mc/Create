@@ -116,7 +116,7 @@ public class PotionFluidHandler {
 		boolean flag = true;
 		for (MobEffectInstance mobeffectinstance : effects) {
 			flag = false;
-			MutableComponent mutablecomponent = mobeffectinstance.getHoverName();
+			MutableComponent mutablecomponent = Component.translatable(mobeffectinstance.getDescriptionId());
 			Holder<MobEffect> holder = mobeffectinstance.getEffect();
 			holder.value().createModifiers(mobeffectinstance.getAmplifier(),
 				(h, m) -> list.add(Pair.of(h, m)));

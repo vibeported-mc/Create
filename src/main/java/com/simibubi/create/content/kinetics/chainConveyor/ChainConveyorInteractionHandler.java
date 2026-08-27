@@ -160,10 +160,11 @@ public class ChainConveyorInteractionHandler {
 		if (selectedLift == null || selectedShape == null)
 			return;
 
-		VertexConsumer vb = buffer.getBuffer(RenderTypes.lines());
 		ms.pushPose();
 		ms.translate(selectedLift.getX() - camera.x, selectedLift.getY() - camera.y, selectedLift.getZ() - camera.z);
-		selectedShape.drawOutline(selectedLift, ms, vb);
+		selectedShape.applyOutlineTransform(ms);
+		queue.submitCustomGeometry(ms, RenderTypes.lines(),
+			(pose, vb) -> selectedShape.drawOutline(selectedLift, pose, vb));
 		ms.popPose();
 	}
 
