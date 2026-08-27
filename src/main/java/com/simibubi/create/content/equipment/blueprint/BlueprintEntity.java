@@ -123,7 +123,6 @@ public class BlueprintEntity extends HangingEntity
 
 	@Override
 	public void addAdditionalSaveData(ValueOutput output) {
-		super.addAdditionalSaveData(output);
 		CompoundTag p_213281_1_ = new CompoundTag();
 		p_213281_1_.putByte("Facing", (byte) this.direction.get3DDataValue());
 		p_213281_1_.putByte("Orientation", (byte) this.verticalOrientation.get3DDataValue());
@@ -133,7 +132,6 @@ public class BlueprintEntity extends HangingEntity
 
 	@Override
 	public void readAdditionalSaveData(ValueInput input) {
-		super.readAdditionalSaveData(input);
 		readFacing(NbtValueIO.read(input));
 	}
 

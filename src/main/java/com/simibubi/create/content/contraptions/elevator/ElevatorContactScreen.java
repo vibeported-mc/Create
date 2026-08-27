@@ -115,7 +115,7 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 		editBox.setBordered(false);
 		editBox.setMaxLength(chars);
 		editBox.setFocused(false);
-		editBox.mouseClicked(0, 0, 0);
+		editBox.setFocused(true);
 		addRenderableWidget(editBox);
 		return editBox;
 	}

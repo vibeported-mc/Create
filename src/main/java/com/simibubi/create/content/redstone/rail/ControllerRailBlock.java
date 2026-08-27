@@ -110,7 +110,7 @@ public class ControllerRailBlock extends BaseRailBlock implements IWrenchable {
 		cart.setDeltaMovement(diff.x / 16f, 0, diff.z / 16f);
 
 		if (cart instanceof MinecartFurnace fme) {
-			fme.xPush = fme.zPush = 0;
+			fme.push = Vec3.ZERO;
 		}
 	}
 

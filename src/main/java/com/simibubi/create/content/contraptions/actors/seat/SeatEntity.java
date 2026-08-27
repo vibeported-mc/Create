@@ -1,5 +1,8 @@
 package com.simibubi.create.content.contraptions.actors.seat;
 
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import com.simibubi.create.foundation.utility.NbtValueIO;
@@ -128,32 +131,30 @@ public class SeatEntity extends Entity implements IEntityWithComplexSpawn {
 
 	@Override
 	protected void readAdditionalSaveData(ValueInput input) {
-		super.readAdditionalSaveData(input);
 		CompoundTag tag = NbtValueIO.read(input);
 	}
 
 	@Override
 	protected void addAdditionalSaveData(ValueOutput output) {
-		super.addAdditionalSaveData(output);
 		CompoundTag tag = new CompoundTag();
 		NbtValueIO.store(output, tag);
 	}
 
-	public static class Render extends EntityRenderer<SeatEntity> {
+	public static class Render extends EntityRenderer<SeatEntity, EntityRenderState> {
 
 		public Render(EntityRendererProvider.Context context) {
 			super(context);
 		}
 
 		@Override
-		public boolean shouldRender(SeatEntity seatEntity, Frustum frustum, double p_225626_3_, double p_225626_5_,
-			double p_225626_7_) {
-			return false;
+		public EntityRenderState createRenderState() {
+			return new EntityRenderState();
 		}
 
 		@Override
-		public Identifier getTextureLocation(SeatEntity seatEntity) {
-			return null;
+		public boolean shouldRender(SeatEntity seatEntity, Frustum frustum, double p_225626_3_, double p_225626_5_,
+			double p_225626_7_) {
+			return false;
 		}
 	}
 
@@ -162,4 +163,14 @@ public class SeatEntity extends Entity implements IEntityWithComplexSpawn {
 
 	@Override
 	public void readSpawnData(RegistryFriendlyByteBuf additionalData) {}
+
+	@Override
+	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+		return false;
+	}
+
+	@Override
+	public boolean hurtClient(DamageSource source) {
+		return false;
+	}
 }

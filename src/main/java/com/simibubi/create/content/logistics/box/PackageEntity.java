@@ -401,7 +401,6 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 
 	@Override
 	public void readAdditionalSaveData(ValueInput input) {
-		super.readAdditionalSaveData(input);
 		CompoundTag compound = NbtValueIO.read(input);
 		box = compound.read("Box", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
 		refreshDimensions();
@@ -409,7 +408,6 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 
 	@Override
 	public void addAdditionalSaveData(ValueOutput output) {
-		super.addAdditionalSaveData(output);
 		CompoundTag compound = new CompoundTag();
 		compound.put("Box", ItemHelper.saveOptional(box, level().registryAccess()));
 		NbtValueIO.store(output, compound);

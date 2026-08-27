@@ -81,7 +81,7 @@ public class AllEntityTypes {
 	//
 
 	private static <T extends Entity> CreateEntityBuilder<T, ?> contraption(String name, EntityFactory<T> factory,
-																			NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T>>> renderer, int range,
+																			NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T, ?>>> renderer, int range,
 																			int updateFrequency, boolean sendVelocity) {
 		return (CreateEntityBuilder<T, ?>) register(name, factory, renderer, MobCategory.MISC, range, updateFrequency, sendVelocity, true,
 			AbstractContraptionEntity::build)
@@ -89,7 +89,7 @@ public class AllEntityTypes {
 	}
 
 	private static <T extends Entity> CreateEntityBuilder<T, ?> register(String name, EntityFactory<T> factory,
-																		 NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T>>> renderer,
+																		 NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T, ?>>> renderer,
 																		 MobCategory group, int range, int updateFrequency, boolean sendVelocity, boolean immuneToFire,
 																		 NonNullConsumer<EntityType.Builder<T>> propertyBuilder) {
 		String id = Lang.asId(name);

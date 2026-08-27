@@ -83,7 +83,7 @@ public class SchematicEditScreen extends AbstractSimiScreen {
 			widget.setBordered(false);
 			widget.setTextColor(0xFFFFFF);
 			widget.setFocused(false);
-			widget.mouseClicked(0, 0, 0);
+			widget.setFocused(true);
 			widget.setFilter(s -> {
 				if (s.isEmpty() || s.equals("-"))
 					return true;

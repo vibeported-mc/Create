@@ -46,7 +46,7 @@ public class AddressEditBox extends EditBox {
 		setResponder(mainResponder);
 		setBordered(false);
 		setFocused(false);
-		mouseClicked(0, 0, 0);
+		setFocused(true);
 		setMaxLength(25);
 	}
 
@@ -60,7 +60,7 @@ public class AddressEditBox extends EditBox {
 		if (isFocused() && pKeyCode == GLFW.GLFW_KEY_ENTER) {
 			setFocused(false);
 			moveCursorToEnd(false);
-			mouseClicked(0, 0, 0);
+			setFocused(true);
 			return true;
 		}
 		return super.keyPressed(event);

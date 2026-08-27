@@ -99,7 +99,6 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 	@Override
 	public void readAdditionalSaveData(ValueInput input) {
-		super.readAdditionalSaveData(input);
 		CompoundTag nbt = NbtValueIO.read(input);
 		setItem(nbt.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
 		additionalDamageMult = nbt.getFloatOr("AdditionalDamage", 0);
@@ -109,7 +108,6 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 	@Override
 	public void addAdditionalSaveData(ValueOutput output) {
-		super.addAdditionalSaveData(output);
 		CompoundTag nbt = new CompoundTag();
 		nbt.store("Item", ItemStack.OPTIONAL_CODEC, stack);
 		nbt.putFloat("AdditionalDamage", additionalDamageMult);

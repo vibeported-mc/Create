@@ -67,7 +67,7 @@ public class PackagePortScreen extends AbstractSimiContainerScreen<PackagePortMe
 		addressBox.setTextColor(0x3D3C48);
 		addressBox.setValue(menu.contentHolder.addressFilter);
 		addressBox.setFocused(false);
-		addressBox.mouseClicked(0, 0, 0);
+		addressBox.setFocused(true);
 		addressBox.setResponder(onTextChanged);
 		addressBox.setX(nameBoxX(addressBox.getValue(), addressBox));
 		addRenderableWidget(addressBox);
