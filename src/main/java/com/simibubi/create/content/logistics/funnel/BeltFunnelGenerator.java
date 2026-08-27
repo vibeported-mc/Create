@@ -2,7 +2,6 @@ package com.simibubi.create.content.logistics.funnel;
 
 import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.funnel.BeltFunnelBlock.Shape;
-import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 

@@ -3,7 +3,6 @@ package com.simibubi.create.foundation.data;
 import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
-import static com.simibubi.create.foundation.data.BlockStateGen.axisBlock;
 import static com.simibubi.create.foundation.data.CreateRegistrate.casingConnectivity;
 import static com.simibubi.create.foundation.data.CreateRegistrate.connectedTextures;
 import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
@@ -24,7 +23,6 @@ import com.simibubi.create.Create;
 import com.simibubi.create.api.stress.BlockStressValues;
 import com.simibubi.create.content.contraptions.behaviour.DoorMovingInteraction;
 import com.simibubi.create.content.contraptions.behaviour.TrapdoorMovingInteraction;
-import com.simibubi.create.content.contraptions.piston.MechanicalPistonGenerator;
 import com.simibubi.create.content.decoration.MetalScaffoldingBlock;
 import com.simibubi.create.content.decoration.MetalScaffoldingBlockItem;
 import com.simibubi.create.content.decoration.MetalScaffoldingCTBehaviour;
@@ -40,7 +38,6 @@ import com.simibubi.create.content.kinetics.simpleRelays.encased.EncasedCogwheel
 import com.simibubi.create.content.kinetics.simpleRelays.encased.EncasedShaftBlock;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles.PackageStyle;
-import com.simibubi.create.content.logistics.packager.PackagerGenerator;
 import com.simibubi.create.content.logistics.tableCloth.TableClothBlockItem;
 import com.simibubi.create.content.logistics.tableCloth.TableClothModel;
 import com.simibubi.create.content.logistics.tunnel.BeltTunnelBlock;
@@ -123,7 +120,9 @@ public class BuilderTransformers {
 										// .getExistingFile(p.modLoc("block/track/bogey/top"))))
 			
 			
-			.loot((p, l) -> p.dropOther(l, AllBlocks.RAILWAY_CASING.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, l) -> p.dropOther(l, AllBlocks.RAILWAY_CASING.get()))
+			
 			.onRegister(
 				block -> AbstractBogeyBlock.registerStandardBogey(RegisteredObjectsHelper.getKeyOrThrow(block)));
 	}
@@ -180,7 +179,9 @@ public class BuilderTransformers {
 			.tag(BlockTags.DOORS)
 			.tag(BlockTags.WOODEN_DOORS) // for villager AI
 			.tag(AllBlockTags.NON_DOUBLE_DOOR.tag)
-			.loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
+			
 			.item()
 			.tag(ItemTags.DOORS)
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
@@ -243,7 +244,9 @@ public class BuilderTransformers {
 		return b.initialProperties(SharedProperties::stone)
 			.properties(BlockBehaviour.Properties::noOcclusion)
 			.transform(CStress.setNoImpact())
-			.loot((p, lb) -> p.dropOther(lb, drop.get()));
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, lb) -> p.dropOther(lb, drop.get()))
+			;
 	}
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> cuckooClock() {
@@ -255,7 +258,10 @@ public class BuilderTransformers {
 			
 			.transform(CStress.setImpact(1))
 			.item()
-			.transform(ModelGen.customItemModel("cuckoo_clock", "item"));
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .transform(ModelGen.customItemModel("cuckoo_clock", "item"))
+			.build()
+			;
 	}
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> ladder(String name,
@@ -274,7 +280,9 @@ public class BuilderTransformers {
 			.transform(pickaxeOnly())
 			.tag(BlockTags.CLIMBABLE)
 			.item()
-			.recipe((c, p) -> p.stonecutting(ingredient.get(), RecipeCategory.DECORATIONS, c::get, 2))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(ingredient.get(), RecipeCategory.DECORATIONS, c::get, 2))
+			
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .model((c, p) -> p.blockSprite(c::get, p.modLoc("block/ladder_" + name)))
 			
@@ -308,7 +316,9 @@ public class BuilderTransformers {
 			.transform(pickaxeOnly())
 			.tag(BlockTags.CLIMBABLE)
 			.item(MetalScaffoldingBlockItem::new)
-			.recipe((c, p) -> p.stonecutting(ingredient.get(), RecipeCategory.DECORATIONS, c::get, 2))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(ingredient.get(), RecipeCategory.DECORATIONS, c::get, 2))
+			
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/" + c.getName())))
 			
@@ -423,7 +433,10 @@ public class BuilderTransformers {
 			
 			.transform(CStress.setImpact(4.0))
 			.item()
-			.transform(ModelGen.customItemModel("mechanical_piston", type.getSerializedName(), "item"));
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .transform(ModelGen.customItemModel("mechanical_piston", type.getSerializedName(), "item"))
+			.build()
+			;
 	}
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> bearing(String prefix,
@@ -483,23 +496,28 @@ public class BuilderTransformers {
 			
 			.item()
 			.properties(p -> type.equals("creative") ? p.rarity(Rarity.EPIC) : p)
-			.transform(ModelGen.customItemModel("crate", type, "single"));
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .transform(ModelGen.customItemModel("crate", type, "single"))
+			.build()
+			;
 	}
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> backtank(Supplier<ItemLike> drop) {
 		return b -> b.blockstate((c, p) -> p.horizontalBlock(c.getEntry(), AssetLookup.partialBaseModel(c, p)))
 			.transform(pickaxeOnly())
 			.transform(CStress.setImpact(4.0))
-			.loot((lt, block) -> {
-				Builder builder = LootTable.lootTable();
-				LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
-				lt.add(block, builder.withPool(LootPool.lootPool()
-					.when(survivesExplosion)
-					.setRolls(ConstantValue.exactly(1))
-					.add(LootItem.lootTableItem(drop.get())
-						.apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-							.include(AllDataComponents.BACKTANK_AIR)))));
-			});
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lt, block) -> {
+				// Builder builder = LootTable.lootTable();
+				// LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
+				// lt.add(block, builder.withPool(LootPool.lootPool()
+					// .when(survivesExplosion)
+					// .setRolls(ConstantValue.exactly(1))
+					// .add(LootItem.lootTableItem(drop.get())
+						// .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+							// .include(AllDataComponents.BACKTANK_AIR)))));
+			// })
+			;
 	}
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> bell() {
@@ -572,10 +590,12 @@ public class BuilderTransformers {
 			return item.model((c, p) -> p.withExistingParent(name + "_table_cloth", p.modLoc("block/table_cloth/item"))
 					.texture("0", p.modLoc("block/table_cloth/" + name)))
 				.tag(AllItemTags.TABLE_CLOTHS.tag)
-				.recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get())
-					.requires(c.get())
-					.unlockedBy("has_" + c.getName(), RegistrateRecipeProvider.has(c.get()))
-					.save(p, Create.asResource("crafting/logistics/" + c.getName() + "_clear")))
+				// TODO 26.2: port datagen to the new recipe/loot builders
+				// .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get())
+					// .requires(c.get())
+					// .unlockedBy("has_" + c.getName(), RegistrateRecipeProvider.has(c.get()))
+					// .save(p, Create.asResource("crafting/logistics/" + c.getName() + "_clear")))
+				
 				.build();
 		};
 	}
@@ -592,7 +612,8 @@ public class BuilderTransformers {
 			
 			
 			.item()
-			.model(AssetLookup::customItemModel)
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(AssetLookup::customItemModel)
 			.build();
 	}
 
@@ -608,8 +629,10 @@ public class BuilderTransformers {
 			
 			
 			.tag(AllBlockTags.WRENCH_PICKUP.tag)
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.INGOTS_IRON)), RecipeCategory.BUILDING_BLOCKS,
-				c::get, 2))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.INGOTS_IRON)), RecipeCategory.BUILDING_BLOCKS,
+				// c::get, 2))
+			
 			.simpleItem();
 	}
 }

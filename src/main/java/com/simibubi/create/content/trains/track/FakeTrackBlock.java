@@ -35,7 +35,7 @@ public class FakeTrackBlock extends Block implements EntityBlock, ProperWaterlog
 
 	public FakeTrackBlock(Properties p_49795_) {
 		super(p_49795_.randomTicks()
-			.noCollission()
+			.noCollision()
 			.noOcclusion());
 		registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
 	}

@@ -1,6 +1,5 @@
 package com.simibubi.create.content.decoration.copycat;
 
-import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 

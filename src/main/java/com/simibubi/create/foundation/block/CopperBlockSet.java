@@ -128,7 +128,9 @@ public class CopperBlockSet {
 		Supplier<Block> baseBlock = BASE_BLOCKS.get(state);
 		BlockBuilder<T, ?> builder = registrate.block(name, variant.getFactory(this, state, waxed))
 			.initialProperties(() -> baseBlock.get())
-			.loot((lt, block) -> variant.generateLootTable(lt, block, this, state, waxed))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lt, block) -> variant.generateLootTable(lt, block, this, state, waxed))
+			
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((ctx, prov) -> variant.generateBlockState(ctx, prov, this, state, waxed))
 			

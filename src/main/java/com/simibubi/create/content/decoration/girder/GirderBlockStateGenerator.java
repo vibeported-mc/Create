@@ -1,6 +1,5 @@
 package com.simibubi.create.content.decoration.girder;
 
-import com.simibubi.create.foundation.data.AssetLookup;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 

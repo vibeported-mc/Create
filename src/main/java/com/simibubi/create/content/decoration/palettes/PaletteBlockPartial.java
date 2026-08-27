@@ -62,7 +62,9 @@ public abstract class PaletteBlockPartial<B extends Block> {
 			// .blockstate((c, p) -> generateBlockState(c, p, variantName, pattern, block))
 			
 			
-			.recipe((c, p) -> createRecipes(variant, block, c, p))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> createRecipes(variant, block, c, p))
+			
 			.transform(b -> transformBlock(b, variantName, pattern));
 
 		ItemBuilder<BlockItem, BlockBuilder<B, CreateRegistrate>> itemBuilder = blockBuilder.item()

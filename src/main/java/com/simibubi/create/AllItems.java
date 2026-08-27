@@ -29,7 +29,6 @@ import com.simibubi.create.content.equipment.armor.CardboardArmorItem;
 import com.simibubi.create.content.equipment.armor.CardboardArmorStealthOverlay;
 import com.simibubi.create.content.equipment.armor.DivingBootsItem;
 import com.simibubi.create.content.equipment.armor.DivingHelmetItem;
-import com.simibubi.create.content.equipment.armor.TrimmableArmorModelGenerator;
 import com.simibubi.create.content.equipment.blueprint.BlueprintItem;
 import com.simibubi.create.content.equipment.extendoGrip.ExtendoGripItem;
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
@@ -62,7 +61,6 @@ import com.simibubi.create.content.redstone.link.controller.LinkedControllerItem
 import com.simibubi.create.content.schematics.SchematicAndQuillItem;
 import com.simibubi.create.content.schematics.SchematicItem;
 import com.simibubi.create.content.trains.schedule.ScheduleItem;
-import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.BuilderTransformers;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.recipe.CommonMetal;
@@ -367,7 +365,9 @@ public class AllItems {
 		.tag(ItemTags.HEAD_ARMOR)
 		.burnTime(1000)
 		.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
-		.model(TrimmableArmorModelGenerator::generate)
+		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+		// .model(TrimmableArmorModelGenerator::generate)
+		
 		.clientExtension(() -> () -> new CardboardArmorStealthOverlay())
 		.register(),
 
@@ -377,7 +377,9 @@ public class AllItems {
 			.tag(ItemTags.CHEST_ARMOR)
 			.burnTime(1000)
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
-			.model(TrimmableArmorModelGenerator::generate)
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(TrimmableArmorModelGenerator::generate)
+			
 			.register(),
 
 	CARDBOARD_LEGGINGS =
@@ -386,7 +388,9 @@ public class AllItems {
 			.tag(ItemTags.LEG_ARMOR)
 			.burnTime(1000)
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
-			.model(TrimmableArmorModelGenerator::generate)
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(TrimmableArmorModelGenerator::generate)
+			
 			.register(),
 
 	CARDBOARD_BOOTS = REGISTRATE.item("cardboard_boots", p -> new CardboardArmorItem(ArmorItem.Type.BOOTS, p))
@@ -394,7 +398,9 @@ public class AllItems {
 		.tag(ItemTags.FOOT_ARMOR)
 		.burnTime(1000)
 		.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
-		.model(TrimmableArmorModelGenerator::generate)
+		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+		// .model(TrimmableArmorModelGenerator::generate)
+		
 		.register();
 
 	public static final ItemEntry<SandPaperItem> SAND_PAPER = REGISTRATE.item("sand_paper", SandPaperItem::new)

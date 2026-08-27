@@ -3,7 +3,6 @@ package com.simibubi.create.content.redstone.diodes;
 import java.util.List;
 
 import com.simibubi.create.Create;
-import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;

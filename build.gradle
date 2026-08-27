@@ -320,3 +320,11 @@ boolean hasUnstaged() {
         return false
     }
 }
+
+// A single-file javac check, since the full compile under-reports while the port is mid-flight.
+tasks.register("printCompileClasspath") {
+    doLast {
+        var cp = sourceSets.main.compileClasspath.files.collect { it.absolutePath }.join(File.pathSeparator)
+        new File(project.layout.buildDirectory.get().asFile, "compile-classpath.txt").text = cp
+    }
+}

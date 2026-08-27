@@ -48,7 +48,9 @@ public class MetalBarsGen {
 				// p.generated(c, barsTexture);
 			// })
 			
-			.recipe((c, p) -> p.stonecutting(ingredient.get(), RecipeCategory.DECORATIONS, c::get, 4))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(ingredient.get(), RecipeCategory.DECORATIONS, c::get, 4))
+			
 			.build()
 			.register();
 	}

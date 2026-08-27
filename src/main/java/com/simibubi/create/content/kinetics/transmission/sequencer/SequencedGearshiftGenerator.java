@@ -1,6 +1,5 @@
 package com.simibubi.create.content.kinetics.transmission.sequencer;
 
-import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 

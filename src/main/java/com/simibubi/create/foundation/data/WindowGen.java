@@ -125,17 +125,21 @@ public class WindowGen {
 		return REGISTRATE.block(name, p -> new WindowBlock(p, translucent))
 			.onRegister(ct == null ? $ -> {
 			} : connectedTextures(() -> new HorizontalCTBehaviour(ct.get())))
-			.recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 2)
-				.pattern(" # ")
-				.pattern("#X#")
-				.define('#', ingredient.get())
-					.define('X', DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)).toVanilla())
-				.unlockedBy("has_ingredient", RegistrateRecipeProvider.has(ingredient.get()))
-				.save(p))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 2)
+				// .pattern(" # ")
+				// .pattern("#X#")
+				// .define('#', ingredient.get())
+					// .define('X', DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)).toVanilla())
+				// .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(ingredient.get()))
+				// .save(p))
+			
 			.initialProperties(() -> Blocks.GLASS)
 			.properties(WindowGen::glassProperties)
 			.properties(p -> p.mapColor(color.get()))
-			.loot((t, g) -> t.dropWhenSilkTouch(g))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((t, g) -> t.dropWhenSilkTouch(g))
+			
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((c, p) -> p.simpleBlock(c.get(), p.models()
 										// .cubeColumn(c.getName(), sideTexture.apply(c.getName()), endTexture.apply(c.getName()))))
@@ -151,9 +155,13 @@ public class WindowGen {
 			.onRegister(connectedTextures(behaviour))
 			.initialProperties(() -> Blocks.GLASS)
 			.properties(WindowGen::glassProperties)
-			.loot((t, g) -> t.dropWhenSilkTouch(g))
-				.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)),
-				RecipeCategory.BUILDING_BLOCKS, c::get))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((t, g) -> t.dropWhenSilkTouch(g))
+			
+				// TODO 26.2: port datagen to the new recipe/loot builders
+				// .recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)),
+				// RecipeCategory.BUILDING_BLOCKS, c::get))
+				
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((c, p) -> BlockStateGen.cubeAll(c, p, "palettes/", "framed_glass"))
 			
@@ -226,18 +234,22 @@ public class WindowGen {
 			// .blockstate(stateProvider)
 			
 			
-			.recipe((c, p) -> {
-				ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 16)
-					.pattern("###")
-					.pattern("###")
-					.define('#', parent.get())
-					.unlockedBy("has_ingredient", RegistrateRecipeProvider.has(parent.get()))
-					.save(p);
-				if (colorless)
-					p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_PANES_COLORLESS)), RecipeCategory.BUILDING_BLOCKS,
-						c::get);
-			})
-			.loot((t, g) -> t.dropWhenSilkTouch(g))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> {
+				// ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 16)
+					// .pattern("###")
+					// .pattern("###")
+					// .define('#', parent.get())
+					// .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(parent.get()))
+					// .save(p);
+				// if (colorless)
+					// p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_PANES_COLORLESS)), RecipeCategory.BUILDING_BLOCKS,
+						// c::get);
+			// })
+			
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((t, g) -> t.dropWhenSilkTouch(g))
+			
 			.item();
 
 		if (colorless)

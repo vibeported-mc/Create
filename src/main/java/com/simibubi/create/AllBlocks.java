@@ -7,10 +7,7 @@ import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBeh
 import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
 import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
 import static com.simibubi.create.api.contraption.storage.item.MountedItemStorageType.mountedItemStorage;
-import static com.simibubi.create.foundation.data.BlockStateGen.axisBlock;
-import static com.simibubi.create.foundation.data.BlockStateGen.simpleCubeAll;
 import static com.simibubi.create.foundation.data.CreateRegistrate.connectedTextures;
-import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 import static com.simibubi.create.foundation.data.TagGen.axeOnly;
 import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
@@ -69,7 +66,6 @@ import com.simibubi.create.content.decoration.TrainTrapdoorBlock;
 import com.simibubi.create.content.decoration.TrapdoorCTBehaviour;
 import com.simibubi.create.content.decoration.bracket.BracketBlock;
 import com.simibubi.create.content.decoration.bracket.BracketBlockItem;
-import com.simibubi.create.content.decoration.bracket.BracketGenerator;
 import com.simibubi.create.content.decoration.copycat.CopycatBarsModel;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelModel;
@@ -81,13 +77,11 @@ import com.simibubi.create.content.decoration.encasing.EncasedCTBehaviour;
 import com.simibubi.create.content.decoration.encasing.EncasingRegistry;
 import com.simibubi.create.content.decoration.girder.ConnectedGirderModel;
 import com.simibubi.create.content.decoration.girder.GirderBlock;
-import com.simibubi.create.content.decoration.girder.GirderBlockStateGenerator;
 import com.simibubi.create.content.decoration.girder.GirderEncasedShaftBlock;
 import com.simibubi.create.content.decoration.placard.PlacardBlock;
 import com.simibubi.create.content.decoration.slidingDoor.SlidingDoorBlock;
 import com.simibubi.create.content.decoration.steamWhistle.WhistleBlock;
 import com.simibubi.create.content.decoration.steamWhistle.WhistleExtenderBlock;
-import com.simibubi.create.content.decoration.steamWhistle.WhistleGenerator;
 import com.simibubi.create.content.equipment.armor.BacktankBlock;
 import com.simibubi.create.content.equipment.bell.HauntedBellBlock;
 import com.simibubi.create.content.equipment.bell.HauntedBellMovementBehaviour;
@@ -103,21 +97,17 @@ import com.simibubi.create.content.fluids.pipes.EncasedPipeBlock;
 import com.simibubi.create.content.fluids.pipes.FluidPipeBlock;
 import com.simibubi.create.content.fluids.pipes.GlassFluidPipeBlock;
 import com.simibubi.create.content.fluids.pipes.SmartFluidPipeBlock;
-import com.simibubi.create.content.fluids.pipes.SmartFluidPipeGenerator;
 import com.simibubi.create.content.fluids.pipes.valve.FluidValveBlock;
 import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.fluids.spout.SpoutBlock;
 import com.simibubi.create.content.fluids.tank.FluidTankBlock;
-import com.simibubi.create.content.fluids.tank.FluidTankGenerator;
 import com.simibubi.create.content.fluids.tank.FluidTankItem;
 import com.simibubi.create.content.fluids.tank.FluidTankModel;
 import com.simibubi.create.content.fluids.tank.FluidTankMovementBehavior;
 import com.simibubi.create.content.kinetics.belt.BeltBlock;
-import com.simibubi.create.content.kinetics.belt.BeltGenerator;
 import com.simibubi.create.content.kinetics.belt.BeltModel;
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlock;
 import com.simibubi.create.content.kinetics.chainDrive.ChainDriveBlock;
-import com.simibubi.create.content.kinetics.chainDrive.ChainDriveGenerator;
 import com.simibubi.create.content.kinetics.chainDrive.ChainGearshiftBlock;
 import com.simibubi.create.content.kinetics.clock.CuckooClockBlock;
 import com.simibubi.create.content.kinetics.crafter.CrafterCTBehaviour;
@@ -136,17 +126,14 @@ import com.simibubi.create.content.kinetics.fan.NozzleBlock;
 import com.simibubi.create.content.kinetics.flywheel.FlywheelBlock;
 import com.simibubi.create.content.kinetics.gantry.GantryShaftBlock;
 import com.simibubi.create.content.kinetics.gauge.GaugeBlock;
-import com.simibubi.create.content.kinetics.gauge.GaugeGenerator;
 import com.simibubi.create.content.kinetics.gearbox.GearboxBlock;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmBlock;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmItem;
 import com.simibubi.create.content.kinetics.millstone.MillstoneBlock;
 import com.simibubi.create.content.kinetics.mixer.MechanicalMixerBlock;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
-import com.simibubi.create.content.kinetics.motor.CreativeMotorGenerator;
 import com.simibubi.create.content.kinetics.press.MechanicalPressBlock;
 import com.simibubi.create.content.kinetics.saw.SawBlock;
-import com.simibubi.create.content.kinetics.saw.SawGenerator;
 import com.simibubi.create.content.kinetics.saw.SawMovementBehaviour;
 import com.simibubi.create.content.kinetics.simpleRelays.BracketedKineticBlockModel;
 import com.simibubi.create.content.kinetics.simpleRelays.CogWheelBlock;
@@ -161,14 +148,12 @@ import com.simibubi.create.content.kinetics.steamEngine.SteamEngineBlock;
 import com.simibubi.create.content.kinetics.transmission.ClutchBlock;
 import com.simibubi.create.content.kinetics.transmission.GearshiftBlock;
 import com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlock;
-import com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftGenerator;
 import com.simibubi.create.content.kinetics.turntable.TurntableBlock;
 import com.simibubi.create.content.kinetics.waterwheel.LargeWaterWheelBlock;
 import com.simibubi.create.content.kinetics.waterwheel.LargeWaterWheelBlockItem;
 import com.simibubi.create.content.kinetics.waterwheel.WaterWheelBlock;
 import com.simibubi.create.content.kinetics.waterwheel.WaterWheelStructuralBlock;
 import com.simibubi.create.content.logistics.chute.ChuteBlock;
-import com.simibubi.create.content.logistics.chute.ChuteGenerator;
 import com.simibubi.create.content.logistics.chute.ChuteItem;
 import com.simibubi.create.content.logistics.chute.SmartChuteBlock;
 import com.simibubi.create.content.logistics.crate.CreativeCrateBlock;
@@ -181,9 +166,7 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockItem;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelModel;
 import com.simibubi.create.content.logistics.funnel.AndesiteFunnelBlock;
 import com.simibubi.create.content.logistics.funnel.BeltFunnelBlock;
-import com.simibubi.create.content.logistics.funnel.BeltFunnelGenerator;
 import com.simibubi.create.content.logistics.funnel.BrassFunnelBlock;
-import com.simibubi.create.content.logistics.funnel.FunnelGenerator;
 import com.simibubi.create.content.logistics.funnel.FunnelItem;
 import com.simibubi.create.content.logistics.funnel.FunnelMovementBehaviour;
 import com.simibubi.create.content.logistics.itemHatch.ItemHatchBlock;
@@ -194,7 +177,6 @@ import com.simibubi.create.content.logistics.packager.PackagerBlock;
 import com.simibubi.create.content.logistics.packager.repackager.RepackagerBlock;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBlockItem;
 import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlock;
-import com.simibubi.create.content.logistics.packagerLink.PackagerLinkGenerator;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterBlock;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterBlockItem;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlock;
@@ -208,7 +190,6 @@ import com.simibubi.create.content.logistics.vault.ItemVaultItem;
 import com.simibubi.create.content.materials.ExperienceBlock;
 import com.simibubi.create.content.processing.AssemblyOperatorBlockItem;
 import com.simibubi.create.content.processing.basin.BasinBlock;
-import com.simibubi.create.content.processing.basin.BasinGenerator;
 import com.simibubi.create.content.processing.basin.BasinMovementBehaviour;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
@@ -220,26 +201,17 @@ import com.simibubi.create.content.redstone.contact.ContactMovementBehaviour;
 import com.simibubi.create.content.redstone.contact.RedstoneContactBlock;
 import com.simibubi.create.content.redstone.contact.RedstoneContactItem;
 import com.simibubi.create.content.redstone.deskBell.DeskBellBlock;
-import com.simibubi.create.content.redstone.diodes.AbstractDiodeGenerator;
 import com.simibubi.create.content.redstone.diodes.BrassDiodeBlock;
-import com.simibubi.create.content.redstone.diodes.BrassDiodeGenerator;
 import com.simibubi.create.content.redstone.diodes.PoweredLatchBlock;
-import com.simibubi.create.content.redstone.diodes.PoweredLatchGenerator;
 import com.simibubi.create.content.redstone.diodes.ToggleLatchBlock;
-import com.simibubi.create.content.redstone.diodes.ToggleLatchGenerator;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockItem;
 import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
-import com.simibubi.create.content.redstone.link.RedstoneLinkGenerator;
 import com.simibubi.create.content.redstone.link.controller.LecternControllerBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
-import com.simibubi.create.content.redstone.nixieTube.NixieTubeGenerator;
 import com.simibubi.create.content.redstone.rail.ControllerRailBlock;
-import com.simibubi.create.content.redstone.rail.ControllerRailGenerator;
 import com.simibubi.create.content.redstone.smartObserver.SmartObserverBlock;
-import com.simibubi.create.content.redstone.smartObserver.SmartObserverGenerator;
 import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlock;
-import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchGenerator;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlock;
 import com.simibubi.create.content.schematics.table.SchematicTableBlock;
 import com.simibubi.create.content.trains.bogey.BogeySizes;
@@ -252,7 +224,6 @@ import com.simibubi.create.content.trains.station.StationBlock;
 import com.simibubi.create.content.trains.track.FakeTrackBlock;
 import com.simibubi.create.content.trains.track.TrackBlock;
 import com.simibubi.create.content.trains.track.TrackBlockItem;
-import com.simibubi.create.content.trains.track.TrackBlockStateGenerator;
 import com.simibubi.create.content.trains.track.TrackMaterial;
 import com.simibubi.create.content.trains.track.TrackModel;
 import com.simibubi.create.content.trains.track.TrackTargetingBlockItem;
@@ -261,12 +232,9 @@ import com.simibubi.create.foundation.block.DyedBlockList;
 import com.simibubi.create.foundation.block.ItemUseOverrides;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import com.simibubi.create.foundation.block.render.ReducedDestroyEffects;
-import com.simibubi.create.foundation.data.AssetLookup;
-import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.BuilderTransformers;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.MetalBarsGen;
-import com.simibubi.create.foundation.data.ModelGen;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.simibubi.create.foundation.data.recipe.CommonMetal;
 import com.simibubi.create.foundation.item.ItemDescription;
@@ -341,21 +309,23 @@ public class AllBlocks {
 			// .blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(), AssetLookup.partialBaseModel(ctx, prov)))
 			
 			
-			.loot((lt, block) -> {
-				Builder builder = LootTable.lootTable();
-				LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
-				lt.add(block, builder.withPool(LootPool.lootPool()
-					.when(survivesExplosion)
-					.setRolls(ConstantValue.exactly(1))
-					.add(LootItem.lootTableItem(AllBlocks.SCHEMATICANNON.get()
-							.asItem())
-						.apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-							.include(AllDataComponents.SCHEMATICANNON_OPTIONS)))));
-			})
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lt, block) -> {
+				// Builder builder = LootTable.lootTable();
+				// LootItemCondition.Builder survivesExplosion = ExplosionCondition.survivesExplosion();
+				// lt.add(block, builder.withPool(LootPool.lootPool()
+					// .when(survivesExplosion)
+					// .setRolls(ConstantValue.exactly(1))
+					// .add(LootItem.lootTableItem(AllBlocks.SCHEMATICANNON.get()
+							// .asItem())
+						// .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+							// .include(AllDataComponents.SCHEMATICANNON_OPTIONS)))));
+			// })
+			
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<SchematicTableBlock> SCHEMATIC_TABLE =
@@ -489,7 +459,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<ClutchBlock> CLUTCH = REGISTRATE.block("clutch", ClutchBlock::new)
@@ -505,7 +475,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<GearshiftBlock> GEARSHIFT = REGISTRATE.block("gearshift", GearshiftBlock::new)
@@ -521,7 +491,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<ChainDriveBlock> ENCASED_CHAIN_DRIVE =
@@ -539,7 +509,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<ChainGearshiftBlock> ADJUSTABLE_CHAIN_GEARSHIFT =
@@ -597,7 +567,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<CreativeMotorBlock> CREATIVE_MOTOR =
@@ -617,7 +587,7 @@ public class AllBlocks {
 			.properties(p -> p.rarity(Rarity.EPIC))
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<WaterWheelBlock> WATER_WHEEL = REGISTRATE.block("water_wheel", WaterWheelBlock::new)
@@ -635,7 +605,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<LargeWaterWheelBlock> LARGE_WATER_WHEEL =
@@ -655,7 +625,7 @@ public class AllBlocks {
 			.item(LargeWaterWheelBlockItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<WaterWheelStructuralBlock> WATER_WHEEL_STRUCTURAL =
@@ -685,7 +655,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<NozzleBlock> NOZZLE = REGISTRATE.block("nozzle", NozzleBlock::new)
@@ -700,7 +670,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<TurntableBlock> TURNTABLE = REGISTRATE.block("turntable", TurntableBlock::new)
@@ -730,7 +700,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<CuckooClockBlock> CUCKOO_CLOCK =
@@ -763,7 +733,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<CrushingWheelBlock> CRUSHING_WHEEL =
@@ -780,7 +750,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<CrushingWheelControllerBlock> CRUSHING_WHEEL_CONTROLLER =
@@ -789,7 +759,7 @@ public class AllBlocks {
 				.noOcclusion()
 				.noLootTable()
 				.air()
-				.noCollission()
+				.noCollision()
 				.pushReaction(PushReaction.BLOCK))
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((c, p) -> p.getVariantBuilder(c.get())
@@ -812,7 +782,7 @@ public class AllBlocks {
 			.item(AssemblyOperatorBlockItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<MechanicalMixerBlock> MECHANICAL_MIXER =
@@ -829,7 +799,7 @@ public class AllBlocks {
 			.item(AssemblyOperatorBlockItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<BasinBlock> BASIN = REGISTRATE.block("basin", BasinBlock::new)
@@ -845,7 +815,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel("_", "block"))
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<BlazeBurnerBlock> BLAZE_BURNER =
@@ -856,7 +826,9 @@ public class AllBlocks {
 			.transform(pickaxeOnly())
 			.tag(AllBlockTags.FAN_PROCESSING_CATALYSTS_BLASTING.tag, AllBlockTags.FAN_PROCESSING_CATALYSTS_SMOKING.tag,
 				AllBlockTags.FAN_TRANSPARENT.tag, AllBlockTags.PASSIVE_BOILER_HEATERS.tag)
-			.loot((lt, block) -> lt.add(block, BlazeBurnerBlock.buildLootTable()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lt, block) -> lt.add(block, BlazeBurnerBlock.buildLootTable()))
+			
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((c, p) -> p.simpleBlock(c.getEntry(), AssetLookup.partialBaseModel(c, p)))
 			
@@ -878,7 +850,9 @@ public class AllBlocks {
 			.transform(pickaxeOnly())
 			.tag(AllBlockTags.FAN_PROCESSING_CATALYSTS_HAUNTING.tag, AllBlockTags.FAN_PROCESSING_CATALYSTS_SMOKING.tag,
 				AllBlockTags.FAN_TRANSPARENT.tag, AllBlockTags.PASSIVE_BOILER_HEATERS.tag)
-			.loot((lt, block) -> lt.dropOther(block, AllItems.EMPTY_BLAZE_BURNER.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lt, block) -> lt.dropOther(block, AllItems.EMPTY_BLAZE_BURNER.get()))
+			
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((c, p) -> p.getVariantBuilder(c.get())
 										// .forAllStates(state -> ConfiguredModel.builder()
@@ -906,7 +880,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel("_", "block"))
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<EjectorBlock> WEIGHTED_EJECTOR =
@@ -924,7 +898,7 @@ public class AllBlocks {
 			.item(EjectorItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<ChuteBlock> CHUTE = REGISTRATE.block("chute", ChuteBlock::new)
@@ -942,7 +916,7 @@ public class AllBlocks {
 		.item(ChuteItem::new)
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel("_", "block"))
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<SmartChuteBlock> SMART_CHUTE = REGISTRATE.block("smart_chute", SmartChuteBlock::new)
@@ -961,7 +935,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel("_", "block"))
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<GaugeBlock> SPEEDOMETER = REGISTRATE.block("speedometer", GaugeBlock::speed)
@@ -975,7 +949,9 @@ public class AllBlocks {
 		
 		.transform(displaySource(AllDisplaySources.KINETIC_SPEED))
 		.item()
-		.transform(ModelGen.customItemModel("gauge", "_", "item"))
+		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+		// .transform(ModelGen.customItemModel("gauge", "_", "item"))
+		.build()
 		.register();
 
 	public static final BlockEntry<GaugeBlock> STRESSOMETER = REGISTRATE.block("stressometer", GaugeBlock::stress)
@@ -989,7 +965,9 @@ public class AllBlocks {
 		
 		.transform(displaySource(AllDisplaySources.KINETIC_STRESS))
 		.item()
-		.transform(ModelGen.customItemModel("gauge", "_", "item"))
+		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+		// .transform(ModelGen.customItemModel("gauge", "_", "item"))
+		.build()
 		.register();
 
 	public static final BlockEntry<BracketBlock> WOODEN_BRACKET = REGISTRATE.block("wooden_bracket", BracketBlock::new)
@@ -1001,7 +979,9 @@ public class AllBlocks {
 		.transform(axeOrPickaxe())
 		.item(BracketBlockItem::new)
 		.tag(AllItemTags.INVALID_FOR_TRACK_PAVING.tag)
-		.transform(BracketGenerator.itemModel("wooden"))
+		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+		// .transform(BracketGenerator.itemModel("wooden"))
+		.build()
 		.register();
 
 	public static final BlockEntry<BracketBlock> METAL_BRACKET = REGISTRATE.block("metal_bracket", BracketBlock::new)
@@ -1013,7 +993,9 @@ public class AllBlocks {
 		.transform(pickaxeOnly())
 		.item(BracketBlockItem::new)
 		.tag(AllItemTags.INVALID_FOR_TRACK_PAVING.tag)
-		.transform(BracketGenerator.itemModel("metal"))
+		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+		// .transform(BracketGenerator.itemModel("metal"))
+		.build()
 		.register();
 
 	// Fluids
@@ -1030,7 +1012,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<EncasedPipeBlock> ENCASED_FLUID_PIPE =
@@ -1047,7 +1029,9 @@ public class AllBlocks {
 			.onRegister(CreateRegistrate.casingConnectivity((block, cc) -> cc.make(block, AllSpriteShifts.COPPER_CASING,
 				(s, f) -> !s.getValue(EncasedPipeBlock.FACING_TO_PROPERTY_MAP.get(f)))))
 			.onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
-			.loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
+			
 			.transform(EncasingRegistry.addVariantTo(AllBlocks.FLUID_PIPE))
 			.register();
 
@@ -1073,7 +1057,9 @@ public class AllBlocks {
 			
 			
 			.onRegister(CreateRegistrate.blockModel(() -> PipeAttachmentModel::withAO))
-			.loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.dropOther(b, FLUID_PIPE.get()))
+			
 			.register();
 
 	public static final BlockEntry<PumpBlock> MECHANICAL_PUMP = REGISTRATE.block("mechanical_pump", PumpBlock::new)
@@ -1089,7 +1075,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<SmartFluidPipeBlock> SMART_FLUID_PIPE =
@@ -1105,7 +1091,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<FluidValveBlock> FLUID_VALVE = REGISTRATE.block("fluid_valve", FluidValveBlock::new)
@@ -1121,7 +1107,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<ValveHandleBlock> COPPER_VALVE_HANDLE =
@@ -1137,11 +1123,13 @@ public class AllBlocks {
 			.properties(p -> p.mapColor(colour.getMapColor()))
 			.transform(pickaxeOnly())
 			.transform(BuilderTransformers.valveHandle(colour))
-			.recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get())
-				.requires(colour.getTag())
-				.requires(AllItemTags.VALVE_HANDLES.tag)
-				.unlockedBy("has_valve", RegistrateRecipeProvider.has(AllItemTags.VALVE_HANDLES.tag))
-				.save(p, Create.asResource("crafting/kinetics/" + c.getName() + "_from_other_valve_handle")))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get())
+				// .requires(colour.getTag())
+				// .requires(AllItemTags.VALVE_HANDLES.tag)
+				// .unlockedBy("has_valve", RegistrateRecipeProvider.has(AllItemTags.VALVE_HANDLES.tag))
+				// .save(p, Create.asResource("crafting/kinetics/" + c.getName() + "_from_other_valve_handle")))
+			
 			.register();
 	});
 
@@ -1203,7 +1191,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<ItemDrainBlock> ITEM_DRAIN = REGISTRATE.block("item_drain", ItemDrainBlock::new)
@@ -1226,7 +1214,7 @@ public class AllBlocks {
 		.item(AssemblyOperatorBlockItem::new)
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<PortableStorageInterfaceBlock> PORTABLE_FLUID_INTERFACE =
@@ -1243,7 +1231,7 @@ public class AllBlocks {
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<SteamEngineBlock> STEAM_ENGINE =
@@ -1259,7 +1247,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<WhistleBlock> STEAM_WHISTLE = REGISTRATE.block("steam_whistle", WhistleBlock::new)
@@ -1273,7 +1261,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<WhistleExtenderBlock> STEAM_WHISTLE_EXTENSION =
@@ -1298,7 +1286,9 @@ public class AllBlocks {
 			// .blockstate(BlockStateGen.axisBlockProvider(false))
 			
 			
-			.loot((lt, block) -> lt.dropOther(block, AllBlocks.SHAFT.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lt, block) -> lt.dropOther(block, AllBlocks.SHAFT.get()))
+			
 			.register();
 
 	// Contraptions
@@ -1338,7 +1328,9 @@ public class AllBlocks {
 			.initialProperties(() -> Blocks.PISTON_HEAD)
 			.properties(p -> p.mapColor(MapColor.DIRT))
 			.transform(axeOrPickaxe())
-			.loot((p, b) -> p.dropOther(b, PISTON_EXTENSION_POLE.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.dropOther(b, PISTON_EXTENSION_POLE.get()))
+			
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((c, p) -> BlockStateGen.directionalBlockIgnoresWaterlogged(c, p, state -> p.models()
 										// .getExistingFile(p.modLoc("block/mechanical_piston/" + state.getValue(MechanicalPistonHeadBlock.TYPE)
@@ -1360,7 +1352,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<GantryShaftBlock> GANTRY_SHAFT =
@@ -1392,7 +1384,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "block_single"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<WindmillBearingBlock> WINDMILL_BEARING =
@@ -1438,7 +1430,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<PulleyBlock.RopeBlock> ROPE = REGISTRATE.block("rope", PulleyBlock.RopeBlock::new)
@@ -1478,7 +1470,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<CartAssemblerBlock> CART_ASSEMBLER =
@@ -1495,7 +1487,7 @@ public class AllBlocks {
 			.item(CartAssemblerBlockItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<ControllerRailBlock> CONTROLLER_RAIL =
@@ -1586,7 +1578,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<ContraptionControlsBlock> CONTRAPTION_CONTROLS =
@@ -1603,7 +1595,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<DrillBlock> MECHANICAL_DRILL = REGISTRATE.block("mechanical_drill", DrillBlock::new)
@@ -1620,7 +1612,7 @@ public class AllBlocks {
 		.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<SawBlock> MECHANICAL_SAW = REGISTRATE.block("mechanical_saw", SawBlock::new)
@@ -1637,7 +1629,7 @@ public class AllBlocks {
 		.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<DeployerBlock> DEPLOYER = REGISTRATE.block("deployer", DeployerBlock::new)
@@ -1655,7 +1647,7 @@ public class AllBlocks {
 		.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<PortableStorageInterfaceBlock> PORTABLE_STORAGE_INTERFACE =
@@ -1672,7 +1664,7 @@ public class AllBlocks {
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<RedstoneContactBlock> REDSTONE_CONTACT =
@@ -1689,7 +1681,7 @@ public class AllBlocks {
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "block"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<ElevatorContactBlock> ELEVATOR_CONTACT =
@@ -1707,12 +1699,14 @@ public class AllBlocks {
 									// }))
 			
 			
-			.loot((p, b) -> p.dropOther(b, REDSTONE_CONTACT.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.dropOther(b, REDSTONE_CONTACT.get()))
+			
 			.transform(displaySource(AllDisplaySources.CURRENT_FLOOR))
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "block"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<HarvesterBlock> MECHANICAL_HARVESTER =
@@ -1730,7 +1724,7 @@ public class AllBlocks {
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<PloughBlock> MECHANICAL_PLOUGH =
@@ -1764,7 +1758,7 @@ public class AllBlocks {
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<SailBlock> SAIL_FRAME = REGISTRATE.block("sail_frame", p -> SailBlock.frame(p))
@@ -1818,7 +1812,9 @@ public class AllBlocks {
 			
 			
 			.tag(AllBlockTags.WINDMILL_SAILS.tag)
-			.loot((p, b) -> p.dropOther(b, SAIL.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.dropOther(b, SAIL.get()))
+			
 			.register();
 	});
 
@@ -1868,7 +1864,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<SequencedGearshiftBlock> SEQUENCED_GEARSHIFT =
@@ -1886,7 +1882,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<FlywheelBlock> FLYWHEEL = REGISTRATE.block("flywheel", FlywheelBlock::new)
@@ -1902,7 +1898,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<SpeedControllerBlock> ROTATION_SPEED_CONTROLLER =
@@ -1919,7 +1915,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	// Logistics
@@ -1940,7 +1936,7 @@ public class AllBlocks {
 		.item(ArmItem::new)
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<TrackBlock> TRACK = REGISTRATE.block("track", TrackMaterial.ANDESITE::createBlock)
@@ -1971,7 +1967,7 @@ public class AllBlocks {
 
 	public static final BlockEntry<FakeTrackBlock> FAKE_TRACK = REGISTRATE.block("fake_track", FakeTrackBlock::new)
 		.properties(p -> p.mapColor(MapColor.METAL)
-			.noCollission()
+			.noCollision()
 			.noOcclusion()
 			.replaceable())
 		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
@@ -2005,7 +2001,7 @@ public class AllBlocks {
 		.item(TrackTargetingBlockItem.ofType(EdgePointType.STATION))
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<SignalBlock> TRACK_SIGNAL = REGISTRATE.block("track_signal", SignalBlock::new)
@@ -2026,7 +2022,7 @@ public class AllBlocks {
 		.item(TrackTargetingBlockItem.ofType(EdgePointType.SIGNAL))
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<TrackObserverBlock> TRACK_OBSERVER =
@@ -2045,7 +2041,7 @@ public class AllBlocks {
 			.item(TrackTargetingBlockItem.ofType(EdgePointType.OBSERVER))
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "block"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<StandardBogeyBlock> SMALL_BOGEY =
@@ -2077,7 +2073,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<AndesiteFunnelBlock> ANDESITE_FUNNEL =
@@ -2094,7 +2090,9 @@ public class AllBlocks {
 			
 			.item(FunnelItem::new)
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
-			.model(FunnelGenerator.itemModel("andesite"))
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(FunnelGenerator.itemModel("andesite"))
+			
 			.build()
 			.register();
 
@@ -2109,7 +2107,9 @@ public class AllBlocks {
 			// .blockstate(new BeltFunnelGenerator("andesite")::generate)
 			
 			
-			.loot((p, b) -> p.dropOther(b, ANDESITE_FUNNEL.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.dropOther(b, ANDESITE_FUNNEL.get()))
+			
 			.register();
 
 	public static final BlockEntry<BrassFunnelBlock> BRASS_FUNNEL =
@@ -2126,7 +2126,9 @@ public class AllBlocks {
 			
 			.item(FunnelItem::new)
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
-			.model(FunnelGenerator.itemModel("brass"))
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(FunnelGenerator.itemModel("brass"))
+			
 			.build()
 			.register();
 
@@ -2141,7 +2143,9 @@ public class AllBlocks {
 			// .blockstate(new BeltFunnelGenerator("brass")::generate)
 			
 			
-			.loot((p, b) -> p.dropOther(b, BRASS_FUNNEL.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.dropOther(b, BRASS_FUNNEL.get()))
+			
 			.register();
 
 	public static final BlockEntry<BeltTunnelBlock> ANDESITE_TUNNEL =
@@ -2181,7 +2185,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "block"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<ThresholdSwitchBlock> THRESHOLD_SWITCH =
@@ -2200,7 +2204,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("threshold_switch", "block_wall"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<CreativeCrateBlock> CREATIVE_CRATE =
@@ -2243,7 +2247,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel("_", "block_closed"))
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<PackagerBlock> PACKAGER = REGISTRATE.block("packager", PackagerBlock::new)
@@ -2267,7 +2271,8 @@ public class AllBlocks {
 			
 			
 			.item(PackagePortItem::new)
-			.model(AssetLookup::customItemModel)
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(AssetLookup::customItemModel)
 			.build()
 			.register();
 
@@ -2293,22 +2298,24 @@ public class AllBlocks {
 			.tag(AllBlockTags.POSTBOXES.tag)
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "block.create.package_postbox"))
 			.item(PackagePortItem::new)
-			.recipe((c, p) -> {
-				ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get())
-					.define('D', colour.getTag())
-					.define('B', Items.BARREL)
-					.define('A', AllItems.ANDESITE_ALLOY)
-					.pattern("D")
-					.pattern("B")
-					.pattern("A")
-					.unlockedBy("has_barrel", RegistrateRecipeProvider.has(Items.BARREL))
-					.save(p, Create.asResource("crafting/logistics/" + c.getName()));
-				ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
-					.requires(colour.getTag())
-					.requires(AllItemTags.POSTBOXES.tag)
-					.unlockedBy("has_postbox", RegistrateRecipeProvider.has(AllItemTags.POSTBOXES.tag))
-					.save(p, Create.asResource("crafting/logistics/" + c.getName() + "_from_other_postbox"));
-			})
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> {
+				// ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get())
+					// .define('D', colour.getTag())
+					// .define('B', Items.BARREL)
+					// .define('A', AllItems.ANDESITE_ALLOY)
+					// .pattern("D")
+					// .pattern("B")
+					// .pattern("A")
+					// .unlockedBy("has_barrel", RegistrateRecipeProvider.has(Items.BARREL))
+					// .save(p, Create.asResource("crafting/logistics/" + c.getName()));
+				// ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
+					// .requires(colour.getTag())
+					// .requires(AllItemTags.POSTBOXES.tag)
+					// .unlockedBy("has_postbox", RegistrateRecipeProvider.has(AllItemTags.POSTBOXES.tag))
+					// .save(p, Create.asResource("crafting/logistics/" + c.getName() + "_from_other_postbox"));
+			// })
+			
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .model((c, p) -> p.withExistingParent(colourName + "_postbox", p.modLoc("block/package_postbox/item"))
 				// .texture("0", p.modLoc("block/post_box/post_box_" + colourName))
@@ -2332,7 +2339,7 @@ public class AllBlocks {
 			.item(LogisticallyLinkedBlockItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "block_vertical"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<StockTickerBlock> STOCK_TICKER =
@@ -2361,7 +2368,7 @@ public class AllBlocks {
 			.item(RedstoneRequesterBlockItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "block"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<FactoryPanelBlock> FACTORY_GAUGE =
@@ -2377,7 +2384,8 @@ public class AllBlocks {
 			.onRegister(CreateRegistrate.blockModel(() -> FactoryPanelModel::new))
 			.transform(displaySource(AllDisplaySources.GAUGE_STATUS))
 			.item(FactoryPanelBlockItem::new)
-			.model(AssetLookup::customItemModel)
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(AssetLookup::customItemModel)
 			.build()
 			.register();
 
@@ -2386,18 +2394,20 @@ public class AllBlocks {
 		return REGISTRATE.block(colourName + "_table_cloth", p -> new TableClothBlock(p, colour))
 			.transform(BuilderTransformers.tableCloth(colourName, () -> Blocks.BLACK_CARPET, true))
 			.properties(p -> p.mapColor(colour))
-			.recipe((c, p) -> {
-				ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get(), 2)
-					.requires(DyeHelper.getWoolOfDye(colour))
-					.requires(AllItems.ANDESITE_ALLOY)
-					.unlockedBy("has_wool", RegistrateRecipeProvider.has(ItemTags.WOOL))
-					.save(p, Create.asResource("crafting/logistics/" + c.getName()));
-				ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
-					.requires(colour.getTag())
-					.requires(AllItemTags.DYED_TABLE_CLOTHS.tag)
-					.unlockedBy("has_postbox", RegistrateRecipeProvider.has(AllItemTags.DYED_TABLE_CLOTHS.tag))
-					.save(p, Create.asResource("crafting/logistics/" + c.getName() + "_from_other_table_cloth"));
-			})
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> {
+				// ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get(), 2)
+					// .requires(DyeHelper.getWoolOfDye(colour))
+					// .requires(AllItems.ANDESITE_ALLOY)
+					// .unlockedBy("has_wool", RegistrateRecipeProvider.has(ItemTags.WOOL))
+					// .save(p, Create.asResource("crafting/logistics/" + c.getName()));
+				// ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
+					// .requires(colour.getTag())
+					// .requires(AllItemTags.DYED_TABLE_CLOTHS.tag)
+					// .unlockedBy("has_postbox", RegistrateRecipeProvider.has(AllItemTags.DYED_TABLE_CLOTHS.tag))
+					// .save(p, Create.asResource("crafting/logistics/" + c.getName() + "_from_other_table_cloth"));
+			// })
+			
 			.register();
 	});
 
@@ -2406,8 +2416,10 @@ public class AllBlocks {
 			.transform(BuilderTransformers.tableCloth("andesite", SharedProperties::stone, false))
 			.properties(p -> p.mapColor(MapColor.STONE)
 				.requiresCorrectToolForDrops())
-			.recipe((c, p) -> p.stonecutting(DataIngredient.items(AllItems.ANDESITE_ALLOY.get()),
-				RecipeCategory.DECORATIONS, c::get, 2))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(DataIngredient.items(AllItems.ANDESITE_ALLOY.get()),
+				// RecipeCategory.DECORATIONS, c::get, 2))
+			
 			.transform(pickaxeOnly())
 			.lang("Andesite Table Cover")
 			.register();
@@ -2417,8 +2429,10 @@ public class AllBlocks {
 			.transform(BuilderTransformers.tableCloth("brass", SharedProperties::softMetal, false))
 			.properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW)
 				.requiresCorrectToolForDrops())
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.BRASS.ingots)),
-				RecipeCategory.DECORATIONS, c::get, 2))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.BRASS.ingots)),
+				// RecipeCategory.DECORATIONS, c::get, 2))
+			
 			.transform(pickaxeOnly())
 			.lang("Brass Table Cover")
 			.register();
@@ -2427,8 +2441,10 @@ public class AllBlocks {
 		REGISTRATE.block("copper_table_cloth", p -> new TableClothBlock(p, "copper"))
 			.transform(BuilderTransformers.tableCloth("copper", SharedProperties::copperMetal, false))
 			.properties(p -> p.requiresCorrectToolForDrops())
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.COPPER.ingots)),
-				RecipeCategory.DECORATIONS, c::get, 2))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.COPPER.ingots)),
+				// RecipeCategory.DECORATIONS, c::get, 2))
+			
 			.transform(pickaxeOnly())
 			.lang("Copper Table Cover")
 			.register();
@@ -2445,7 +2461,7 @@ public class AllBlocks {
 			.item(DisplayLinkBlockItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "block"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<FlapDisplayBlock> DISPLAY_BOARD =
@@ -2463,7 +2479,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<NixieTubeBlock> ORANGE_NIXIE_TUBE =
@@ -2480,7 +2496,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final DyedBlockList<NixieTubeBlock> NIXIE_TUBES = new DyedBlockList<>(colour -> {
@@ -2497,7 +2513,9 @@ public class AllBlocks {
 			// .blockstate(new NixieTubeGenerator()::generate)
 			
 			
-			.loot((p, b) -> p.dropOther(b, ORANGE_NIXIE_TUBE.get()))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.dropOther(b, ORANGE_NIXIE_TUBE.get()))
+			
 			.register();
 	});
 
@@ -2533,7 +2551,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("_", "transmitter"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<AnalogLeverBlock> ANALOG_LEVER =
@@ -2549,7 +2567,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel())
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<PlacardBlock> PLACARD = REGISTRATE.block("placard", PlacardBlock::new)
@@ -2573,7 +2591,9 @@ public class AllBlocks {
 			
 			
 			.item()
-			.model(AbstractDiodeGenerator::diodeItemModel)
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(AbstractDiodeGenerator::diodeItemModel)
+			
 			.build()
 			.register();
 
@@ -2586,7 +2606,9 @@ public class AllBlocks {
 			
 			
 			.item()
-			.model(AbstractDiodeGenerator::diodeItemModel)
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .model(AbstractDiodeGenerator::diodeItemModel)
+			
 			.build()
 			.register();
 
@@ -2598,7 +2620,9 @@ public class AllBlocks {
 		
 		
 		.item()
-		.model(AbstractDiodeGenerator::diodeItemModel)
+		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+		// .model(AbstractDiodeGenerator::diodeItemModel)
+		
 		.build()
 		.register();
 
@@ -2622,7 +2646,7 @@ public class AllBlocks {
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("diodes", "latch_off"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<LecternControllerBlock> LECTERN_CONTROLLER =
@@ -2634,7 +2658,9 @@ public class AllBlocks {
 										// .getExistingFile(p.mcLoc("block/lectern"))))
 			
 			
-			.loot((lt, block) -> lt.dropOther(block, Blocks.LECTERN))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lt, block) -> lt.dropOther(block, Blocks.LECTERN))
+			
 			.register();
 
 	// Curiosities
@@ -2676,7 +2702,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel("_", "block"))
-		
+		.build()
 		.onRegister(movementBehaviour(new BellMovementBehaviour()))
 		.register();
 
@@ -2687,19 +2713,21 @@ public class AllBlocks {
 			.properties(p -> p.sound(SoundType.WOOD)
 				.mapColor(colour)
 				.forceSolidOn())
-			.loot((lt, block) -> {
-				lt.add(block, LootTable.lootTable().withPool(LootPool.lootPool()
-						.when(ExplosionCondition.survivesExplosion())
-						.setRolls(ConstantValue.exactly(1))
-						.add(LootItem.lootTableItem(block)
-								.apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
-								.apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-										.include(AllDataComponents.TOOLBOX_UUID)
-										.include(AllDataComponents.TOOLBOX_INVENTORY)
-								)
-						)
-				));
-			})
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((lt, block) -> {
+				// lt.add(block, LootTable.lootTable().withPool(LootPool.lootPool()
+						// .when(ExplosionCondition.survivesExplosion())
+						// .setRolls(ConstantValue.exactly(1))
+						// .add(LootItem.lootTableItem(block)
+								// .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
+								// .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+										// .include(AllDataComponents.TOOLBOX_UUID)
+										// .include(AllDataComponents.TOOLBOX_INVENTORY)
+								// )
+						// )
+				// ));
+			// })
+			
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((c, p) -> {
 										// p.horizontalBlock(c.get(), p.models()
@@ -2731,7 +2759,9 @@ public class AllBlocks {
 							// s -> AssetLookup.partialBaseModel(c, p, s.getValue(ClipboardBlock.WRITTEN) ? "written" : "empty")))
 		
 		
-		.loot((lt, b) -> lt.add(b, BlockLootSubProvider.noDrop()))
+		// TODO 26.2: port datagen to the new recipe/loot builders
+		// .loot((lt, b) -> lt.add(b, BlockLootSubProvider.noDrop()))
+		
 		.item(ClipboardBlockItem::new)
 		.onRegister(ClipboardBlockItem::registerModelOverrides)
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
@@ -2805,7 +2835,7 @@ public class AllBlocks {
 		.item()
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .transform(customItemModel())
-		
+		.build()
 		.register();
 
 	public static final BlockEntry<GirderEncasedShaftBlock> METAL_GIRDER_ENCASED_SHAFT =
@@ -2818,10 +2848,12 @@ public class AllBlocks {
 			// .blockstate(GirderBlockStateGenerator::blockStateWithShaft)
 			
 			
-			.loot((p, b) -> p.add(b, p.createSingleItemTable(METAL_GIRDER.get())
-				.withPool(p.applyExplosionCondition(SHAFT.get(), LootPool.lootPool()
-					.setRolls(ConstantValue.exactly(1.0F))
-					.add(LootItem.lootTableItem(SHAFT.get()))))))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((p, b) -> p.add(b, p.createSingleItemTable(METAL_GIRDER.get())
+				// .withPool(p.applyExplosionCondition(SHAFT.get(), LootPool.lootPool()
+					// .setRolls(ConstantValue.exactly(1.0F))
+					// .add(LootItem.lootTableItem(SHAFT.get()))))))
+			
 			.onRegister(CreateRegistrate.blockModel(() -> ConnectedGirderModel::new))
 			.register();
 
@@ -2842,11 +2874,13 @@ public class AllBlocks {
 			.transform(BuilderTransformers.copycat())
 			.onRegister(CreateRegistrate.blockModel(() -> CopycatStepModel::new))
 			.item()
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.ZINC.ingots)),
-				RecipeCategory.BUILDING_BLOCKS, c::get, 4))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.ZINC.ingots)),
+				// RecipeCategory.BUILDING_BLOCKS, c::get, 4))
+			
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("copycat_base", "step"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<CopycatPanelBlock> COPYCAT_PANEL =
@@ -2854,11 +2888,13 @@ public class AllBlocks {
 			.transform(BuilderTransformers.copycat())
 			.onRegister(CreateRegistrate.blockModel(() -> CopycatPanelModel::new))
 			.item()
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.ZINC.ingots)),
-				RecipeCategory.BUILDING_BLOCKS, c::get, 4))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.ZINC.ingots)),
+				// RecipeCategory.BUILDING_BLOCKS, c::get, 4))
+			
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("copycat_base", "panel"))
-			
+			.build()
 			.register();
 
 	public static final BlockEntry<WrenchableDirectionalBlock> COPYCAT_BARS =
@@ -2890,18 +2926,20 @@ public class AllBlocks {
 									// })
 			
 			
-			.recipe((c, p) -> {
-				ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
-					.requires(DyeHelper.getWoolOfDye(colour))
-					.requires(ItemTags.WOODEN_SLABS)
-					.unlockedBy("has_wool", RegistrateRecipeProvider.has(ItemTags.WOOL))
-					.save(p, Create.asResource("crafting/kinetics/" + c.getName()));
-				ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
-					.requires(colour.getTag())
-					.requires(AllItemTags.SEATS.tag)
-					.unlockedBy("has_seat", RegistrateRecipeProvider.has(AllItemTags.SEATS.tag))
-					.save(p, Create.asResource("crafting/kinetics/" + c.getName() + "_from_other_seat"));
-			})
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> {
+				// ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
+					// .requires(DyeHelper.getWoolOfDye(colour))
+					// .requires(ItemTags.WOODEN_SLABS)
+					// .unlockedBy("has_wool", RegistrateRecipeProvider.has(ItemTags.WOOL))
+					// .save(p, Create.asResource("crafting/kinetics/" + c.getName()));
+				// ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
+					// .requires(colour.getTag())
+					// .requires(AllItemTags.SEATS.tag)
+					// .unlockedBy("has_seat", RegistrateRecipeProvider.has(AllItemTags.SEATS.tag))
+					// .save(p, Create.asResource("crafting/kinetics/" + c.getName() + "_from_other_seat"));
+			// })
+			
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "block.create.seat"))
 			.tag(AllBlockTags.SEATS.tag)
 			.item()
@@ -2967,14 +3005,16 @@ public class AllBlocks {
 			.requiresCorrectToolForDrops()
 			.sound(SoundType.STONE))
 		.transform(pickaxeOnly())
-		.loot((lt, b) ->  {
-			HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup = lt.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
-
-			lt.add(b,
-				lt.createSilkTouchDispatchTable(b,
-				lt.applyExplosionDecay(b, LootItem.lootTableItem(AllItems.RAW_ZINC.get())
-					.apply(ApplyBonusCount.addOreBonusCount(enchantmentRegistryLookup.getOrThrow(Enchantments.FORTUNE))))));
-		})
+		// TODO 26.2: port datagen to the new recipe/loot builders
+		// .loot((lt, b) ->  {
+			// HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup = lt.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
+// 
+			// lt.add(b,
+				// lt.createSilkTouchDispatchTable(b,
+				// lt.applyExplosionDecay(b, LootItem.lootTableItem(AllItems.RAW_ZINC.get())
+					// .apply(ApplyBonusCount.addOreBonusCount(enchantmentRegistryLookup.getOrThrow(Enchantments.FORTUNE))))));
+		// })
+		
 		.tag(BlockTags.NEEDS_IRON_TOOL)
 		.tag(Tags.Blocks.ORES)
 		.transform(tagBlockAndItem(Map.of(
@@ -2991,14 +3031,16 @@ public class AllBlocks {
 			.requiresCorrectToolForDrops()
 			.sound(SoundType.DEEPSLATE))
 		.transform(pickaxeOnly())
-		.loot((lt, b) -> {
-			HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup = lt.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
-
-			lt.add(b,
-					lt.createSilkTouchDispatchTable(b,
-					lt.applyExplosionDecay(b, LootItem.lootTableItem(AllItems.RAW_ZINC.get())
-							.apply(ApplyBonusCount.addOreBonusCount(enchantmentRegistryLookup.getOrThrow(Enchantments.FORTUNE))))));
-		})
+		// TODO 26.2: port datagen to the new recipe/loot builders
+		// .loot((lt, b) -> {
+			// HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup = lt.getRegistries().lookupOrThrow(Registries.ENCHANTMENT);
+// 
+			// lt.add(b,
+					// lt.createSilkTouchDispatchTable(b,
+					// lt.applyExplosionDecay(b, LootItem.lootTableItem(AllItems.RAW_ZINC.get())
+							// .apply(ApplyBonusCount.addOreBonusCount(enchantmentRegistryLookup.getOrThrow(Enchantments.FORTUNE))))));
+		// })
+		
 		.tag(BlockTags.NEEDS_IRON_TOOL)
 		.tag(Tags.Blocks.ORES)
 		.transform(tagBlockAndItem(Map.of(
@@ -3112,16 +3154,18 @@ public class AllBlocks {
 			// .blockstate(BlockStateGen.horizontalAxisBlockProvider(false))
 			
 			
-			.loot((r, b) -> r.add(b, LootTable.lootTable()
-				.withPool(LootPool.lootPool()
-					.setRolls(ConstantValue.exactly(1.0F))
-					.add(LootItem.lootTableItem(b)
-						.when(((BlockLootSubProviderAccessor) r).create$hasSilkTouch())
-						.otherwise(r.applyExplosionCondition(b, LootItem.lootTableItem(Items.STRING)))))
-				.withPool(r.applyExplosionCondition(b, LootPool.lootPool()
-					.setRolls(ConstantValue.exactly(1.0F))
-					.add(LootItem.lootTableItem(AllBlocks.CARDBOARD_BLOCK.asItem()))
-					.when(((BlockLootSubProviderAccessor) r).create$hasSilkTouch().invert())))))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .loot((r, b) -> r.add(b, LootTable.lootTable()
+				// .withPool(LootPool.lootPool()
+					// .setRolls(ConstantValue.exactly(1.0F))
+					// .add(LootItem.lootTableItem(b)
+						// .when(((BlockLootSubProviderAccessor) r).create$hasSilkTouch())
+						// .otherwise(r.applyExplosionCondition(b, LootItem.lootTableItem(Items.STRING)))))
+				// .withPool(r.applyExplosionCondition(b, LootPool.lootPool()
+					// .setRolls(ConstantValue.exactly(1.0F))
+					// .add(LootItem.lootTableItem(AllBlocks.CARDBOARD_BLOCK.asItem()))
+					// .when(((BlockLootSubProviderAccessor) r).create$hasSilkTouch().invert())))))
+			
 			.item()
 			.burnTime(4000)
 			.build()
@@ -3163,8 +3207,10 @@ public class AllBlocks {
 										// p.modLoc("block/palettes/rose_quartz_top")))
 			
 			
-			.recipe((c, p) -> p.stonecutting(DataIngredient.items(AllItems.ROSE_QUARTZ.get()),
-				RecipeCategory.BUILDING_BLOCKS, c::get, 2))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(DataIngredient.items(AllItems.ROSE_QUARTZ.get()),
+				// RecipeCategory.BUILDING_BLOCKS, c::get, 2))
+			
 			.simpleItem()
 			.lang("Block of Rose Quartz")
 			.register();
@@ -3178,8 +3224,10 @@ public class AllBlocks {
 		// .blockstate(simpleCubeAll("palettes/rose_quartz_tiles"))
 		
 		
-		.recipe((c, p) -> p.stonecutting(DataIngredient.items(AllItems.POLISHED_ROSE_QUARTZ.get()),
-			RecipeCategory.BUILDING_BLOCKS, c::get, 2))
+		// TODO 26.2: port datagen to the new recipe/loot builders
+		// .recipe((c, p) -> p.stonecutting(DataIngredient.items(AllItems.POLISHED_ROSE_QUARTZ.get()),
+			// RecipeCategory.BUILDING_BLOCKS, c::get, 2))
+		
 		.simpleItem()
 		.register();
 
@@ -3193,8 +3241,10 @@ public class AllBlocks {
 			// .blockstate(simpleCubeAll("palettes/small_rose_quartz_tiles"))
 			
 			
-			.recipe((c, p) -> p.stonecutting(DataIngredient.items(AllItems.POLISHED_ROSE_QUARTZ.get()),
-				RecipeCategory.BUILDING_BLOCKS, c::get, 2))
+			// TODO 26.2: port datagen to the new recipe/loot builders
+			// .recipe((c, p) -> p.stonecutting(DataIngredient.items(AllItems.POLISHED_ROSE_QUARTZ.get()),
+				// RecipeCategory.BUILDING_BLOCKS, c::get, 2))
+			
 			.simpleItem()
 			.register();
 
