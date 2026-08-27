@@ -235,9 +235,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 
 		if (cursorIcon != null) {
 			AllGuiTextures.VALUE_SETTINGS_CURSOR_ICON.render(graphics, cursorX - 2, cursorY - 3);
-			RenderSystem.setShaderColor(0.265625f, 0.125f, 0, 1);
 			cursorIcon.render(graphics, cursorX + 1, cursorY - 1);
-			RenderSystem.setShaderColor(1, 1, 1, 1);
 			if (fadeInWidth > fattestLabel)
 				graphics.text(font, cursorText, x - 11 - fatTipOffset + (bgWidth - font.width(cursorText)) / 2,
 					originalY + windowHeight + additionalHeight - 40, 0xFBDC7D, false);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.Minecraft;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -325,13 +326,12 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 	protected void renderPrintingProgress(GuiGraphicsExtractor graphics, int x, int y, float progress) {
 		progress = Math.min(progress, 1);
 		AllGuiTextures sprite = AllGuiTextures.SCHEMATICANNON_PROGRESS;
-		graphics.blit(sprite.location, x + 44, y + 64, sprite.getStartX(), sprite.getStartY(), (int) (sprite.getWidth() * progress), sprite.getHeight());
+		graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.location, x + 44, y + 64, sprite.getStartX(), sprite.getStartY(), (int) (sprite.getWidth() * progress), sprite.getHeight(), 256, 256);
 	}
 
 	protected void renderChecklistPrinterProgress(GuiGraphicsExtractor graphics, int x, int y, float progress) {
 		AllGuiTextures sprite = AllGuiTextures.SCHEMATICANNON_CHECKLIST_PROGRESS;
-		graphics.blit(sprite.location, x + 154, y + 20, sprite.getStartX(), sprite.getStartY(), (int) (sprite.getWidth() * progress),
-			sprite.getHeight());
+		graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.location, x + 154, y + 20, sprite.getStartX(), sprite.getStartY(), (int) (sprite.getWidth() * progress), sprite.getHeight(), 256, 256);
 	}
 
 	protected void renderFuelBar(GuiGraphicsExtractor graphics, int x, int y, float amount) {
@@ -340,7 +340,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 			AllGuiTextures.SCHEMATICANNON_FUEL_CREATIVE.render(graphics, x + 36, y + 19);
 			return;
 		}
-		graphics.blit(sprite.location, x + 36, y + 19, sprite.getStartX(), sprite.getStartY(), (int) (sprite.getWidth() * amount), sprite.getHeight());
+		graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.location, x + 36, y + 19, sprite.getStartX(), sprite.getStartY(), (int) (sprite.getWidth() * amount), sprite.getHeight(), 256, 256);
 	}
 
 	@Override

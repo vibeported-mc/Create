@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.CharacterEvent;
@@ -941,9 +942,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 					break;
 			}
 
-			RenderSystem.enableBlend();
-			graphics.blit(NUMBERS.location, 14 + x, 10, 0, NUMBERS.getStartX() + xOffset, NUMBERS.getStartY(),
-				spriteWidth, NUMBERS.getHeight(), 256, 256);
+			graphics.blit(RenderPipelines.GUI_TEXTURED, NUMBERS.location, 14 + x, 10, NUMBERS.getStartX() + xOffset, NUMBERS.getStartY(), spriteWidth, NUMBERS.getHeight(), 256, 256);
 			x += spriteWidth - 1;
 		}
 

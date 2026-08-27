@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.trainmap;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Matrix3x2fStack;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,7 +94,6 @@ public class TrainMapManager {
 		boolean enabled = AllConfigs.client().showTrainMapOverlay.get();
 		if (CreateClient.RAILWAYS.trackNetworks.isEmpty())
 			return;
-		RenderSystem.enableBlend();
 		Matrix3x2fStack pose = graphics.pose();
 		pose.pushMatrix();
 		pose.translate((float) (0), (float) (0));
@@ -239,7 +239,6 @@ public class TrainMapManager {
 	private static Object drawPoints(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Object hoveredElement,
 		Rect2i bounds) {
 		Matrix3x2fStack pose = graphics.pose();
-		RenderSystem.enableDepthTest();
 
 		for (TrackGraph graph : CreateClient.RAILWAYS.trackNetworks.values()) {
 			for (GlobalStation station : graph.getPoints(EdgePointType.STATION)) {
@@ -307,8 +306,6 @@ public class TrainMapManager {
 	private static Object drawTrains(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Object hoveredElement,
 		Rect2i bounds) {
 		Matrix3x2fStack pose = graphics.pose();
-		RenderSystem.enableDepthTest();
-		RenderSystem.enableBlend();
 
 		int spriteYOffset = -3;
 
@@ -416,8 +413,7 @@ public class TrainMapManager {
 					int sheetX = col * 16 + colorCol * 128;
 					int sheetY = row * 16 + colorRow * 64;
 
-					graphics.blit(sprite.location, positionX, positionY, sheetX, sheetY, 16, 16, sprite.getWidth(),
-						sprite.getHeight());
+					graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.location, positionX, positionY, sheetX, sheetY, 16, 16, sprite.getWidth(), sprite.getHeight());
 				}
 
 				pose.popMatrix();

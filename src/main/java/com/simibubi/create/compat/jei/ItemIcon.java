@@ -36,7 +36,6 @@ public class ItemIcon implements IDrawable {
 			stack = supplier.get();
 		}
 
-		RenderSystem.enableDepthTest();
 		matrixStack.pushMatrix();
 		matrixStack.translate((float) (xOffset + 1), (float) (yOffset + 1));
 

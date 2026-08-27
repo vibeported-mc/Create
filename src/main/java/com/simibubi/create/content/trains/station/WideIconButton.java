@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.station;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.widget.IconButton;
 
@@ -15,7 +16,7 @@ public class WideIconButton extends IconButton {
 	@Override
 	protected void drawBg(GuiGraphicsExtractor graphics, AllGuiTextures button) {
 		super.drawBg(graphics, button);
-		graphics.blit(button.location, getX() + 9, getY(), button.getStartX() + 1, button.getStartY(), button.getWidth() - 1, button.getHeight());
+		graphics.blit(RenderPipelines.GUI_TEXTURED, button.location, getX() + 9, getY(), button.getStartX() + 1, button.getStartY(), button.getWidth() - 1, button.getHeight(), 256, 256);
 	}
 
 }

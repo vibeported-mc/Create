@@ -40,7 +40,6 @@ public class DoubleItemIcon implements IDrawable {
 			secondaryStack = secondarySupplier.get();
 		}
 
-		RenderSystem.enableDepthTest();
 		matrixStack.pushMatrix();
 		matrixStack.translate((float) (xOffset), (float) (yOffset));
 

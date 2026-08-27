@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.entity;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +61,7 @@ public class TrainIconType {
 	public int render(int lengthOrEngine, GuiGraphicsExtractor graphics, int x, int y) {
 		int offset = getIconOffset(lengthOrEngine);
 		int width = getIconWidth(lengthOrEngine);
-		graphics.blit(sheet, x, y, 0, this.x + offset, this.y, width, 10, 256, 256);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, sheet, x, y, this.x + offset, this.y, width, 10, 256, 256);
 		return width;
 	}
 

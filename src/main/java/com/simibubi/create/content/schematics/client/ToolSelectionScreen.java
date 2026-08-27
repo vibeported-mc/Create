@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Matrix3x2fStack;
 import java.util.List;
 import java.util.function.Consumer;
@@ -73,10 +74,8 @@ public class ToolSelectionScreen extends Screen {
 		matrixStack.translate((float) (0), (float) (-yOffset));
 
 		AllGuiTextures gray = AllGuiTextures.HUD_BACKGROUND;
-		RenderSystem.enableBlend();
-		RenderSystem.setShaderColor(1, 1, 1, focused ? 7 / 8f : 1 / 2f);
 
-		graphics.blit(gray.location, x - 15, y, gray.getStartX(), gray.getStartY(), w, h, gray.getWidth(), gray.getHeight());
+		graphics.blit(RenderPipelines.GUI_TEXTURED, gray.location, x - 15, y, gray.getStartX(), gray.getStartY(), w, h, gray.getWidth(), gray.getHeight());
 
 		float toolTipAlpha = yOffset / 10;
 		List<Component> toolTip = tools.get(selection)
@@ -84,9 +83,7 @@ public class ToolSelectionScreen extends Screen {
 		int stringAlphaComponent = ((int) (toolTipAlpha * 0xFF)) << 24;
 
 		if (toolTipAlpha > 0.25f) {
-			RenderSystem.setShaderColor(.7f, .7f, .8f, toolTipAlpha);
-			graphics.blit(gray.location, x - 15, y + 33, gray.getStartX(), gray.getStartY(), w, h + 22, gray.getWidth(), gray.getHeight());
-			RenderSystem.setShaderColor(1, 1, 1, 1);
+			graphics.blit(RenderPipelines.GUI_TEXTURED, gray.location, x - 15, y + 33, gray.getStartX(), gray.getStartY(), w, h + 22, gray.getWidth(), gray.getHeight());
 
 			if (toolTip.size() > 0)
 				graphics.text(font, toolTip.get(0), x - 10, y + 38, 0xEEEEEE + stringAlphaComponent, false);
@@ -98,7 +95,6 @@ public class ToolSelectionScreen extends Screen {
 				graphics.text(font, toolTip.get(3), x - 10, y + 72, 0xCCCCDD + stringAlphaComponent, false);
 		}
 
-		RenderSystem.setShaderColor(1, 1, 1, 1);
 		if (tools.size() > 1) {
 			String keyName = AllKeys.TOOL_MENU.getBoundKey();
 			int width = minecraft.getWindow()
@@ -114,23 +110,19 @@ public class ToolSelectionScreen extends Screen {
 
 
 		for (int i = 0; i < tools.size(); i++) {
-			RenderSystem.enableBlend();
 			matrixStack.pushMatrix();
 
 			float alpha = focused ? 1 : .2f;
 			if (i == selection) {
 				matrixStack.translate((float) (0), (float) (-10));
-				RenderSystem.setShaderColor(1, 1, 1, 1);
 				graphics.centeredText(minecraft.font, tools.get(i)
 					.getDisplayName()
 					.getString(), x + i * 50 + 24, y + 28, 0xCCDDFF);
 				alpha = 1;
 			}
-			RenderSystem.setShaderColor(0, 0, 0, alpha);
 			tools.get(i)
 				.getIcon()
 				.render(graphics, x + i * 50 + 16, y + 12);
-			RenderSystem.setShaderColor(1, 1, 1, alpha);
 			tools.get(i)
 				.getIcon()
 				.render(graphics, x + i * 50 + 16, y + 11);
@@ -138,8 +130,6 @@ public class ToolSelectionScreen extends Screen {
 			matrixStack.popMatrix();
 		}
 
-		RenderSystem.setShaderColor(1, 1, 1, 1);
-		RenderSystem.disableBlend();
 		matrixStack.popMatrix();
 	}
 

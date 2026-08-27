@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.station;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -301,26 +302,19 @@ public class StationScreen extends AbstractStationScreen {
 
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
-		RenderSystem.enableBlend();
 		ms.translate((float) (position), (float) (0));
 		TrainIconType icon = train.icon;
 		int offset = 0;
 
 		List<Carriage> carriages = train.carriages;
 		for (int i = carriages.size() - 1; i > 0; i--) {
-			RenderSystem.setShaderColor(1, 1, 1, Math.min(1f,
-				Math.min((position + offset - 10) / 30f, (background.getWidth() - 40 - position - offset) / 30f)));
 			Carriage carriage = carriages.get(blockEntity.trainBackwards ? carriages.size() - i - 1 : i);
 			offset += icon.render(carriage.bogeySpacing, graphics, x + offset, y + 20) + 1;
 		}
 
-		RenderSystem.setShaderColor(1, 1, 1,
-			Math.min(1f, Math.min((position + offset - 10) / 30f, (background.getWidth() - 40 - position - offset) / 30f)));
 		offset += icon.render(TrainIconType.ENGINE, graphics, x + offset, y + 20);
-		RenderSystem.disableBlend();
 		ms.popMatrix();
 
-		RenderSystem.setShaderColor(1, 1, 1, 1);
 
 		AllGuiTextures.STATION_TEXTBOX_TOP.render(graphics, x + 21, y + 42);
 		UIRenderHelper.drawStretched(graphics, x + 21, y + 60, 150, 26, AllGuiTextures.STATION_TEXTBOX_MIDDLE);
@@ -357,7 +351,7 @@ public class StationScreen extends AbstractStationScreen {
 			int sheetX = col * 16 + colorCol * 128;
 			int sheetY = row * 16 + colorRow * 64;
 
-			graphics.blit(sprite.location, positionX, positionY, sheetX, sheetY, 16, 16, sprite.getWidth(), sprite.getHeight());
+			graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.location, positionX, positionY, sheetX, sheetY, 16, 16, sprite.getWidth(), sprite.getHeight());
 		}
 	}
 

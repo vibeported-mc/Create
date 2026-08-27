@@ -110,7 +110,6 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 				String s = String.valueOf(count);
 				ms.pushMatrix();
 				ms.translate((float) (0), (float) (0));
-				RenderSystem.enableDepthTest();
 				graphics.item(minecraft.player, itemstack, i, j, 0);
 				graphics.itemDecorations(font, itemstack, i, j, s);
 				ms.popMatrix();
@@ -118,12 +117,10 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 
 			if (isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY)) {
 				hoveredToolboxSlot = slot;
-				RenderSystem.disableDepthTest();
 				RenderSystem.colorMask(true, true, true, false);
 				int slotColor = this.getSlotColor(baseIndex);
 				graphics.fillGradient(i, j, i + 16, j + 16, slotColor, slotColor);
 				RenderSystem.colorMask(true, true, true, true);
-				RenderSystem.enableDepthTest();
 			}
 		}
 	}

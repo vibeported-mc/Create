@@ -164,7 +164,6 @@ public class ToolboxHandlerClient {
 
 		int x = width / 2 - 90;
 		int y = height - 23;
-		RenderSystem.enableDepthTest();
 
 		Player player = mc.player;
 		CompoundTag persistentData = player.getPersistentData();

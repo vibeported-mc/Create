@@ -95,13 +95,11 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 				vanillaPanorama.render(graphics, this.width, this.height, 1, elapsedPartials);
 			PANORAMA.render(graphics, this.width, this.height, 1, elapsedPartials);
 
-			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 			graphics.blit(PANORAMA_OVERLAY_TEXTURES, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
 		}
 
-		RenderSystem.enableDepthTest();
 
 		Matrix3x2fStack ms = graphics.pose();
 
@@ -122,7 +120,6 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 			ms.popMatrix();
 		}
 
-		RenderSystem.enableBlend();
 
 		ms.pushMatrix();
 		ms.translate((float) (width / 2 - 32), (float) (32));
@@ -145,7 +142,6 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 			width / 2, 89, 0xFF_E4BB67);
 		ms.popMatrix();
 
-		RenderSystem.disableDepthTest();
 	}
 
 	protected void init() {

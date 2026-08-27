@@ -163,12 +163,10 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 				Matrix4fStack modelViewStack = RenderSystem.getModelViewStack();
 				modelViewStack.pushMatrix();
 				RenderSystem.applyModelViewMatrix();
-				RenderSystem.enableDepthTest();
 				Minecraft minecraft = Minecraft.getInstance();
 				Font font = getFontRenderer(minecraft, ingredient);
 				graphics.item(ingredient, 0, 0);
 				graphics.itemDecorations(font, ingredient, 0, 0, null);
-				RenderSystem.disableBlend();
 				modelViewStack.popMatrix();
 				RenderSystem.applyModelViewMatrix();
 			}

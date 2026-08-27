@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.gui;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import com.simibubi.create.Create;
 
 import net.createmod.catnip.api.client.gui.TextureSheetSegment;
@@ -298,7 +299,7 @@ public enum AllGuiTextures implements ScreenElement, TextureSheetSegment {
 
 	@OnlyIn(Dist.CLIENT)
 	public void render(GuiGraphicsExtractor graphics, int x, int y) {
-		graphics.blit(location, x, y, startX, startY, width, height);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, location, x, y, startX, startY, width, height, 256, 256);
 	}
 
 	@OnlyIn(Dist.CLIENT)

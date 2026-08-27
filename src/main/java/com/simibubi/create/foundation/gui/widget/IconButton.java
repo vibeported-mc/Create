@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.gui.widget;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
@@ -34,15 +35,13 @@ public class IconButton extends AbstractSimiWidget {
 					: isHovered ? AllGuiTextures.BUTTON_HOVER
 						: green ? AllGuiTextures.BUTTON_GREEN : AllGuiTextures.BUTTON;
 
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			drawBg(graphics, button);
 			icon.render(graphics, getX() + 1, getY() + 1);
 		}
 	}
 
 	protected void drawBg(GuiGraphicsExtractor graphics, AllGuiTextures button) {
-		graphics.blit(button.location, getX(), getY(), button.getStartX(), button.getStartY(), button.getWidth(),
-			button.getHeight());
+		graphics.blit(RenderPipelines.GUI_TEXTURED, button.location, getX(), getY(), button.getStartX(), button.getStartY(), button.getWidth(), button.getHeight(), 256, 256);
 	}
 
 	public void setToolTip(Component text) {

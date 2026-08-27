@@ -194,8 +194,6 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 		ms.pushMatrix();
 		ms.translate((float) (x), (float) (y));
 
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
 
 		int mouseOffsetX = mouseX - this.width / 2;
 		int mouseOffsetY = mouseY - this.height / 2;
