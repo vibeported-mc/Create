@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.advancement;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -101,6 +103,10 @@ public class CreateAdvancement {
 		if (createBuilder.func != null)
 			createBuilder.icon(createBuilder.func.apply(registries));
 
+		for (int i = 0; i < createBuilder.triggers.size(); i++)
+			mcBuilder.addCriterion(String.valueOf(i), createBuilder.triggers.get(i)
+				.get());
+
 		mcBuilder.display(createBuilder.icon.get(), Component.translatable(titleKey()),
 			Component.translatable(descriptionKey()).withStyle(s -> s.withColor(0xDBA213)),
 			id.equals("root") ? BACKGROUND : null, createBuilder.type.advancementType, createBuilder.type.toast,
@@ -142,7 +148,10 @@ public class CreateAdvancement {
 
 		private TaskType type = TaskType.NORMAL;
 		private boolean externalTrigger;
-		private int keyIndex;
+		// 26.2 binds item components and tags only after registration, and these advancements are
+		// declared while the registry events are still running, so a criterion cannot name an item or
+		// a tag until the advancement is actually saved.
+		private final List<Supplier<Criterion<?>>> triggers = new ArrayList<>();
 		// 26.2 binds an item's default components only once the item registry freezes, which is after
 		// the registry events this class is built from. An ItemStackTemplate names an item without
 		// touching its components, and the icon is resolved when the advancement is saved.
@@ -201,35 +210,38 @@ public class CreateAdvancement {
 		}
 
 		Builder whenBlockPlaced(Block block) {
-			return externalTrigger(ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(block));
+			return externalTrigger(() -> ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(block));
 		}
 
 		Builder whenIconCollected() {
-			return externalTrigger(InventoryChangeTrigger.TriggerInstance.hasItems(iconItem.get()));
+			return externalTrigger(() -> InventoryChangeTrigger.TriggerInstance.hasItems(iconItem.get()));
 		}
 
 		Builder whenItemCollected(ItemProviderEntry<?, ?> item) {
-			return whenItemCollected(item.asItem());
+			return externalTrigger(() -> InventoryChangeTrigger.TriggerInstance.hasItems(item.asItem()));
 		}
 
 		Builder whenItemCollected(ItemLike itemProvider) {
-			return externalTrigger(InventoryChangeTrigger.TriggerInstance.hasItems(itemProvider));
+			return externalTrigger(() -> InventoryChangeTrigger.TriggerInstance.hasItems(itemProvider));
 		}
 
 		Builder whenItemCollected(TagKey<Item> tag) {
-			return externalTrigger(InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item()
+			return externalTrigger(() -> InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item()
 				.of(BuiltInRegistries.ITEM, tag)
 				.build()));
 		}
 
 		Builder awardedForFree() {
-			return externalTrigger(InventoryChangeTrigger.TriggerInstance.hasItems(new ItemLike[] {}));
+			return externalTrigger(() -> InventoryChangeTrigger.TriggerInstance.hasItems(new ItemLike[] {}));
 		}
 
 		Builder externalTrigger(Criterion<?> trigger) {
-			mcBuilder.addCriterion(String.valueOf(keyIndex), trigger);
+			return externalTrigger(() -> trigger);
+		}
+
+		Builder externalTrigger(Supplier<Criterion<?>> trigger) {
+			triggers.add(trigger);
 			externalTrigger = true;
-			keyIndex++;
 			return this;
 		}
 
