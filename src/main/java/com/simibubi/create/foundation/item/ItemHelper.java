@@ -163,7 +163,7 @@ public class ItemHelper {
 		return false;
 	}
 
-	public static boolean matchAllIngredients(NonNullList<Ingredient> ingredients) {
+	public static boolean matchAllIngredients(List<Ingredient> ingredients) {
 		if (ingredients.size() <= 1)
 			return true;
 		Ingredient firstIngredient = ingredients.get(0);

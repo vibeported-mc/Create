@@ -37,7 +37,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 public class StockTickerInteractionHandler {
 
 	@SubscribeEvent
-	public static void interactWithLogisticsManager(PlayerInteractEvent.EntityInteractSpecific event) {
+	public static void interactWithLogisticsManager(PlayerInteractEvent.EntityInteract event) {
 		Entity entity = event.getTarget();
 		Player player = event.getEntity();
 		if (player == null || entity == null)

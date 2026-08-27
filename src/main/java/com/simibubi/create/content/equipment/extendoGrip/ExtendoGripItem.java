@@ -290,19 +290,10 @@ public class ExtendoGripItem extends Item {
 			return;
 		Player player = (Player) entity;
 		if (isHoldingExtendoGrip(player))
-			ClientNetworkHelper.INSTANCE.sendToServer(new ExtendoGripInteractionPacket(target, event.getHand()));
+			ClientNetworkHelper.INSTANCE
+				.sendToServer(new ExtendoGripInteractionPacket(target, event.getHand(), event.getLocation()));
 	}
 
-	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
-	public static void notifyServerOfLongRangeSpecificInteractions(PlayerInteractEvent.EntityInteractSpecific event) {
-		Player entity = event.getEntity();
-		Entity target = event.getTarget();
-		if (!isUncaughtClientInteraction(entity, target))
-			return;
-		if (isHoldingExtendoGrip(entity))
-			ClientNetworkHelper.INSTANCE.sendToServer(new ExtendoGripInteractionPacket(target, event.getHand(), event.getLocalPos()));
-	}
 
 	public static boolean isHoldingExtendoGrip(Player player) {
 		boolean inOff = AllItems.EXTENDO_GRIP.isIn(player.getOffhandItem());

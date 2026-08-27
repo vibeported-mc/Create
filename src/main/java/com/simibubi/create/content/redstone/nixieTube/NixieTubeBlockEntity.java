@@ -234,7 +234,8 @@ public class NixieTubeBlockEntity extends SmartBlockEntity {
 			redstoneStrength = nbt.getIntOr("RedstoneStrength", 0);
 		if (clientPacket || isVirtual()) {
 			if (nbt.contains("ComputerSignal")) {
-				byte[] encodedComputerSignal = nbt.getByteArray("ComputerSignal");
+				byte[] encodedComputerSignal = nbt.getByteArray("ComputerSignal")
+					.orElseGet(() -> new byte[0]);
 				if (computerSignal == null)
 					computerSignal = new ComputerSignal();
 				computerSignal.decode(encodedComputerSignal);

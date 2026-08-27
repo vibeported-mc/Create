@@ -78,7 +78,7 @@ public class CreateHatArmorLayer<S extends LivingEntityRenderState, M extends En
 	}
 
 	public static void registerOnAll(EntityRenderDispatcher renderManager) {
-		for (EntityRenderer<? extends Player, ?> renderer : renderManager.getSkinMap()
+		for (EntityRenderer<? extends Player, ?> renderer : ((EntityRenderDispatcherAccessor) renderManager).create$getPlayerRenderers()
 			.values())
 			registerOn(renderer);
 		for (EntityRenderer<?, ?> renderer : ((EntityRenderDispatcherAccessor) renderManager).create$getRenderers()

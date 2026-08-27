@@ -95,7 +95,7 @@ public class BacktankArmorLayer<S extends HumanoidRenderState, M extends Humanoi
 	}
 
 	public static void registerOnAll(EntityRenderDispatcher renderManager) {
-		for (EntityRenderer<? extends Player, ?> renderer : renderManager.getSkinMap().values())
+		for (EntityRenderer<? extends Player, ?> renderer : ((EntityRenderDispatcherAccessor) renderManager).create$getPlayerRenderers().values())
 			registerOn(renderer);
 		for (EntityRenderer<?, ?> renderer : ((EntityRenderDispatcherAccessor) renderManager).create$getRenderers().values())
 			registerOn(renderer);
