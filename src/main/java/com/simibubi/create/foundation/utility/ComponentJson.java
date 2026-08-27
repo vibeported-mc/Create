@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.utility;
 
+import com.google.gson.JsonElement;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.serialization.JsonOps;
@@ -25,6 +26,13 @@ public class ComponentJson {
 			.encodeStart(RegistryOps.create(JsonOps.INSTANCE, registries), component)
 			.getOrThrow()
 			.toString();
+	}
+
+	public static @Nullable Component fromJson(JsonElement json, HolderLookup.Provider registries) {
+		return ComponentSerialization.CODEC
+			.parse(RegistryOps.create(JsonOps.INSTANCE, registries), json)
+			.result()
+			.orElse(null);
 	}
 
 	public static @Nullable Component fromJson(String json, HolderLookup.Provider registries) {

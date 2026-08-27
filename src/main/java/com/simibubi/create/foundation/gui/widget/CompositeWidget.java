@@ -63,11 +63,11 @@ public class CompositeWidget extends AbstractContainerEventHandler implements Na
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		this.getChildAt(mouseX, mouseY).ifPresent(hovered -> this.hovered = hovered);
 
 		for (Renderable renderable : this.renderables) {
-			renderable.render(graphics, mouseX, mouseY, partialTicks);
+			renderable.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 		}
 	}
 

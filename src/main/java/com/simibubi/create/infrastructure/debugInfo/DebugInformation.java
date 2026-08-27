@@ -11,7 +11,9 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.opengl.GlUtil;
+import com.mojang.blaze3d.systems.DeviceInfo;
+import com.mojang.blaze3d.systems.GpuDevice;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.simibubi.create.Create;
 import com.simibubi.create.CreateBuildInfo;
 import com.simibubi.create.compat.pojav.PojavChecker;
@@ -74,7 +76,7 @@ public class DebugInformation {
 			.put("Mod Git Commit", CreateBuildInfo.GIT_COMMIT)
 			.put("Ponder Version", getVersionOfMod("ponder"))
 			.put("NeoForge Version", getVersionOfMod("neoforge"))
-			.put("Minecraft Version", SharedConstants.getCurrentVersion().getName())
+			.put("Minecraft Version", SharedConstants.getCurrentVersion().name())
 			.buildTo(DebugInformation::registerBothInfo);
 
 		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
@@ -86,8 +88,8 @@ public class DebugInformation {
 						.toString())
 					.orElse("None"))
 				.put("Flywheel Backend", () -> Backend.REGISTRY.getIdOrThrow(BackendManager.currentBackend()).toString())
-				.put("OpenGL Renderer", GlUtil::getRenderer)
-				.put("OpenGL Version", GlUtil::getOpenGLVersion)
+				.put("Graphics Device", () -> deviceInfo(DeviceInfo::name))
+				.put("Graphics Backend", () -> deviceInfo(DeviceInfo::backendName))
 				.put("Graphics Mode", () -> Minecraft.getInstance().options.graphicsPreset().get().name().toLowerCase(Locale.ROOT))
 				.put("PojavLauncher Detected", () -> String.valueOf(PojavChecker.IS_PRESENT))
 				.buildTo(DebugInformation::registerClientInfo);
@@ -180,4 +182,11 @@ public class DebugInformation {
 	public static String tryTrim(@Nullable String s) {
 		return s == null ? null : s.trim();
 	}
+
+	private static String deviceInfo(java.util.function.Function<DeviceInfo, String> getter) {
+		GpuDevice device = RenderSystem.tryGetDevice();
+		DeviceInfo info = device == null ? null : device.getDeviceInfo();
+		return info == null ? "None" : getter.apply(info);
+	}
+
 }

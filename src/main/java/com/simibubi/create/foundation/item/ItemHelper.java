@@ -321,7 +321,8 @@ public class ItemHelper {
 	}
 
 	public static void fillItemStackHandler(ItemContainerContents contents, ItemStacksResourceHandler inv) {
-		List<ItemStack> itemStacks = contents.stream().toList();
+		List<ItemStack> itemStacks = contents.allItemsCopyStream()
+			.toList();
 
 		for (int i = 0; i < itemStacks.size(); i++) {
 			ItemHandlerHelpers.setStackInSlot(inv, i, itemStacks.get(i));
@@ -400,14 +401,13 @@ public class ItemHelper {
 
 	public static ItemStack getCraftingRemainder(ItemStack stack) {
 		ItemStackTemplate remainder = stack.getItem()
-			.getCraftingRemainder();
-		return remainder.isEmpty() ? ItemStack.EMPTY : remainder.create();
+			.getCraftingRemainder(stack);
+		return remainder == null ? ItemStack.EMPTY : remainder.create();
 	}
 
 	public static boolean hasCraftingRemainder(ItemStack stack) {
-		return !stack.getItem()
-			.getCraftingRemainder()
-			.isEmpty();
+		return stack.getItem()
+			.getCraftingRemainder(stack) != null;
 	}
 
 }

@@ -293,7 +293,7 @@ public enum AllGuiTextures implements ScreenElement, TextureSheetSegment {
 	}
 
 	@Override
-	public Identifier getLocation() {
+	public Identifier getId() {
 		return location;
 	}
 
@@ -304,8 +304,7 @@ public enum AllGuiTextures implements ScreenElement, TextureSheetSegment {
 
 	@OnlyIn(Dist.CLIENT)
 	public void render(GuiGraphicsExtractor graphics, int x, int y, Color c) {
-		bind();
-		UIRenderHelper.drawColoredTexture(graphics, c, x, y, startX, startY, width, height);
+		UIRenderHelper.drawColoredTexture(graphics, bind(), c, x, y, startX, startY, width, height);
 	}
 
 	@Override

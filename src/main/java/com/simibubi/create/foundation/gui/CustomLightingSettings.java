@@ -1,7 +1,14 @@
 package com.simibubi.create.foundation.gui;
 
-import org.joml.Vector3f;
+import java.nio.ByteBuffer;
 
+import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.system.MemoryStack;
+
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.Std140Builder;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 
@@ -11,6 +18,7 @@ public class CustomLightingSettings implements ILightingSettings {
 
 	private Vector3f light1;
 	private Vector3f light2;
+	private @Nullable GpuBuffer buffer;
 
 	protected CustomLightingSettings(float yRot, float xRot) {
 		init(yRot, xRot, 0, 0, false);
@@ -34,9 +42,30 @@ public class CustomLightingSettings implements ILightingSettings {
 		}
 	}
 
+	/**
+	 * 26.2 hands the shader its light directions in a uniform buffer rather than as two vectors, so a
+	 * custom pair has to live in a buffer of its own. It never changes once built, so it is written the
+	 * first time it is needed and kept.
+	 */
 	@Override
-	public void applyLighting() {
-		RenderSystem.setShaderLights(light1, light2);
+	public void apply() {
+		if (buffer == null) {
+			buffer = RenderSystem.getDevice()
+				.createBuffer(() -> "Create custom lighting UBO", GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST,
+					Lighting.UBO_SIZE);
+
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				ByteBuffer contents = Std140Builder.onStack(stack, Lighting.UBO_SIZE)
+					.putVec3(light1)
+					.putVec3(light2)
+					.get();
+				RenderSystem.getDevice()
+					.createCommandEncoder()
+					.writeToBuffer(buffer.slice(), contents);
+			}
+		}
+
+		RenderSystem.setShaderLights(buffer.slice());
 	}
 
 	public static Builder builder() {

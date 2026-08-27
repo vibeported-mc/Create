@@ -7,6 +7,8 @@ import com.google.gson.JsonParser;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.simibubi.create.Create;
 
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.network.chat.ResolutionContext;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -80,8 +82,8 @@ public class DynamicComponent {
 		if (!(level instanceof ServerLevel serverLevel))
 			return null;
 		try {
-			return ComponentUtils.updateForEntity(getCommandSource(serverLevel, pos),
-				ComponentJson.fromJson(customText, level.registryAccess()), null, 0);
+			return ComponentUtils.resolve(ResolutionContext.create(getCommandSource(serverLevel, pos)),
+				ComponentJson.fromJson(customText, level.registryAccess()));
 		} catch (JsonParseException | CommandSyntaxException e) {
 			return null;
 		}
@@ -92,15 +94,15 @@ public class DynamicComponent {
 		if (!(level instanceof ServerLevel serverLevel))
 			return null;
 		try {
-			return ComponentUtils.updateForEntity(getCommandSource(serverLevel, pos), customText, null, 0);
+			return ComponentUtils.resolve(ResolutionContext.create(getCommandSource(serverLevel, pos)), customText);
 		} catch (JsonParseException | CommandSyntaxException e) {
 			return null;
 		}
 	}
 
 	public static CommandSourceStack getCommandSource(ServerLevel level, BlockPos pos) {
-		return new CommandSourceStack(CommandSource.NULL, Vec3.atCenterOf(pos), Vec2.ZERO, level, 2, Create.ID,
-			Component.literal(Create.ID), level.getServer(), null);
+		return new CommandSourceStack(CommandSource.NULL, Vec3.atCenterOf(pos), Vec2.ZERO, level,
+			LevelBasedPermissionSet.GAMEMASTER, Create.ID, Component.literal(Create.ID), level.getServer(), null);
 	}
 
 }
