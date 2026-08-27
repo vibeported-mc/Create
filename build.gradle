@@ -120,10 +120,24 @@ repositories {
 configurations {
     localImplementation
 
+    // The Sodium artifact on Modrinth is a bootstrap: the mod itself, API included, is a nested jar.
+    sodiumBundle
+
     runtimeClasspath.extendsFrom(localImplementation)
     compileClasspath.extendsFrom(localImplementation)
 
     runtimeClasspath.extendsFrom(localRuntimeOnly)
+}
+
+// Sodium ships its API inside META-INF/jarjar rather than in the artifact Gradle resolves, so the
+// nested jar is unpacked and compiled against directly.
+var extractSodiumApi = tasks.register("extractSodiumApi", Copy) {
+    from({ configurations.sodiumBundle.collect { zipTree(it) } }) {
+        include("META-INF/jarjar/*mod.jar")
+        eachFile { it.relativePath = new RelativePath(true, "sodium-api.jar") }
+        includeEmptyDirs = false
+    }
+    into(layout.buildDirectory.dir("sodium"))
 }
 
 dependencies {
@@ -144,7 +158,10 @@ dependencies {
     compileOnly("top.theillusivec4.curios:curios-neoforge:$curios_version+$minecraft_version:api")
     localRuntimeOnly("top.theillusivec4.curios:curios-neoforge:$curios_version+$minecraft_version")
 
-    compileOnly("maven.modrinth:sodium:mc$minecraft_version-$sodium_version-neoforge")
+    sodiumBundle("maven.modrinth:sodium:mc$minecraft_version-$sodium_version-neoforge")
+    compileOnly(files(layout.buildDirectory.file("sodium/sodium-api.jar")) {
+        builtBy(extractSodiumApi)
+    })
 
     if (cc_tweaked_enable.toBoolean()) {
         compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-core-api:$cc_tweaked_version")

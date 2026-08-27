@@ -541,7 +541,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 					.submit(poseStack, RenderTypes.cutoutMovingBlock(), queue);
 				BlazeBurnerRenderer.submitShared(poseStack, null, queue, burnerLevel, burnerState, heatLevel,
 					animation, horizontalAngle, canDrawFlame, drawGoggles, drawHat, hashCode);
-			}, new Matrix3x2f(ms), new GuiElementTransform(0, 0, 0, -22.5f, -45, 0, 0, 0, 0, 0, 0), 0, 0, 16, 16, 1,
+			}, new Matrix3x2f(ms), new GuiElementTransform(0, 0, 0, -22.5f, -45, 0, 0, 0, 0, 0, 0, 0), 0, 0, 16, 16, 1,
 				null, null));
 			ms.popMatrix();
 		}

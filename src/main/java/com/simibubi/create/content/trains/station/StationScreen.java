@@ -83,7 +83,6 @@ public class StationScreen extends AbstractStationScreen {
 		nameBox.setTextColor(0x592424);
 		nameBox.setValue(station.name);
 		nameBox.setFocused(false);
-		nameBox.mouseClicked(0, 0, 0);
 		nameBox.setResponder(onTextChanged);
 		nameBox.setX(nameBoxX(nameBox.getValue(), nameBox));
 		addRenderableWidget(nameBox);
@@ -130,7 +129,6 @@ public class StationScreen extends AbstractStationScreen {
 		trainNameBox.setMaxLength(35);
 		trainNameBox.setTextColor(0xC6C6C6);
 		trainNameBox.setFocused(false);
-		trainNameBox.mouseClicked(0, 0, 0);
 		trainNameBox.setResponder(onTextChanged);
 		trainNameBox.active = false;
 
@@ -321,7 +319,7 @@ public class StationScreen extends AbstractStationScreen {
 		AllGuiTextures.STATION_TEXTBOX_BOTTOM.render(graphics, x + 21, y + 86);
 
 		ms.pushMatrix();
-		ms.translate(Mth.clamp(position + offset - 13, 25, 159), 0, 0);
+		ms.translate(Mth.clamp(position + offset - 13, 25, 159), 0);
 		AllGuiTextures.STATION_TEXTBOX_SPEECH.render(graphics, x, y + 38);
 		ms.popMatrix();
 

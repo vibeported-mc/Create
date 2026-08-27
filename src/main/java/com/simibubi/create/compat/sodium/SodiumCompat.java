@@ -2,6 +2,7 @@ package com.simibubi.create.compat.sodium;
 
 import com.simibubi.create.Create;
 
+import net.caffeinemc.mods.sodium.api.texture.SpriteUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -32,10 +33,8 @@ public class SodiumCompat {
 			TextureAtlasSprite sawSprite = atlas.getSprite(SAW_TEXTURE);
 			TextureAtlasSprite factoryPanelSprite = atlas.getSprite(FACTORY_PANEL_TEXTURE);
 
-			// TODO 26.2: call SpriteUtil.INSTANCE.markSpriteActive on both sprites again once Sodium's
-			// API is reachable. The 26.2 Sodium artifact is a bootstrap jar that keeps
-			// net.caffeinemc.mods.sodium.api.texture.SpriteUtil in a nested jar, so it is not on the
-			// compile classpath; until then Sodium stalls both animations because nothing claims them.
+			SpriteUtil.INSTANCE.markSpriteActive(sawSprite);
+			SpriteUtil.INSTANCE.markSpriteActive(factoryPanelSprite);
 		});
 	}
 }

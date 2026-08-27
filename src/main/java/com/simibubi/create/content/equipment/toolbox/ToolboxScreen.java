@@ -128,12 +128,11 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
 		ms.translate(x, y);
-		// A block is 16 units wide inside a picture-in-picture texture; the toolbox was drawn 50 wide.
-		ms.scale(50 / 16f, 50 / 16f);
 
 		GuiGameElement.of(AllBlocks.TOOLBOXES.get(color)
 			.getDefaultState())
 			.viewRotate(-22, -202, 0)
+			.scale(50)
 			.submit(graphics);
 
 		float lid = menu.contentHolder.lid.getValue(partialTicks);
@@ -141,6 +140,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 			.viewRotate(-22, -202, 0)
 			.rotate(-105 * lid, 0, 0)
 			.withRotationOffset(0, -6 / 16f, 12 / 16f)
+			.scale(50)
 			.submit(graphics);
 
 		float drawers = menu.contentHolder.drawers.getValue(partialTicks);
@@ -148,6 +148,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 			GuiGameElement.of(AllPartialModels.TOOLBOX_DRAWER.get())
 				.viewRotate(-22, -202, 0)
 				.atLocal(0, -offset * 1 / 8f, drawers * -.175f * (2 - offset))
+				.scale(50)
 				.submit(graphics);
 
 		ms.popMatrix();

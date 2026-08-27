@@ -192,14 +192,22 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity,
 			.extractRenderState();
 	}
 
-	public static void transformFlag(Transform<?> flag, StationBlockEntity be, float partialTicks, int yRot,
-									 boolean flipped) {
+	/**
+	 * How far the flag has swung, 0 to 1, overshooting slightly while it settles.
+	 */
+	public static float flagProgress(StationBlockEntity be, float partialTicks) {
 		float value = be.flag.getValue(partialTicks);
 		float progress = (float) (Math.pow(Math.min(value * 5, 1), 2));
 		if (be.flag.getChaseTarget() > 0 && !be.flag.settled() && progress == 1) {
 			float wiggleProgress = (value - .2f) / .8f;
 			progress += (Math.sin(wiggleProgress * (2 * Mth.PI) * 4) / 8f) / Math.max(1, 8f * wiggleProgress);
 		}
+		return progress;
+	}
+
+	public static void transformFlag(Transform<?> flag, StationBlockEntity be, float partialTicks, int yRot,
+									 boolean flipped) {
+		float progress = flagProgress(be, partialTicks);
 
 		float nudge = 1 / 512f;
 		flag.center()
