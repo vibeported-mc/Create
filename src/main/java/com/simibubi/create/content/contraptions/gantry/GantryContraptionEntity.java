@@ -188,10 +188,9 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 	public void teleportTo(double p_70634_1_, double p_70634_3_, double p_70634_5_) {
 	}
 
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void lerpTo(double pX, double pY, double pZ, float pYRot, float pXRot, int pSteps) {
-	}
+	// 26.2 routes client position updates through the final moveOrInterpolateTo, so they can no longer
+	// be refused here; the contraption is given its position from the block entity every tick anyway,
+	// which overwrites anything an interpolated update sets.
 
 	@Override
 	protected void handleStallInformation(double x, double y, double z, float angle) {

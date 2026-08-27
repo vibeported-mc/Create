@@ -72,7 +72,7 @@ public class ContraptionControlsRenderer
 			.extractRenderState();
 
 		int i = (((int) be.indicator.getValue(pt) / 45) % 8) + 8;
-		state.indicator = CachedBuffers
+		state.indicator = CachedBufferer
 			.partialFacing(AllPartialModels.CONTRAPTION_CONTROLS_INDICATOR.get(i % 8), blockState, facing)
 			.light(state.lightCoords)
 			.extractRenderState();
@@ -133,7 +133,7 @@ public class ContraptionControlsRenderer
 		ms.translate(0, buttondepth, 0);
 		CachedBufferer.partialFacing(AllPartialModels.CONTRAPTION_CONTROLS_BUTTON, ctx.state, ctx.state.getValue(ContraptionControlsBlock.FACING).getOpposite())
 			.light(LightCoordsUtil.getLightCoords(renderWorld, ctx.localPos))
-			.useLevelLight(ctx.world, matrices.getWorld())
+			.useLevelLight(renderWorld, matrices.getWorld())
 			.submit(ms, RenderTypes.solidMovingBlock(), buffer);
 		ms.popPose();
 

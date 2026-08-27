@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 
 import com.simibubi.create.foundation.blockEntity.ItemHandlerContainer;
 
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.player.Player;
 
 public class StorageInteractionWrapper extends ItemHandlerContainer {
@@ -29,7 +30,8 @@ public class StorageInteractionWrapper extends ItemHandlerContainer {
 	}
 
 	@Override
-	public void stopOpen(Player player) {
-		this.onClose.accept(player);
+	public void stopOpen(ContainerUser containerUser) {
+		if (containerUser instanceof Player player)
+			this.onClose.accept(player);
 	}
 }

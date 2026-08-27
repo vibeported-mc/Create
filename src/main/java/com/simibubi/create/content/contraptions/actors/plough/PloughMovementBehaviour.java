@@ -18,7 +18,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.Unbreakable;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ClipContext.Block;
@@ -144,7 +144,7 @@ public class PloughMovementBehaviour extends BlockBreakingMovementBehaviour {
 		if (!(context.temporaryData instanceof PloughFakePlayer) && context.world != null) {
 			PloughFakePlayer player = new PloughFakePlayer((ServerLevel) context.world);
 			ItemStack heldItem = new ItemStack(Items.DIAMOND_HOE);
-			heldItem.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+			heldItem.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
 			player.setItemInHand(InteractionHand.MAIN_HAND, heldItem);
 			context.temporaryData = player;
 		}

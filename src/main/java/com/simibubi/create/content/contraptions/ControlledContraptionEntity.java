@@ -146,10 +146,9 @@ public class ControlledContraptionEntity extends AbstractContraptionEntity {
 	}
 
 	// Always noop this. Controlled Contraptions are given their position on the client from the BE
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void lerpTo(double pX, double pY, double pZ, float pYRot, float pXRot, int pSteps) {
-	}
+	// 26.2 routes client position updates through the final moveOrInterpolateTo, so they can no longer
+	// be refused here; the contraption is given its position from the block entity every tick anyway,
+	// which overwrites anything an interpolated update sets.
 
 	protected void tickContraption() {
 		angleDelta = angle - prevAngle;

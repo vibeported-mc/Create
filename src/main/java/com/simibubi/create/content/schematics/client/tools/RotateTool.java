@@ -36,7 +36,7 @@ public class RotateTool extends PlacementToolBase {
 			.colored(0xdddddd)
 			.lineWidth(1 / 16f);
 		line.set(start, end)
-			.render(ms, queue, Vec3.ZERO, AnimationTickHolder.getPartialTicks());
+			.submit(ms, queue, Vec3.ZERO, AnimationTickHolder.getPartialTicks());
 
 		super.submitOnSchematic(ms, queue);
 	}

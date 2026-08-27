@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.palettes;
 
+import net.minecraft.tags.BlockTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.foundation.data.CreateRegistrate.connectedTextures;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
@@ -36,7 +37,9 @@ public class PalettesVariantEntry {
 			BlockBuilder<? extends Block, CreateRegistrate> builder =
 				REGISTRATE.block(pattern.createName(name), pattern.getBlockFactory())
 					.initialProperties(baseBlock)
-					.transform(pickaxeOnly())
+					// Applied directly rather than through transform(pickaxeOnly()): with the blockstate
+					// chain below gone, the wildcard on the left leaves transform nothing to infer from.
+					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
 					// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 					// .blockstate(pattern.getBlockStateGenerator()
 																					// .apply(pattern)
