@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.tunnel;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.util.RandomSource;
 import java.util.List;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -31,15 +34,15 @@ public class BrassTunnelBlock extends BeltTunnelBlock {
 		return onBlockEntityUse(level, pos, be -> {
 			if (!(be instanceof BrassTunnelBlockEntity bte))
 				return InteractionResult.PASS;
-			List<ItemStack> stacksOfGroup = bte.grabAllStacksOfGroup(level.isClientSide);
+			List<ItemStack> stacksOfGroup = bte.grabAllStacksOfGroup(level.isClientSide());
 			if (stacksOfGroup.isEmpty())
 				return InteractionResult.PASS;
-			if (level.isClientSide)
+			if (level.isClientSide())
 				return InteractionResult.SUCCESS;
 			for (ItemStack itemStack : stacksOfGroup)
 				player.getInventory().placeItemBackInInventory(itemStack.copy());
 			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f,
-				1f + level.random.nextFloat());
+				1f + level.getRandom().nextFloat());
 			return InteractionResult.SUCCESS;
 		});
 	}
@@ -50,14 +53,9 @@ public class BrassTunnelBlock extends BeltTunnelBlock {
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor worldIn,
-								  BlockPos currentPos, BlockPos facingPos) {
-		return super.updateShape(state, facing, facingState, worldIn, currentPos, facingPos);
-	}
-
-	@Override
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		IBE.onRemove(state, level, pos, newState);
+	public BlockState updateShape(BlockState state, LevelReader worldIn, ScheduledTickAccess ticks,
+		BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
+		return super.updateShape(state, worldIn, ticks, currentPos, facing, facingPos, facingState, random);
 	}
 
 }

@@ -7,8 +7,8 @@ import com.simibubi.create.foundation.gui.widget.ScrollInput;
 import com.simibubi.create.foundation.gui.widget.SelectionScrollInput;
 import com.simibubi.create.foundation.gui.widget.TooltipArea;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;

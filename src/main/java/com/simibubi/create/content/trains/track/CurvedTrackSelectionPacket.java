@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import com.simibubi.create.AllBlocks;
@@ -52,7 +53,7 @@ public class CurvedTrackSelectionPacket extends BlockEntityConfigurationPacket<T
 		if (!(stack.getItem() instanceof TrackTargetingBlockItem))
 			return;
 		if (player.isShiftKeyDown() && stack.has(AllDataComponents.TRACK_TARGETING_ITEM_SELECTED_POS)) {
-			player.displayClientMessage(CreateLang.translateDirect("track_target.clear"), true);
+			player.sendOverlayMessage(CreateLang.translateDirect("track_target.clear"));
 			stack.remove(AllDataComponents.TRACK_TARGETING_ITEM_SELECTED_POS);
 			stack.remove(AllDataComponents.TRACK_TARGETING_ITEM_SELECTED_DIRECTION);
 			stack.remove(AllDataComponents.TRACK_TARGETING_ITEM_BEZIER);
@@ -67,8 +68,8 @@ public class CurvedTrackSelectionPacket extends BlockEntityConfigurationPacket<T
 				bezierTrackPointLocation, type, (overlap, location) -> result.setValue(overlap));
 
 		if (result.getValue().feedback != null) {
-			player.displayClientMessage(CreateLang.translateDirect(result.getValue().feedback)
-				.withStyle(ChatFormatting.RED), true);
+			player.sendOverlayMessage(CreateLang.translateDirect(result.getValue().feedback)
+				.withStyle(ChatFormatting.RED));
 			AllSoundEvents.DENY.play(player.level(), null, pos, .5f, 1);
 			return;
 		}
@@ -77,7 +78,7 @@ public class CurvedTrackSelectionPacket extends BlockEntityConfigurationPacket<T
 		stack.set(AllDataComponents.TRACK_TARGETING_ITEM_SELECTED_DIRECTION, front);
 		stack.set(AllDataComponents.TRACK_TARGETING_ITEM_BEZIER, bezierTrackPointLocation);
 
-		player.displayClientMessage(CreateLang.translateDirect("track_target.set"), true);
+		player.sendOverlayMessage(CreateLang.translateDirect("track_target.set"));
 		AllSoundEvents.CONTROLLER_CLICK.play(player.level(), null, pos, 1, 1);
 	}
 
@@ -87,7 +88,7 @@ public class CurvedTrackSelectionPacket extends BlockEntityConfigurationPacket<T
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.SELECT_CURVED_TRACK;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.SELECT_CURVED_TRACK.getType();
 	}
 }

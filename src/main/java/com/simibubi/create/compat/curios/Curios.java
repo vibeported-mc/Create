@@ -1,5 +1,7 @@
 package com.simibubi.create.compat.curios;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +13,6 @@ import com.simibubi.create.AllTags;
 import com.simibubi.create.content.equipment.armor.BacktankUtil;
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.api.CuriosCapability;
@@ -42,9 +43,9 @@ public class Curios {
 			.map(curiosMap -> {
 				for (ICurioStacksHandler stacksHandler : curiosMap.values()) {
 					// Search all the curio slots for Goggles existing
-					int slots = stacksHandler.getSlots();
+					int slots = stacksHandler.size();
 					for (int slot = 0; slot < slots; slot++) {
-						if (AllItems.GOGGLES.isIn(stacksHandler.getStacks().getStackInSlot(slot))) {
+						if (AllItems.GOGGLES.isIn(ItemHandlerHelpers.getStackInSlot(stacksHandler.getStacks(), slot))) {
 							return true;
 						}
 					}
@@ -59,9 +60,9 @@ public class Curios {
 				List<ItemStack> stacks = new ArrayList<>();
 				for (ICurioStacksHandler stacksHandler : curiosMap.values()) {
 					// Search all the curio slots for pressurized air sources, and add them to the list
-					int slots = stacksHandler.getSlots();
+					int slots = stacksHandler.size();
 					for (int slot = 0; slot < slots; slot++) {
-						final ItemStack itemStack = stacksHandler.getStacks().getStackInSlot(slot);
+						final ItemStack itemStack = ItemHandlerHelpers.getStackInSlot(stacksHandler.getStacks(), slot);
 						if (AllTags.AllItemTags.PRESSURIZED_AIR_SOURCES.matches(itemStack))
 							stacks.add(itemStack);
 					}
@@ -70,7 +71,7 @@ public class Curios {
 				return stacks;
 			}).orElse(Collections.emptyList()));
 
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> modEventBus.addListener(CuriosRenderers::onLayerRegister));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> modEventBus.addListener(CuriosRenderers::onLayerRegister));
 	}
 
 	private static void onClientSetup(final FMLClientSetupEvent event) {

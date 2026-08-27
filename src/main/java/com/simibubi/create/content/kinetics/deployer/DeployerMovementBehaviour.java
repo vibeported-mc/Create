@@ -1,5 +1,9 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.core.UUIDUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -33,10 +37,9 @@ import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.levelWrappers.SchematicLevel;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.level.wrapper.SchematicLevel;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -55,20 +58,18 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.extensions.IBaseRailBlockExtension;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class DeployerMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
 		return Vec3.atLowerCornerOf(context.state.getValue(DeployerBlock.FACING)
-			.getNormal())
+			.getUnitVec3i())
 			.scale(2);
 	}
 
 	@Override
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
-		if (context.world.isClientSide)
+		if (context.world.isClientSide())
 			return;
 
 		tryGrabbingItem(context);
@@ -95,7 +96,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 		}
 
 		Vec3 facingVec = Vec3.atLowerCornerOf(context.state.getValue(DeployerBlock.FACING)
-			.getNormal());
+			.getUnitVec3i());
 		facingVec = context.rotation.apply(facingVec);
 		Vec3 vec = context.position.subtract(facingVec.scale(2));
 
@@ -118,7 +119,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 	protected void checkForTrackPlacementAdvancement(MovementContext context, DeployerFakePlayer player) {
 		if ((context.contraption instanceof MountedContraption || context.contraption instanceof CarriageContraption)
 			&& player.placedTracks && context.blockEntityData != null && context.blockEntityData.contains("Owner"))
-			AllAdvancements.SELF_DEPLOYING.awardTo(context.world.getPlayerByUUID(context.blockEntityData.getUUID("Owner")));
+			AllAdvancements.SELF_DEPLOYING.awardTo(context.world.getPlayerByUUID(context.blockEntityData.read("Owner", UUIDUtil.CODEC).orElse(null)));
 	}
 
 	protected void activateAsSchematicPrinter(MovementContext context, BlockPos pos, DeployerFakePlayer player,
@@ -148,7 +149,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 		ItemStack contextStack = requiredItems.isEmpty() ? ItemStack.EMPTY : requiredItems.get(0).stack;
 
 		if (!context.contraption.hasUniversalCreativeCrate) {
-			IItemHandler itemHandler = context.contraption.getStorage().getAllItems();
+			ResourceHandler<ItemResource> itemHandler = context.contraption.getStorage().getAllItems();
 			for (ItemRequirement.StackRequirement required : requiredItems) {
 				ItemStack stack = ItemHelper
 					.extract(itemHandler, required::matches, ExtractionCountMode.EXACTLY,
@@ -173,7 +174,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	public void tick(MovementContext context) {
-		if (context.world.isClientSide)
+		if (context.world.isClientSide())
 			return;
 		if (!context.stall)
 			return;
@@ -183,7 +184,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 
 		Pair<BlockPos, Float> blockBreakingProgress = player.blockBreakingProgress;
 		if (blockBreakingProgress != null) {
-			int timer = context.data.getInt("Timer");
+			int timer = context.data.getIntOr("Timer", 0);
 			if (timer < 20) {
 				timer++;
 				context.data.putInt("Timer", timer);
@@ -200,7 +201,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	public void cancelStall(MovementContext context) {
-		if (context.world.isClientSide)
+		if (context.world.isClientSide())
 			return;
 
 		MovementBehaviour.super.cancelStall(context);
@@ -215,7 +216,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	public void stopMoving(MovementContext context) {
-		if (context.world.isClientSide)
+		if (context.world.isClientSide())
 			return;
 
 		DeployerFakePlayer player = getPlayer(context);
@@ -270,19 +271,19 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 		DeployerFakePlayer player = getPlayer(context);
 		if (player == null)
 			return;
-		context.data.put("HeldItem", player.getMainHandItem().saveOptional(context.world.registryAccess()));
+		context.data.store("HeldItem", ItemStack.OPTIONAL_CODEC, player.getMainHandItem());
 	}
 
 	private DeployerFakePlayer getPlayer(MovementContext context) {
 		if (!(context.temporaryData instanceof DeployerFakePlayer) && context.world instanceof ServerLevel) {
-			UUID owner = context.blockEntityData.contains("Owner") ? context.blockEntityData.getUUID("Owner") : null;
+			UUID owner = context.blockEntityData.contains("Owner") ? context.blockEntityData.read("Owner", UUIDUtil.CODEC).orElse(null) : null;
 			DeployerFakePlayer deployerFakePlayer = new DeployerFakePlayer((ServerLevel) context.world, owner);
 			deployerFakePlayer.onMinecartContraption = context.contraption instanceof MountedContraption;
 			deployerFakePlayer.getInventory()
-				.load(context.blockEntityData.getList("Inventory", Tag.TAG_COMPOUND));
+				.load(context.blockEntityData.getListOrEmpty("Inventory"));
 			if (context.data.contains("HeldItem"))
 				deployerFakePlayer.setItemInHand(InteractionHand.MAIN_HAND,
-					ItemStack.parseOptional(context.world.registryAccess(), context.data.getCompound("HeldItem")));
+					context.data.read("HeldItem", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
 			context.blockEntityData.remove("Inventory");
 			context.temporaryData = deployerFakePlayer;
 		}
@@ -300,7 +301,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffers) {
+		ContraptionMatrices matrices, SubmitNodeCollector buffers) {
 		if (!VisualizationManager.supportsVisualization(context.world))
 			DeployerRenderer.renderInContraption(context, renderWorld, matrices, buffers);
 	}

@@ -1,12 +1,12 @@
 package com.simibubi.create.compat.jei.category;
 
+import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,23 +23,23 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAssemblyRecipe> {
 
-	Map<ResourceLocation, SequencedAssemblySubCategory> subCategories = new HashMap<>();
+	Map<Identifier, SequencedAssemblySubCategory> subCategories = new HashMap<>();
 
 	public SequencedAssemblyCategory(Info<SequencedAssemblyRecipe> info) {
 		super(info);
@@ -107,7 +107,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 	final String[] romans = { "I", "II", "III", "IV", "V", "VI", "-" };
 
 	@Override
-	public void draw(SequencedAssemblyRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+	public void draw(SequencedAssemblyRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		Font font = Minecraft.getInstance().font;
 
 		PoseStack matrixStack = graphics.pose();
@@ -121,7 +121,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 		if (!singleOutput) {
 			AllGuiTextures.JEI_CHANCE_SLOT.render(graphics, 150 + xOffset, 75);
             Component component = Component.literal("?").withStyle(ChatFormatting.BOLD);
-			graphics.drawString(font, component, font.width(component) / -2 + 8 + 150 + xOffset, 2 + 78,
+			graphics.text(font, component, font.width(component) / -2 + 8 + 150 + xOffset, 2 + 78,
 				0xefefef);
 		}
 
@@ -130,7 +130,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 			matrixStack.translate(15, 9, 0);
 			AllIcons.I_SEQ_REPEAT.render(graphics, 50 + xOffset, 75);
             Component repeat = Component.literal("x" + recipe.getLoops());
-			graphics.drawString(font, repeat, 66 + xOffset, 80, 0x888888, false);
+			graphics.text(font, repeat, 66 + xOffset, 80, 0x888888, false);
 			matrixStack.popPose();
 		}
 
@@ -150,7 +150,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 			SequencedAssemblySubCategory subCategory = getSubCategory(sequencedRecipe);
 			int subWidth = subCategory.getWidth();
             MutableComponent component = Component.literal("" + romans[Math.min(i, 6)]);
-			graphics.drawString(font, component, font.width(component) / -2 + subWidth / 2, 2, 0x888888, false);
+			graphics.text(font, component, font.width(component) / -2 + subWidth / 2, 2, 0x888888, false);
 			subCategory.draw(sequencedRecipe, graphics, mouseX, mouseY, i);
 			matrixStack.translate(subWidth + margin, 0, 0);
 		}

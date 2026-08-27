@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 
-import net.createmod.catnip.gui.ILightingSettings;
+import net.createmod.catnip.api.client.gui.ILightingSettings;
 
 public class CustomLightingSettings implements ILightingSettings {
 

@@ -1,5 +1,8 @@
 package com.simibubi.create.content.fluids.pipes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection.Flow;
@@ -7,21 +10,39 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 import com.simibubi.create.foundation.fluid.FluidRenderer;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.data.Iterate;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
+
 import net.neoforged.neoforge.fluids.FluidStack;
 
-public class TransparentStraightPipeRenderer extends SafeBlockEntityRenderer<StraightPipeBlockEntity> {
+public class TransparentStraightPipeRenderer
+	extends SafeBlockEntityRenderer<StraightPipeBlockEntity, TransparentStraightPipeRenderer.PipeRenderState> {
+
+	public static class PipeRenderState extends SafeRenderState {
+		public final List<StreamRenderState> streams = new ArrayList<>(6);
+	}
+
+	public record StreamRenderState(FluidStack fluid, Direction side, float progress, boolean inbound) {
+	}
 
 	public TransparentStraightPipeRenderer(BlockEntityRendererProvider.Context context) {
 	}
 
 	@Override
-	protected void renderSafe(StraightPipeBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-		int light, int overlay) {
+	public PipeRenderState createRenderState() {
+		return new PipeRenderState();
+	}
+
+	@Override
+	protected void extractSafe(StraightPipeBlockEntity be, PipeRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		state.streams.clear();
+
 		FluidTransportBehaviour pipe = be.getBehaviour(FluidTransportBehaviour.TYPE);
 		if (pipe == null)
 			return;
@@ -58,9 +79,16 @@ public class TransparentStraightPipeRenderer extends SafeBlockEntityRenderer<Str
 				}
 			}
 
-			FluidRenderer.renderFluidStream(fluidStack, side, 3 / 16f, value, inbound, buffer, ms, light);
+			state.streams.add(new StreamRenderState(fluidStack.copy(), side, value, inbound));
 		}
+	}
 
+	@Override
+	protected void submitSafe(PipeRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		for (StreamRenderState stream : state.streams)
+			FluidRenderer.submitFluidStream(stream.fluid(), stream.side(), 3 / 16f, stream.progress(),
+				stream.inbound(), queue, ms, state.lightCoords);
 	}
 
 }

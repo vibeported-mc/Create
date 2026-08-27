@@ -1,5 +1,9 @@
 package com.simibubi.create.content.fluids.tank;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -21,9 +25,9 @@ import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import joptsimple.internal.Strings;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,8 +43,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
 public class BoilerData {
 
 	static final int SAMPLE_RATE = 5;
@@ -77,7 +79,7 @@ public class BoilerData {
 	// re-use the same lambda for each side
 	private final SoundPool.Sound sound = (level, pos) -> {
 		float volume = 3f / Math.max(2, attachedEngines / 6);
-		float pitch = 1.18f - level.random.nextFloat() * .25f;
+		float pitch = 1.18f - level.getRandom().nextFloat() * .25f;
 		level.playLocalSound(pos.getX(), pos.getY(), pos.getZ(),
 			SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, volume, pitch, false);
 
@@ -90,12 +92,12 @@ public class BoilerData {
 		if (!isActive())
 			return;
 		Level level = controller.getLevel();
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			pools.values().forEach(p -> p.play(level));
 			gauge.tickChaser();
 			float current = gauge.getValue(1);
-			if (current > 1 && level.random.nextFloat() < 1 / 2f)
-				gauge.setValueNoUpdate(current + Math.min(-(current - 1) * level.random.nextFloat(), 0));
+			if (current > 1 && level.getRandom().nextFloat() < 1 / 2f)
+				gauge.setValueNoUpdate(current + Math.min(-(current - 1) * level.getRandom().nextFloat(), 0));
 			return;
 		}
 		if (needsHeatLevelUpdate && updateTemperature(controller))
@@ -129,7 +131,7 @@ public class BoilerData {
 	}
 
 	public void updateOcclusion(FluidTankBlockEntity controller) {
-		if (!controller.getLevel().isClientSide)
+		if (!controller.getLevel().isClientSide())
 			return;
 		if (attachedEngines + attachedWhistles == 0)
 			return;
@@ -431,12 +433,12 @@ public class BoilerData {
 	}
 
 	public void read(CompoundTag nbt, int boilerSize) {
-		waterSupply = nbt.getFloat("Supply");
-		activeHeat = nbt.getInt("ActiveHeat");
-		passiveHeat = nbt.getBoolean("PassiveHeat");
-		attachedEngines = nbt.getInt("Engines");
-		attachedWhistles = nbt.getInt("Whistles");
-		needsHeatLevelUpdate = nbt.getBoolean("Update");
+		waterSupply = nbt.getFloatOr("Supply", 0);
+		activeHeat = nbt.getIntOr("ActiveHeat", 0);
+		passiveHeat = nbt.getBooleanOr("PassiveHeat", false);
+		attachedEngines = nbt.getIntOr("Engines", 0);
+		attachedWhistles = nbt.getIntOr("Whistles", 0);
+		needsHeatLevelUpdate = nbt.getBooleanOr("Update", false);
 		Arrays.fill(supplyOverTime, (int) waterSupply);
 
 		int forBoilerSize = getMaxHeatLevelForBoilerSize(boilerSize);
@@ -450,48 +452,63 @@ public class BoilerData {
 		return new BoilerFluidHandler();
 	}
 
-	public class BoilerFluidHandler implements IFluidHandler {
+	/**
+	 * A boiler swallows water and counts it as supply; nothing is ever stored or given back.
+	 */
+	public class BoilerFluidHandler implements ResourceHandler<FluidResource> {
+
+		private final SupplyJournal journal = new SupplyJournal();
 
 		@Override
-		public int getTanks() {
+		public int size() {
 			return 1;
 		}
 
 		@Override
-		public FluidStack getFluidInTank(int tank) {
-			return FluidStack.EMPTY;
+		public FluidResource getResource(int tank) {
+			return FluidResource.EMPTY;
 		}
 
 		@Override
-		public int getTankCapacity(int tank) {
+		public long getAmountAsLong(int tank) {
+			return 0;
+		}
+
+		@Override
+		public long getCapacityAsLong(int tank, FluidResource resource) {
 			return 10000;
 		}
 
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
-			return FluidHelper.isWater(stack.getFluid());
+		public boolean isValid(int tank, FluidResource resource) {
+			return FluidHelper.isWater(resource.getFluid());
 		}
 
 		@Override
-		public int fill(FluidStack resource, FluidAction action) {
-			if (!isFluidValid(0, resource))
+		public int insert(int tank, FluidResource resource, int amount, TransactionContext transaction) {
+			if (!isValid(tank, resource) || amount <= 0)
 				return 0;
-			int amount = resource.getAmount();
-			if (action.execute())
-				gatheredSupply += amount;
+			journal.updateSnapshots(transaction);
+			gatheredSupply += amount;
 			return amount;
 		}
 
 		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
-			return FluidStack.EMPTY;
+		public int extract(int tank, FluidResource resource, int amount, TransactionContext transaction) {
+			return 0;
 		}
 
-		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
-			return FluidStack.EMPTY;
+		private class SupplyJournal extends SnapshotJournal<Integer> {
+			@Override
+			protected Integer createSnapshot() {
+				return gatheredSupply;
+			}
+
+			@Override
+			protected void revertToSnapshot(Integer snapshot) {
+				gatheredSupply = snapshot;
+			}
 		}
 
 	}
-
 }

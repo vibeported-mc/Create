@@ -18,8 +18,8 @@ import com.simibubi.create.content.trains.display.FlapDisplaySection;
 import com.simibubi.create.foundation.gui.ModularGuiLineBuilder;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.IntAttached;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.IntAttached;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
@@ -153,7 +153,7 @@ public abstract class ValueListDisplaySource extends DisplaySource {
 
 	protected boolean shortenNumbers(DisplayLinkContext context) {
 		return context.sourceConfig()
-			.getInt("Format") == 0;
+			.getIntOr("Format", 0) == 0;
 	}
 
 	@Override

@@ -51,7 +51,7 @@ public abstract class SingleLineDisplaySource extends DisplaySource {
 
 		if (allowsLabeling(context)) {
 			String label = context.sourceConfig()
-				.getString("Label");
+				.getStringOr("Label", "");
 			if (!label.isEmpty()) {
                 line = Component.literal(label + " ").append(line);
             }
@@ -65,7 +65,7 @@ public abstract class SingleLineDisplaySource extends DisplaySource {
 
 		if (allowsLabeling(context)) {
 			String label = context.sourceConfig()
-				.getString("Label");
+				.getStringOr("Label", "");
 			if (!label.isEmpty()) {
                 return ImmutableList.of(ImmutableList.of(Component.literal(label + " "), provideLine(context, stats)));
             }
@@ -87,7 +87,7 @@ public abstract class SingleLineDisplaySource extends DisplaySource {
 		}
 
 		String label = context.sourceConfig()
-			.getString("Label");
+			.getStringOr("Label", "");
 
 		if (label.isEmpty()) {
 			if (!layout.isLayout(layoutKey))

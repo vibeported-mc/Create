@@ -1,5 +1,8 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.redstone.link.LinkBehaviour;
@@ -12,8 +15,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class LinkedControllerBindPacket extends LinkedControllerPacketBase {
 	public static final StreamCodec<ByteBuf, LinkedControllerBindPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, p -> p.button,
@@ -35,13 +36,13 @@ public class LinkedControllerBindPacket extends LinkedControllerPacketBase {
 		if (player.isSpectator())
 			return;
 
-		ItemStackHandler frequencyItems = LinkedControllerItem.getFrequencyItems(heldItem);
+		ItemStacksResourceHandler frequencyItems = LinkedControllerItem.getFrequencyItems(heldItem);
 		LinkBehaviour linkBehaviour = BlockEntityBehaviour.get(player.level(), linkLocation, LinkBehaviour.TYPE);
 		if (linkBehaviour == null)
 			return;
 
 		linkBehaviour.getNetworkKey()
-			.forEachWithContext((f, first) -> frequencyItems.setStackInSlot(button * 2 + (first ? 0 : 1), f.getStack()
+			.forEachWithContext((f, first) -> ItemHandlerHelpers.setStackInSlot(frequencyItems, button * 2 + (first ? 0 : 1), f.getStack()
 				.copy()));
 
 		heldItem.set(AllDataComponents.LINKED_CONTROLLER_ITEMS, ItemHelper.containerContentsFromHandler(frequencyItems));
@@ -51,7 +52,7 @@ public class LinkedControllerBindPacket extends LinkedControllerPacketBase {
 	protected void handleLectern(ServerPlayer player, LecternControllerBlockEntity lectern) {}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.LINKED_CONTROLLER_BIND;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.LINKED_CONTROLLER_BIND.getType();
 	}
 }

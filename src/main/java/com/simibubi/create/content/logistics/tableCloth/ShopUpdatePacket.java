@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.tableCloth;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityDataPacket;
 
@@ -25,7 +26,7 @@ public class ShopUpdatePacket extends BlockEntityDataPacket<TableClothBlockEntit
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.SHOP_UPDATE;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.SHOP_UPDATE.getType();
 	}
 }

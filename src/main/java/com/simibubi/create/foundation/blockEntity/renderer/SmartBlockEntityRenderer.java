@@ -1,62 +1,90 @@
 package com.simibubi.create.foundation.blockEntity.renderer;
 
-import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.redstone.link.LinkRenderer;
+import com.simibubi.create.content.redstone.link.LinkRenderer.LinkRenderState;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringRenderer;
+import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringRenderer.FilterRenderState;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 
-public class SmartBlockEntityRenderer<T extends SmartBlockEntity> extends SafeBlockEntityRenderer<T> {
+public class SmartBlockEntityRenderer<T extends SmartBlockEntity, S extends SmartBlockEntityRenderer.SmartRenderState>
+	extends SafeBlockEntityRenderer<T, S> {
+
+	public static class SmartRenderState extends SafeRenderState {
+		public @Nullable FilterRenderState filter;
+		public @Nullable LinkRenderState link;
+		public @Nullable NameplateRenderState nameplate;
+	}
+
+	protected final ItemModelResolver itemModelResolver;
 
 	public SmartBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+		itemModelResolver = context.itemModelResolver();
 	}
 
 	@Override
-	protected void renderSafe(T blockEntity, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light,
-			int overlay) {
-		FilteringRenderer.renderOnBlockEntity(blockEntity, partialTicks, ms, buffer, light, overlay);
-		LinkRenderer.renderOnBlockEntity(blockEntity, partialTicks, ms, buffer, light, overlay);
+	@SuppressWarnings("unchecked")
+	public S createRenderState() {
+		return (S) new SmartRenderState();
 	}
 
-	protected void renderNameplateOnHover(T blockEntity, Component tag, float yOffset, PoseStack ms,
-		MultiBufferSource buffer, int light) {
-		Minecraft mc = Minecraft.getInstance();
-		if (blockEntity.isVirtual())
-			return;
-		if (mc.player.distanceToSqr(Vec3.atCenterOf(blockEntity.getBlockPos())) > 4096.0f)
-			return;
-		HitResult hitResult = mc.hitResult;
-		if (!(hitResult instanceof BlockHitResult bhr) || bhr.getType() == Type.MISS || !bhr.getBlockPos()
-			.equals(blockEntity.getBlockPos()))
-			return;
+	@Override
+	protected void extractSafe(T be, S state, float partialTicks, Vec3 cameraPosition) {
+		state.filter = FilteringRenderer.getFilterRenderState(be, itemModelResolver, cameraPosition);
+		state.link = LinkRenderer.getLinkRenderState(be, itemModelResolver, cameraPosition);
+	}
 
-		float f = yOffset + 0.25f;
-		ms.pushPose();
-		ms.translate(0.5, f, 0.5);
-		ms.mulPose(mc.getEntityRenderDispatcher()
-			.cameraOrientation());
-		ms.scale(0.025F, -0.025F, 0.025F);
-		Matrix4f matrix4f = ms.last()
-			.pose();
-		float f2 = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
-		int j = (int) (f2 * 255.0F) << 24;
-		Font font = mc.font;
-		float f1 = (float) (-font.width(tag) / 2);
-		font.drawInBatch(tag, f1, (float) 0, 553648127, false, matrix4f, buffer, Font.DisplayMode.SEE_THROUGH, j,
-			light);
-		font.drawInBatch(tag, f1, (float) 0, -1, false, matrix4f, buffer, Font.DisplayMode.NORMAL, 0, light);
-		ms.popPose();
+	@Override
+	protected void submitSafe(S state, PoseStack ms, SubmitNodeCollector queue, CameraRenderState camera) {
+		if (state.filter != null)
+			state.filter.submit(state.blockState, queue, ms, state.lightCoords);
+		if (state.link != null)
+			state.link.submit(state.blockState, queue, ms, state.lightCoords);
+		if (state.nameplate != null)
+			state.nameplate.submit(ms, queue, camera);
+	}
+
+	/**
+	 * Extract half of the old {@code renderNameplateOnHover}: the hover test reads the player and the
+	 * hit result, so it has to happen during extraction. Returns null when nothing should be drawn.
+	 */
+	@Nullable
+	protected NameplateRenderState extractNameplateOnHover(T be, Component tag, float yOffset, Vec3 cameraPosition,
+		int light) {
+		if (be.isVirtual())
+			return null;
+		BlockPos pos = be.getBlockPos();
+		if (cameraPosition.distanceToSqr(Vec3.atCenterOf(pos)) > 4096.0f)
+			return null;
+		HitResult hitResult = Minecraft.getInstance().hitResult;
+		if (!(hitResult instanceof BlockHitResult bhr) || bhr.getType() == Type.MISS || !bhr.getBlockPos()
+			.equals(pos))
+			return null;
+		return new NameplateRenderState(new Vec3(0.5, yOffset - 0.25, 0.5), tag, light);
+	}
+
+	/**
+	 * Nameplates are no longer drawn by hand: the queue owns the billboard orientation, background and
+	 * two-pass see-through drawing that this used to replicate.
+	 */
+	public record NameplateRenderState(Vec3 pos, Component label, int light) {
+		public void submit(PoseStack ms, SubmitNodeCollector queue, CameraRenderState camera) {
+			queue.submitNameTag(ms, pos, 0, label, true, light, camera);
+		}
 	}
 
 }

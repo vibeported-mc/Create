@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllPackets;
@@ -7,9 +8,9 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBehaviour.ValueSettings;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
-import net.createmod.catnip.codecs.stream.CatnipLargerStreamCodecs;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipLargerStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,7 +72,7 @@ public class ValueSettingsPacket extends BlockEntityConfigurationPacket<SmartBlo
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.VALUE_SETTINGS;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.VALUE_SETTINGS.getType();
 	}
 }

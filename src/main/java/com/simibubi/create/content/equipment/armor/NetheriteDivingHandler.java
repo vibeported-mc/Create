@@ -62,7 +62,7 @@ public final class NetheriteDivingHandler {
 
 	public static void setBit(LivingEntity entity, EquipmentSlot slot) {
 		CompoundTag nbt = entity.getPersistentData();
-		byte bits = nbt.getByte(NETHERITE_DIVING_BITS_KEY);
+		byte bits = nbt.getByteOr(NETHERITE_DIVING_BITS_KEY, (byte) 0);
 		if ((bits & 0b1111) == 0b1111) {
 			return;
 		}
@@ -81,7 +81,7 @@ public final class NetheriteDivingHandler {
 			return;
 		}
 
-		byte bits = nbt.getByte(NETHERITE_DIVING_BITS_KEY);
+		byte bits = nbt.getByteOr(NETHERITE_DIVING_BITS_KEY, (byte) 0);
 		boolean prevFullSet = (bits & 0b1111) == 0b1111;
 		bits &= ~(1 << slot.getIndex());
 		nbt.putByte(NETHERITE_DIVING_BITS_KEY, bits);

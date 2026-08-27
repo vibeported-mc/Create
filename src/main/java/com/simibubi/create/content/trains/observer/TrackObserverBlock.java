@@ -54,9 +54,4 @@ public class TrackObserverBlock extends Block implements IBE<TrackObserverBlockE
 		return AllBlockEntityTypes.TRACK_OBSERVER.get();
 	}
 
-	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		IBE.onRemove(state, worldIn, pos, newState);
-	}
-
 }

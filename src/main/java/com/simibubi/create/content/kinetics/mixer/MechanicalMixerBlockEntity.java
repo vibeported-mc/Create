@@ -1,5 +1,8 @@
 package com.simibubi.create.content.kinetics.mixer;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +22,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.item.SmartInventory;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
@@ -45,8 +48,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 
 	private static final Object shapelessOrMixingRecipesKey = new Object();
@@ -107,8 +108,8 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		running = compound.getBoolean("Running");
-		runningTicks = compound.getInt("Ticks");
+		running = compound.getBooleanOr("Running", false);
+		runningTicks = compound.getIntOr("Ticks", 0);
 		super.read(compound, registries, clientPacket);
 
 		if (clientPacket && hasLevel())
@@ -135,7 +136,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 
 		float speed = Math.abs(getSpeed());
 		if (running && level != null) {
-			if (level.isClientSide && runningTicks == 20)
+			if (level.isClientSide() && runningTicks == 20)
 				renderParticles();
 
 			if (getSpeed() == 0 || !isSpeedRequirementFulfilled()) {
@@ -145,7 +146,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 					runningTicks++;
 			}
 
-			if ((!level.isClientSide || isVirtual()) && runningTicks == 20) {
+			if ((!level.isClientSide() || isVirtual()) && runningTicks == 20) {
 				if (processingTicks < 0) {
 					float recipeSpeed = 1;
 					if (currentRecipe instanceof StandardProcessingRecipe) {
@@ -159,7 +160,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 					Optional<BasinBlockEntity> basin = getBasin();
 					if (basin.isPresent()) {
 						Couple<SmartFluidTankBehaviour> tanks = basin.get()
-							.getTanks();
+							.size();
 						if (!tanks.getFirst()
 							.isEmpty()
 							|| !tanks.getSecond()
@@ -191,7 +192,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 
 		for (SmartInventory inv : basin.get()
 			.getInvs()) {
-			for (int slot = 0; slot < inv.getSlots(); slot++) {
+			for (int slot = 0; slot < inv.size(); slot++) {
 				ItemStack stackInSlot = inv.getItem(slot);
 				if (stackInSlot.isEmpty())
 					continue;
@@ -201,7 +202,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 		}
 
 		for (SmartFluidTankBehaviour behaviour : basin.get()
-			.getTanks()) {
+			.size()) {
 			if (behaviour == null)
 				continue;
 			for (TankSegment tankSegment : behaviour.getTanks()) {
@@ -213,13 +214,13 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 	}
 
 	protected void spillParticle(ParticleOptions data) {
-		float angle = level.random.nextFloat() * 360;
+		float angle = level.getRandom().nextFloat() * 360;
 		Vec3 offset = new Vec3(0, 0, 0.25f);
 		offset = VecHelper.rotate(offset, angle, Axis.Y);
 		Vec3 target = VecHelper.rotate(offset, getSpeed() > 0 ? 25 : -25, Axis.Y)
 			.add(0, .25f, 0);
 		Vec3 center = offset.add(VecHelper.getCenterOf(worldPosition));
-		target = VecHelper.offsetRandomly(target.subtract(offset), level.random, 1 / 128f);
+		target = VecHelper.offsetRandomly(target.subtract(offset), level.getRandom(), 1 / 128f);
 		level.addParticle(data, center.x, center.y - 1.75f, center.z, target.x, target.y, target.z);
 	}
 
@@ -238,12 +239,12 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 		if (basin.isEmpty())
 			return matchingRecipes;
 
-		IItemHandler availableItems = level.getCapability(Capabilities.ItemHandler.BLOCK, basinBlockEntity.getBlockPos(), null);
+		ResourceHandler<ItemResource> availableItems = level.getCapability(Capabilities.Item.BLOCK, basinBlockEntity.getBlockPos(), null);
 		if (availableItems == null)
 			return matchingRecipes;
 
-		for (int i = 0; i < availableItems.getSlots(); i++) {
-			ItemStack stack = availableItems.getStackInSlot(i);
+		for (int i = 0; i < availableItems.size(); i++) {
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(availableItems, i);
 			if (stack.isEmpty())
 				continue;
 

@@ -130,7 +130,7 @@ public class DeployerFakePlayer extends FakePlayer {
 
 	@Override
 	public void remove(RemovalReason p_150097_) {
-		if (blockBreakingProgress != null && !level().isClientSide)
+		if (blockBreakingProgress != null && !level().isClientSide())
 			level().destroyBlockProgress(getId(), blockBreakingProgress.getKey(), -1);
 		super.remove(p_150097_);
 	}

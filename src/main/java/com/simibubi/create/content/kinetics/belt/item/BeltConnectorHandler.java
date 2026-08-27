@@ -34,7 +34,7 @@ public class BeltConnectorHandler {
 		if (Minecraft.getInstance().screen != null)
 			return;
 
-		RandomSource random = level.random;
+		RandomSource random = level.getRandom();
 
 		for (InteractionHand hand : InteractionHand.values()) {
 			ItemStack heldItem = player.getItemInHand(hand);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.entity;
 
+import net.minecraft.core.UUIDUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,10 +37,10 @@ import com.simibubi.create.content.trains.station.GlobalStation;
 import com.simibubi.create.content.trains.track.BezierConnection;
 import com.simibubi.create.content.trains.track.TrackMaterial;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.nbt.NBTHelper;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
@@ -850,7 +851,7 @@ public class Navigation {
 
 		removeBrokenPathEntries();
 
-		tag.putUUID("Destination", destination.id);
+		tag.store("Destination", UUIDUtil.CODEC, destination.id);
 		tag.putDouble("DistanceToDestination", distanceToDestination);
 		tag.putDouble("DistanceStartedAt", distanceStartedAt);
 		tag.putBoolean("BehindTrain", destinationBehindTrain);
@@ -863,7 +864,7 @@ public class Navigation {
 		}));
 		if (waitingForSignal == null)
 			return tag;
-		tag.putUUID("BlockingSignal", waitingForSignal.getFirst());
+		tag.store("BlockingSignal", UUIDUtil.CODEC, waitingForSignal.getFirst());
 		tag.putBoolean("BlockingSignalSide", waitingForSignal.getSecond());
 		tag.putDouble("DistanceToSignal", distanceToSignal);
 		tag.putInt("TicksWaitingForSignal", ticksWaitingForSignal);
@@ -872,31 +873,31 @@ public class Navigation {
 
 	public void read(CompoundTag tag, TrackGraph graph, DimensionPalette dimensions) {
 		destination = graph != null && tag.contains("Destination")
-			? graph.getPoint(EdgePointType.STATION, tag.getUUID("Destination"))
+			? graph.getPoint(EdgePointType.STATION, tag.read("Destination", UUIDUtil.CODEC).orElse(null))
 			: null;
 
 		if (destination == null)
 			return;
 
-		distanceToDestination = tag.getDouble("DistanceToDestination");
-		distanceStartedAt = tag.getDouble("DistanceStartedAt");
-		destinationBehindTrain = tag.getBoolean("BehindTrain");
-		announceArrival = tag.getBoolean("AnnounceArrival");
+		distanceToDestination = tag.getDoubleOr("DistanceToDestination", 0);
+		distanceStartedAt = tag.getDoubleOr("DistanceStartedAt", 0);
+		destinationBehindTrain = tag.getBooleanOr("BehindTrain", false);
+		announceArrival = tag.getBooleanOr("AnnounceArrival", false);
 		currentPath.clear();
-		NBTHelper.iterateCompoundList(tag.getList("Path", Tag.TAG_COMPOUND),
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("Path"),
 			c -> currentPath.add(Couple
-				.deserializeEach(c.getList("Nodes", Tag.TAG_COMPOUND), c2 -> TrackNodeLocation.read(c2, dimensions))
+				.deserializeEach(c.getListOrEmpty("Nodes"), c2 -> TrackNodeLocation.read(c2, dimensions))
 				.map(graph::locateNode)));
 
 		removeBrokenPathEntries();
 
 		waitingForSignal = tag.contains("BlockingSignal")
-			? Pair.of(tag.getUUID("BlockingSignal"), tag.getBoolean("BlockingSignalSide"))
+			? Pair.of(tag.read("BlockingSignal", UUIDUtil.CODEC).orElse(null), tag.getBooleanOr("BlockingSignalSide", false))
 			: null;
 		if (waitingForSignal == null)
 			return;
-		distanceToSignal = tag.getDouble("DistanceToSignal");
-		ticksWaitingForSignal = tag.getInt("TicksWaitingForSignal");
+		distanceToSignal = tag.getDoubleOr("DistanceToSignal", 0);
+		ticksWaitingForSignal = tag.getIntOr("TicksWaitingForSignal", 0);
 	}
 
 	private void removeBrokenPathEntries() {

@@ -58,7 +58,7 @@ public class ToolboxMenu extends MenuBase<ToolboxBlockEntity> {
 			return ItemStack.EMPTY;
 
 		ItemStack stack = clickedSlot.getItem();
-		int size = contentHolder.inventory.getSlots();
+		int size = contentHolder.inventory.size();
 		boolean success;
 		if (index < size) {
 			success = !moveItemStackTo(stack, size, slots.size(), true);
@@ -77,7 +77,7 @@ public class ToolboxMenu extends MenuBase<ToolboxBlockEntity> {
 
 	@Override
 	public void clicked(int index, int flags, ClickType type, Player player) {
-		int size = contentHolder.inventory.getSlots();
+		int size = contentHolder.inventory.size();
 
 		if (index >= 0 && index < size) {
 			ItemStack itemInClickedSlot = getSlot(index).getItem();
@@ -93,7 +93,7 @@ public class ToolboxMenu extends MenuBase<ToolboxBlockEntity> {
 			}
 
 			if (type == ClickType.PICKUP && carried.isEmpty() && itemInClickedSlot.isEmpty())
-				if (!player.level().isClientSide) {
+				if (!player.level().isClientSide()) {
 					contentHolder.inventory.filters.set(index / STACKS_PER_COMPARTMENT, ItemStack.EMPTY);
 					contentHolder.sendData();
 				}
@@ -104,7 +104,7 @@ public class ToolboxMenu extends MenuBase<ToolboxBlockEntity> {
 
 	@Override
 	public boolean canDragTo(Slot slot) {
-		return slot.index > contentHolder.inventory.getSlots() && super.canDragTo(slot);
+		return slot.index > contentHolder.inventory.size() && super.canDragTo(slot);
 	}
 
 	public ItemStack getFilter(int compartment) {
@@ -154,7 +154,7 @@ public class ToolboxMenu extends MenuBase<ToolboxBlockEntity> {
 	@Override
 	public void removed(Player playerIn) {
 		super.removed(playerIn);
-		if (!playerIn.level().isClientSide)
+		if (!playerIn.level().isClientSide())
 			BlockEntityBehaviour.get(contentHolder, AnimatedContainerBehaviour.TYPE)
 				.stopOpen(playerIn);
 	}

@@ -2,15 +2,18 @@ package com.simibubi.create.content.processing.recipe;
 
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
-
-public class ProcessingInventory extends ItemStackHandler {
+public class ProcessingInventory extends ItemStacksResourceHandler implements ModifiableItemHandler {
 	public float remainingTime;
 	public float recipeDuration;
 	public boolean appliedRecipe;
@@ -28,60 +31,62 @@ public class ProcessingInventory extends ItemStackHandler {
 	}
 
 	@Override
-	public int getSlotLimit(int slot) {
-		return !limit ? super.getSlotLimit(slot) : 1;
+	protected int getCapacity(int index, ItemResource resource) {
+		return !limit ? super.getCapacity(index, resource) : 1;
 	}
 
 	public void clear() {
-		for (int i = 0; i < getSlots(); i++)
-			setStackInSlot(i, ItemStack.EMPTY);
+		for (int i = 0; i < size(); i++)
+			set(i, ItemResource.EMPTY, 0);
 		remainingTime = 0;
 		recipeDuration = 0;
 		appliedRecipe = false;
 	}
 
 	public boolean isEmpty() {
-		for (int i = 0; i < getSlots(); i++)
-			if (!getStackInSlot(i).isEmpty())
+		for (int i = 0; i < size(); i++)
+			if (!getResource(i).isEmpty())
 				return false;
 		return true;
 	}
 
 	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-		ItemStack insertItem = super.insertItem(slot, stack, simulate);
-		if (slot == 0 && !(insertItem.getCount() == stack.getCount() && ItemStack.isSameItem(insertItem, stack)))
-			callback.accept(getStackInSlot(slot));
-		return insertItem;
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		int inserted = super.insert(index, resource, amount, transaction);
+		if (index == 0 && inserted > 0)
+			callback.accept(ItemHandlerHelpers.getStackInSlot(this, index));
+		return inserted;
 	}
 
 	@Override
-	public @NotNull CompoundTag serializeNBT(@NotNull HolderLookup.Provider registries) {
-		CompoundTag nbt = super.serializeNBT(registries);
-		nbt.putFloat("ProcessingTime", remainingTime);
-		nbt.putFloat("RecipeTime", recipeDuration);
-		nbt.putBoolean("AppliedRecipe", appliedRecipe);
-		return nbt;
+	public void serialize(ValueOutput output) {
+		super.serialize(output);
+		output.putFloat("ProcessingTime", remainingTime);
+		output.putFloat("RecipeTime", recipeDuration);
+		output.putBoolean("AppliedRecipe", appliedRecipe);
 	}
 
 	@Override
-	public void deserializeNBT(@NotNull HolderLookup.Provider registries, CompoundTag nbt) {
-		remainingTime = nbt.getFloat("ProcessingTime");
-		recipeDuration = nbt.getFloat("RecipeTime");
-		appliedRecipe = nbt.getBoolean("AppliedRecipe");
-		super.deserializeNBT(registries, nbt);
+	public void deserialize(ValueInput input) {
+		remainingTime = input.getFloatOr("ProcessingTime", 0);
+		recipeDuration = input.getFloatOr("RecipeTime", 0);
+		appliedRecipe = input.getBooleanOr("AppliedRecipe", false);
+		super.deserialize(input);
 		if (isEmpty())
 			appliedRecipe = false;
 	}
 
+	/**
+	 * Processing inventories are filled by the machine and emptied by its own logic, never pulled from.
+	 */
 	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		return ItemStack.EMPTY;
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return 0;
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemStack stack) {
-		return slot == 0 && isEmpty();
+	public boolean isValid(int index, ItemResource resource) {
+		return index == 0 && isEmpty();
 	}
 
 }

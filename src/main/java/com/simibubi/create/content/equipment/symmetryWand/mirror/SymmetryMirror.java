@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.symmetryWand.mirror;
 
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import com.simibubi.create.foundation.utility.CreateLang;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -24,7 +25,6 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 
@@ -140,11 +140,11 @@ public abstract class SymmetryMirror {
 			if (property == BlockStateProperties.HALF)
 				return in.cycle(property);
 			// Directional Blocks
-			if (property instanceof DirectionProperty) {
+			if (property instanceof EnumProperty<Direction>) {
 				if (in.getValue(property) == Direction.DOWN) {
-					return in.setValue((DirectionProperty) property, Direction.UP);
+					return in.setValue((EnumProperty<Direction>) property, Direction.UP);
 				} else if (in.getValue(property) == Direction.UP) {
-					return in.setValue((DirectionProperty) property, Direction.DOWN);
+					return in.setValue((EnumProperty<Direction>) property, Direction.DOWN);
 				}
 			}
 		}

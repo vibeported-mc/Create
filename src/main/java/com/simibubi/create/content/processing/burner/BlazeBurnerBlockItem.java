@@ -1,18 +1,16 @@
 package com.simibubi.create.content.processing.burner;
 
+import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllTags.AllEntityTags;
 
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
@@ -35,8 +33,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.phys.Vec3;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+@NullMarked
 public class BlazeBurnerBlockItem extends BlockItem {
 
 	private final boolean capturedBlaze;
@@ -97,7 +94,7 @@ public class BlazeBurnerBlockItem extends BlockItem {
 				continue;
 
 			spawnCaptureEffects(world, VecHelper.getCenterOf(pos));
-			if (world.isClientSide || player == null)
+			if (world.isClientSide() || player == null)
 				return InteractionResult.SUCCESS;
 
 			giveBurnerItemTo(player, context.getItemInHand(), context.getHand());
@@ -117,7 +114,7 @@ public class BlazeBurnerBlockItem extends BlockItem {
 
 		Level world = player.level();
 		spawnCaptureEffects(world, entity.position());
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return InteractionResult.FAIL;
 
 		giveBurnerItemTo(player, heldItem, hand);
@@ -138,9 +135,9 @@ public class BlazeBurnerBlockItem extends BlockItem {
 	}
 
 	private void spawnCaptureEffects(Level world, Vec3 vec) {
-		if (world.isClientSide) {
+		if (world.isClientSide()) {
 			for (int i = 0; i < 40; i++) {
-				Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, world.random, .125f);
+				Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, world.getRandom(), .125f);
 				world.addParticle(ParticleTypes.FLAME, vec.x, vec.y, vec.z, motion.x, motion.y, motion.z);
 				Vec3 circle = motion.multiply(1, 0, 1)
 					.normalize()

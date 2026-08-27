@@ -11,7 +11,7 @@ import com.simibubi.create.foundation.mixin.accessor.EntityRenderDispatcherAcces
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;

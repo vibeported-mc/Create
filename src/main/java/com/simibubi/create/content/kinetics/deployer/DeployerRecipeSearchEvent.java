@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -10,8 +11,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-
 public class DeployerRecipeSearchEvent extends Event implements ICancellableEvent {
 	private final DeployerBlockEntity blockEntity;
 	private final RecipeWrapper inventory;

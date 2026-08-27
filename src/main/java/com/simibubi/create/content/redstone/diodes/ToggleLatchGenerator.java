@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.tterrag.registrate.providers.DataGenContext;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
@@ -17,8 +17,8 @@ public class ToggleLatchGenerator extends AbstractDiodeGenerator {
 	protected <T extends Block> List<ModelFile> createModels(DataGenContext<Block, T> ctx, BlockModelProvider prov) {
 		String name = ctx.getName();
 		List<ModelFile> models = new ArrayList<>(4);
-		ResourceLocation off = existing("latch_off");
-		ResourceLocation on = existing("latch_on");
+		Identifier off = existing("latch_off");
+		Identifier on = existing("latch_on");
 
 		models.add(prov.getExistingFile(off));
 		models.add(prov.withExistingParent(name + "_off_powered", off)

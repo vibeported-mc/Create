@@ -29,8 +29,8 @@ public class ReplaceInCommandBlocksCommand {
 							.executes(ctx -> {
 								doReplace(ctx.getSource(), BlockPosArgument.getLoadedBlockPos(ctx, "begin"),
 									BlockPosArgument.getLoadedBlockPos(ctx, "end"),
-									StringArgumentType.getString(ctx, "toReplace"),
-									StringArgumentType.getString(ctx, "replaceWith"));
+									StringArgumentType.getStringOr(ctx, "toReplace", ""),
+									StringArgumentType.getStringOr(ctx, "replaceWith", ""));
 								return 1;
 							})))));
 

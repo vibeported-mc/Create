@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
-import net.createmod.catnip.codecs.stream.CatnipLargerStreamCodecs;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipLargerStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -62,8 +63,8 @@ public class FactoryPanelConfigurationPacket extends BlockEntityConfigurationPac
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_FACTORY_PANEL;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_FACTORY_PANEL.getType();
 	}
 
 	@Override

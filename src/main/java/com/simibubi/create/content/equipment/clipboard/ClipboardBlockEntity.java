@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.clipboard;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
+import net.minecraft.core.UUIDUtil;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,7 +12,6 @@ import com.simibubi.create.content.logistics.AddressEditBoxHelper;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -47,7 +48,7 @@ public class ClipboardBlockEntity extends SmartBlockEntity {
 	public void lazyTick() {
 		super.lazyTick();
 		if (level.isClientSide())
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> this::advertiseToAddressHelper);
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> this::advertiseToAddressHelper);
 	}
 
 	public void updateWrittenState() {
@@ -76,7 +77,7 @@ public class ClipboardBlockEntity extends SmartBlockEntity {
 				.ifPresent(encoded -> tag.put("components", encoded));
 
 			if (lastEdit != null)
-				tag.putUUID("LastEdit", lastEdit);
+				tag.store("LastEdit", UUIDUtil.CODEC, lastEdit);
 		}
 	}
 
@@ -86,12 +87,12 @@ public class ClipboardBlockEntity extends SmartBlockEntity {
 
 		if (clientPacket) {
 			if (tag.contains("components"))
-				DataComponentMap.CODEC.decode(registries.createSerializationContext(NbtOps.INSTANCE), tag.getCompound("components"))
+				DataComponentMap.CODEC.decode(registries.createSerializationContext(NbtOps.INSTANCE), tag.getCompoundOrEmpty("components"))
 					.result()
 					.map(Pair::getFirst)
 					.ifPresent(this::setComponents);
 
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> readClientSide(tag));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> readClientSide(tag));
 		}
 	}
 
@@ -100,7 +101,7 @@ public class ClipboardBlockEntity extends SmartBlockEntity {
 		Minecraft mc = Minecraft.getInstance();
 		if (!(mc.screen instanceof ClipboardScreen cs))
 			return;
-		if (tag.contains("LastEdit") && tag.getUUID("LastEdit")
+		if (tag.contains("LastEdit") && tag.read("LastEdit", UUIDUtil.CODEC).orElse(null)
 			.equals(mc.player.getUUID()))
 			return;
 		if (!worldPosition.equals(cs.targetedBlock))

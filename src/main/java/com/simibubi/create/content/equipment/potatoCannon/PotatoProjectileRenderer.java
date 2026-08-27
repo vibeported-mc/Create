@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -37,7 +37,7 @@ public class PotatoProjectileRenderer extends EntityRenderer<PotatoProjectileEnt
 	}
 
 	@Override
-	public ResourceLocation getTextureLocation(PotatoProjectileEntity entity) {
+	public Identifier getTextureLocation(PotatoProjectileEntity entity) {
 		return null;
 	}
 

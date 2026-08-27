@@ -1,13 +1,13 @@
 package com.simibubi.create.content.kinetics.fan;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
@@ -24,8 +24,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+@NullMarked
 public class NozzleBlock extends WrenchableDirectionalBlock implements IBE<NozzleBlockEntity> {
 
 	public NozzleBlock(Properties p_i48415_1_) {
@@ -48,16 +47,13 @@ public class NozzleBlock extends WrenchableDirectionalBlock implements IBE<Nozzl
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation,
 			boolean isMoving) {
-		if (worldIn.isClientSide)
+		if (worldIn.isClientSide())
 			return;
 
-		if (fromPos.equals(pos.relative(state.getValue(FACING).getOpposite())))
-			if (!canSurvive(state, worldIn, pos)) {
-				worldIn.destroyBlock(pos, true);
-				return;
-			}
+		if (!canSurvive(state, worldIn, pos))
+			worldIn.destroyBlock(pos, true);
 	}
 
 	@Override

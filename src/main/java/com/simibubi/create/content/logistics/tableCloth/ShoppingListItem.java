@@ -16,9 +16,9 @@ import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.IntAttached;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.IntAttached;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
@@ -27,7 +27,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -182,14 +181,14 @@ public class ShoppingListItem extends Item {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
+	public InteractionResult use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
 		if (pUsedHand == InteractionHand.OFF_HAND || pPlayer == null || !pPlayer.isShiftKeyDown())
-			return new InteractionResultHolder<>(InteractionResult.PASS, pPlayer.getItemInHand(pUsedHand));
+			return InteractionResult.PASS;
 
 		CreateLang.translate("table_cloth.shopping_list_discarded")
 			.sendStatus(pPlayer);
 		pPlayer.playSound(SoundEvents.BOOK_PAGE_TURN);
-		return new InteractionResultHolder<>(InteractionResult.SUCCESS, ItemStack.EMPTY);
+		return InteractionResult.SUCCESS.heldItemTransformedTo(ItemStack.EMPTY);
 	}
 
 	@Override

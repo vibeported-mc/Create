@@ -10,7 +10,7 @@ import com.simibubi.create.content.equipment.zapper.ZapperItem;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.gui.ScreenOpener;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -81,7 +81,7 @@ public class WorldshaperItem extends ZapperItem {
 		brush.set(params.getX(), params.getY(), params.getZ());
 		targetPos = targetPos.offset(brush.getOffset(player.getLookAngle(), raytrace.getDirection(), option));
 		brush.addToGlobalPositions(level, targetPos, raytrace.getDirection(), affectedPositions, tool);
-		PlacementPatterns.applyPattern(affectedPositions, stack, level.random);
+		PlacementPatterns.applyPattern(affectedPositions, stack, level.getRandom());
 		brush.redirectTool(tool)
 			.run(level, affectedPositions, raytrace.getDirection(), stateToUse, data, player);
 

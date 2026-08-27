@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import static net.minecraft.world.entity.Entity.collideBoundingBox;
 
 import java.lang.ref.WeakReference;
@@ -30,8 +32,7 @@ import com.simibubi.create.foundation.damageTypes.CreateDamageSources;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -90,7 +91,7 @@ public class ContraptionCollider {
 		ContraptionRotationState rotation = null;
 
 		if (world.isClientSide() && safetyLock.left != null && safetyLock.left.get() == contraptionEntity)
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> saveClientPlayerFromClipping(contraptionEntity, contraptionMotion));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> saveClientPlayerFromClipping(contraptionEntity, contraptionMotion));
 
 		// After death, multiple refs to the client player may show up in the area
 		boolean skipClientPlayer = false;
@@ -107,7 +108,7 @@ public class ContraptionCollider {
 			if (playerType == PlayerType.REMOTE) {
 				if (!(contraption instanceof TranslatingContraption))
 					continue;
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> saveRemotePlayerFromClipping((Player) entity, contraptionEntity, contraptionMotion));
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> saveRemotePlayerFromClipping((Player) entity, contraptionEntity, contraptionMotion));
 				continue;
 			}
 
@@ -296,7 +297,7 @@ public class ContraptionCollider {
 				entity.fallDistance = 0;
 				for (Entity rider : entity.getIndirectPassengers())
 					if (getPlayerType(rider) == PlayerType.CLIENT)
-						CatnipServices.NETWORK.sendToServer(new ClientMotionPacket(rider.getDeltaMovement(), true, 0));
+						NetworkHelper.INSTANCE.sendToServer(new ClientMotionPacket(rider.getDeltaMovement(), true, 0));
 				boolean canWalk = bounce != 0 || slide == 0;
 				if (canWalk || !rotation.hasVerticalRotation()) {
 					if (canWalk)
@@ -320,7 +321,7 @@ public class ContraptionCollider {
 			float limbSwing = Mth.sqrt((float) (d0 * d0 + d1 * d1)) * 4.0F;
 			if (limbSwing > 1.0F)
 				limbSwing = 1.0F;
-			CatnipServices.NETWORK.sendToServer(new ClientMotionPacket(entityMotion, true, limbSwing));
+			NetworkHelper.INSTANCE.sendToServer(new ClientMotionPacket(entityMotion, true, limbSwing));
 
 			if (entity.onGround() && contraption instanceof TranslatingContraption) {
 				safetyLock.setLeft(new WeakReference<>(contraptionEntity));
@@ -350,7 +351,7 @@ public class ContraptionCollider {
 			if (packetCooldown > 0)
 				packetCooldown--;
 			if (packetCooldown == 0) {
-				CatnipServices.NETWORK.sendToServer(new ContraptionColliderLockPacketRequest(contraptionEntity.getId(), currentDiff));
+				NetworkHelper.INSTANCE.sendToServer(new ContraptionColliderLockPacketRequest(contraptionEntity.getId(), currentDiff));
 				packetCooldown = 3;
 			}
 		}
@@ -462,7 +463,7 @@ public class ContraptionCollider {
 			return entityMotion;
 
 		if (playerType == PlayerType.CLIENT) {
-			CatnipServices.NETWORK.sendToServer(new TrainCollisionPacket((int) (damage * 16), contraptionEntity.getId()));
+			NetworkHelper.INSTANCE.sendToServer(new TrainCollisionPacket((int) (damage * 16), contraptionEntity.getId()));
 			world.playSound((Player) entity, entity.blockPosition(), SoundEvents.PLAYER_ATTACK_CRIT,
 				SoundSource.NEUTRAL, 1, .75f);
 		} else {
@@ -567,10 +568,10 @@ public class ContraptionCollider {
 	private static PlayerType getPlayerType(Entity entity) {
 		if (!(entity instanceof Player))
 			return PlayerType.NONE;
-		if (!entity.level().isClientSide)
+		if (!entity.level().isClientSide())
 			return PlayerType.SERVER;
 		MutableBoolean isClient = new MutableBoolean(false);
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> isClient.setValue(isClientPlayerEntity(entity)));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> isClient.setValue(isClientPlayerEntity(entity)));
 		return isClient.booleanValue() ? PlayerType.CLIENT : PlayerType.REMOTE;
 	}
 

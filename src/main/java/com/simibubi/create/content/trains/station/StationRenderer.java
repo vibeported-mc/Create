@@ -1,7 +1,18 @@
 package com.simibubi.create.content.trains.station;
 
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import com.simibubi.create.content.trains.track.BezierTrackPointLocation;
+import org.jspecify.annotations.Nullable;
+import java.util.List;
+import java.util.ArrayList;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.logistics.depot.DepotRenderer;
 import com.simibubi.create.content.trains.track.ITrackBlock;
@@ -12,11 +23,9 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.Transform;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -26,21 +35,50 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity> {
+public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity, StationRenderer.StationRenderState> {
+
+	public static class StationRenderState extends SafeRenderState {
+		public final DepotRenderer.DepotRenderState depot = new DepotRenderer.DepotRenderState();
+		public @Nullable SuperByteBufferRenderState flag;
+		public final List<AssemblySlot> assembly = new ArrayList<>();
+		public @Nullable BlockPos assemblyOffset;
+		public @Nullable Level level;
+		public @Nullable BlockPos targetPosition;
+		public @Nullable BlockPos offset;
+		public @Nullable AxisDirection targetDirection;
+		public @Nullable BezierTrackPointLocation targetBezier;
+		public @Nullable RenderedTrackOverlayType overlayType;
+	}
+
+	/** One bogey slot of the assembly overlay, at `step` blocks along the track. */
+	public record AssemblySlot(SuperByteBufferRenderState overlay, int step) {
+	}
+
+	protected final ItemModelResolver itemModelResolver;
 
 	public StationRenderer(BlockEntityRendererProvider.Context context) {
+		itemModelResolver = context.itemModelResolver();
 	}
 
 	@Override
-	protected void renderSafe(StationBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-							  int light, int overlay) {
+	public StationRenderState createRenderState() {
+		return new StationRenderState();
+	}
+
+	@Override
+	protected void extractSafe(StationBlockEntity be, StationRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		state.flag = null;
+		state.assembly.clear();
+		state.overlayType = null;
+		state.assemblyOffset = null;
 
 		BlockPos pos = be.getBlockPos();
 		TrackTargetingBehaviour<GlobalStation> target = be.edgePoint;
 		BlockPos targetPosition = target.getGlobalPosition();
 		Level level = be.getLevel();
 
-		DepotRenderer.renderItemsOf(be, partialTicks, ms, buffer, light, overlay, be.depotBehaviour);
+		DepotRenderer.extractItemsOf(be, state.depot, partialTicks, be.depotBehaviour, itemModelResolver);
 
 		BlockState trackState = level.getBlockState(targetPosition);
 		Block block = trackState.getBlock();
@@ -51,20 +89,20 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity>
 		boolean isAssembling = be.getBlockState()
 			.getValue(StationBlock.ASSEMBLING);
 
+		state.level = level;
+		state.targetPosition = targetPosition;
+		state.targetDirection = target.getTargetDirection();
+		state.targetBezier = target.getTargetBezier();
+
 		if (!isAssembling || (station == null || station.getPresentTrain() != null) && !be.isVirtual()) {
-			renderFlag(
-				be.flag.getValue(partialTicks) > 0.75f ? AllPartialModels.STATION_ON : AllPartialModels.STATION_OFF, be,
-				partialTicks, ms, buffer, light, overlay);
-			ms.pushPose();
-			TransformStack.of(ms)
-				.translate(targetPosition.subtract(pos));
-			TrackTargetingBehaviour.render(level, targetPosition, target.getTargetDirection(), target.getTargetBezier(),
-				ms, buffer, light, overlay, RenderedTrackOverlayType.STATION, 1);
-			ms.popPose();
+			state.flag = extractFlag(be.flag.getValue(partialTicks) > 0.75f ? AllPartialModels.STATION_ON
+				: AllPartialModels.STATION_OFF, be, partialTicks, state.lightCoords);
+			state.overlayType = RenderedTrackOverlayType.STATION;
+			state.offset = targetPosition.subtract(pos);
 			return;
 		}
 
-		renderFlag(AllPartialModels.STATION_ASSEMBLE, be, partialTicks, ms, buffer, light, overlay);
+		state.flag = extractFlag(AllPartialModels.STATION_ASSEMBLE, be, partialTicks, state.lightCoords);
 
 		Direction direction = be.assemblyDirection;
 
@@ -74,19 +112,19 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity>
 		if (direction == null || be.assemblyLength == 0 || be.bogeyLocations == null)
 			return;
 
-		ms.pushPose();
+		// The overlay model is prepared against a live PoseStack, so it is baked here one bogey slot
+		// at a time and the accumulated offset is replayed during submission.
+		PoseStack ms = new PoseStack();
 		BlockPos offset = targetPosition.subtract(pos);
 		ms.translate(offset.getX(), offset.getY(), offset.getZ());
+		state.assemblyOffset = offset;
 
 		MutableBlockPos currentPos = targetPosition.mutable();
-
 		PartialModel assemblyOverlay = track.prepareAssemblyOverlay(level, targetPosition, trackState, direction, ms);
 		int colorWhenValid = 0x96B5FF;
 		int colorWhenCarriage = 0xCAFF96;
-		VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
 
 		currentPos.move(direction, 1);
-		ms.translate(0, 0, 1);
 
 		for (int i = 0; i < be.assemblyLength; i++) {
 			int valid = be.isValidBogeyOffset(i) ? colorWhenValid : -1;
@@ -98,30 +136,60 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity>
 				}
 
 			if (valid != -1) {
-				int lightColor = LevelRenderer.getLightColor(level, currentPos);
 				SuperByteBuffer sbb = CachedBuffers.partial(assemblyOverlay, trackState);
 				sbb.color(valid);
-				sbb.light(lightColor);
-				sbb.renderInto(ms, vb);
+				sbb.light(LightCoordsUtil.getLightCoords(level, currentPos));
+				state.assembly.add(new AssemblySlot(sbb.extractRenderState(), i + 1));
 			}
-			ms.translate(0, 0, 1);
 			currentPos.move(direction);
 		}
+	}
 
+	@Override
+	protected void submitSafe(StationRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		DepotRenderer.submitItemsOf(state.depot, ms, queue, state.lightCoords);
+
+		if (state.flag != null)
+			state.flag.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
+
+		if (state.overlayType != null && state.level != null && state.targetPosition != null) {
+			ms.pushPose();
+			TransformStack.of(ms)
+				.translate(state.offset);
+			TrackTargetingBehaviour.submit(state.level, state.targetPosition, state.targetDirection,
+				state.targetBezier, ms, queue, state.overlayType, 1);
+			ms.popPose();
+			return;
+		}
+
+		if (state.assembly.isEmpty() || state.assemblyOffset == null)
+			return;
+
+		ms.pushPose();
+		ms.translate(state.assemblyOffset.getX(), state.assemblyOffset.getY(), state.assemblyOffset.getZ());
+		for (AssemblySlot slot : state.assembly) {
+			ms.pushPose();
+			ms.translate(0, 0, slot.step());
+			slot.overlay()
+				.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
+			ms.popPose();
+		}
 		ms.popPose();
 	}
 
-	public static void renderFlag(PartialModel flag, StationBlockEntity be, float partialTicks, PoseStack ms,
-								  MultiBufferSource buffer, int light, int overlay) {
+	public static SuperByteBufferRenderState extractFlag(PartialModel flag, StationBlockEntity be, float partialTicks,
+		int light) {
 		if (!be.resolveFlagAngle())
-			return;
+			return null;
 		SuperByteBuffer flagBB = CachedBuffers.partial(flag, be.getBlockState());
-		transformFlag(flagBB, be, partialTicks, be.flagYRot, be.flagFlipped);
-		flagBB.translate(0.5f / 16, 0, 0)
+		var tr = TransformStack.of(flagBB.getTransforms());
+		transformFlag(tr, be, partialTicks, be.flagYRot, be.flagFlipped);
+		tr.translate(0.5f / 16, 0, 0)
 			.rotateYDegrees(be.flagFlipped ? 0 : 180)
-			.translate(-0.5f / 16, 0, 0)
-			.light(light)
-			.renderInto(ms, buffer.getBuffer(RenderType.cutoutMipped()));
+			.translate(-0.5f / 16, 0, 0);
+		return flagBB.light(light)
+			.extractRenderState();
 	}
 
 	public static void transformFlag(Transform<?> flag, StationBlockEntity be, float partialTicks, int yRot,
@@ -142,7 +210,7 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity>
 	}
 
 	@Override
-	public boolean shouldRenderOffScreen(StationBlockEntity pBlockEntity) {
+	public boolean shouldRenderOffScreen() {
 		return true;
 	}
 

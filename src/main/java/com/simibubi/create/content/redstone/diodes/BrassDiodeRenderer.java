@@ -3,12 +3,13 @@ package com.simibubi.create.content.redstone.diodes;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.blockEntity.renderer.ColoredOverlayBlockEntityRenderer;
 
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 
-public class BrassDiodeRenderer extends ColoredOverlayBlockEntityRenderer<BrassDiodeBlockEntity> {
+public class BrassDiodeRenderer
+	extends ColoredOverlayBlockEntityRenderer<BrassDiodeBlockEntity, ColoredOverlayBlockEntityRenderer.ColoredOverlayRenderState> {
 
 	public BrassDiodeRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.belt.transport;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.content.kinetics.belt.BeltHelper;
 import com.simibubi.create.content.kinetics.crusher.CrushingWheelControllerBlock;
 import com.simibubi.create.content.kinetics.crusher.CrushingWheelControllerBlockEntity;
@@ -11,8 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 public class BeltCrusherInteractionHandler {
 
@@ -52,7 +51,7 @@ public class BeltCrusherInteractionHandler {
 
 			ItemStack toInsert = currentItem.stack.copy();
 
-			ItemStack remainder = ItemHandlerHelper.insertItemStacked(crusherBE.inventory, toInsert, false);
+			ItemStack remainder = ItemHandlerHelpers.insertItemStacked(crusherBE.inventory, toInsert, false);
 			if (ItemStack.matches(toInsert, remainder))
 				return true;
 

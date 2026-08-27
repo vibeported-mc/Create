@@ -1,12 +1,12 @@
 package com.simibubi.create.content.logistics.tunnel;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.IItemHandler;
-
-public class BrassTunnelItemHandler implements IItemHandler {
+public class BrassTunnelItemHandler implements ResourceHandler<ItemResource> {
 
 	private BrassTunnelBlockEntity blockEntity;
 
@@ -27,7 +27,7 @@ public class BrassTunnelItemHandler implements IItemHandler {
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		if (!blockEntity.hasDistributionBehaviour()) {
-			IItemHandler beltCapability = blockEntity.getBeltCapability();
+			ResourceHandler<ItemResource> beltCapability = blockEntity.getBeltCapability();
 			if (beltCapability == null)
 				return stack;
 			return beltCapability.insertItem(slot, stack, simulate);
@@ -44,7 +44,7 @@ public class BrassTunnelItemHandler implements IItemHandler {
 
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		IItemHandler beltCapability = blockEntity.getBeltCapability();
+		ResourceHandler<ItemResource> beltCapability = blockEntity.getBeltCapability();
 		if (beltCapability == null)
 			return ItemStack.EMPTY;
 		return beltCapability.extractItem(slot, amount, simulate);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.drill;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllTags;
@@ -12,8 +13,7 @@ import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.math.VecHelper;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.Level;
@@ -34,7 +34,7 @@ public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
 		return Vec3.atLowerCornerOf(context.state.getValue(DrillBlock.FACING)
-			.getNormal()).scale(.65f);
+			.getUnitVec3i()).scale(.65f);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 	@Override
 	@OnlyIn(value = Dist.CLIENT)
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffer) {
+		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
         if (!VisualizationManager.supportsVisualization(context.world))
 			DrillRenderer.renderInContraption(context, renderWorld, matrices, buffer);
 	}

@@ -1,5 +1,10 @@
 package com.simibubi.create.foundation.item;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -13,7 +18,7 @@ import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.mixin.accessor.ItemStackHandlerAccessor;
 
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.util.Mth;
@@ -26,11 +31,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
+import net.neoforged.neoforge.capabilities.Capabilities;
 public class ItemHelper {
 
 	public static boolean sameItem(ItemStack stack, ItemStack otherStack) {
@@ -41,9 +42,9 @@ public class ItemHelper {
 		return s -> sameItem(stack, s);
 	}
 
-	public static void dropContents(Level world, BlockPos pos, IItemHandler inv) {
-		for (int slot = 0; slot < inv.getSlots(); slot++)
-			Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), inv.getStackInSlot(slot));
+	public static void dropContents(Level world, BlockPos pos, ResourceHandler<ItemResource> inv) {
+		for (int slot = 0; slot < inv.size(); slot++)
+			Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ItemHandlerHelpers.getStackInSlot(inv, slot));
 	}
 
 	public static List<ItemStack> multipliedOutput(ItemStack in, ItemStack out) {
@@ -71,13 +72,13 @@ public class ItemHelper {
 			stacks.add(stack);
 	}
 
-	public static boolean isSameInventory(IItemHandler h1, IItemHandler h2) {
+	public static boolean isSameInventory(ResourceHandler<ItemResource> h1, ResourceHandler<ItemResource> h2) {
 		if (h1 == null || h2 == null)
 			return false;
-		if (h1.getSlots() != h2.getSlots())
+		if (h1.size() != h2.size())
 			return false;
-		for (int slot = 0; slot < h1.getSlots(); slot++) {
-			if (h1.getStackInSlot(slot) != h2.getStackInSlot(slot))
+		for (int slot = 0; slot < h1.size(); slot++) {
+			if (ItemHandlerHelpers.getStackInSlot(h1, slot) != ItemHandlerHelpers.getStackInSlot(h2, slot))
 				return false;
 		}
 		return true;
@@ -90,20 +91,20 @@ public class ItemHelper {
 			.orElse(0);
 	}
 
-	public static int calcRedstoneFromInventory(@Nullable IItemHandler inv) {
+	public static int calcRedstoneFromInventory(@Nullable ResourceHandler<ItemResource> inv) {
 		if (inv == null)
 			return 0;
 		int i = 0;
 		float f = 0.0F;
-		int totalSlots = inv.getSlots();
+		int totalSlots = inv.size();
 
-		for (int j = 0; j < inv.getSlots(); ++j) {
-			int slotLimit = inv.getSlotLimit(j);
+		for (int j = 0; j < inv.size(); ++j) {
+			int slotLimit = ItemHandlerHelpers.getSlotLimit(inv, j);
 			if (slotLimit == 0) {
 				totalSlots--;
 				continue;
 			}
-			ItemStack itemstack = inv.getStackInSlot(j);
+			ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(inv, j);
 			if (!itemstack.isEmpty()) {
 				f += (float) itemstack.getCount() / (float) Math.min(slotLimit, itemstack.getMaxStackSize());
 				++i;
@@ -172,15 +173,15 @@ public class ItemHelper {
 		EXACTLY, UPTO
 	}
 
-	public static ItemStack extract(IItemHandler inv, Predicate<ItemStack> test, boolean simulate) {
+	public static ItemStack extract(ResourceHandler<ItemResource> inv, Predicate<ItemStack> test, boolean simulate) {
 		return extract(inv, test, ExtractionCountMode.UPTO, 64, simulate);
 	}
 
-	public static ItemStack extract(IItemHandler inv, Predicate<ItemStack> test, int exactAmount, boolean simulate) {
+	public static ItemStack extract(ResourceHandler<ItemResource> inv, Predicate<ItemStack> test, int exactAmount, boolean simulate) {
 		return extract(inv, test, ExtractionCountMode.EXACTLY, exactAmount, simulate);
 	}
 
-	public static ItemStack extract(IItemHandler inv, Predicate<ItemStack> test, ExtractionCountMode mode, int amount,
+	public static ItemStack extract(ResourceHandler<ItemResource> inv, Predicate<ItemStack> test, ExtractionCountMode mode, int amount,
 									boolean simulate) {
 		ItemStack extracting = ItemStack.EMPTY;
 		boolean amountRequired = mode == ExtractionCountMode.EXACTLY;
@@ -193,13 +194,13 @@ public class ItemHelper {
 		do {
 			extracting = ItemStack.EMPTY;
 
-			for (int slot = 0; slot < inv.getSlots(); slot++) {
-				ItemStack slotStack = inv.getStackInSlot(slot);
+			for (int slot = 0; slot < inv.size(); slot++) {
+				ItemStack slotStack = ItemHandlerHelpers.getStackInSlot(inv, slot);
 				if (slotStack.isEmpty())
 					continue;
 				int amountToExtractFromThisSlot =
 					Math.min(maxExtractionCount - extracting.getCount(), slotStack.getMaxStackSize());
-				ItemStack stack = inv.extractItem(slot, amountToExtractFromThisSlot, true);
+				ItemStack stack = ItemHandlerHelpers.extractItem(inv, slot, amountToExtractFromThisSlot, true);
 
 				if (stack.isEmpty())
 					continue;
@@ -248,14 +249,14 @@ public class ItemHelper {
 		return extracting;
 	}
 
-	public static ItemStack extract(IItemHandler inv, Predicate<ItemStack> test,
+	public static ItemStack extract(ResourceHandler<ItemResource> inv, Predicate<ItemStack> test,
 									Function<ItemStack, Integer> amountFunction, boolean simulate) {
 		ItemStack extracting = ItemStack.EMPTY;
 		int maxExtractionCount = 64;
 
-		for (int slot = 0; slot < inv.getSlots(); slot++) {
+		for (int slot = 0; slot < inv.size(); slot++) {
 			if (extracting.isEmpty()) {
-				ItemStack stackInSlot = inv.getStackInSlot(slot);
+				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inv, slot);
 				if (stackInSlot.isEmpty() || !test.test(stackInSlot))
 					continue;
 				int maxExtractionCountForItem = amountFunction.apply(stackInSlot);
@@ -264,7 +265,7 @@ public class ItemHelper {
 				maxExtractionCount = Math.min(maxExtractionCount, maxExtractionCountForItem);
 			}
 
-			ItemStack stack = inv.extractItem(slot, maxExtractionCount - extracting.getCount(), true);
+			ItemStack stack = ItemHandlerHelpers.extractItem(inv, slot, maxExtractionCount - extracting.getCount(), true);
 
 			if (!test.test(stack))
 				continue;
@@ -289,7 +290,7 @@ public class ItemHelper {
 		return ItemStack.isSameItemSameComponents(a, b) && a.getCount() + b.getCount() <= a.getMaxStackSize();
 	}
 
-	public static ItemStack findFirstMatch(IItemHandler inv, Predicate<ItemStack> test) {
+	public static ItemStack findFirstMatch(ResourceHandler<ItemResource> inv, Predicate<ItemStack> test) {
 		int slot = findFirstMatchingSlotIndex(inv, test);
 		if (slot == -1)
 			return ItemStack.EMPTY;
@@ -297,9 +298,9 @@ public class ItemHelper {
 			return inv.getStackInSlot(slot);
 	}
 
-	public static int findFirstMatchingSlotIndex(IItemHandler inv, Predicate<ItemStack> test) {
-		for (int slot = 0; slot < inv.getSlots(); slot++) {
-			ItemStack toTest = inv.getStackInSlot(slot);
+	public static int findFirstMatchingSlotIndex(ResourceHandler<ItemResource> inv, Predicate<ItemStack> test) {
+		for (int slot = 0; slot < inv.size(); slot++) {
+			ItemStack toTest = ItemHandlerHelpers.getStackInSlot(inv, slot);
 			if (test.test(toTest))
 				return slot;
 		}
@@ -315,15 +316,15 @@ public class ItemHelper {
 		return entityIn instanceof ItemEntity itemEntity ? itemEntity.getItem() : ItemStack.EMPTY;
 	}
 
-	public static void fillItemStackHandler(ItemContainerContents contents, ItemStackHandler inv) {
+	public static void fillItemStackHandler(ItemContainerContents contents, ItemStacksResourceHandler inv) {
 		List<ItemStack> itemStacks = contents.stream().toList();
 
 		for (int i = 0; i < itemStacks.size(); i++) {
-			inv.setStackInSlot(i, itemStacks.get(i));
+			ItemHandlerHelpers.setStackInSlot(inv, i, itemStacks.get(i));
 		}
 	}
 
-	public static ItemContainerContents containerContentsFromHandler(ItemStackHandler handler) {
+	public static ItemContainerContents containerContentsFromHandler(ItemStacksResourceHandler handler) {
 		return ItemContainerContents.fromItems(((ItemStackHandlerAccessor) handler).create$getStacks());
 	}
 
@@ -338,24 +339,24 @@ public class ItemHelper {
 		return remainder;
 	}
 
-	public static void copyContents(IItemHandler from, IItemHandlerModifiable to) {
-		if (from.getSlots() != to.getSlots()) {
+	public static void copyContents(ResourceHandler<ItemResource> from, ModifiableItemHandler to) {
+		if (from.size() != to.size()) {
 			throw new IllegalArgumentException("Slot count mismatch");
 		}
 
-		for (int slot = to.getSlots() - 1; slot >= 0; slot--) {
-			to.setStackInSlot(slot, ItemStack.EMPTY);
+		for (int slot = to.size() - 1; slot >= 0; slot--) {
+			ItemHandlerHelpers.setStackInSlot(to, slot, ItemStack.EMPTY);
 		}
 
-		for (int i = 0; i < from.getSlots(); i++) {
-			to.setStackInSlot(i, from.getStackInSlot(i).copy());
+		for (int i = 0; i < from.size(); i++) {
+			ItemHandlerHelpers.setStackInSlot(to, i, ItemHandlerHelpers.getStackInSlot(from, i).copy());
 		}
 	}
 
-	public static List<ItemStack> getNonEmptyStacks(ItemStackHandler handler) {
+	public static List<ItemStack> getNonEmptyStacks(ItemStacksResourceHandler handler) {
 		List<ItemStack> stacks = new ArrayList<>();
-		for (int i = 0; i < handler.getSlots(); i++) {
-			ItemStack stack = handler.getStackInSlot(i);
+		for (int i = 0; i < handler.size(); i++) {
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
 			if (!stack.isEmpty()) {
 				stacks.add(stack);
 			}

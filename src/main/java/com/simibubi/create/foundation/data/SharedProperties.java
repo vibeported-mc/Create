@@ -1,10 +1,10 @@
 package com.simibubi.create.foundation.data;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-@MethodsReturnNonnullByDefault
+@NullMarked
 public class SharedProperties {
 
 	public static Block wooden() {

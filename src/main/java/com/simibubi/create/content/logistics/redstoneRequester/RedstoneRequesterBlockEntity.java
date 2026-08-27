@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.List;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -16,8 +17,7 @@ import com.simibubi.create.content.logistics.stockTicker.StockCheckingBlockEntit
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
 import dan200.computercraft.api.peripheral.PeripheralCapability;
-import net.createmod.catnip.codecs.CatnipCodecUtils;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -104,7 +104,7 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 				continue;
 			}
 			if (!allowPartialRequests && level instanceof ServerLevel serverLevel) {
-				CatnipServices.NETWORK.sendToClientsAround(serverLevel, worldPosition, 32,
+				NetworkHelper.INSTANCE.sendToClientsAround(serverLevel, worldPosition, 32,
 					new RedstoneRequesterEffectPacket(worldPosition, false));
 				return;
 			}
@@ -112,18 +112,18 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 
 		broadcastPackageRequest(RequestType.REDSTONE, encodedRequest, null, encodedTargetAdress);
 		if (level instanceof ServerLevel serverLevel)
-			CatnipServices.NETWORK.sendToClientsAround(serverLevel, worldPosition, 32, new RedstoneRequesterEffectPacket(worldPosition, anySucceeded));
+			NetworkHelper.INSTANCE.sendToClientsAround(serverLevel, worldPosition, 32, new RedstoneRequesterEffectPacket(worldPosition, anySucceeded));
 		lastRequestSucceeded = true;
 	}
 
 	@Override
 	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(tag, registries, clientPacket);
-		redstonePowered = tag.getBoolean("Powered");
-		lastRequestSucceeded = tag.getBoolean("Success");
-		allowPartialRequests = tag.getBoolean("AllowPartial");
-		encodedRequest = CatnipCodecUtils.decode(PackageOrderWithCrafts.CODEC, registries, tag.getCompound("EncodedRequest")).orElse(PackageOrderWithCrafts.empty());
-		encodedTargetAdress = tag.getString("EncodedAddress");
+		redstonePowered = tag.getBooleanOr("Powered", false);
+		lastRequestSucceeded = tag.getBooleanOr("Success", false);
+		allowPartialRequests = tag.getBooleanOr("AllowPartial", false);
+		encodedRequest = CatnipCodecUtils.decode(PackageOrderWithCrafts.CODEC, registries, tag.getCompoundOrEmpty("EncodedRequest")).orElse(PackageOrderWithCrafts.empty());
+		encodedTargetAdress = tag.getStringOr("EncodedAddress", "");
 	}
 
 	@Override
@@ -149,7 +149,7 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 			return InteractionResult.PASS;
 		if (player instanceof FakePlayer)
 			return InteractionResult.PASS;
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return InteractionResult.SUCCESS;
 		if (!behaviour.mayInteractMessage(player))
 			return InteractionResult.SUCCESS;

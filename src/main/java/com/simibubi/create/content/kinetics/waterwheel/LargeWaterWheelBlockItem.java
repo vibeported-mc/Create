@@ -1,10 +1,10 @@
 package com.simibubi.create.content.kinetics.waterwheel;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.outliner.Outliner;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.client.outliner.Outliner;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +37,7 @@ public class LargeWaterWheelBlockItem extends BlockItem {
 				.relative(clickedFace), clickedFace));
 		if (result == InteractionResult.FAIL && ctx.getLevel()
 			.isClientSide())
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> showBounds(ctx));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> showBounds(ctx));
 		return result;
 	}
 
@@ -46,7 +46,7 @@ public class LargeWaterWheelBlockItem extends BlockItem {
 		BlockPos pos = context.getClickedPos();
 		Axis axis = ((LargeWaterWheelBlock) getBlock()).getAxisForPlacement(context);
 		Vec3 contract = Vec3.atLowerCornerOf(Direction.get(AxisDirection.POSITIVE, axis)
-			.getNormal());
+			.getUnitVec3i());
 		if (!(context.getPlayer()instanceof LocalPlayer localPlayer))
 			return;
 		Outliner.getInstance().showAABB(Pair.of("waterwheel", pos), new AABB(pos).inflate(1)

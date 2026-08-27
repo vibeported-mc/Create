@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import com.simibubi.create.api.behaviour.display.DisplayTarget;
 import com.simibubi.create.content.redstone.displayLink.target.DisplayBoardTarget;
 import com.simibubi.create.content.redstone.displayLink.target.LecternDisplayTarget;
@@ -16,10 +17,10 @@ public class AllDisplayTargets {
 	private static final CreateRegistrate REGISTRATE = Create.registrate();
 
 	public static final RegistryEntry<DisplayTarget, SignDisplayTarget> SIGN = REGISTRATE.displayTarget("sign", SignDisplayTarget::new)
-		.associate(BlockEntityType.SIGN)
+		.associate(BlockEntityTypes.SIGN)
 		.register();
 	public static final RegistryEntry<DisplayTarget, LecternDisplayTarget> LECTERN = REGISTRATE.displayTarget("lectern", LecternDisplayTarget::new)
-		.associate(BlockEntityType.LECTERN)
+		.associate(BlockEntityTypes.LECTERN)
 		.register();
 
 	public static final RegistryEntry<DisplayTarget, DisplayBoardTarget> DISPLAY_BOARD = simple("display_board", DisplayBoardTarget::new);

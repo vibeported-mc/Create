@@ -11,16 +11,16 @@ import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import com.tterrag.registrate.providers.generators.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonnullType;
 
-import net.createmod.catnip.lang.Lang;
+import net.createmod.catnip.api.lang.Lang;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -57,7 +57,10 @@ public abstract class PaletteBlockPartial<B extends Block> {
 
 		BlockBuilder<B, CreateRegistrate> blockBuilder = Create.registrate()
 			.block(blockName, p -> createBlock(block))
-			.blockstate((c, p) -> generateBlockState(c, p, variantName, pattern, block))
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .blockstate((c, p) -> generateBlockState(c, p, variantName, pattern, block))
+			
+			
 			.recipe((c, p) -> createRecipes(variant, block, c, p))
 			.transform(b -> transformBlock(b, variantName, pattern));
 
@@ -70,7 +73,7 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		return itemBuilder.build();
 	}
 
-	protected ResourceLocation getTexture(String variantName, PaletteBlockPattern pattern, int index) {
+	protected Identifier getTexture(String variantName, PaletteBlockPattern pattern, int index) {
 		return PaletteBlockPattern.toLocation(variantName, pattern.getTexture(index));
 	}
 
@@ -163,8 +166,8 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		protected void generateBlockState(DataGenContext<Block, SlabBlock> ctx, RegistrateBlockstateProvider prov,
 										  String variantName, PaletteBlockPattern pattern, Supplier<? extends Block> block) {
 			String name = ctx.getName();
-			ResourceLocation mainTexture = getTexture(variantName, pattern, 0);
-			ResourceLocation sideTexture = customSide ? getTexture(variantName, pattern, 1) : mainTexture;
+			Identifier mainTexture = getTexture(variantName, pattern, 0);
+			Identifier sideTexture = customSide ? getTexture(variantName, pattern, 1) : mainTexture;
 
 			ModelFile bottom = prov.models()
 				.slab(name, sideTexture, mainTexture, mainTexture);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,7 +24,6 @@ import com.simibubi.create.foundation.utility.CreatePaths;
 import com.simibubi.create.foundation.utility.FilesHelper;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -78,13 +78,13 @@ public class ClientSchematicLoader {
 			if (!isGZIPEncoded(path.toFile())) {
 				LocalPlayer player = Minecraft.getInstance().player;
 				if (player != null)
-					player.displayClientMessage(CreateLang.translateDirect("schematics.wrongFormat"), false);
+					player.sendSystemMessage(CreateLang.translateDirect("schematics.wrongFormat"));
 				return;
 			}
 
 			in = Files.newInputStream(path, StandardOpenOption.READ);
 			activeUploads.put(schematic, in);
-			CatnipServices.NETWORK.sendToServer(SchematicUploadPacket.begin(schematic, size));
+			NetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.begin(schematic, size));
 		} catch (IOException e) {
 			Create.LOGGER.error("Encountered an error while starting schematic upload", e);
 		}
@@ -97,8 +97,8 @@ public class ClientSchematicLoader {
 		if (size > maxSize * 1000) {
 			LocalPlayer player = Minecraft.getInstance().player;
 			if (player != null) {
-				player.displayClientMessage(CreateLang.translateDirect("schematics.uploadTooLarge").append(" (" + size / 1000 + " KB)."), false);
-				player.displayClientMessage(CreateLang.translateDirect("schematics.maxAllowedSize").append(" " + maxSize + " KB"), false);
+				player.sendSystemMessage(CreateLang.translateDirect("schematics.uploadTooLarge").append(" (" + size / 1000 + " KB)."));
+				player.sendSystemMessage(CreateLang.translateDirect("schematics.maxAllowedSize").append(" " + maxSize + " KB"));
 			}
 			return false;
 		}
@@ -135,7 +135,7 @@ public class ClientSchematicLoader {
 					if (status < maxPacketSize)
 						data = Arrays.copyOf(data, status);
 					if (Minecraft.getInstance().level != null)
-						CatnipServices.NETWORK.sendToServer(SchematicUploadPacket.write(schematic, data));
+						NetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.write(schematic, data));
 					else {
 						//noinspection resource
 						activeUploads.remove(schematic);
@@ -153,7 +153,7 @@ public class ClientSchematicLoader {
 
 	private void finishUpload(String schematic) {
 		if (activeUploads.containsKey(schematic)) {
-			CatnipServices.NETWORK.sendToServer(SchematicUploadPacket.finish(schematic));
+			NetworkHelper.INSTANCE.sendToServer(SchematicUploadPacket.finish(schematic));
 			//noinspection resource
 			activeUploads.remove(schematic);
 		}

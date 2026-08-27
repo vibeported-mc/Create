@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.TOOLBELT_HOTBAR_OFF;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.TOOLBELT_HOTBAR_ON;
 import static com.simibubi.create.foundation.gui.AllGuiTextures.TOOLBELT_SELECTED_OFF;
@@ -14,12 +15,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -70,7 +70,7 @@ public class ToolboxHandlerClient {
 			BlockState state = level.getBlockState(pos);
 			if (state.isAir())
 				return false;
-			result = state.getCloneItemStack(hitResult, level, pos, player);
+			result = state.getCloneItemStack(pos, level, true, player);
 
 		} else if (hitResult.getType() == HitResult.Type.ENTITY) {
 			Entity entity = ((EntityHitResult) hitResult).getEntity();
@@ -91,7 +91,7 @@ public class ToolboxHandlerClient {
 				if (!ItemStack.matches(inSlot, result))
 					continue;
 
-				CatnipServices.NETWORK.sendToServer(
+				NetworkHelper.INSTANCE.sendToServer(
 					new ToolboxEquipPacket(toolboxBlockEntity.getBlockPos(), comp, player.getInventory().selected));
 				return true;
 			}
@@ -119,13 +119,13 @@ public class ToolboxHandlerClient {
 		toolboxes.sort(Comparator.comparing(ToolboxBlockEntity::getUniqueId));
 
 		CompoundTag compound = player.getPersistentData()
-			.getCompound("CreateToolboxData");
+			.getCompoundOrEmpty("CreateToolboxData");
 
 		String slotKey = String.valueOf(player.getInventory().selected);
 		boolean equipped = compound.contains(slotKey);
 
 		if (equipped) {
-			BlockPos pos = NBTHelper.readBlockPos(compound.getCompound(slotKey), "Pos");
+			BlockPos pos = NBTHelper.readBlockPos(compound.getCompoundOrEmpty(slotKey), "Pos");
 			double max = ToolboxHandler.getMaxRange(player);
 			boolean canReachToolbox = ToolboxHandler.distance(player.position(), pos) < max * max;
 
@@ -134,8 +134,8 @@ public class ToolboxHandlerClient {
 				if (blockEntity instanceof ToolboxBlockEntity) {
 					RadialToolboxMenu screen = new RadialToolboxMenu(toolboxes,
 						RadialToolboxMenu.State.SELECT_ITEM_UNEQUIP, (ToolboxBlockEntity) blockEntity);
-					screen.prevSlot(compound.getCompound(slotKey)
-						.getInt("Slot"));
+					screen.prevSlot(compound.getCompoundOrEmpty(slotKey)
+						.getIntOr("Slot", 0));
 					ScreenOpener.open(screen);
 					return;
 				}
@@ -154,7 +154,7 @@ public class ToolboxHandlerClient {
 			ScreenOpener.open(new RadialToolboxMenu(toolboxes, RadialToolboxMenu.State.SELECT_BOX, null));
 	}
 
-	public static void renderOverlay(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public static void renderOverlay(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		int width = guiGraphics.guiWidth();
 		int height = guiGraphics.guiHeight();
 		Minecraft mc = Minecraft.getInstance();
@@ -171,7 +171,7 @@ public class ToolboxHandlerClient {
 			return;
 
 		CompoundTag compound = player.getPersistentData()
-			.getCompound("CreateToolboxData");
+			.getCompoundOrEmpty("CreateToolboxData");
 
 		if (compound.isEmpty())
 			return;
@@ -182,7 +182,7 @@ public class ToolboxHandlerClient {
 			String key = String.valueOf(slot);
 			if (!compound.contains(key))
 				continue;
-			BlockPos pos = NBTHelper.readBlockPos(compound.getCompound(key), "Pos");
+			BlockPos pos = NBTHelper.readBlockPos(compound.getCompoundOrEmpty(key), "Pos");
 			double max = ToolboxHandler.getMaxRange(player);
 			boolean selected = player.getInventory().selected == slot;
 			int offset = selected ? 1 : 0;

@@ -1,8 +1,9 @@
 package com.simibubi.create.content.contraptions.glue;
 
+import net.minecraft.util.TriState;
 import com.simibubi.create.content.contraptions.chassis.AbstractChassisBlock;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -20,7 +21,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber
@@ -53,17 +53,17 @@ public class SuperGlueItem extends Item {
 
 	@OnlyIn(Dist.CLIENT)
 	public static void spawnParticles(Level world, BlockPos pos, Direction direction, boolean fullBlock) {
-		Vec3 vec = Vec3.atLowerCornerOf(direction.getNormal());
+		Vec3 vec = Vec3.atLowerCornerOf(direction.getUnitVec3i());
 		Vec3 plane = VecHelper.axisAlingedPlaneOf(vec);
 		Vec3 facePos = VecHelper.getCenterOf(pos)
 			.add(vec.scale(.5f));
 
-		float distance = fullBlock ? 1f : .25f + .25f * (world.random.nextFloat() - .5f);
+		float distance = fullBlock ? 1f : .25f + .25f * (world.getRandom().nextFloat() - .5f);
 		plane = plane.scale(distance);
 		ItemStack stack = new ItemStack(Items.SLIME_BALL);
 
 		for (int i = fullBlock ? 40 : 15; i > 0; i--) {
-			Vec3 offset = VecHelper.rotate(plane, 360 * world.random.nextFloat(), direction.getAxis());
+			Vec3 offset = VecHelper.rotate(plane, 360 * world.getRandom().nextFloat(), direction.getAxis());
 			Vec3 motion = offset.normalize()
 				.scale(1 / 16f);
 			if (fullBlock)

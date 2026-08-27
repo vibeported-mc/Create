@@ -8,7 +8,7 @@ import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,7 +18,7 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 public class FunnelGenerator extends SpecialBlockStateGen {
 
 	private String type;
-	private ResourceLocation blockTexture;
+	private Identifier blockTexture;
 	private boolean hasFilter;
 
 	public FunnelGenerator(String type, boolean hasFilter) {
@@ -67,7 +67,7 @@ public class FunnelGenerator extends SpecialBlockStateGen {
 	public static NonNullBiConsumer<DataGenContext<Item, FunnelItem>, RegistrateItemModelProvider> itemModel(
 		String type) {
 		String prefix = "block/funnel/";
-		ResourceLocation blockTexture = Create.asResource("block/" + type + "_block");
+		Identifier blockTexture = Create.asResource("block/" + type + "_block");
 		return (c, p) -> {
 			p.withExistingParent("item/" + type + "_funnel", p.modLoc("block/funnel/item"))
 				.texture("particle", blockTexture)

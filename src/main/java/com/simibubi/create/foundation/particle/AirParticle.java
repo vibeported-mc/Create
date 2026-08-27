@@ -2,7 +2,7 @@ package com.simibubi.create.foundation.particle;
 
 import com.simibubi.create.Create;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -26,7 +26,7 @@ public class AirParticle extends SimpleAnimatedParticle {
 
 	protected AirParticle(ClientLevel world, AirParticleData data, double x, double y, double z, double dx, double dy,
 						  double dz, SpriteSet sprite) {
-		super(world, x, y, z, sprite, world.random.nextFloat() * .5f);
+		super(world, x, y, z, sprite, world.getRandom().nextFloat() * .5f);
 		quadSize *= 0.75F;
 		hasPhysics = false;
 

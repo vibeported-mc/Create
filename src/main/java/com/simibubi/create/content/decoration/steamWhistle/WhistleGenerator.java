@@ -6,7 +6,7 @@ import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -33,7 +33,7 @@ public class WhistleGenerator extends SpecialBlockStateGen {
 		ModelFile model = AssetLookup.partialBaseModel(ctx, prov, size, wall);
 		if (!powered)
 			return model;
-		ResourceLocation parentLocation = model.getLocation();
+		Identifier parentLocation = model.getLocation();
 		return prov.models()
 			.withExistingParent(parentLocation.getPath() + "_powered", parentLocation)
 			.texture("2", Create.asResource("block/copper_redstone_plate_powered"));

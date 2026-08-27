@@ -1,5 +1,9 @@
 package com.simibubi.create.content.logistics.tunnel;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
@@ -10,8 +14,8 @@ import com.simibubi.create.content.logistics.funnel.BeltFunnelBlock;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import net.createmod.catnip.lang.Lang;
-import net.createmod.catnip.levelWrappers.WrappedLevel;
+import net.createmod.catnip.api.lang.Lang;
+import net.createmod.catnip.api.level.wrapper.WrappedLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -104,8 +108,8 @@ public class BeltTunnelBlock extends Block implements IBE<BeltTunnelBlockEntity>
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor worldIn,
-		BlockPos currentPos, BlockPos facingPos) {
+	public BlockState updateShape(BlockState state, LevelReader worldIn, ScheduledTickAccess ticks,
+		BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
 		if (facing.getAxis()
 			.isVertical())
 			return state;
@@ -198,7 +202,7 @@ public class BeltTunnelBlock extends Block implements IBE<BeltTunnelBlockEntity>
 		Shape shape = state.getValue(SHAPE);
 		shape = shape == Shape.CLOSED ? Shape.WINDOW : Shape.CLOSED;
 		Level world = context.getLevel();
-		if (!world.isClientSide)
+		if (!world.isClientSide())
 			world.setBlock(context.getClickedPos(), state.setValue(SHAPE, shape), Block.UPDATE_CLIENTS);
 		return InteractionResult.SUCCESS;
 	}
@@ -212,17 +216,13 @@ public class BeltTunnelBlock extends Block implements IBE<BeltTunnelBlockEntity>
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation,
 		boolean isMoving) {
-		if (worldIn.isClientSide)
+		if (worldIn.isClientSide())
 			return;
 
-		if (fromPos.equals(pos.below())) {
-			if (!canSurvive(state, worldIn, pos)) {
-				worldIn.destroyBlock(pos, true);
-				return;
-			}
-		}
+		if (!canSurvive(state, worldIn, pos))
+			worldIn.destroyBlock(pos, true);
 	}
 
 	@Override

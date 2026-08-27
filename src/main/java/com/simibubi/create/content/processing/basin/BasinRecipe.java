@@ -1,5 +1,10 @@
 package com.simibubi.create.content.processing.basin;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,7 +22,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.recipe.DummyCraftingContainer;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -30,10 +35,7 @@ import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 
 	public static boolean match(BasinBlockEntity basin, Recipe<?> recipe) {
@@ -64,8 +66,8 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 
 	private static boolean apply(BasinBlockEntity basin, Recipe<?> recipe, boolean test) {
 		boolean isBasinRecipe = recipe instanceof BasinRecipe;
-		IItemHandler availableItems = basin.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, basin.getBlockPos(), null);
-		IFluidHandler availableFluids = basin.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, basin.getBlockPos(), null);
+		ResourceHandler<ItemResource> availableItems = basin.getLevel().getCapability(Capabilities.Item.BLOCK, basin.getBlockPos(), null);
+		ResourceHandler<FluidResource> availableFluids = basin.getLevel().getCapability(Capabilities.Fluid.BLOCK, basin.getBlockPos(), null);
 
 		if (availableItems == null || availableFluids == null)
 			return false;
@@ -87,16 +89,16 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 			if (!simulate && test)
 				return true;
 
-			int[] extractedItemsFromSlot = new int[availableItems.getSlots()];
-			int[] extractedFluidsFromTank = new int[availableFluids.getTanks()];
+			int[] extractedItemsFromSlot = new int[availableItems.size()];
+			int[] extractedFluidsFromTank = new int[availableFluids.size()];
 
 			Ingredients:
 			for (Ingredient ingredient : ingredients) {
-				for (int slot = 0; slot < availableItems.getSlots(); slot++) {
-					if (simulate && availableItems.getStackInSlot(slot)
+				for (int slot = 0; slot < availableItems.size(); slot++) {
+					if (simulate && ItemHandlerHelpers.getStackInSlot(availableItems, slot)
 						.getCount() <= extractedItemsFromSlot[slot])
 						continue;
-					ItemStack extracted = availableItems.extractItem(slot, 1, true);
+					ItemStack extracted = ItemHandlerHelpers.extractItem(availableItems, slot, 1, true);
 					if (!ingredient.test(extracted))
 						continue;
 					if (!simulate)
@@ -114,8 +116,8 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 			for (SizedFluidIngredient fluidIngredient : fluidIngredients) {
 				int amountRequired = fluidIngredient.amount();
 
-				for (int tank = 0; tank < availableFluids.getTanks(); tank++) {
-					FluidStack fluidStack = availableFluids.getFluidInTank(tank);
+				for (int tank = 0; tank < availableFluids.size(); tank++) {
+					FluidStack fluidStack = FluidHandlerHelpers.getFluidInTank(availableFluids, tank);
 					if (simulate && fluidStack.getAmount() <= extractedFluidsFromTank[tank])
 						continue;
 					if (!fluidIngredient.test(fluidStack))

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains.entity;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import java.util.UUID;
 
 import com.simibubi.create.AllPackets;
@@ -10,10 +12,8 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
@@ -24,7 +24,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 public record TrainRelocationPacket(UUID trainId, BlockPos pos, Vec3 lookAngle, int entityId, boolean direction,
-									BezierTrackPointLocation hoveredBezier) implements ServerboundPacketPayload {
+									BezierTrackPointLocation hoveredBezier) implements SelfHandlingPayload {
 
 	public static final StreamCodec<ByteBuf, TrainRelocationPacket> STREAM_CODEC = StreamCodec.composite(
 			UUIDUtil.STREAM_CODEC, TrainRelocationPacket::trainId,
@@ -68,11 +68,11 @@ public record TrainRelocationPacket(UUID trainId, BlockPos pos, Vec3 lookAngle, 
 		}
 
 		if (TrainRelocator.relocate(train, sender.level(), pos, hoveredBezier, direction, lookAngle, false)) {
-			sender.displayClientMessage(CreateLang.translateDirect("train.relocate.success")
-					.withStyle(ChatFormatting.GREEN), true);
+			sender.sendOverlayMessage(CreateLang.translateDirect("train.relocate.success")
+					.withStyle(ChatFormatting.GREEN));
 			train.carriages.forEach(c -> c.forEachPresentEntity(e -> {
 				e.nonDamageTicks = 10;
-				CatnipServices.NETWORK.sendToClientsTrackingEntity(e,
+				NetworkHelper.INSTANCE.sendToClientsTrackingEntity(e,
 						new ContraptionRelocationPacket(e.getId()));
 			}));
 			return;

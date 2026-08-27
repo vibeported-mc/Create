@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +16,8 @@ import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem;
 import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem.ShoppingList;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,8 +33,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 @EventBusSubscriber
 public class StockTickerInteractionHandler {
 
@@ -71,9 +70,9 @@ public class StockTickerInteractionHandler {
 			return false;
 
 		if (!stbe.behaviour.mayInteract(player)) {
-			player.displayClientMessage(CreateLang.translate("stock_keeper.locked")
+			player.sendOverlayMessage(CreateLang.translate("stock_keeper.locked")
 				.style(ChatFormatting.RED)
-				.component(), true);
+				.component());
 			return true;
 		}
 
@@ -100,7 +99,7 @@ public class StockTickerInteractionHandler {
 		if (!(level.getBlockEntity(targetPos) instanceof StockTickerBlockEntity tickerBE))
 			return;
 
-		ShoppingList list = ShoppingListItem.getList(mainHandItem);
+		ShoppingList list = ShoppingListItem.getListOrEmpty(mainHandItem);
 		if (list == null)
 			return;
 
@@ -137,8 +136,8 @@ public class StockTickerInteractionHandler {
 		int occupiedSlots = 0;
 		for (BigItemStack entry : paymentEntries.getStacksByCount())
 			occupiedSlots += Mth.ceil(entry.count / (float) entry.stack.getMaxStackSize());
-		for (int i = 0; i < tickerBE.receivedPayments.getSlots(); i++)
-			if (tickerBE.receivedPayments.getStackInSlot(i)
+		for (int i = 0; i < tickerBE.receivedPayments.size(); i++)
+			if (ItemHandlerHelpers.getStackInSlot(tickerBE.receivedPayments, i)
 				.isEmpty())
 				occupiedSlots--;
 
@@ -186,7 +185,7 @@ public class StockTickerInteractionHandler {
 			if (simulate)
 				continue;
 
-			toTransfer.forEach(s -> ItemHandlerHelper.insertItemStacked(tickerBE.receivedPayments, s, false));
+			toTransfer.forEach(s -> ItemHandlerHelpers.insertItemStacked(tickerBE.receivedPayments, s, false));
 		}
 
 		tickerBE.broadcastPackageRequest(RequestType.PLAYER, order, null, ShoppingListItem.getAddress(mainHandItem));

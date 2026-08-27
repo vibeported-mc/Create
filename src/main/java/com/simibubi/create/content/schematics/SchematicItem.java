@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -20,8 +21,7 @@ import com.simibubi.create.content.schematics.client.SchematicEditScreen;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.foundation.utility.CreatePaths;
 
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -31,7 +31,6 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -141,10 +140,10 @@ public class SchematicItem extends Item {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+	public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn) {
 		if (!onItemUse(playerIn, handIn))
 			return super.use(worldIn, playerIn, handIn);
-		return new InteractionResultHolder<>(InteractionResult.SUCCESS, playerIn.getItemInHand(handIn));
+		return InteractionResult.SUCCESS.heldItemTransformedTo(playerIn.getItemInHand(handIn));
 	}
 
 	private boolean onItemUse(Player player, InteractionHand hand) {
@@ -154,7 +153,7 @@ public class SchematicItem extends Item {
 			return false;
 		if (!player.level().isClientSide())
 			return true;
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> this::displayBlueprintScreen);
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> this::displayBlueprintScreen);
 		return true;
 	}
 

@@ -1,18 +1,17 @@
 package com.simibubi.create.content.contraptions.elevator;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import java.util.List;
 
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import io.netty.buffer.ByteBuf;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.IntAttached;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.IntAttached;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,7 +20,7 @@ import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public record ElevatorFloorListPacket(int entityId, List<IntAttached<Couple<String>>> floors) implements ClientboundPacketPayload {
+public record ElevatorFloorListPacket(int entityId, List<IntAttached<Couple<String>>> floors) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, com.simibubi.create.content.contraptions.elevator.ElevatorFloorListPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, com.simibubi.create.content.contraptions.elevator.ElevatorFloorListPacket::entityId,
 			CatnipStreamCodecBuilders.list(IntAttached.streamCodec(Couple.streamCodec(ByteBufCodecs.STRING_UTF8))), com.simibubi.create.content.contraptions.elevator.ElevatorFloorListPacket::floors,
@@ -32,7 +31,6 @@ public record ElevatorFloorListPacket(int entityId, List<IntAttached<Couple<Stri
 		this(entity.getId(), floors);
 	}
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		Entity entityByID = player.clientLevel.getEntity(entityId);
@@ -46,11 +44,11 @@ public record ElevatorFloorListPacket(int entityId, List<IntAttached<Couple<Stri
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.UPDATE_ELEVATOR_FLOORS;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.UPDATE_ELEVATOR_FLOORS.getType();
 	}
 
-	public record RequestFloorList(int entityId) implements ServerboundPacketPayload {
+	public record RequestFloorList(int entityId) implements SelfHandlingPayload {
 		public static final StreamCodec<ByteBuf, RequestFloorList> STREAM_CODEC = ByteBufCodecs.INT.map(
 				RequestFloorList::new, RequestFloorList::entityId
 		);
@@ -67,13 +65,13 @@ public record ElevatorFloorListPacket(int entityId, List<IntAttached<Couple<Stri
 				return;
 			if (!(ace.getContraption()instanceof ElevatorContraption ec))
 				return;
-			CatnipServices.NETWORK.sendToClient(sender,
+			NetworkHelper.INSTANCE.sendToClient(sender,
 					new ElevatorFloorListPacket(ace, ec.namesList));
 		}
 
 		@Override
-		public PacketTypeProvider getTypeProvider() {
-			return AllPackets.REQUEST_FLOOR_LIST;
+		public Type<? extends CustomPacketPayload> type() {
+			return AllPackets.REQUEST_FLOOR_LIST.getType();
 		}
 	}
 

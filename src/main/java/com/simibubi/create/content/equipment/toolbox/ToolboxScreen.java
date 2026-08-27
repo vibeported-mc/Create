@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,13 +13,12 @@ import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.widget.IconButton;
-import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.data.Iterate;
-import net.minecraft.client.gui.GuiGraphics;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.createmod.catnip.api.data.Iterate;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -60,7 +60,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 
 		disposeButton = new IconButton(leftPos + 30 + 81, topPos + 69, AllIcons.I_TOOLBOX);
 		disposeButton.withCallback(() -> {
-			CatnipServices.NETWORK.sendToServer(new ToolboxDisposeAllPacket(menu.contentHolder.getBlockPos()));
+			NetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(menu.contentHolder.getBlockPos()));
 		});
 		disposeButton.setToolTip(CreateLang.translateDirect("toolbox.depositBox"));
 		addRenderableWidget(disposeButton);
@@ -71,19 +71,19 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		menu.renderPass = true;
 		super.render(graphics, mouseX, mouseY, partialTicks);
 		menu.renderPass = false;
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
 		int x = leftPos + imageWidth - BG.getWidth();
 		int y = topPos;
 
 		BG.render(graphics, x, y);
-		graphics.drawString(font, title, x + 15, y + 4, 0x592424, false);
+		graphics.text(font, title, x + 15, y + 4, 0x592424, false);
 
 		int invX = leftPos;
 		int invY = topPos + imageHeight - PLAYER.getHeight();
@@ -110,8 +110,8 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 				ms.pushPose();
 				ms.translate(0, 0, 100);
 				RenderSystem.enableDepthTest();
-				graphics.renderItem(minecraft.player, itemstack, i, j, 0);
-				graphics.renderItemDecorations(font, itemstack, i, j, s);
+				graphics.item(minecraft.player, itemstack, i, j, 0);
+				graphics.itemDecorations(font, itemstack, i, j, s);
 				ms.popPose();
 			}
 
@@ -127,7 +127,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 		}
 	}
 
-	private void renderToolbox(GuiGraphics graphics, int x, int y, float partialTicks) {
+	private void renderToolbox(GuiGraphicsExtractor graphics, int x, int y, float partialTicks) {
         PoseStack ms = graphics.pose();
 		TransformStack.of(ms)
 			.pushPose()
@@ -161,7 +161,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 	}
 
 	@Override
-	protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		if (hoveredToolboxSlot != null)
 			hoveredSlot = hoveredToolboxSlot;
 		super.renderForeground(graphics, mouseX, mouseY, partialTicks);

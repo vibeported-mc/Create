@@ -2,16 +2,18 @@ package com.simibubi.create.content.logistics.crate;
 
 import java.util.function.Supplier;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class BottomlessItemHandler extends ItemStackHandler {
+/**
+ * A creative, endless source of one item.
+ * <p>
+ * Nothing here mutates, so there is no state to snapshot and transactions need no participation:
+ * extracting always succeeds and rolling back costs nothing.
+ */
+public class BottomlessItemHandler implements ResourceHandler<ItemResource> {
 
 	private Supplier<ItemStack> suppliedItemStack;
 
@@ -19,45 +21,50 @@ public class BottomlessItemHandler extends ItemStackHandler {
 		this.suppliedItemStack = suppliedItemStack;
 	}
 
+	private ItemStack supplied(int index) {
+		if (index == 1)
+			return ItemStack.EMPTY;
+		ItemStack stack = suppliedItemStack.get();
+		return stack == null ? ItemStack.EMPTY : stack;
+	}
+
 	@Override
-	public int getSlots() {
+	public int size() {
 		return 2;
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int slot) {
-		ItemStack stack = suppliedItemStack.get();
-		if (slot == 1)
-			return ItemStack.EMPTY;
-		if (stack == null)
-			return ItemStack.EMPTY;
-		if (!stack.isEmpty())
-			return stack.copyWithCount(stack.getMaxStackSize());
-		return stack;
+	public ItemResource getResource(int index) {
+		return ItemResource.of(supplied(index));
 	}
 
 	@Override
-	public void setStackInSlot(int slot, ItemStack stack) {}
-
-	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-		return ItemStack.EMPTY;
+	public long getAmountAsLong(int index) {
+		ItemStack stack = supplied(index);
+		return stack.isEmpty() ? 0 : stack.getMaxStackSize();
 	}
 
 	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		ItemStack stack = suppliedItemStack.get();
-		if (slot == 1)
-			return ItemStack.EMPTY;
-		if (stack == null)
-			return ItemStack.EMPTY;
-		if (!stack.isEmpty())
-			return stack.copyWithCount(Math.min(stack.getMaxStackSize(), amount));
-		return ItemStack.EMPTY;
+	public long getCapacityAsLong(int index, ItemResource resource) {
+		return resource.isEmpty() ? 64 : resource.getMaxStackSize();
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemStack stack) {
+	public boolean isValid(int index, ItemResource resource) {
 		return true;
 	}
+
+	@Override
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return 0;
+	}
+
+	@Override
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		ItemStack stack = supplied(index);
+		if (stack.isEmpty() || !resource.matches(stack))
+			return 0;
+		return Math.min(stack.getMaxStackSize(), amount);
+	}
+
 }

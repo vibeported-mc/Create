@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.computercraft.implementation.peripherals;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.PatternSyntaxException;
@@ -17,15 +18,14 @@ import com.simibubi.create.content.trains.schedule.Schedule;
 import com.simibubi.create.content.trains.station.GlobalStation;
 import com.simibubi.create.content.trains.station.StationBlockEntity;
 import com.simibubi.create.content.trains.station.TrainEditPacket;
-import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.foundation.utility.StringHelper;
 
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
-import net.createmod.catnip.data.Glob;
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Glob;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CollectionTag;
 import net.minecraft.nbt.CompoundTag;
@@ -136,7 +136,7 @@ public class StationPeripheral extends SyncedPeripheral<StationBlockEntity> {
 	public final void setTrainName(String name) throws LuaException {
 		Train train = getTrainOrThrow();
 		train.name = Component.literal(name);
-		CatnipServices.NETWORK.sendToAllClients(new TrainEditPacket.TrainEditReturnPacket(train.id, name, train.icon.getId(), train.mapColorIndex));
+		NetworkHelper.INSTANCE.sendToAllClients(new TrainEditPacket.TrainEditReturnPacket(train.id, name, train.icon.getId(), train.mapColorIndex));
 	}
 
 	@LuaFunction

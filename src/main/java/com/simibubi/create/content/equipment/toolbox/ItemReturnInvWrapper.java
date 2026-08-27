@@ -2,8 +2,6 @@ package com.simibubi.create.content.equipment.toolbox;
 
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.wrapper.PlayerMainInvWrapper;
-
 /**
  * For inserting items into a players' inventory anywhere except the hotbar
  */

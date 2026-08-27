@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.contraptionControls;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,7 +19,6 @@ import com.simibubi.create.content.trains.entity.Carriage;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.content.trains.entity.Train;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -121,7 +121,7 @@ public class ContraptionControlsMovingInteraction extends MovingInteractionBehav
 	}
 
 	private void send(AbstractContraptionEntity contraptionEntity, ItemStack filter, boolean disable) {
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(contraptionEntity,
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(contraptionEntity,
 			new ContraptionDisableActorPacket(contraptionEntity.getId(), filter, !disable));
 	}
 
@@ -139,7 +139,7 @@ public class ContraptionControlsMovingInteraction extends MovingInteractionBehav
 		if (efs.currentTargetY == contraption.clientYTarget)
 			return true;
 
-		CatnipServices.NETWORK.sendToServer(new ElevatorTargetFloorPacket(contraptionEntity, efs.currentTargetY));
+		NetworkHelper.INSTANCE.sendToServer(new ElevatorTargetFloorPacket(contraptionEntity, efs.currentTargetY));
 		if (contraption.getBlockEntityClientSide(ctx.localPos) instanceof ContraptionControlsBlockEntity cbe)
 			cbe.pressButton();
 		return true;

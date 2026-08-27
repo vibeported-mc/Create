@@ -1,12 +1,13 @@
 package com.simibubi.create.compat.jei;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
@@ -30,8 +31,6 @@ import mezz.jei.common.transfer.RecipeTransferOperationsResult;
 import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.library.transfer.RecipeTransferErrorMissingSlots;
 import mezz.jei.library.transfer.RecipeTransferErrorTooltip;
-import net.createmod.catnip.platform.CatnipServices;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -41,10 +40,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NullMarked
 public class StockKeeperTransferHandler implements IUniversalRecipeTransferHandler<StockKeeperRequestMenu> {
 	private IJeiHelpers helpers;
 
@@ -71,7 +67,7 @@ public class StockKeeperTransferHandler implements IUniversalRecipeTransferHandl
 		MutableObject<IRecipeTransferError> result = new MutableObject<>();
 		if (level.isClientSide())
 			//noinspection unchecked
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> result
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> result
 				.setValue(transferRecipeOnClient(container, (RecipeHolder<Recipe<?>>) recipe, recipeSlots, player, maxTransfer, doTransfer)));
 		return result.getValue();
 	}
@@ -99,13 +95,13 @@ public class StockKeeperTransferHandler implements IUniversalRecipeTransferHandl
 		if (summary == null)
 			return RecipeTransferErrorInternal.INSTANCE;
 
-		Container outputDummy = new ItemHandlerContainer(new ItemStackHandler(9));
+		Container outputDummy = new ItemHandlerContainer(new ItemStacksResourceHandler(9));
 		List<Slot> craftingSlots = new ArrayList<>();
 		for (int i = 0; i < outputDummy.getContainerSize(); i++)
 			craftingSlots.add(new Slot(outputDummy, i, 0, 0));
 
 		List<BigItemStack> stacksByCount = summary.getStacksByCount();
-		Container inputDummy = new ItemHandlerContainer(new ItemStackHandler(stacksByCount.size()));
+		Container inputDummy = new ItemHandlerContainer(new ItemStacksResourceHandler(stacksByCount.size()));
 		Map<Slot, ItemStack> availableItemStacks = new HashMap<>();
 		for (int j = 0; j < stacksByCount.size(); j++) {
 			BigItemStack bigItemStack = stacksByCount.get(j);

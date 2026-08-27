@@ -1,9 +1,17 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import dev.engine_room.flywheel.lib.transform.TransformStack;
+import java.util.List;
+import java.util.ArrayList;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.util.function.Consumer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
@@ -13,15 +21,13 @@ import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,39 +35,63 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class PortableStorageInterfaceRenderer extends SafeBlockEntityRenderer<PortableStorageInterfaceBlockEntity> {
+public class PortableStorageInterfaceRenderer
+	extends SafeBlockEntityRenderer<PortableStorageInterfaceBlockEntity, PortableStorageInterfaceRenderer.PsiRenderState> {
+
+	public static class PsiRenderState extends SafeRenderState {
+		public final List<SuperByteBufferRenderState> parts = new ArrayList<>(2);
+	}
 
 	public PortableStorageInterfaceRenderer(BlockEntityRendererProvider.Context context) {}
 
 	@Override
-	protected void renderSafe(PortableStorageInterfaceBlockEntity be, float partialTicks, PoseStack ms,
-		MultiBufferSource buffer, int light, int overlay) {
-		if (VisualizationManager.supportsVisualization(be.getLevel()))
+	public PsiRenderState createRenderState() {
+		return new PsiRenderState();
+	}
+
+	@Override
+	protected void extractSafe(PortableStorageInterfaceBlockEntity be, PsiRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		state.parts.clear();
+
+		if (VisualizationManager.supportsVisualization(be.getLevel())) {
+			state.skip = true;
 			return;
+		}
 
 		BlockState blockState = be.getBlockState();
 		float progress = be.getExtensionDistance(partialTicks);
-		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
-		render(blockState, be.isConnected(), progress, null, sbb -> sbb.light(light)
-			.renderInto(ms, vb));
+		transform(blockState, be.isConnected(), progress, null,
+			sbb -> state.parts.add(sbb.light(state.lightCoords)
+				.extractRenderState()));
+	}
+
+	@Override
+	protected void submitSafe(PsiRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		for (SuperByteBufferRenderState part : state.parts)
+			part.submit(ms, RenderTypes.solidMovingBlock(), queue);
 	}
 
 	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffer) {
+		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
 		BlockState blockState = context.state;
-		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
 		float renderPartialTicks = AnimationTickHolder.getPartialTicks();
 
 		LerpedFloat animation = PortableStorageInterfaceMovement.getAnimation(context);
 		float progress = animation.getValue(renderPartialTicks);
 		boolean lit = animation.settled();
-		render(blockState, lit, progress, matrices.getModel(),
-			sbb -> sbb.light(LevelRenderer.getLightColor(renderWorld, context.localPos))
+		transform(blockState, lit, progress, matrices.getModel(),
+			sbb -> sbb.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
 				.useLevelLight(context.world, matrices.getWorld())
-				.renderInto(matrices.getViewProjection(), vb));
+				.submit(matrices.getViewProjection(), RenderTypes.solidMovingBlock(), buffer));
 	}
 
-	private static void render(BlockState blockState, boolean lit, float progress, PoseStack local,
+	/**
+	 * Builds the two moving pieces and hands each to the callback, which either extracts it for a
+	 * block entity render state or submits it directly from a contraption.
+	 */
+	private static void transform(BlockState blockState, boolean lit, float progress, PoseStack local,
 		Consumer<SuperByteBuffer> drawCallback) {
 		SuperByteBuffer middle = CachedBuffers.partial(getMiddleForState(blockState, lit), blockState);
 		SuperByteBuffer top = CachedBuffers.partial(getTopForState(blockState), blockState);
@@ -73,15 +103,18 @@ public class PortableStorageInterfaceRenderer extends SafeBlockEntityRenderer<Po
 		Direction facing = blockState.getValue(PortableStorageInterfaceBlock.FACING);
 		rotateToFacing(middle, facing);
 		rotateToFacing(top, facing);
-		middle.translate(0, progress * 0.5f + 0.375f, 0);
-		top.translate(0, progress, 0);
+		TransformStack.of(middle.getTransforms())
+			.translate(0, progress * 0.5f + 0.375f, 0);
+		TransformStack.of(top.getTransforms())
+			.translate(0, progress, 0);
 
 		drawCallback.accept(middle);
 		drawCallback.accept(top);
 	}
 
 	private static void rotateToFacing(SuperByteBuffer buffer, Direction facing) {
-		buffer.center()
+		TransformStack.of(buffer.getTransforms())
+			.center()
 			.rotateYDegrees(AngleHelper.horizontalAngle(facing))
 			.rotateXDegrees(facing == Direction.UP ? 0 : facing == Direction.DOWN ? 180 : 90)
 			.uncenter();

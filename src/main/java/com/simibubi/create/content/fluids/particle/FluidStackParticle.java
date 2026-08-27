@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.content.fluids.potion.PotionFluid;
 
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -99,7 +99,7 @@ public class FluidStackParticle extends TextureSheetParticle {
 			remove();
 		if (!removed)
 			return;
-		if (!onGround && level.random.nextFloat() < 1 / 8f)
+		if (!onGround && level.getRandom().nextFloat() < 1 / 8f)
 			return;
 
 		Color color = new Color(clientFluid.getTintColor(fluid));

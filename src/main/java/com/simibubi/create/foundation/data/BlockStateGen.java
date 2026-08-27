@@ -30,12 +30,12 @@ import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonnullType;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.Pointing;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.Pointing;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -234,9 +234,9 @@ public class BlockStateGen {
 
 	public static <B extends LinearChassisBlock> NonNullBiConsumer<DataGenContext<Block, B>, RegistrateBlockstateProvider> linearChassis() {
 		return (c, p) -> {
-			ResourceLocation side = p.modLoc("block/" + c.getName() + "_side");
-			ResourceLocation top = p.modLoc("block/linear_chassis_end");
-			ResourceLocation top_sticky = p.modLoc("block/linear_chassis_end_sticky");
+			Identifier side = p.modLoc("block/" + c.getName() + "_side");
+			Identifier top = p.modLoc("block/linear_chassis_end");
+			Identifier top_sticky = p.modLoc("block/linear_chassis_end_sticky");
 
 			List<ModelFile> models = new ArrayList<>(4);
 			for (boolean isTopSticky : Iterate.trueAndFalse)
@@ -258,8 +258,8 @@ public class BlockStateGen {
 	public static <B extends RadialChassisBlock> NonNullBiConsumer<DataGenContext<Block, B>, RegistrateBlockstateProvider> radialChassis() {
 		return (c, p) -> {
 			String path = "block/" + c.getName();
-			ResourceLocation side = p.modLoc(path + "_side");
-			ResourceLocation side_sticky = p.modLoc(path + "_side_sticky");
+			Identifier side = p.modLoc(path + "_side");
+			Identifier side_sticky = p.modLoc(path + "_side_sticky");
 
 			String templateModelPath = "block/radial_chassis";
 			ModelFile base = p.models()
@@ -455,14 +455,14 @@ public class BlockStateGen {
 				.put(R, Pair.of(0, 4))
 				.build();
 
-			Map<Axis, ResourceLocation> coreTemplates = new IdentityHashMap<>();
+			Map<Axis, Identifier> coreTemplates = new IdentityHashMap<>();
 			Map<Pair<String, Axis>, ModelFile> coreModels = new HashMap<>();
 
 			for (Axis axis : Iterate.axes)
 				coreTemplates.put(axis, p.modLoc(path + "/core_" + axis.getSerializedName()));
 
 			for (Axis axis : Iterate.axes) {
-				ResourceLocation parent = coreTemplates.get(axis);
+				Identifier parent = coreTemplates.get(axis);
 				for (String s : orientations) {
 					Pair<String, Axis> key = Pair.of(s, axis);
 					String modelName = path + "/" + s + "_" + axis.getSerializedName();

@@ -1,7 +1,7 @@
 package com.simibubi.create.content.kinetics.fan.processing;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
+import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
@@ -9,7 +9,7 @@ import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class SplashingRecipe extends StandardProcessingRecipe<SingleRecipeInput> {
 
 	public SplashingRecipe(ProcessingRecipeParams params) {

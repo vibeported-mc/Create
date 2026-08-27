@@ -1,5 +1,7 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static net.minecraft.ChatFormatting.BLUE;
 import static net.minecraft.ChatFormatting.DARK_PURPLE;
 import static net.minecraft.ChatFormatting.GRAY;
@@ -18,13 +20,12 @@ import com.simibubi.create.foundation.gui.widget.IconButton;
 import com.simibubi.create.foundation.gui.widget.Indicator;
 import com.simibubi.create.foundation.gui.widget.Indicator.State;
 import com.simibubi.create.foundation.item.TooltipHelper;
-import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.lang.FontHelper.Palette;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.createmod.catnip.api.client.lang.FontHelper.Palette;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.CommonComponents;
@@ -269,7 +270,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
 		int invX = getLeftOfCentered(AllGuiTextures.PLAYER_INVENTORY.getWidth());
 		int invY = topPos + BG_TOP.getHeight() + BG_BOTTOM.getHeight() + 2;
 		renderPlayerInventory(graphics, invX, invY);
@@ -287,7 +288,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 		renderFuelBar(graphics, x, y, amount);
 		renderChecklistPrinterProgress(graphics, x, y, be.bookPrintingProgress);
 
-		if (!be.inventory.getStackInSlot(0)
+		if (!ItemHandlerHelpers.getStackInSlot(be.inventory, 0)
 			.isEmpty())
 			renderBlueprintHighlight(graphics, x, y);
 
@@ -296,7 +297,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 			.scale(5)
 			.render(graphics);
 
-		graphics.drawString(font, title, x + (BG_TOP.getWidth() - 8 - font.width(title)) / 2, y + 2, 0x505050, false);
+		graphics.text(font, title, x + (BG_TOP.getWidth() - 8 - font.width(title)) / 2, y + 2, 0x505050, false);
 
 		Component msg = CreateLang.translateDirect("schematicannon.status." + be.statusMsg);
 		int stringWidth = font.width(msg);
@@ -309,30 +310,30 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 				.render(graphics);
 		}
 
-		graphics.drawString(font, msg, x + 103 - stringWidth / 2, y + 53, 0xDDEEFF);
+		graphics.text(font, msg, x + 103 - stringWidth / 2, y + 53, 0xDDEEFF);
 
 		if ("schematicErrored".equals(be.statusMsg))
-			graphics.drawString(font, CreateLang.translateDirect("schematicannon.status.schematicErroredCheckLogs"),
+			graphics.text(font, CreateLang.translateDirect("schematicannon.status.schematicErroredCheckLogs"),
 				x + 103 - stringWidth / 2, y + 65, 0xDDEEFF);
 	}
 
-	protected void renderBlueprintHighlight(GuiGraphics graphics, int x, int y) {
+	protected void renderBlueprintHighlight(GuiGraphicsExtractor graphics, int x, int y) {
 		AllGuiTextures.SCHEMATICANNON_HIGHLIGHT.render(graphics, x + 10, y + 60);
 	}
 
-	protected void renderPrintingProgress(GuiGraphics graphics, int x, int y, float progress) {
+	protected void renderPrintingProgress(GuiGraphicsExtractor graphics, int x, int y, float progress) {
 		progress = Math.min(progress, 1);
 		AllGuiTextures sprite = AllGuiTextures.SCHEMATICANNON_PROGRESS;
 		graphics.blit(sprite.location, x + 44, y + 64, sprite.getStartX(), sprite.getStartY(), (int) (sprite.getWidth() * progress), sprite.getHeight());
 	}
 
-	protected void renderChecklistPrinterProgress(GuiGraphics graphics, int x, int y, float progress) {
+	protected void renderChecklistPrinterProgress(GuiGraphicsExtractor graphics, int x, int y, float progress) {
 		AllGuiTextures sprite = AllGuiTextures.SCHEMATICANNON_CHECKLIST_PROGRESS;
 		graphics.blit(sprite.location, x + 154, y + 20, sprite.getStartX(), sprite.getStartY(), (int) (sprite.getWidth() * progress),
 			sprite.getHeight());
 	}
 
-	protected void renderFuelBar(GuiGraphics graphics, int x, int y, float amount) {
+	protected void renderFuelBar(GuiGraphicsExtractor graphics, int x, int y, float amount) {
 		AllGuiTextures sprite = AllGuiTextures.SCHEMATICANNON_FUEL;
 		if (menu.contentHolder.hasCreativeCrate) {
 			AllGuiTextures.SCHEMATICANNON_FUEL_CREATIVE.render(graphics, x + 36, y + 19);
@@ -342,7 +343,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 	}
 
 	@Override
-	protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		SchematicannonBlockEntity be = menu.contentHolder;
 
 		int x = leftPos;
@@ -352,20 +353,20 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 		if (mouseX >= fuelX && mouseY >= fuelY && mouseX <= fuelX + AllGuiTextures.SCHEMATICANNON_FUEL.getWidth()
 			&& mouseY <= fuelY + AllGuiTextures.SCHEMATICANNON_FUEL.getHeight()) {
 			List<Component> tooltip = getFuelLevelTooltip(be);
-			graphics.renderComponentTooltip(font, tooltip, mouseX, mouseY);
+			graphics.setComponentTooltipForNextFrame(font, tooltip, mouseX, mouseY);
 		}
 
 		if (hoveredSlot != null && !hoveredSlot.hasItem()) {
 			if (hoveredSlot.index == 0)
-				graphics.renderComponentTooltip(font,
+				graphics.setComponentTooltipForNextFrame(font,
 					TooltipHelper.cutTextComponent(CreateLang.translateDirect(_slotSchematic), Palette.GRAY_AND_BLUE), mouseX,
 					mouseY);
 			if (hoveredSlot.index == 2)
-				graphics.renderComponentTooltip(font,
+				graphics.setComponentTooltipForNextFrame(font,
 					TooltipHelper.cutTextComponent(CreateLang.translateDirect(_slotListPrinter), Palette.GRAY_AND_BLUE),
 					mouseX, mouseY);
 			if (hoveredSlot.index == 4)
-				graphics.renderComponentTooltip(font,
+				graphics.setComponentTooltipForNextFrame(font,
 					TooltipHelper.cutTextComponent(CreateLang.translateDirect(_slotGunpowder), Palette.GRAY_AND_BLUE), mouseX,
 					mouseY);
 		}
@@ -374,20 +375,20 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 			int missingBlockX = x + 128, missingBlockY = y + 49;
 			if (mouseX >= missingBlockX && mouseY >= missingBlockY && mouseX <= missingBlockX + 16
 				&& mouseY <= missingBlockY + 16) {
-				graphics.renderTooltip(font, be.missingItem, mouseX, mouseY);
+				graphics.setTooltipForNextFrame(font, be.missingItem, mouseX, mouseY);
 			}
 		}
 
 		int paperX = x + 112, paperY = y + 19;
 		if (mouseX >= paperX && mouseY >= paperY && mouseX <= paperX + 16 && mouseY <= paperY + 16)
-			graphics.renderTooltip(font, listPrinter, mouseX, mouseY);
+			graphics.setTooltipForNextFrame(font, listPrinter, mouseX, mouseY);
 
 		super.renderForeground(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	protected List<Component> getFuelLevelTooltip(SchematicannonBlockEntity be) {
 		int shotsLeft = be.remainingFuel;
-		int shotsLeftWithItems = shotsLeft + be.inventory.getStackInSlot(4)
+		int shotsLeftWithItems = shotsLeft + ItemHandlerHelpers.getStackInSlot(be.inventory, 4)
 			.getCount() * be.getShotsPerGunpowder();
 		List<Component> tooltip = new ArrayList<>();
 
@@ -415,7 +416,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 	}
 
 	protected void sendOptionUpdate(Option option, boolean set) {
-		CatnipServices.NETWORK.sendToServer(new ConfigureSchematicannonPacket(option, set));
+		NetworkHelper.INSTANCE.sendToServer(new ConfigureSchematicannonPacket(option, set));
 	}
 
 	@Override

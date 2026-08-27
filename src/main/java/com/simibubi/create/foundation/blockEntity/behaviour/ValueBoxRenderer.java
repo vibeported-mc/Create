@@ -6,41 +6,37 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.kinetics.simpleRelays.AbstractSimpleShaftBlock;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FenceBlock;
 
+/**
+ * Both methods take an already resolved {@link ItemStackRenderState} rather than an ItemStack: model
+ * resolution reads the item and so belongs in the extract phase, while these run during submission.
+ * For the same reason {@link #customZOffset} is public — the caller computes it while it still has
+ * the item to hand.
+ */
 public class ValueBoxRenderer {
 
-	public static void renderItemIntoValueBox(ItemStack filter, PoseStack ms, MultiBufferSource buffer, int light,
-		int overlay) {
-		Minecraft mc = Minecraft.getInstance();
-		ItemRenderer itemRenderer = mc.getItemRenderer();
-		BakedModel modelWithOverrides = itemRenderer.getModel(filter, null, null, 0);
-		boolean blockItem = modelWithOverrides.isGui3d();
+	public static void renderItemIntoValueBox(ItemStackRenderState state, SubmitNodeCollector queue, PoseStack ms,
+		int light, float zOffsetNudge) {
+		boolean blockItem = state.usesBlockLight();
 		float scale = (!blockItem ? .5f : 1f) + 1 / 64f;
-		float zOffset = (!blockItem ? -.15f : 0) + customZOffset(filter.getItem());
+		float zOffset = (!blockItem ? -.15f : 0) + zOffsetNudge;
 		ms.scale(scale, scale, scale);
 		ms.translate(0, 0, zOffset);
-		itemRenderer.render(filter, ItemDisplayContext.FIXED, false, ms, buffer, light, overlay, modelWithOverrides);
+		state.submit(ms, queue, light, OverlayTexture.NO_OVERLAY, 0);
 	}
 
-	public static void renderFlatItemIntoValueBox(ItemStack filter, PoseStack ms, MultiBufferSource buffer, int light,
-		int overlay) {
-		if (filter.isEmpty())
-			return;
-
+	public static void renderFlatItemIntoValueBox(ItemStackRenderState state, SubmitNodeCollector queue, PoseStack ms,
+		int light) {
 		int bl = light >> 4 & 0xf;
 		int sl = light >> 20 & 0xf;
 		int itemLight = Mth.floor(sl + .5) << 20 | (Mth.floor(bl + .5) & 0xf) << 4;
@@ -67,15 +63,13 @@ public class ValueBoxRenderer {
 		squashedMS.last()
 			.normal()
 			.set(copy);
-		Minecraft mc = Minecraft.getInstance();
-		mc.getItemRenderer()
-			.renderStatic(filter, ItemDisplayContext.GUI, itemLight, OverlayTexture.NO_OVERLAY, squashedMS, buffer, mc.level, 0);
+		state.submit(squashedMS, queue, itemLight, OverlayTexture.NO_OVERLAY, 0);
 
 		ms.popPose();
 	}
 
 	@SuppressWarnings("deprecation")
-	private static float customZOffset(Item item) {
+	public static float customZOffset(Item item) {
 		float nudge = -.1f;
 		if (item instanceof BlockItem) {
 			Block block = ((BlockItem) item).getBlock();

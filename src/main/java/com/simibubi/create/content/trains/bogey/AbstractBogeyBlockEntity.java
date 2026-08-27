@@ -9,11 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import com.simibubi.create.AllBogeyStyles;
 import com.simibubi.create.foundation.blockEntity.CachedRenderBBBlockEntity;
 
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.animation.LerpedFloat;
+import net.createmod.catnip.api.nbt.NBTHelper;
+import net.createmod.catnip.api.animation.LerpedFloat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,23 +39,23 @@ public abstract class AbstractBogeyBlockEntity extends CachedRenderBBBlockEntity
 
 	public void setBogeyData(@NotNull CompoundTag newData) {
 		if (!newData.contains(BOGEY_STYLE_KEY)) {
-			ResourceLocation style = getDefaultStyle().id;
-			NBTHelper.writeResourceLocation(newData, BOGEY_STYLE_KEY, style);
+			Identifier style = getDefaultStyle().id;
+			NBTHelper.writeIdentifier(newData, BOGEY_STYLE_KEY, style);
 		}
 		this.bogeyData = newData;
 	}
 
 	public void setBogeyStyle(@NotNull BogeyStyle style) {
-		ResourceLocation location = style.id;
+		Identifier location = style.id;
 		CompoundTag data = this.getBogeyData();
-		NBTHelper.writeResourceLocation(data, BOGEY_STYLE_KEY, location);
+		NBTHelper.writeIdentifier(data, BOGEY_STYLE_KEY, location);
 		markUpdated();
 	}
 
 	@NotNull
 	public BogeyStyle getStyle() {
 		CompoundTag data = this.getBogeyData();
-		ResourceLocation currentStyle = NBTHelper.readResourceLocation(data, BOGEY_STYLE_KEY);
+		Identifier currentStyle = NBTHelper.readIdentifier(data, BOGEY_STYLE_KEY);
 		BogeyStyle style = AllBogeyStyles.BOGEY_STYLES.get(currentStyle);
 		if (style == null) {
 			setBogeyStyle(getDefaultStyle());
@@ -74,7 +74,7 @@ public abstract class AbstractBogeyBlockEntity extends CachedRenderBBBlockEntity
 	@Override
 	protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
 		if (tag.contains(BOGEY_DATA_KEY))
-			this.bogeyData = tag.getCompound(BOGEY_DATA_KEY);
+			this.bogeyData = tag.getCompoundOrEmpty(BOGEY_DATA_KEY);
 		else
 			this.bogeyData = this.createBogeyData();
 		super.loadAdditional(tag, registries);
@@ -82,7 +82,7 @@ public abstract class AbstractBogeyBlockEntity extends CachedRenderBBBlockEntity
 
 	private CompoundTag createBogeyData() {
 		CompoundTag nbt = new CompoundTag();
-		NBTHelper.writeResourceLocation(nbt, BOGEY_STYLE_KEY, getDefaultStyle().id);
+		NBTHelper.writeIdentifier(nbt, BOGEY_STYLE_KEY, getDefaultStyle().id);
 		boolean upsideDown = false;
 		if (getBlockState().getBlock() instanceof AbstractBogeyBlock<?> bogeyBlock)
 			upsideDown = bogeyBlock.isUpsideDown(getBlockState());

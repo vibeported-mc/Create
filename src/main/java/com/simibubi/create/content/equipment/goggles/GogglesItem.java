@@ -7,7 +7,6 @@ import java.util.function.Predicate;
 import com.simibubi.create.AllItems;
 
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
@@ -34,7 +33,7 @@ public class GogglesItem extends Item implements Equipable {
 		return EquipmentSlot.HEAD;
 	}
 
-	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+	public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn) {
 		return swapWithEquipmentSlot(this, worldIn, playerIn, handIn);
 	}
 

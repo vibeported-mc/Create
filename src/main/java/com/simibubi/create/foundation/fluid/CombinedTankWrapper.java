@@ -1,27 +1,32 @@
 package com.simibubi.create.foundation.fluid;
 
-import net.createmod.catnip.data.Iterate;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.EmptyFluidHandler;
+import net.createmod.catnip.api.data.Iterate;
+import net.neoforged.neoforge.transfer.EmptyResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
- * Combines multiple IFluidHandlers into one interface (See CombinedInvWrapper
- * for items)
+ * Presents several fluid handlers as one.
+ * <p>
+ * NeoForge ships {@code CombinedResourceHandler}, but Create's version also spreads a fill across
+ * handlers and can be told to prefer a tank that already holds the same fluid, so it keeps its own
+ * implementation.
  */
-public class CombinedTankWrapper implements IFluidHandler {
+public class CombinedTankWrapper implements ResourceHandler<FluidResource> {
 
-	protected final IFluidHandler[] itemHandler;
+	protected final ResourceHandler<FluidResource>[] itemHandler;
 	protected final int[] baseIndex;
 	protected final int tankCount;
 	protected boolean enforceVariety;
 
-	public CombinedTankWrapper(IFluidHandler... fluidHandlers) {
+	@SafeVarargs
+	public CombinedTankWrapper(ResourceHandler<FluidResource>... fluidHandlers) {
 		this.itemHandler = fluidHandlers;
 		this.baseIndex = new int[fluidHandlers.length];
 		int index = 0;
 		for (int i = 0; i < fluidHandlers.length; i++) {
-			index += fluidHandlers[i].getTanks();
+			index += fluidHandlers[i].size();
 			baseIndex[i] = index;
 		}
 		this.tankCount = index;
@@ -33,58 +38,72 @@ public class CombinedTankWrapper implements IFluidHandler {
 	}
 
 	@Override
-	public int getTanks() {
+	public int size() {
 		return tankCount;
 	}
 
 	@Override
-	public FluidStack getFluidInTank(int tank) {
+	public FluidResource getResource(int tank) {
 		int index = getIndexForSlot(tank);
-		IFluidHandler handler = getHandlerFromIndex(index);
-		tank = getSlotFromIndex(tank, index);
-		return handler.getFluidInTank(tank);
+		return getHandlerFromIndex(index).getResource(getSlotFromIndex(tank, index));
 	}
 
 	@Override
-	public int getTankCapacity(int tank) {
+	public long getAmountAsLong(int tank) {
 		int index = getIndexForSlot(tank);
-		IFluidHandler handler = getHandlerFromIndex(index);
-		int localSlot = getSlotFromIndex(tank, index);
-		return handler.getTankCapacity(localSlot);
+		return getHandlerFromIndex(index).getAmountAsLong(getSlotFromIndex(tank, index));
 	}
 
 	@Override
-	public boolean isFluidValid(int tank, FluidStack stack) {
+	public long getCapacityAsLong(int tank, FluidResource resource) {
 		int index = getIndexForSlot(tank);
-		IFluidHandler handler = getHandlerFromIndex(index);
-		int localSlot = getSlotFromIndex(tank, index);
-		return handler.isFluidValid(localSlot, stack);
+		return getHandlerFromIndex(index).getCapacityAsLong(getSlotFromIndex(tank, index), resource);
 	}
 
 	@Override
-	public int fill(FluidStack resource, FluidAction action) {
-		if (resource.isEmpty())
+	public boolean isValid(int tank, FluidResource resource) {
+		int index = getIndexForSlot(tank);
+		return getHandlerFromIndex(index).isValid(getSlotFromIndex(tank, index), resource);
+	}
+
+	@Override
+	public int insert(int tank, FluidResource resource, int amount, TransactionContext transaction) {
+		int index = getIndexForSlot(tank);
+		return getHandlerFromIndex(index).insert(getSlotFromIndex(tank, index), resource, amount, transaction);
+	}
+
+	@Override
+	public int extract(int tank, FluidResource resource, int amount, TransactionContext transaction) {
+		int index = getIndexForSlot(tank);
+		return getHandlerFromIndex(index).extract(getSlotFromIndex(tank, index), resource, amount, transaction);
+	}
+
+	/**
+	 * First pass looks only at handlers already holding this fluid, so a fill lands beside its own
+	 * kind rather than starting a new tank.
+	 */
+	@Override
+	public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+		if (resource.isEmpty() || amount <= 0)
 			return 0;
 
 		int filled = 0;
-		resource = resource.copy();
-
 		boolean fittingHandlerFound = false;
-		Outer: for (boolean searchPass : Iterate.trueAndFalse) {
-			for (IFluidHandler iFluidHandler : itemHandler) {
 
-				for (int i = 0; i < iFluidHandler.getTanks(); i++)
-					if (searchPass && FluidStack.isSameFluidSameComponents(iFluidHandler.getFluidInTank(i), resource))
+		Outer: for (boolean searchPass : Iterate.trueAndFalse) {
+			for (ResourceHandler<FluidResource> handler : itemHandler) {
+
+				for (int i = 0; i < handler.size(); i++)
+					if (searchPass && resource.equals(handler.getResource(i)))
 						fittingHandlerFound = true;
 
 				if (searchPass && !fittingHandlerFound)
 					continue;
 
-				int filledIntoCurrent = iFluidHandler.fill(resource, action);
-				resource.shrink(filledIntoCurrent);
+				int filledIntoCurrent = handler.insert(resource, amount - filled, transaction);
 				filled += filledIntoCurrent;
 
-				if (resource.isEmpty())
+				if (filled == amount)
 					break Outer;
 				if (fittingHandlerFound && (enforceVariety || filledIntoCurrent != 0))
 					break Outer;
@@ -95,44 +114,16 @@ public class CombinedTankWrapper implements IFluidHandler {
 	}
 
 	@Override
-	public FluidStack drain(FluidStack resource, FluidAction action) {
-		if (resource.isEmpty())
-			return resource;
+	public int extract(FluidResource resource, int amount, TransactionContext transaction) {
+		if (resource.isEmpty() || amount <= 0)
+			return 0;
 
-		FluidStack drained = FluidStack.EMPTY;
-		resource = resource.copy();
-
-		for (IFluidHandler iFluidHandler : itemHandler) {
-			FluidStack drainedFromCurrent = iFluidHandler.drain(resource, action);
-			int amount = drainedFromCurrent.getAmount();
-			resource.shrink(amount);
-
-			if (!drainedFromCurrent.isEmpty() && (drained.isEmpty() || FluidStack.isSameFluidSameComponents(drainedFromCurrent, drained)))
-				drained = new FluidStack(drainedFromCurrent.getFluidHolder(), amount + drained.getAmount(),
-					drainedFromCurrent.getComponentsPatch());
-			if (resource.isEmpty())
+		int drained = 0;
+		for (ResourceHandler<FluidResource> handler : itemHandler) {
+			drained += handler.extract(resource, amount - drained, transaction);
+			if (drained == amount)
 				break;
 		}
-
-		return drained;
-	}
-
-	@Override
-	public FluidStack drain(int maxDrain, FluidAction action) {
-		FluidStack drained = FluidStack.EMPTY;
-
-		for (IFluidHandler iFluidHandler : itemHandler) {
-			FluidStack drainedFromCurrent = iFluidHandler.drain(maxDrain, action);
-			int amount = drainedFromCurrent.getAmount();
-			maxDrain -= amount;
-
-			if (!drainedFromCurrent.isEmpty() && (drained.isEmpty() || FluidStack.isSameFluidSameComponents(drainedFromCurrent, drained)))
-				drained = new FluidStack(drainedFromCurrent.getFluidHolder(), amount + drained.getAmount(),
-					drainedFromCurrent.getComponentsPatch());
-			if (maxDrain == 0)
-				break;
-		}
-
 		return drained;
 	}
 
@@ -145,9 +136,9 @@ public class CombinedTankWrapper implements IFluidHandler {
 		return -1;
 	}
 
-	protected IFluidHandler getHandlerFromIndex(int index) {
+	protected ResourceHandler<FluidResource> getHandlerFromIndex(int index) {
 		if (index < 0 || index >= itemHandler.length)
-			return EmptyFluidHandler.INSTANCE;
+			return EmptyResourceHandler.instance();
 		return itemHandler[index];
 	}
 

@@ -101,7 +101,7 @@ public class DisplayBoardTarget extends DisplayTarget {
 
 		Vec3i normal = controller.getDirection()
 			.getClockWise()
-			.getNormal();
+			.getUnitVec3i();
 		return baseShape.move(controller.getBlockPos()
 			.subtract(pos))
 			.expandTowards(normal.getX() * (controller.xSize - 1), 1 - controller.ySize,

@@ -1,11 +1,11 @@
 package com.simibubi.create.content.contraptions.sync;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
 
-public record ContraptionInteractionPacket(InteractionHand hand, int target, BlockPos localPos, Direction face) implements ServerboundPacketPayload {
+public record ContraptionInteractionPacket(InteractionHand hand, int target, BlockPos localPos, Direction face) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, ContraptionInteractionPacket> STREAM_CODEC = StreamCodec.composite(
 			CatnipStreamCodecBuilders.nullable(CatnipStreamCodecs.HAND), ContraptionInteractionPacket::hand,
 			ByteBufCodecs.INT, ContraptionInteractionPacket::target,
@@ -31,8 +31,8 @@ public record ContraptionInteractionPacket(InteractionHand hand, int target, Blo
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONTRAPTION_INTERACT;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONTRAPTION_INTERACT.getType();
 	}
 
 	@Override

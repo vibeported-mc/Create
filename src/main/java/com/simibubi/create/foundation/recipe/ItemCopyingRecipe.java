@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllRecipeTypes;
 
-import net.createmod.catnip.data.IntAttached;
+import net.createmod.catnip.api.data.IntAttached;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;

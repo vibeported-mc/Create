@@ -1,5 +1,8 @@
 package com.simibubi.create.content.trains.track;
 
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.core.UUIDUtil;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,17 +27,17 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.levelWrappers.SchematicLevel;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.ponder.api.level.PonderLevel;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
+import net.createmod.catnip.api.level.wrapper.SchematicLevel;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.ponder.api.client.level.PonderLevel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
@@ -87,8 +90,8 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 
 	@Override
 	public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		nbt.putUUID("Id", id);
-		nbt.put("TargetTrack", NbtUtils.writeBlockPos(targetTrack));
+		nbt.store("Id", UUIDUtil.CODEC, id);
+		nbt.store("TargetTrack", BlockPos.CODEC, targetTrack);
 		nbt.putBoolean("Ortho", orthogonal);
 		nbt.putBoolean("TargetDirection", targetDirection == AxisDirection.POSITIVE);
 		if (rotatedDirection != null)
@@ -100,8 +103,8 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 		if (targetBezier != null) {
 			CompoundTag bezierNbt = new CompoundTag();
 			bezierNbt.putInt("Segment", targetBezier.segment());
-			bezierNbt.put("Key", NbtUtils.writeBlockPos(targetBezier.curveTarget()
-				.subtract(getPos())));
+			bezierNbt.store("Key", BlockPos.CODEC, targetBezier.curveTarget()
+				.subtract(getPos()));
 			nbt.put("Bezier", bezierNbt);
 		}
 		super.write(nbt, registries, clientPacket);
@@ -109,23 +112,23 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 
 	@Override
 	public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		id = nbt.contains("Id") ? nbt.getUUID("Id") : UUID.randomUUID();
+		id = nbt.contains("Id") ? nbt.read("Id", UUIDUtil.CODEC).orElse(null) : UUID.randomUUID();
 		targetTrack = NBTHelper.readBlockPos(nbt, "TargetTrack");
-		targetDirection = nbt.getBoolean("TargetDirection") ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE;
-		orthogonal = nbt.getBoolean("Ortho");
+		targetDirection = nbt.getBooleanOr("TargetDirection", false) ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE;
+		orthogonal = nbt.getBooleanOr("Ortho", false);
 		if (nbt.contains("PrevAxis"))
-			prevDirection = VecHelper.readNBT(nbt.getList("PrevAxis", Tag.TAG_DOUBLE));
+			prevDirection = VecHelper.readNBT(nbt.getListOrEmpty("PrevAxis"));
 		if (nbt.contains("RotatedAxis"))
-			rotatedDirection = VecHelper.readNBT(nbt.getList("RotatedAxis", Tag.TAG_DOUBLE));
+			rotatedDirection = VecHelper.readNBT(nbt.getListOrEmpty("RotatedAxis"));
 		if (nbt.contains("Migrate"))
-			migrationData = nbt.getCompound("Migrate");
+			migrationData = nbt.getCompoundOrEmpty("Migrate");
 		if (clientPacket)
 			edgePoint = null;
 		if (nbt.contains("Bezier")) {
-			CompoundTag bezierNbt = nbt.getCompound("Bezier");
+			CompoundTag bezierNbt = nbt.getCompoundOrEmpty("Bezier");
 			BlockPos key = NBTHelper.readBlockPos(bezierNbt, "Key");
 			targetBezier = new BezierTrackPointLocation(key.offset(getPos()),
-				bezierNbt.getInt("Segment"));
+				bezierNbt.getIntOr("Segment", 0));
 		}
 		super.read(nbt, registries, clientPacket);
 	}
@@ -151,7 +154,7 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 	@SuppressWarnings("unchecked")
 	public T createEdgePoint() {
 		Level level = getWorld();
-		boolean isClientSide = level.isClientSide;
+		boolean isClientSide = level.isClientSide();
 		if (migrationData == null || isClientSide)
 			for (TrackGraph trackGraph : Create.RAILWAYS.sided(level).trackNetworks.values()) {
 				T point = trackGraph.getPoint(edgePointType, id);
@@ -241,7 +244,7 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 	@Override
 	public void destroy() {
 		super.destroy();
-		if (edgePoint != null && !getWorld().isClientSide)
+		if (edgePoint != null && !getWorld().isClientSide())
 			edgePoint.blockEntityRemoved(getPos(), getTargetDirection() == AxisDirection.POSITIVE);
 	}
 
@@ -315,8 +318,12 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static void render(LevelAccessor level, BlockPos pos, AxisDirection direction,
-							  BezierTrackPointLocation bezier, PoseStack ms, MultiBufferSource buffer, int light, int overlay,
+	/**
+	 * The overlay's placement comes from {@code prepareTrackOverlay}, which walks the PoseStack, so
+	 * this stays a submit-time operation rather than being split into an extracted state.
+	 */
+	public static void submit(LevelAccessor level, BlockPos pos, AxisDirection direction,
+							  BezierTrackPointLocation bezier, PoseStack ms, SubmitNodeCollector queue,
 							  RenderedTrackOverlayType type, float scale) {
 		if (level instanceof SchematicLevel && !(level instanceof PonderLevel))
 			return;
@@ -329,13 +336,15 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 		ms.pushPose();
 		var msr = TransformStack.of(ms);
 		PartialModel partial = track.prepareTrackOverlay(msr, level, pos, trackState, bezier, direction, type);
-		if (partial != null)
-			CachedBuffers.partial(partial, trackState)
+		if (partial != null) {
+			SuperByteBuffer buffer = CachedBuffers.partial(partial, trackState);
+			TransformStack.of(buffer.getTransforms())
 				.translate(.5, 0, .5)
 				.scale(scale)
-				.translate(-.5, 0, -.5)
-				.light(LevelRenderer.getLightColor(level, pos))
-				.renderInto(ms, buffer.getBuffer(RenderType.cutoutMipped()));
+				.translate(-.5, 0, -.5);
+			buffer.light(LightCoordsUtil.getLightCoords(level, pos))
+				.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
+		}
 		ms.popPose();
 	}
 

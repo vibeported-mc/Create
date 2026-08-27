@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.packagerLink;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.minecraft.core.UUIDUtil;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,15 +29,13 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.foundation.utility.TickBasedCache;
 
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 
 	public static final BehaviourType<LogisticallyLinkedBehaviour> TYPE = new BehaviourType<>();
@@ -88,7 +89,7 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 	}
 
 	public static void keepAlive(LogisticallyLinkedBehaviour behaviour) {
-		boolean onClient = behaviour.blockEntity.getLevel().isClientSide;
+		boolean onClient = behaviour.blockEntity.getLevel().isClientSide();
 		if (behaviour.redstonePower == 15)
 			return;
 		try {
@@ -131,7 +132,7 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 	@Override
 	public void initialize() {
 		super.initialize();
-		if (getWorld().isClientSide)
+		if (getWorld().isClientSide())
 			return;
 
 		if (!loadedGlobally && global) {
@@ -191,12 +192,12 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 		return InventorySummary.EMPTY;
 	}
 
-	public void deductFromAccurateSummary(ItemStackHandler packageContents) {
+	public void deductFromAccurateSummary(ItemStacksResourceHandler packageContents) {
 		InventorySummary summary = LogisticsManager.ACCURATE_SUMMARIES.getIfPresent(freqId);
 		if (summary == null)
 			return;
-		for (int i = 0; i < packageContents.getSlots(); i++) {
-			ItemStack orderedStack = packageContents.getStackInSlot(i);
+		for (int i = 0; i < packageContents.size(); i++) {
+			ItemStack orderedStack = ItemHandlerHelpers.getStackInSlot(packageContents, i);
 			if (orderedStack.isEmpty())
 				continue;
 			summary.add(orderedStack, -Math.min(summary.getCountOf(orderedStack), orderedStack.getCount()));
@@ -212,9 +213,9 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 	public boolean mayInteractMessage(Player player) {
 		boolean mayInteract = Create.LOGISTICS.mayInteract(freqId, player);
 		if (!mayInteract)
-			player.displayClientMessage(CreateLang.translate("logistically_linked.protected")
+			player.sendOverlayMessage(CreateLang.translate("logistically_linked.protected")
 				.style(ChatFormatting.RED)
-				.component(), true);
+				.component());
 		return mayInteract;
 	}
 
@@ -233,13 +234,13 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 
 	@Override
 	public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
-		tag.putUUID("Freq", freqId);
+		tag.store("Freq", UUIDUtil.CODEC, freqId);
 	}
 
 	@Override
 	public void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		super.write(tag, registries, clientPacket);
-		tag.putUUID("Freq", freqId);
+		tag.store("Freq", UUIDUtil.CODEC, freqId);
 		tag.putInt("Power", redstonePower);
 		tag.putBoolean("Added", addedGlobally);
 	}
@@ -248,9 +249,9 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 	public void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(tag, registries, clientPacket);
 		if (tag.hasUUID("Freq"))
-			freqId = tag.getUUID("Freq");
-		redstonePower = tag.getInt("Power");
-		addedGlobally = tag.getBoolean("Added");
+			freqId = tag.read("Freq", UUIDUtil.CODEC).orElse(null);
+		redstonePower = tag.getIntOr("Power", 0);
+		addedGlobally = tag.getBooleanOr("Added", false);
 	}
 
 	@Override

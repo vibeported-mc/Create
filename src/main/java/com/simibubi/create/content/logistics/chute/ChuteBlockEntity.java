@@ -1,11 +1,13 @@
 package com.simibubi.create.content.logistics.chute;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.jspecify.annotations.NullMarked;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,11 +34,10 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -60,15 +61,11 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 /*
  * Commented Code: Chutes create air streams and act similarly to encased fans
  * (Unfinished)
  */
+@NullMarked
 public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, Clearable { // , IAirCurrentSource {
 
 	// public AirCurrent airCurrent;
@@ -90,7 +87,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 
 	VersionedInventoryTrackerBehaviour invVersionTracker;
 
-	private final EnumMap<Direction, BlockCapabilityCache<IItemHandler, @Nullable Direction>> capCaches = new EnumMap<>(Direction.class);
+	private final EnumMap<Direction, BlockCapabilityCache<ResourceHandler<ItemResource>, @Nullable Direction>> capCaches = new EnumMap<>(Direction.class);
 
 	public ChuteBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -105,7 +102,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.CHUTE.get(),
 				(be, context) -> be.itemHandler
 		);
@@ -150,12 +147,12 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	public void tick() {
 		super.tick();
 
-		if (!level.isClientSide)
+		if (!level.isClientSide())
 			canPickUpItems = canDirectlyInsert();
 
-		boolean clientSide = level != null && level.isClientSide && !isVirtual();
+		boolean clientSide = level != null && level.isClientSide() && !isVirtual();
 		float itemMotion = getItemMotion();
-		if (itemMotion != 0 && level != null && level.isClientSide)
+		if (itemMotion != 0 && level != null && level.isClientSide())
 			spawnParticles(itemMotion);
 		tickAirStreams(itemMotion);
 
@@ -195,7 +192,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	private void updateAirFlow(float itemSpeed) {
 		updateAirFlow = false;
 		// airCurrent.rebuild();
-		if (itemSpeed > 0 && level != null && !level.isClientSide) {
+		if (itemSpeed > 0 && level != null && !level.isClientSide()) {
 			float speed = pull - push;
 			beltBelow = null;
 
@@ -232,7 +229,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	private void findEntities(float itemSpeed) {
 		// if (getSpeed() != 0)
 		// airCurrent.findEntities();
-		if (bottomPullDistance <= 0 && !getItem().isEmpty() || itemSpeed <= 0 || level == null || level.isClientSide)
+		if (bottomPullDistance <= 0 && !getItem().isEmpty() || itemSpeed <= 0 || level == null || level.isClientSide())
 			return;
 		if (!canActivate())
 			return;
@@ -252,7 +249,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	}
 
 	private void extractFromBelt(float itemSpeed) {
-		if (itemSpeed <= 0 || level == null || level.isClientSide)
+		if (itemSpeed <= 0 || level == null || level.isClientSide())
 			return;
 		if (getItem().isEmpty() && beltBelow != null) {
 			beltBelow.handleCenteredProcessingOnAllItems(.5f, ts -> {
@@ -266,7 +263,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	}
 
 	private void tickAirStreams(float itemSpeed) {
-		if (!level.isClientSide && airCurrentUpdateCooldown-- <= 0) {
+		if (!level.isClientSide() && airCurrentUpdateCooldown-- <= 0) {
 			airCurrentUpdateCooldown = AllConfigs.server().kinetics.fanBlockCheckRate.get();
 			updateAirFlow = true;
 		}
@@ -342,7 +339,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		handleInput(grabCapability(Direction.DOWN), 0);
 	}
 
-	private void handleInput(@Nullable IItemHandler inv, float startLocation) {
+	private void handleInput(@Nullable ResourceHandler<ItemResource> inv, float startLocation) {
 		if (inv == null)
 			return;
 		if (!canActivate())
@@ -370,13 +367,13 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 
 		if (level == null || direction == null || !this.canActivate())
 			return false;
-		IItemHandler capBelow = grabCapability(Direction.DOWN);
+		ResourceHandler<ItemResource> capBelow = grabCapability(Direction.DOWN);
 		if (capBelow != null) {
-			if (level.isClientSide && !isVirtual())
+			if (level.isClientSide() && !isVirtual())
 				return false;
 			if (invVersionTracker.stillWaiting(capBelow))
 				return false;
-			ItemStack remainder = ItemHandlerHelper.insertItemStacked(capBelow, item, simulate);
+			ItemStack remainder = ItemHandlerHelpers.insertItemStacked(capBelow, item, simulate);
 			ItemStack held = getItem();
 			if (!simulate)
 				setItem(remainder, itemPosition.getValue(0));
@@ -426,14 +423,14 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 			return false;
 
 		if (AbstractChuteBlock.isOpenChute(getBlockState())) {
-			IItemHandler capAbove = grabCapability(Direction.UP);
+			ResourceHandler<ItemResource> capAbove = grabCapability(Direction.UP);
 			if (capAbove != null) {
-				if (level.isClientSide && !isVirtual() && !ChuteBlock.isChute(stateAbove))
+				if (level.isClientSide() && !isVirtual() && !ChuteBlock.isChute(stateAbove))
 					return false;
 				int countBefore = item.getCount();
 				if (invVersionTracker.stillWaiting(capAbove))
 					return false;
-				ItemStack remainder = ItemHandlerHelper.insertItemStacked(capAbove, item, simulate);
+				ItemStack remainder = ItemHandlerHelpers.insertItemStacked(capAbove, item, simulate);
 				if (!simulate)
 					item = remainder;
 				if (countBefore != remainder.getCount())
@@ -499,7 +496,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		return true;
 	}
 
-	private @Nullable IItemHandler grabCapability(@NotNull Direction side) {
+	private @Nullable ResourceHandler<ItemResource> grabCapability(@NotNull Direction side) {
 		BlockPos pos = this.worldPosition.relative(side);
 		if (level == null)
 			return null;
@@ -510,8 +507,8 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		}
 		if (capCaches.get(side) == null) {
 			if (level instanceof ServerLevel serverLevel) {
-				BlockCapabilityCache<IItemHandler, @Nullable Direction> cache = BlockCapabilityCache.create(
-						Capabilities.ItemHandler.BLOCK,
+				BlockCapabilityCache<ResourceHandler<ItemResource>, @Nullable Direction> cache = BlockCapabilityCache.create(
+						Capabilities.Item.BLOCK,
 						serverLevel,
 						pos,
 						side.getOpposite()
@@ -519,7 +516,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 				capCaches.put(side, cache);
 				return cache.getCapability();
 			} else {
-				return level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side.getOpposite());
+				return level.getCapability(Capabilities.Item.BLOCK, pos, side.getOpposite());
 			}
 		} else {
 			return capCaches.get(side).getCapability();
@@ -534,7 +531,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		item = stack;
 		itemPosition.startWithValue(insertionPos);
 		invVersionTracker.reset();
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			notifyUpdate();
 			award(AllAdvancements.CHUTE);
 		}
@@ -550,7 +547,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		compound.put("Item", item.saveOptional(registries));
+		compound.store("Item", ItemStack.OPTIONAL_CODEC, item);
 		compound.putFloat("ItemPosition", itemPosition.getValue());
 		compound.putFloat("Pull", pull);
 		compound.putFloat("Push", push);
@@ -561,20 +558,20 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		ItemStack previousItem = item;
-		item = ItemStack.parseOptional(registries, compound.getCompound("Item"));
-		itemPosition.startWithValue(compound.getFloat("ItemPosition"));
-		pull = compound.getFloat("Pull");
-		push = compound.getFloat("Push");
-		bottomPullDistance = compound.getFloat("BottomAirFlowDistance");
+		item = compound.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+		itemPosition.startWithValue(compound.getFloatOr("ItemPosition", 0));
+		pull = compound.getFloatOr("Pull", 0);
+		push = compound.getFloatOr("Push", 0);
+		bottomPullDistance = compound.getFloatOr("BottomAirFlowDistance", 0);
 		super.read(compound, registries, clientPacket);
 //		if (clientPacket)
 //			airCurrent.rebuild();
 
-		if (hasLevel() && level != null && level.isClientSide && !ItemStack.matches(previousItem, item) && !item.isEmpty()) {
-			if (level.random.nextInt(3) != 0)
+		if (hasLevel() && level != null && level.isClientSide() && !ItemStack.matches(previousItem, item) && !item.isEmpty()) {
+			if (level.getRandom().nextInt(3) != 0)
 				return;
 			Vec3 p = VecHelper.getCenterOf(worldPosition);
-			p = VecHelper.offsetRandomly(p, level.random, .5f);
+			p = VecHelper.offsetRandomly(p, level.getRandom(), .5f);
 			Vec3 m = Vec3.ZERO;
 			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, item), p.x, p.y, p.z, m.x, m.y, m.z);
 		}

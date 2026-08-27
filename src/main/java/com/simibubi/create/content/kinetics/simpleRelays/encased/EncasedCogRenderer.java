@@ -1,5 +1,8 @@
 package com.simibubi.create.content.kinetics.simpleRelays.encased;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.base.IRotate;
@@ -8,20 +11,28 @@ import com.simibubi.create.content.kinetics.simpleRelays.BracketedKineticBlockEn
 import com.simibubi.create.content.kinetics.simpleRelays.SimpleKineticBlockEntity;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.createmod.catnip.api.data.Iterate;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
-public class EncasedCogRenderer extends KineticBlockEntityRenderer<SimpleKineticBlockEntity> {
+public class EncasedCogRenderer
+	extends KineticBlockEntityRenderer<SimpleKineticBlockEntity, EncasedCogRenderer.EncasedCogRenderState> {
+
+	public static class EncasedCogRenderState extends KineticRenderState {
+		public final List<SuperByteBufferRenderState> shafts = new ArrayList<>(2);
+	}
 
 	private boolean large;
 
@@ -39,11 +50,20 @@ public class EncasedCogRenderer extends KineticBlockEntityRenderer<SimpleKinetic
 	}
 
 	@Override
-	protected void renderSafe(SimpleKineticBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-							  int light, int overlay) {
-		super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
-		if (VisualizationManager.supportsVisualization(be.getLevel()))
+	public EncasedCogRenderState createRenderState() {
+		return new EncasedCogRenderState();
+	}
+
+	@Override
+	protected void extractSafe(SimpleKineticBlockEntity be, EncasedCogRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		state.shafts.clear();
+		super.extractSafe(be, state, partialTicks, cameraPosition);
+
+		if (VisualizationManager.supportsVisualization(be.getLevel())) {
+			state.skip = true;
 			return;
+		}
 
 		BlockState blockState = be.getBlockState();
 		Block block = blockState.getBlock();
@@ -55,13 +75,21 @@ public class EncasedCogRenderer extends KineticBlockEntityRenderer<SimpleKinetic
 		float angle = large ? BracketedKineticBlockEntityRenderer.getAngleForLargeCogShaft(be, axis)
 			: getAngleForBe(be, pos, axis);
 
-		for (Direction d : Iterate.directionsInAxis(getRotationAxisOf(be))) {
+		for (Direction d : Iterate.directionsInAxis(axis)) {
 			if (!def.hasShaftTowards(be.getLevel(), be.getBlockPos(), blockState, d))
 				continue;
-			SuperByteBuffer shaft = CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, be.getBlockState(), d);
-			kineticRotationTransform(shaft, be, axis, angle, light);
-			shaft.renderInto(ms, buffer.getBuffer(RenderType.solid()));
+			SuperByteBuffer shaft = CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, blockState, d);
+			kineticRotationTransform(shaft, be, axis, angle, state.lightCoords);
+			state.shafts.add(shaft.extractRenderState());
 		}
+	}
+
+	@Override
+	protected void submitSafe(EncasedCogRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		super.submitSafe(state, ms, queue, camera);
+		for (SuperByteBufferRenderState shaft : state.shafts)
+			shaft.submit(ms, RenderTypes.solidMovingBlock(), queue);
 	}
 
 	@Override

@@ -1,14 +1,14 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,8 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NullMarked
 public class PortableStorageInterfaceBlock extends WrenchableDirectionalBlock
 	implements IBE<PortableStorageInterfaceBlockEntity> {
 
@@ -43,7 +42,7 @@ public class PortableStorageInterfaceBlock extends WrenchableDirectionalBlock
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block p_220069_4_, BlockPos p_220069_5_,
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block p_220069_4_, @Nullable Orientation orientation,
 		boolean p_220069_6_) {
 		withBlockEntityDo(world, pos, PortableStorageInterfaceBlockEntity::neighbourChanged);
 	}
@@ -74,7 +73,7 @@ public class PortableStorageInterfaceBlock extends WrenchableDirectionalBlock
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos, Direction direction) {
 		return getBlockEntityOptional(worldIn, pos).map(be -> be.isConnected() ? 15 : 0)
 			.orElse(0);
 	}

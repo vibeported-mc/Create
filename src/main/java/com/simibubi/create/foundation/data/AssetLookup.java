@@ -7,7 +7,7 @@ import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
@@ -94,7 +94,7 @@ public class AssetLookup {
 	public static Function<BlockState, ModelFile> withIndicator(DataGenContext<?, ?> ctx,
 		RegistrateBlockstateProvider prov, Function<BlockState, ModelFile> baseModelFunc, IntegerProperty property) {
 		return state -> {
-			ResourceLocation baseModel = baseModelFunc.apply(state)
+			Identifier baseModel = baseModelFunc.apply(state)
 				.getLocation();
 			Integer integer = state.getValue(property);
 			return prov.models()

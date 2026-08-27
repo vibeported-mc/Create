@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packager;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -15,7 +16,6 @@ import com.mojang.serialization.Codec;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.LogisticalStockResponsePacket;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
@@ -164,7 +164,7 @@ public class InventorySummary {
 		List<BigItemStack> currentList = null;
 
 		if (stacks.isEmpty())
-			CatnipServices.NETWORK.sendToClient(player, new LogisticalStockResponsePacket(true, pos, Collections.emptyList()));
+			NetworkHelper.INSTANCE.sendToClient(player, new LogisticalStockResponsePacket(true, pos, Collections.emptyList()));
 
 		for (BigItemStack entry : stacks) {
 			if (currentList == null)
@@ -178,12 +178,12 @@ public class InventorySummary {
 			if (currentList.size() < 100)
 				continue;
 
-			CatnipServices.NETWORK.sendToClient(player, new LogisticalStockResponsePacket(false, pos, currentList));
+			NetworkHelper.INSTANCE.sendToClient(player, new LogisticalStockResponsePacket(false, pos, currentList));
 			currentList = null;
 		}
 
 		if (currentList != null)
-			CatnipServices.NETWORK.sendToClient(player, new LogisticalStockResponsePacket(true, pos, currentList));
+			NetworkHelper.INSTANCE.sendToClient(player, new LogisticalStockResponsePacket(true, pos, currentList));
 	}
 
 	public boolean isEmpty() {

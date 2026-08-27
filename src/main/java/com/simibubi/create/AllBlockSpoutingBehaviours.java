@@ -10,7 +10,7 @@ import com.simibubi.create.compat.Mods;
 import com.simibubi.create.compat.tconstruct.SpoutCasting;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FarmBlock;
@@ -38,7 +38,7 @@ public class AllBlockSpoutingBehaviours {
 			return;
 
 		for (String name : List.of("table", "basin")) {
-			ResourceLocation id = Mods.TCONSTRUCT.rl(name);
+			Identifier id = Mods.TCONSTRUCT.rl(name);
 			if (BuiltInRegistries.BLOCK_ENTITY_TYPE.containsKey(id)) {
 				BlockEntityType<?> table = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(id);
 				BlockSpoutingBehaviour.BY_BLOCK_ENTITY.register(table, SpoutCasting.INSTANCE);

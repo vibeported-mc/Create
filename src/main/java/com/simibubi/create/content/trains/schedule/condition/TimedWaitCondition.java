@@ -108,7 +108,7 @@ public abstract class TimedWaitCondition extends ScheduleWaitCondition {
 
 	@Override
 	public MutableComponent getWaitingStatus(Level level, Train train, CompoundTag tag) {
-		int time = tag.getInt("Time");
+		int time = tag.getIntOr("Time", 0);
 		int ticksUntilDeparture = totalWaitTicks() - time;
 		boolean showInMinutes = ticksUntilDeparture >= 20 * 60;
 		int num =

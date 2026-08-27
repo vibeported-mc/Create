@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.box;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +18,9 @@ import com.simibubi.create.content.logistics.box.PackageStyles.PackageStyle;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.item.ItemHelper;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.data.Glob;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.Glob;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -33,7 +35,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,9 +50,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class PackageItem extends Item {
 	public static final int SLOTS = 9;
@@ -90,12 +88,12 @@ public class PackageItem extends Item {
 	}
 
 	public static ItemStack containing(List<ItemStack> stacks) {
-		ItemStackHandler newInv = new ItemStackHandler(9);
-		stacks.forEach(s -> ItemHandlerHelper.insertItemStacked(newInv, s, false));
+		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(9);
+		stacks.forEach(s -> ItemHandlerHelpers.insertItemStacked(newInv, s, false));
 		return containing(newInv);
 	}
 
-	public static ItemStack containing(ItemStackHandler stacks) {
+	public static ItemStack containing(ItemStacksResourceHandler stacks) {
 		ItemStack box = PackageStyles.getRandomBox();
 		box.set(AllDataComponents.PACKAGE_CONTENTS, ItemHelper.containerContentsFromHandler(stacks));
 		return box;
@@ -214,8 +212,8 @@ public class PackageItem extends Item {
 		return 1;
 	}
 
-	public static ItemStackHandler getContents(ItemStack box) {
-		ItemStackHandler newInv = new ItemStackHandler(9);
+	public static ItemStacksResourceHandler getContents(ItemStack box) {
+		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(9);
 		ItemContainerContents contents = box.getOrDefault(AllDataComponents.PACKAGE_CONTENTS, ItemContainerContents.EMPTY);
 		ItemHelper.fillItemStackHandler(contents, newInv);
 		return newInv;
@@ -232,12 +230,12 @@ public class PackageItem extends Item {
 
 		/*
 		 * Debug Fragmentation Data if (tag.contains("Fragment")) { CompoundTag
-		 * fragTag = tag.getCompound("Fragment");
+		 * fragTag = tag.getCompoundOrEmpty("Fragment");
 		 * pTooltipComponents.add(Component.literal("Order Information (Temporary)")
 		 * .withStyle(ChatFormatting.GREEN)); pTooltipComponents.add(Components
-		 * .literal(" Link " + fragTag.getInt("LinkIndex") +
-		 * (fragTag.getBoolean("IsFinalLink") ? " Final" : "") + " | Fragment " +
-		 * fragTag.getInt("Index") + (fragTag.getBoolean("IsFinal") ? " Final" : ""))
+		 * .literal(" Link " + fragTag.getIntOr("LinkIndex", 0) +
+		 * (fragTag.getBooleanOr("IsFinalLink", false) ? " Final" : "") + " | Fragment " +
+		 * fragTag.getIntOr("Index", 0) + (fragTag.getBooleanOr("IsFinal", false) ? " Final" : ""))
 		 * .withStyle(ChatFormatting.DARK_GREEN)); if (fragTag.contains("OrderContext"))
 		 * pTooltipComponents.add(Component.literal("Has Context!")
 		 * .withStyle(ChatFormatting.DARK_GREEN)); }
@@ -249,9 +247,9 @@ public class PackageItem extends Item {
 
 		int visibleNames = 0;
 		int skippedNames = 0;
-		ItemStackHandler contents = getContents(stack);
-		for (int i = 0; i < contents.getSlots(); i++) {
-			ItemStack itemstack = contents.getStackInSlot(i);
+		ItemStacksResourceHandler contents = getContents(stack);
+		for (int i = 0; i < contents.size(); i++) {
+			ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(contents, i);
 			if (itemstack.isEmpty())
 				continue;
 			if (itemstack.getItem() instanceof SpawnEggItem)
@@ -286,16 +284,16 @@ public class PackageItem extends Item {
 		return UseAnim.BOW;
 	}
 
-	public InteractionResultHolder<ItemStack> open(Level worldIn, Player playerIn, InteractionHand handIn) {
+	public InteractionResult open(Level worldIn, Player playerIn, InteractionHand handIn) {
 		ItemStack box = playerIn.getItemInHand(handIn);
-		ItemStackHandler contents = getContents(box);
+		ItemStacksResourceHandler contents = getContents(box);
 		ItemStack particle = box.copy();
 
 		playerIn.setItemInHand(handIn, box.getCount() <= 1 ? ItemStack.EMPTY : box.copyWithCount(box.getCount() - 1));
 
 		if (!worldIn.isClientSide()) {
-			for (int i = 0; i < contents.getSlots(); i++) {
-				ItemStack itemstack = contents.getStackInSlot(i);
+			for (int i = 0; i < contents.size(); i++) {
+				ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(contents, i);
 				if (itemstack.isEmpty())
 					continue;
 
@@ -330,13 +328,13 @@ public class PackageItem extends Item {
 			}
 		}
 
-		return new InteractionResultHolder<>(InteractionResult.SUCCESS, box);
+		return InteractionResult.SUCCESS.heldItemTransformedTo(box);
 	}
 
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		if (context.getPlayer().isShiftKeyDown()) {
-			return open(context.getLevel(), context.getPlayer(), context.getHand()).getResult();
+			return open(context.getLevel(), context.getPlayer(), context.getHand());
 		}
 
 		Vec3 point = context.getClickLocation();
@@ -349,7 +347,7 @@ public class PackageItem extends Item {
 			.getAxis()
 			.isHorizontal())
 			point = point.add(Vec3.atLowerCornerOf(context.getClickedFace()
-					.getNormal())
+					.getUnitVec3i())
 				.scale(r));
 
 		AABB scanBB = new AABB(point, point).inflate(r, 0, r)
@@ -368,12 +366,12 @@ public class PackageItem extends Item {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+	public InteractionResult use(Level world, Player player, InteractionHand hand) {
 		if (player.isShiftKeyDown())
 			return open(world, player, hand);
 		ItemStack itemstack = player.getItemInHand(hand);
 		player.startUsingItem(hand);
-		return InteractionResultHolder.success(itemstack);
+		return InteractionResult.SUCCESS.heldItemTransformedTo(itemstack);
 	}
 
 	@Override
@@ -387,7 +385,7 @@ public class PackageItem extends Item {
 		float f = getPackageVelocity(i);
 		if (f < 0.1D)
 			return;
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return;
 
 		world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SNOWBALL_THROW,

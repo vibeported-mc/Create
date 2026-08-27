@@ -1,8 +1,11 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import org.jspecify.annotations.NullMarked;
 import java.util.function.Consumer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.Create;
 import com.simibubi.create.compat.jei.category.animations.AnimatedItemDrain;
@@ -20,9 +23,9 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.runtime.IIngredientManager;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
 import net.minecraft.world.item.Items;
@@ -31,10 +34,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-
-@ParametersAreNonnullByDefault
+@NullMarked
 public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 
 	private final AnimatedItemDrain drain = new AnimatedItemDrain();
@@ -49,7 +49,7 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 			if (PotionFluidHandler.isPotionItem(stack)) {
 				FluidStack fluidFromPotionItem = PotionFluidHandler.getFluidFromPotionItem(stack);
 				Ingredient potion = Ingredient.of(stack);
-				ResourceLocation id = Create.asResource("potions");
+				Identifier id = Create.asResource("potions");
 				EmptyingRecipe recipe = new StandardProcessingRecipe.Builder<>(EmptyingRecipe::new, id)
 						.withItemIngredients(potion)
 						.withFluidOutputs(fluidFromPotionItem)
@@ -59,13 +59,13 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 				continue;
 			}
 
-			IFluidHandlerItem capability = stack.getCapability(Capabilities.FluidHandler.ITEM);
+			ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
 			if (capability == null)
 				continue;
 
 			ItemStack copy = stack.copy();
-			capability = copy.getCapability(Capabilities.FluidHandler.ITEM);
-			FluidStack extracted = capability.drain(1000, FluidAction.EXECUTE);
+			capability = copy.getCapability(Capabilities.Fluid.ITEM);
+			FluidStack extracted = FluidHandlerHelpers.drain(capability, 1000, false);
 			ItemStack result = capability.getContainer();
 			if (extracted.isEmpty())
 				continue;
@@ -78,10 +78,10 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 			result = ItemHelper.sameItem(stack, result) ? stack : emptiedItems.addOrGet(result);
 
 			Ingredient ingredient = Ingredient.of(stack);
-			ResourceLocation itemName = RegisteredObjectsHelper.getKeyOrThrow(stack.getItem());
-			ResourceLocation fluidName = RegisteredObjectsHelper.getKeyOrThrow(extracted.getFluid());
+			Identifier itemName = RegisteredObjectsHelper.getKeyOrThrow(stack.getItem());
+			Identifier fluidName = RegisteredObjectsHelper.getKeyOrThrow(extracted.getFluid());
 
-			ResourceLocation id = Create.asResource("empty_" + itemName.getNamespace() + "_" + itemName.getPath() + "_of_"
+			Identifier id = Create.asResource("empty_" + itemName.getNamespace() + "_" + itemName.getPath() + "_of_"
 					+ fluidName.getNamespace() + "_" + fluidName.getPath());
 			EmptyingRecipe recipe = new StandardProcessingRecipe.Builder<>(EmptyingRecipe::new, id)
 					.withItemIngredients(ingredient)
@@ -108,7 +108,7 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 	}
 
 	@Override
-	public void draw(EmptyingRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+	public void draw(EmptyingRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		AllGuiTextures.JEI_SHADOW.render(graphics, 62, 37);
 		AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 73, 4);
 		drain.withFluid(recipe.getResultingFluid())

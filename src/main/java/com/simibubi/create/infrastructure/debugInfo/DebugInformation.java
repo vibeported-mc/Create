@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.debugInfo;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.platform.GlUtil;
+import com.mojang.blaze3d.opengl.GlUtil;
 import com.simibubi.create.Create;
 import com.simibubi.create.CreateBuildInfo;
 import com.simibubi.create.compat.pojav.PojavChecker;
@@ -22,10 +23,9 @@ import com.simibubi.create.infrastructure.debugInfo.element.InfoEntry;
 import dev.engine_room.flywheel.api.Flywheel;
 import dev.engine_room.flywheel.api.backend.Backend;
 import dev.engine_room.flywheel.api.backend.BackendManager;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.SharedConstants;
 import net.minecraft.SystemReport;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 
 import net.neoforged.fml.ModList;
@@ -77,7 +77,7 @@ public class DebugInformation {
 			.put("Minecraft Version", SharedConstants.getCurrentVersion().getName())
 			.buildTo(DebugInformation::registerBothInfo);
 
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> {
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
 			DebugInfoSection.builder("Graphics")
 				.put("Flywheel Version", ModList.get()
 					.getModContainerById(Flywheel.ID)

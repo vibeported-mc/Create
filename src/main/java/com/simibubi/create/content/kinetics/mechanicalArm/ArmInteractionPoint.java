@@ -1,17 +1,20 @@
 package com.simibubi.create.content.kinetics.mechanicalArm;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 import com.simibubi.create.content.contraptions.StructureTransform;
 
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -21,9 +24,6 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 public class ArmInteractionPoint {
 
 	protected final ArmInteractionPointType type;
@@ -32,7 +32,7 @@ public class ArmInteractionPoint {
 	protected Mode mode = Mode.DEPOSIT;
 
 	protected BlockState cachedState;
-	protected BlockCapabilityCache<IItemHandler, Direction> cachedHandler;
+	protected BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> cachedHandler;
 	protected ArmAngleTarget cachedAngles;
 
 	public ArmInteractionPoint(ArmInteractionPointType type, Level level, BlockPos pos, BlockState state) {
@@ -95,13 +95,13 @@ public class ArmInteractionPoint {
 	}
 
 	@Nullable
-	protected IItemHandler getHandler(ArmBlockEntity armBlockEntity) {
+	protected ResourceHandler<ItemResource> getHandler(ArmBlockEntity armBlockEntity) {
 		if (cachedHandler == null && level instanceof ServerLevel serverLevel) {
 			BlockEntity be = level.getBlockEntity(pos);
 			if (be == null)
 				return null;
 			cachedHandler = BlockCapabilityCache.create(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				serverLevel,
 				pos,
 				Direction.UP,
@@ -113,14 +113,14 @@ public class ArmInteractionPoint {
 	}
 
 	public ItemStack insert(ArmBlockEntity armBlockEntity, ItemStack stack, boolean simulate) {
-		IItemHandler handler = getHandler(armBlockEntity);
+		ResourceHandler<ItemResource> handler = getHandler(armBlockEntity);
 		if (handler == null)
 			return stack;
-		return ItemHandlerHelper.insertItem(handler, stack, simulate);
+		return ItemHandlerHelpers.insertItem(handler, stack, simulate);
 	}
 
 	public ItemStack extract(ArmBlockEntity armBlockEntity, int slot, int amount, boolean simulate) {
-		IItemHandler handler = getHandler(armBlockEntity);
+		ResourceHandler<ItemResource> handler = getHandler(armBlockEntity);
 		if (handler == null)
 			return ItemStack.EMPTY;
 		return handler.extractItem(slot, amount, simulate);
@@ -131,10 +131,10 @@ public class ArmInteractionPoint {
 	}
 
 	public int getSlotCount(ArmBlockEntity armBlockEntity) {
-		IItemHandler handler = getHandler(armBlockEntity);
+		ResourceHandler<ItemResource> handler = getHandler(armBlockEntity);
 		if (handler == null)
 			return 0;
-		return handler.getSlots();
+		return handler.size();
 	}
 
 	protected void serialize(CompoundTag nbt, BlockPos anchor) {
@@ -146,20 +146,20 @@ public class ArmInteractionPoint {
 	}
 
 	public final CompoundTag serialize(BlockPos anchor) {
-		ResourceLocation key = CreateBuiltInRegistries.ARM_INTERACTION_POINT_TYPE.getKey(type);
+		Identifier key = CreateBuiltInRegistries.ARM_INTERACTION_POINT_TYPE.getKey(type);
 		if (key == null)
 			throw new IllegalArgumentException("Could not get id for ArmInteractionPointType " + type + "!");
 
 		CompoundTag nbt = new CompoundTag();
 		nbt.putString("Type", key.toString());
-		nbt.put("Pos", NbtUtils.writeBlockPos(pos.subtract(anchor)));
+		nbt.store("Pos", BlockPos.CODEC, pos.subtract(anchor));
 		serialize(nbt, anchor);
 		return nbt;
 	}
 
 	@Nullable
 	public static ArmInteractionPoint deserialize(CompoundTag nbt, Level level, BlockPos anchor) {
-		ResourceLocation id = ResourceLocation.tryParse(nbt.getString("Type"));
+		Identifier id = Identifier.tryParse(nbt.getStringOr("Type", ""));
 		if (id == null)
 			return null;
 		ArmInteractionPointType type = CreateBuiltInRegistries.ARM_INTERACTION_POINT_TYPE.get(id);
@@ -179,7 +179,7 @@ public class ArmInteractionPoint {
 	public static void transformPos(CompoundTag nbt, StructureTransform transform) {
 		BlockPos pos = NBTHelper.readBlockPos(nbt, "Pos");
 		pos = transform.applyWithoutOffset(pos);
-		nbt.put("Pos", NbtUtils.writeBlockPos(pos));
+		nbt.store("Pos", BlockPos.CODEC, pos);
 	}
 
 	public static boolean isInteractable(Level level, BlockPos pos, BlockState state) {

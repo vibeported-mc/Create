@@ -1,5 +1,9 @@
 package com.simibubi.create.content.schematics.table;
 
+import com.simibubi.create.foundation.item.ItemHelper;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.List;
 
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -21,8 +25,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuProvider, Clearable {
 	public SchematicTableInventory inventory;
 	public boolean isUploading;
@@ -30,7 +32,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 	public float uploadingProgress;
 	public boolean sendUpdate;
 
-	public class SchematicTableInventory extends ItemStackHandler {
+	public class SchematicTableInventory extends ItemStacksResourceHandler implements ModifiableItemHandler {
 		public SchematicTableInventory() {
 			super(2);
 		}
@@ -51,14 +53,14 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		inventory.deserializeNBT(registries, compound.getCompound("Inventory"));
+		inventory.deserializeNBT(registries, compound.getCompoundOrEmpty("Inventory"));
 		super.read(compound, registries, clientPacket);
 		if (!clientPacket)
 			return;
 		if (compound.contains("Uploading")) {
 			isUploading = true;
-			uploadingSchematic = compound.getString("Schematic");
-			uploadingProgress = compound.getFloat("Progress");
+			uploadingSchematic = compound.getStringOr("Schematic", "");
+			uploadingProgress = compound.getFloatOr("Progress", 0);
 		} else {
 			isUploading = false;
 			uploadingSchematic = null;
@@ -96,7 +98,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 		uploadingProgress = 0;
 		uploadingSchematic = schematic;
 		sendUpdate = true;
-		inventory.setStackInSlot(0, ItemStack.EMPTY);
+		ItemHandlerHelpers.setStackInSlot(inventory, 0, ItemStack.EMPTY);
 	}
 
 	public void finishUpload() {
@@ -118,4 +120,11 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		if (level != null)
+			ItemHelper.dropContents(level, worldPosition, inventory);
+	}
 }

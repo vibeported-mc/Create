@@ -1,9 +1,9 @@
 package com.simibubi.create.content.contraptions.glue;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
 
-public record SuperGlueSelectionPacket(BlockPos from, BlockPos to) implements ServerboundPacketPayload {
+public record SuperGlueSelectionPacket(BlockPos from, BlockPos to) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, SuperGlueSelectionPacket> STREAM_CODEC = StreamCodec.composite(
 			BlockPos.STREAM_CODEC, SuperGlueSelectionPacket::from,
 			BlockPos.STREAM_CODEC, SuperGlueSelectionPacket::to,
@@ -46,7 +46,7 @@ public record SuperGlueSelectionPacket(BlockPos from, BlockPos to) implements Se
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.GLUE_IN_AREA;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.GLUE_IN_AREA.getType();
 	}
 }

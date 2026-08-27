@@ -1,5 +1,8 @@
 package com.simibubi.create.content.decoration.slidingDoor;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.redstone.Orientation;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
@@ -128,9 +131,9 @@ public class SlidingDoorBlock extends DoorBlock implements IWrenchable, IBE<Slid
 	}
 
 	@Override
-	public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel,
-								  BlockPos pCurrentPos, BlockPos pFacingPos) {
-		BlockState blockState = super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+	public BlockState updateShape(BlockState pState, LevelReader pLevel, ScheduledTickAccess ticks,
+		BlockPos pCurrentPos, Direction pFacing, BlockPos pFacingPos, BlockState pFacingState, RandomSource random) {
+		BlockState blockState = super.updateShape(pState, pLevel, ticks, pCurrentPos, pFacing, pFacingPos, pFacingState, random);
 		if (blockState.isAir())
 			return blockState;
 		DoubleBlockHalf doubleblockhalf = blockState.getValue(HALF);
@@ -167,7 +170,7 @@ public class SlidingDoorBlock extends DoorBlock implements IWrenchable, IBE<Slid
 	}
 
 	@Override
-	public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, BlockPos pFromPos,
+	public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, @Nullable Orientation orientation,
 								boolean pIsMoving) {
 		boolean lower = pState.getValue(HALF) == DoubleBlockHalf.LOWER;
 		boolean isPowered = isDoorPowered(pLevel, pPos, pState);
@@ -244,7 +247,7 @@ public class SlidingDoorBlock extends DoorBlock implements IWrenchable, IBE<Slid
 			level.gameEvent(player, GameEvent.BLOCK_OPEN, pos);
 		}
 
-		return InteractionResult.sidedSuccess(level.isClientSide);
+		return InteractionResult.sidedSuccess(level.isClientSide());
 	}
 
 	public void deferUpdate(LevelAccessor level, BlockPos pos) {

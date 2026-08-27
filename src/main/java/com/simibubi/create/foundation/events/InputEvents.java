@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.events;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.contraptions.elevator.ElevatorControlsHandler;
@@ -15,7 +16,6 @@ import com.simibubi.create.content.trains.TrainHUD;
 import com.simibubi.create.content.trains.entity.TrainRelocator;
 import com.simibubi.create.content.trains.track.CurvedTrackInteraction;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -123,7 +123,7 @@ public class InputEvents {
 				return;
 		}
 
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> {
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
 			if (ChainPackageInteractionHandler.onUse())
 				event.setCanceled(true);
 		});

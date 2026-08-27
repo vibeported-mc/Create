@@ -1,9 +1,9 @@
 package com.simibubi.create.content.contraptions.elevator;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public record ElevatorTargetFloorPacket(int entityId, int targetY) implements ServerboundPacketPayload {
+public record ElevatorTargetFloorPacket(int entityId, int targetY) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, ElevatorTargetFloorPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, ElevatorTargetFloorPacket::entityId,
 			ByteBufCodecs.INT, ElevatorTargetFloorPacket::targetY,
@@ -51,7 +51,7 @@ public record ElevatorTargetFloorPacket(int entityId, int targetY) implements Se
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.ELEVATOR_SET_FLOOR;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.ELEVATOR_SET_FLOOR.getType();
 	}
 }

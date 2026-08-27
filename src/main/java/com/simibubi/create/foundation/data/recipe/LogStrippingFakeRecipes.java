@@ -8,10 +8,10 @@ import com.simibubi.create.content.kinetics.deployer.ManualApplicationRecipe;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
@@ -58,8 +58,8 @@ public class LogStrippingFakeRecipes {
 	}
 
 	private static RecipeHolder<ManualApplicationRecipe> create(Item fromItem, Item toItem, ItemStack axe) {
-		ResourceLocation rn = RegisteredObjectsHelper.getKeyOrThrow(toItem);
-		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(rn.getNamespace(), rn.getPath() + "_via_vanilla_stripping");
+		Identifier rn = RegisteredObjectsHelper.getKeyOrThrow(toItem);
+		Identifier id = Identifier.fromNamespaceAndPath(rn.getNamespace(), rn.getPath() + "_via_vanilla_stripping");
 		ManualApplicationRecipe recipe = new ItemApplicationRecipe.Builder<>(ManualApplicationRecipe::new, id)
 				.require(fromItem)
 				.require(Ingredient.of(axe))

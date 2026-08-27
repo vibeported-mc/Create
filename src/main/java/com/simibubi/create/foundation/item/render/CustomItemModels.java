@@ -10,17 +10,17 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 public class CustomItemModels {
 
-	private final Multimap<ResourceLocation, NonNullFunction<BakedModel, ? extends BakedModel>> modelFuncs = MultimapBuilder.hashKeys().arrayListValues().build();
+	private final Multimap<Identifier, NonNullFunction<BakedModel, ? extends BakedModel>> modelFuncs = MultimapBuilder.hashKeys().arrayListValues().build();
 	private final Map<Item, NonNullFunction<BakedModel, ? extends BakedModel>> finalModelFuncs = new IdentityHashMap<>();
 	private boolean funcsLoaded = false;
 
-	public void register(ResourceLocation item, NonNullFunction<BakedModel, ? extends BakedModel> func) {
+	public void register(Identifier item, NonNullFunction<BakedModel, ? extends BakedModel> func) {
 		modelFuncs.put(item, func);
 	}
 

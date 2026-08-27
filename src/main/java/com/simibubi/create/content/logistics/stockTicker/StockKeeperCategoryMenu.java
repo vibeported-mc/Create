@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.NotNull;
 
 import com.simibubi.create.AllBlocks;
@@ -18,13 +21,11 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class StockKeeperCategoryMenu extends MenuBase<StockTickerBlockEntity> {
 	public boolean slotsActive = true;
-	public ItemStackHandler proxyInventory;
+	public ItemStacksResourceHandler proxyInventory;
 
 	public StockKeeperCategoryMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {
 		super(type, id, inv, extraData);
@@ -42,7 +43,7 @@ public class StockKeeperCategoryMenu extends MenuBase<StockTickerBlockEntity> {
 
 	@Override
 	protected void initAndReadInventory(StockTickerBlockEntity contentHolder) {
-		proxyInventory = new ItemStackHandler(1);
+		proxyInventory = new ItemStacksResourceHandler(1);
 	}
 
 	@Override
@@ -83,7 +84,7 @@ public class StockKeeperCategoryMenu extends MenuBase<StockTickerBlockEntity> {
 	}
 
 	class InactiveItemHandlerSlot extends SlotItemHandler {
-		public InactiveItemHandlerSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+		public InactiveItemHandlerSlot(ResourceHandler<ItemResource> itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, index, xPosition, yPosition);
 		}
 

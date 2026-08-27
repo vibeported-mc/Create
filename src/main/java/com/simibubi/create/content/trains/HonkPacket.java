@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -9,9 +11,6 @@ import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -40,7 +39,7 @@ public abstract class HonkPacket implements CustomPacketPayload {
 		);
 	}
 
-	public static class Clientbound extends HonkPacket implements ClientboundPacketPayload {
+	public static class Clientbound extends HonkPacket implements CustomPacketPayload {
 		public static final StreamCodec<ByteBuf, Clientbound> STREAM_CODEC = codec(Clientbound::new);
 
 		public Clientbound(Train train, boolean isHonk) {
@@ -51,7 +50,6 @@ public abstract class HonkPacket implements CustomPacketPayload {
 			super(id, isHonk);
 		}
 
-		@Override
 		@OnlyIn(Dist.CLIENT)
 		public void handle(LocalPlayer player) {
 			Train train = Create.RAILWAYS.sided(null).trains.get(trainId);
@@ -65,12 +63,12 @@ public abstract class HonkPacket implements CustomPacketPayload {
 		}
 
 		@Override
-		public PacketTypeProvider getTypeProvider() {
-			return AllPackets.S_TRAIN_HONK;
+		public Type<? extends CustomPacketPayload> type() {
+			return AllPackets.S_TRAIN_HONK.getType();
 		}
 	}
 
-	public static class Serverbound extends HonkPacket implements ServerboundPacketPayload {
+	public static class Serverbound extends HonkPacket implements SelfHandlingPayload {
 		public static final StreamCodec<ByteBuf, Serverbound> STREAM_CODEC = codec(Serverbound::new);
 
 		public Serverbound(Train train, boolean isHonk) {
@@ -88,7 +86,7 @@ public abstract class HonkPacket implements CustomPacketPayload {
 				return;
 
 			AllAdvancements.TRAIN_WHISTLE.awardTo(player);
-			CatnipServices.NETWORK.sendToAllClients(new HonkPacket.Clientbound(train, isHonk));
+			NetworkHelper.INSTANCE.sendToAllClients(new HonkPacket.Clientbound(train, isHonk));
 			
 			Entity entity = train.carriages.get(0).anyAvailableEntity();
 			if (entity == null) entity = player;
@@ -97,8 +95,8 @@ public abstract class HonkPacket implements CustomPacketPayload {
 		}
 
 		@Override
-		public PacketTypeProvider getTypeProvider() {
-			return AllPackets.C_TRAIN_HONK;
+		public Type<? extends CustomPacketPayload> type() {
+			return AllPackets.C_TRAIN_HONK.getType();
 		}
 	}
 

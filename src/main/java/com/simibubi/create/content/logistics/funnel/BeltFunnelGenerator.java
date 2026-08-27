@@ -6,7 +6,7 @@ import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 public class BeltFunnelGenerator extends SpecialBlockStateGen {
 
 	private String type;
-	private ResourceLocation materialBlockTexture;
+	private Identifier materialBlockTexture;
 
 	public BeltFunnelGenerator(String type) {
 		this.type = type;

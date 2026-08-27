@@ -1,10 +1,9 @@
 package com.simibubi.create.content.contraptions;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -13,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public record ContraptionColliderLockPacket(int contraption, double offset, int sender) implements ClientboundPacketPayload {
+public record ContraptionColliderLockPacket(int contraption, double offset, int sender) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, ContraptionColliderLockPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, ContraptionColliderLockPacket::contraption,
 			ByteBufCodecs.DOUBLE, ContraptionColliderLockPacket::offset,
@@ -21,18 +20,17 @@ public record ContraptionColliderLockPacket(int contraption, double offset, int 
 	        ContraptionColliderLockPacket::new
 	);
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		ContraptionCollider.lockPacketReceived(contraption, sender, offset);
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONTRAPTION_COLLIDER_LOCK;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONTRAPTION_COLLIDER_LOCK.getType();
 	}
 
-	public record ContraptionColliderLockPacketRequest(int contraption, double offset) implements ServerboundPacketPayload {
+	public record ContraptionColliderLockPacketRequest(int contraption, double offset) implements SelfHandlingPayload {
 		public static final StreamCodec<ByteBuf, ContraptionColliderLockPacketRequest> STREAM_CODEC = StreamCodec.composite(
 		        ByteBufCodecs.VAR_INT, ContraptionColliderLockPacketRequest::contraption,
 				ByteBufCodecs.DOUBLE, ContraptionColliderLockPacketRequest::offset,
@@ -41,12 +39,12 @@ public record ContraptionColliderLockPacket(int contraption, double offset, int 
 
 		@Override
 		public void handle(ServerPlayer player) {
-			CatnipServices.NETWORK.sendToClientsTrackingEntity(player, new ContraptionColliderLockPacket(contraption, offset, player.getId()));
+			NetworkHelper.INSTANCE.sendToClientsTrackingEntity(player, new ContraptionColliderLockPacket(contraption, offset, player.getId()));
 		}
 
 		@Override
-		public PacketTypeProvider getTypeProvider() {
-			return AllPackets.CONTRAPTION_COLLIDER_LOCK_REQUEST;
+		public Type<? extends CustomPacketPayload> type() {
+			return AllPackets.CONTRAPTION_COLLIDER_LOCK_REQUEST.getType();
 		}
 	}
 

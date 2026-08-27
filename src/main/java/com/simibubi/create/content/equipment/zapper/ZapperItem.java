@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.zapper;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +14,7 @@ import com.simibubi.create.foundation.item.CustomArmPoseItem;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.nbt.NBTProcessors;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.nbt.NBTProcessors;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel.ArmPose;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -24,7 +24,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -79,8 +78,8 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem {
 		// Shift -> open GUI
 		if (context.getPlayer() != null && context.getPlayer()
 			.isShiftKeyDown()) {
-			if (context.getLevel().isClientSide) {
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> {
+			if (context.getLevel().isClientSide()) {
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
 					openHandgunGUI(context.getItemInHand(), context.getHand());
 				});
 				context.getPlayer()
@@ -94,32 +93,32 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+	public InteractionResult use(Level world, Player player, InteractionHand hand) {
 		ItemStack item = player.getItemInHand(hand);
 		boolean mainHand = hand == InteractionHand.MAIN_HAND;
 
 		// Shift -> Open GUI
 		if (player.isShiftKeyDown()) {
-			if (world.isClientSide) {
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> {
+			if (world.isClientSide()) {
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
 					openHandgunGUI(item, hand);
 				});
 				player.getCooldowns()
 					.addCooldown(item.getItem(), 10);
 			}
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, item);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(item);
 		}
 
 		if (ShootableGadgetItemMethods.shouldSwap(player, item, hand, this::isZapper))
-			return new InteractionResultHolder<>(InteractionResult.FAIL, item);
+			return InteractionResult.FAIL;
 
 		// Check if can be used
 		Component msg = validateUsage(item);
 		if (msg != null) {
 			AllSoundEvents.DENY.play(world, player, player.blockPosition());
-			player.displayClientMessage(msg.plainCopy()
-				.withStyle(ChatFormatting.RED), true);
-			return new InteractionResultHolder<>(InteractionResult.FAIL, item);
+			player.sendOverlayMessage(msg.plainCopy()
+				.withStyle(ChatFormatting.RED));
+			return InteractionResult.FAIL;
 		}
 
 		BlockState stateToUse = Blocks.AIR.defaultBlockState();
@@ -144,16 +143,16 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem {
 		// No target
 		if (pos == null || stateReplaced.getBlock() == Blocks.AIR) {
 			ShootableGadgetItemMethods.applyCooldown(player, item, hand, this::isZapper, getCooldownDelay(item));
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, item);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(item);
 		}
 
 		// Find exact position of gun barrel for VFX
 		Vec3 barrelPos = ShootableGadgetItemMethods.getGunBarrelVec(player, mainHand, new Vec3(.35f, -0.1f, 1));
 
 		// Client side
-		if (world.isClientSide) {
+		if (world.isClientSide()) {
 			CreateClient.ZAPPER_RENDER_HANDLER.dontAnimateItem(hand);
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, item);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(item);
 		}
 
 		// Server side
@@ -163,7 +162,7 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem {
 				b -> new ZapperBeamPacket(barrelPos, hand, b, raytrace.getLocation()));
 		}
 
-		return new InteractionResultHolder<>(InteractionResult.SUCCESS, item);
+		return InteractionResult.SUCCESS.heldItemTransformedTo(item);
 	}
 
 	public Component validateUsage(ItemStack item) {

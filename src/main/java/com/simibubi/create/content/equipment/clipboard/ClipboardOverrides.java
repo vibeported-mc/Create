@@ -9,11 +9,11 @@ import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.lang.Lang;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.lang.Lang;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 
@@ -31,7 +31,7 @@ public class ClipboardOverrides {
 		public static final StreamCodec<ByteBuf, ClipboardType> STREAM_CODEC = CatnipStreamCodecBuilders.ofEnum(ClipboardType.class);
 
 		public final String file;
-		public static ResourceLocation ID = Create.asResource("clipboard_type");
+		public static Identifier ID = Create.asResource("clipboard_type");
 
 		ClipboardType(String file) {
 			this.file = file;

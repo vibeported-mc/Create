@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 import com.simibubi.create.infrastructure.config.AllConfigs;
@@ -25,8 +26,8 @@ public class ServerboundChainConveyorRidingPacket extends BlockEntityConfigurati
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CHAIN_CONVEYOR_RIDING;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CHAIN_CONVEYOR_RIDING.getType();
 	}
 
 	@Override

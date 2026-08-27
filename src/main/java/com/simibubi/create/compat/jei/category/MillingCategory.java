@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.compat.jei.category.animations.AnimatedMillstone;
 import com.simibubi.create.content.kinetics.crusher.AbstractCrushingRecipe;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
@@ -8,12 +9,11 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class MillingCategory extends CreateRecipeCategory<AbstractCrushingRecipe> {
 
 	private final AnimatedMillstone millstone = new AnimatedMillstone();
@@ -47,7 +47,7 @@ public class MillingCategory extends CreateRecipeCategory<AbstractCrushingRecipe
 	}
 
 	@Override
-	public void draw(AbstractCrushingRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+	public void draw(AbstractCrushingRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		AllGuiTextures.JEI_ARROW.render(graphics, 85, 32);
 		AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 43, 4);
 		millstone.draw(graphics, 48, 27);

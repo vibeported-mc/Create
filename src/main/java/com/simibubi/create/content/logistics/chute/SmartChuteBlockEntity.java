@@ -26,7 +26,7 @@ public class SmartChuteBlockEntity extends ChuteBlockEntity implements Clearable
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-			Capabilities.ItemHandler.BLOCK,
+			Capabilities.Item.BLOCK,
 			AllBlockEntityTypes.SMART_CHUTE.get(),
 			(be, context) -> be.itemHandler
 		);

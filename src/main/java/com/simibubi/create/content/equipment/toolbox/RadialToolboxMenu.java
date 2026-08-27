@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static com.simibubi.create.content.equipment.toolbox.ToolboxInventory.STACKS_PER_COMPARTMENT;
 
 import java.util.List;
@@ -14,18 +16,17 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
-import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.gui.AbstractSimiScreen;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.client.gui.AbstractSimiScreen;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
@@ -58,7 +59,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		float fade = Mth.clamp((ticksOpen + AnimationTickHolder.getPartialTicks()) / 10f, 1 / 512f, 1);
 
 		hoveredSlot = -1;
@@ -138,7 +139,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 					ItemStack stackInSlot = inv.filters.get(slot);
 
 					if (!stackInSlot.isEmpty()) {
-						boolean empty = inv.getStackInSlot(slot * STACKS_PER_COMPARTMENT)
+						boolean empty = ItemHandlerHelpers.getStackInSlot(inv, slot * STACKS_PER_COMPARTMENT)
 							.isEmpty();
 
 						(empty ? AllGuiTextures.TOOLBELT_INACTIVE_SLOT : AllGuiTextures.TOOLBELT_SLOT)
@@ -204,7 +205,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 				int k1 = 16777215;
 				int k = i1 << 24 & -16777216;
 				int l = font.width(tip);
-				graphics.drawString(font, tip, Math.round(-l / 2f), -4, k1 | k, false);
+				graphics.text(font, tip, Math.round(-l / 2f), -4, k1 | k, false);
 				RenderSystem.disableBlend();
 				ms.popPose();
 			}
@@ -213,7 +214,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void renderBackground(GuiGraphicsExtractor pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		Color color = BACKGROUND_COLOR
 				.scaleAlpha(Math.min(1, (ticksOpen + AnimationTickHolder.getPartialTicks()) / 20f));
 
@@ -236,9 +237,9 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 			if (state == State.DETACH)
 				return;
 			else if (state == State.SELECT_BOX)
-				toolboxes.forEach(be -> CatnipServices.NETWORK.sendToServer(new ToolboxDisposeAllPacket(be.getBlockPos())));
+				toolboxes.forEach(be -> NetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(be.getBlockPos())));
 			else
-				CatnipServices.NETWORK.sendToServer(new ToolboxDisposeAllPacket(selectedBox.getBlockPos()));
+				NetworkHelper.INSTANCE.sendToServer(new ToolboxDisposeAllPacket(selectedBox.getBlockPos()));
 			return;
 		}
 
@@ -247,13 +248,13 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 		if (state == State.DETACH) {
 			if (selected == UNEQUIP)
-				CatnipServices.NETWORK.sendToServer(
+				NetworkHelper.INSTANCE.sendToServer(
 					new ToolboxEquipPacket(null, selected, minecraft.player.getInventory().selected));
 			return;
 		}
 
 		if (selected == UNEQUIP)
-			CatnipServices.NETWORK.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
+			NetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
 				minecraft.player.getInventory().selected));
 
 		if (selected < 0)
@@ -262,11 +263,11 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 		ItemStack stackInSlot = inv.filters.get(selected);
 		if (stackInSlot.isEmpty())
 			return;
-		if (inv.getStackInSlot(selected * STACKS_PER_COMPARTMENT)
+		if (ItemHandlerHelpers.getStackInSlot(inv, selected * STACKS_PER_COMPARTMENT)
 			.isEmpty())
 			return;
 
-		CatnipServices.NETWORK.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
+		NetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
 			minecraft.player.getInventory().selected));
 	}
 
@@ -284,7 +285,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 				if (state == State.SELECT_ITEM || state == State.SELECT_ITEM_UNEQUIP) {
 					ToolboxInventory inv = selectedBox.inventory;
 					ItemStack stackInSlot = inv.filters.get(scrollSlot);
-					if (!stackInSlot.isEmpty() && !inv.getStackInSlot(scrollSlot * STACKS_PER_COMPARTMENT)
+					if (!stackInSlot.isEmpty() && !ItemHandlerHelpers.getStackInSlot(inv, scrollSlot * STACKS_PER_COMPARTMENT)
 						.isEmpty())
 						break;
 				}
@@ -339,7 +340,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 			if (state == State.SELECT_ITEM_UNEQUIP && selected == UNEQUIP) {
 				if (toolboxes.size() > 1) {
-					CatnipServices.NETWORK.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
+					NetworkHelper.INSTANCE.sendToServer(new ToolboxEquipPacket(selectedBox.getBlockPos(), selected,
 						minecraft.player.getInventory().selected));
 					state = State.SELECT_BOX;
 					return true;
@@ -363,7 +364,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 				if (state == State.SELECT_ITEM || state == State.SELECT_ITEM_UNEQUIP) {
 					ToolboxInventory inv = selectedBox.inventory;
 					ItemStack stackInSlot = inv.filters.get(i);
-					if (stackInSlot.isEmpty() || inv.getStackInSlot(i * STACKS_PER_COMPARTMENT)
+					if (stackInSlot.isEmpty() || ItemHandlerHelpers.getStackInSlot(inv, i * STACKS_PER_COMPARTMENT)
 						.isEmpty())
 						return false;
 				}

@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.codec;
 
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -15,7 +16,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class CreateCodecs {
@@ -30,8 +30,8 @@ public class CreateCodecs {
 		String::valueOf
 	);
 
-	public static final Codec<ItemStackHandler> ITEM_STACK_HANDLER = Codec.lazyInitialized(() -> ItemSlots.CODEC.xmap(
-		slots -> slots.toHandler(ItemStackHandler::new), ItemSlots::fromHandler
+	public static final Codec<ItemStacksResourceHandler> ITEM_STACK_HANDLER = Codec.lazyInitialized(() -> ItemSlots.CODEC.xmap(
+		slots -> slots.toHandler(ItemStacksResourceHandler::new), ItemSlots::fromHandler
 	));
 
 	public static Codec<Integer> boundedIntStr(int min) {

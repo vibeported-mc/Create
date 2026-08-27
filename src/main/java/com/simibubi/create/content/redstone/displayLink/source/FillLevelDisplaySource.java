@@ -23,7 +23,7 @@ public class FillLevelDisplaySource extends PercentOrProgressBarDisplaySource {
 	@Override
 	protected boolean progressBarActive(DisplayLinkContext context) {
 		return context.sourceConfig()
-			.getInt("Mode") != 0;
+			.getIntOr("Mode", 0) != 0;
 	}
 
 	@Override

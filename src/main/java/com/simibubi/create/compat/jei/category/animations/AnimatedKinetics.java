@@ -6,9 +6,9 @@ import com.simibubi.create.foundation.gui.CustomLightingSettings;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import mezz.jei.api.gui.drawable.IDrawable;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.gui.ILightingSettings;
-import net.createmod.catnip.gui.element.GuiGameElement;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.gui.ILightingSettings;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;

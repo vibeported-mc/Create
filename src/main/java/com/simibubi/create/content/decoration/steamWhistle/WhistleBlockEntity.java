@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.steamWhistle;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -15,11 +16,10 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -92,7 +92,7 @@ public class WhistleBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 			|| isVirtual());
 		animation.chase(powered ? 1 : 0, powered ? .5f : .4f, powered ? Chaser.EXP : Chaser.LINEAR);
 		animation.tickChaser();
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> this.tickAudio(getOctave(), powered));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> this.tickAudio(getOctave(), powered));
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class WhistleBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 
 	@Override
 	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-		pitch = tag.getInt("Pitch");
+		pitch = tag.getIntOr("Pitch", 0);
 		super.read(tag, registries, clientPacket);
 	}
 
@@ -167,7 +167,7 @@ public class WhistleBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 		Vec3 v = offset.scale(.45f)
 			.add(sizeOffset)
 			.add(Vec3.atCenterOf(worldPosition));
-		Vec3 m = offset.subtract(Vec3.atLowerCornerOf(facing.getNormal())
+		Vec3 m = offset.subtract(Vec3.atLowerCornerOf(facing.getUnitVec3i())
 			.scale(.75f));
 		level.addParticle(new SteamJetParticleData(1), v.x, v.y, v.z, m.x, m.y, m.z);
 	}

@@ -4,7 +4,7 @@ plugins {
     id("maven-publish")
     id("net.kyori.blossom") version "2.2.0" // https://github.com/KyoriPowered/blossom
     id("dev.ithundxr.silk") version "1.0.1" // https://github.com/ithundxr/silk
-    id("net.neoforged.moddev") version "2.0.141" // https://projects.neoforged.net/neoforged/ModDevGradle
+    id("net.neoforged.moddev") version "2.0.144" // https://projects.neoforged.net/neoforged/ModDevGradle
     id("me.modmuss50.mod-publish-plugin") version "1.1.0" // https://github.com/modmuss50/mod-publish-plugin
 }
 
@@ -16,7 +16,7 @@ group = "com.simibubi.create"
 version = mod_version + (dev && buildNumber != null ? "-${buildNumber}" : "")
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
 }
 
@@ -95,6 +95,7 @@ neoForge {
 }
 
 repositories {
+    mavenLocal() // Registrate, Flywheel, Ponder and Catnip, all built from source for 26.2
     maven { url = "https://maven.createmod.net" } // Ponder, Flywheel
     maven { url = "https://maven.ithundxr.dev/snapshots" } // Registrate
     maven { url = "https://maven.blamejared.com" } // JEI, Vazkii's Mods
@@ -126,27 +127,18 @@ configurations {
 }
 
 dependencies {
-    // Required dependencies
-    jarJar(api("com.tterrag.registrate:Registrate:$registrate_version"))
+    // Required dependencies. These are all built from source for 26.2 and published to mavenLocal;
+    // none of them are jarJar'd yet because the published coordinates do not exist upstream.
+    api("com.tterrag.registrate:Registrate:$registrate_version")
 
     compileOnlyApi("dev.engine-room.flywheel:flywheel-neoforge-api-$minecraft_version:$flywheel_version")
-    jarJar(runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-$minecraft_version:$flywheel_version") {
-        version {
-            strictly "[${flywheel_version},2.0)"
-            prefer flywheel_version
-        }
-    })
+    runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-$minecraft_version:$flywheel_version")
 
-    jarJar(api("net.createmod.ponder:ponder-neoforge:$ponder_version+mc$minecraft_version") {
-        version {
-            strictly "[$ponder_version+mc$minecraft_version,)"
-            prefer "$ponder_version+mc$minecraft_version"
-        }
-    })
+    api("net.createmod.ponder:ponder-neoforge:$ponder_version")
+    // Catnip used to come along with Ponder; on the 26.x branches it is published separately.
+    api("net.createmod.catnip:catnip-neoforge:$ponder_version")
 
     // Local dependencies - not published to consumers
-    localRuntimeOnly("dev.engine-room.vanillin:vanillin-neoforge-$minecraft_version:$vanillin_version")
-
     localImplementation("mezz.jei:jei-$minecraft_version-neoforge:$jei_version")
 
     compileOnly("top.theillusivec4.curios:curios-neoforge:$curios_version+$minecraft_version:api")
@@ -160,23 +152,15 @@ dependencies {
         localRuntimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge:$cc_tweaked_version")
     }
 
-    compileOnly("maven.modrinth:farmers-delight:${farmers_delight_version}")
-    if (farmers_delight_enable.toBoolean()) {
-        localImplementation("maven.modrinth:farmers-delight:${farmers_delight_version}")
-    }
+    // Farmer's Delight, FTB, JourneyMap, Xaero and Architectury have no 26.2 builds, so their
+    // integrations are compiled out for now (see sourceSets below and farmers_delight_enable).
+}
 
-    localRuntimeOnly("dev.architectury:architectury-neoforge:13d.0.8")
-    localImplementation("dev.ftb.mods:ftb-chunks-neoforge:2101.1.1")
-    localImplementation("dev.ftb.mods:ftb-teams-neoforge:2101.1.0")
-    localImplementation("dev.ftb.mods:ftb-library-neoforge:2101.1.3")
-
-    localImplementation("maven.modrinth:journeymap:1.21.1-6.0.0-beta.54+neoforge")
-    localImplementation("info.journeymap:journeymap-api-neoforge:2.0.0-1.21.1-20260205.200232-15") {
-        exclude(group: "curse.maven") // Pulls in a old version of journey map which is for forge
-    }
-
-    compileOnly("xaero.lib:xaerolib-neoforge-1.21:1.0.42")
-    compileOnly("curse.maven:xaeros-world-map-317780:7401095")
+// ModDevGradle 2.0.144 does not know Minecraft 26.2, so its version capability table falls back to
+// requesting Java 21 for the NeoFormRuntime tasks. Gradle 9 cannot auto-provision one either: the
+// foojay resolver still references JvmVendorSpec.IBM_SEMERU, which Gradle 9 removed.
+tasks.withType(net.neoforged.nfrtgradle.NeoFormRuntimeTask).configureEach {
+    javaExecutable.set(javaToolchains.launcherFor(java.toolchain).map { it.executablePath.asFile.absolutePath })
 }
 
 sourceSets.main {
@@ -184,6 +168,30 @@ sourceSets.main {
         if (!cc_tweaked_enable.toBoolean()) {
             exclude("com/simibubi/create/compat/computercraft/implementation/**")
         }
+
+        if (!farmers_delight_enable.toBoolean()) {
+            exclude("com/simibubi/create/compat/farmersdelight/**")
+        }
+
+        // Registrate 26.2 replaced NeoForge's BlockStateProvider/ModelFile/ConfiguredModel builders
+        // with a wrapper around vanilla's BlockModelGenerators, which is a different shape entirely.
+        // The generated assets in src/generated/resources are committed, so the mod builds and runs
+        // without datagen; these are excluded rather than deleted so the port can pick them up.
+        // TODO: port datagen to RegistrateBlockModelGenerator and drop these exclusions.
+        exclude("com/simibubi/create/foundation/data/AssetLookup.java")
+        exclude("com/simibubi/create/foundation/data/BlockStateGen.java")
+        exclude("com/simibubi/create/foundation/data/DirectionalAxisBlockStateGen.java")
+        exclude("com/simibubi/create/foundation/data/ModelGen.java")
+        exclude("com/simibubi/create/foundation/data/SpecialBlockStateGen.java")
+        exclude("com/simibubi/create/infrastructure/data/**")
+        exclude("**/*Generator.java")
+        exclude("**/*BlockStateGen*.java")
+
+        // Minecraft 1.21.5 replaced the annotation-driven gametest framework (@GameTest,
+        // TestFunction, StructureUtils) with data-driven GameTestInstance. Nothing outside the
+        // package references it and it never ships in the mod's runtime path.
+        // TODO: port the gametests to GameTestInstance and drop this exclusion.
+        exclude("com/simibubi/create/infrastructure/gametest/**")
     }
 
     resources {
@@ -212,6 +220,8 @@ tasks.withType(Jar).configureEach {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
+    // javac stops at 100 errors by default, which hides the real scale during a port.
+    options.compilerArgs.addAll(["-Xmaxerrs", "100000"])
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

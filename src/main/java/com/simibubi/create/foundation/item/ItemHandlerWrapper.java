@@ -1,49 +1,54 @@
 package com.simibubi.create.foundation.item;
 
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class ItemHandlerWrapper implements IItemHandlerModifiable {
+public class ItemHandlerWrapper implements ModifiableItemHandler {
 
-	private IItemHandlerModifiable wrapped;
+	private ModifiableItemHandler wrapped;
 
-	public ItemHandlerWrapper(IItemHandlerModifiable wrapped) {
+	public ItemHandlerWrapper(ModifiableItemHandler wrapped) {
 		this.wrapped = wrapped;
 	}
 
 	@Override
-	public int getSlots() {
-		return wrapped.getSlots();
+	public int size() {
+		return wrapped.size();
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int slot) {
-		return wrapped.getStackInSlot(slot);
+	public ItemResource getResource(int index) {
+		return wrapped.getResource(index);
 	}
 
 	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-		return wrapped.insertItem(slot, stack, simulate);
+	public long getAmountAsLong(int index) {
+		return wrapped.getAmountAsLong(index);
 	}
 
 	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		return wrapped.extractItem(slot, amount, simulate);
+	public long getCapacityAsLong(int index, ItemResource resource) {
+		return wrapped.getCapacityAsLong(index, resource);
 	}
 
 	@Override
-	public int getSlotLimit(int slot) {
-		return wrapped.getSlotLimit(slot);
+	public boolean isValid(int index, ItemResource resource) {
+		return wrapped.isValid(index, resource);
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemStack stack) {
-		return wrapped.isItemValid(slot, stack);
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return wrapped.insert(index, resource, amount, transaction);
 	}
 
 	@Override
-	public void setStackInSlot(int slot, ItemStack stack) {
-		wrapped.setStackInSlot(slot, stack);
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return wrapped.extract(index, resource, amount, transaction);
+	}
+
+	@Override
+	public void set(int index, ItemResource resource, int amount) {
+		wrapped.set(index, resource, amount);
 	}
 
 }

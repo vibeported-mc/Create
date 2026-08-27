@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.gauge;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
@@ -29,7 +30,7 @@ public class GaugeObservedPacket extends BlockEntityConfigurationPacket<StressGa
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.OBSERVER_STRESSOMETER;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.OBSERVER_STRESSOMETER.getType();
 	}
 }

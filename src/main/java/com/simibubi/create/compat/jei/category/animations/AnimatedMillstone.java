@@ -4,12 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class AnimatedMillstone extends AnimatedKinetics {
 
 	@Override
-	public void draw(GuiGraphics graphics, int xOffset, int yOffset) {
+	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
 		PoseStack matrixStack = graphics.pose();
 		matrixStack.pushPose();
 		matrixStack.translate(xOffset, yOffset, 0);

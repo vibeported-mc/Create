@@ -1,12 +1,12 @@
 package com.simibubi.create.content.redstone.thresholdSwitch;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.redstone.DirectedDirectionalBlock;
 import com.simibubi.create.foundation.block.IBE;
 
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +14,7 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -81,11 +81,11 @@ public class ThresholdSwitchBlock extends DirectedDirectionalBlock implements IB
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (player != null && AllItems.WRENCH.isIn(stack))
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> this.displayScreen(be, player)));
-		return ItemInteractionResult.SUCCESS;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> this.displayScreen(be, player)));
+		return InteractionResult.SUCCESS;
 	}
 
 	@OnlyIn(value = Dist.CLIENT)
@@ -103,8 +103,8 @@ public class ThresholdSwitchBlock extends DirectedDirectionalBlock implements IB
 			BlockEntity be = context.getLevel()
 				.getBlockEntity(context.getClickedPos()
 					.relative(face));
-			if (be != null && (be.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, be.getBlockPos(), null) != null ||
-					be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null) != null)) {
+			if (be != null && (be.getLevel().getCapability(Capabilities.Item.BLOCK, be.getBlockPos(), null) != null ||
+					be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null) != null)) {
 				preferredFacing = face;
 				break;
 			}

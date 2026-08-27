@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.contraptions.actors.trainControls.ControlsBlock;
 import com.simibubi.create.content.contraptions.actors.trainControls.ControlsHandler;
@@ -10,15 +11,14 @@ import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.utility.ControlsUtil;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.placement.PlacementClient;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.impl.client.placement.PlacementClient;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -75,14 +75,14 @@ public class TrainHUD {
 		if (isSprintKeyPressed && honkPacketCooldown-- <= 0) {
 			train.determineHonk(mc.level);
 			if (train.lowHonk != null) {
-				CatnipServices.NETWORK.sendToServer(new HonkPacket.Serverbound(train, true));
+				NetworkHelper.INSTANCE.sendToServer(new HonkPacket.Serverbound(train, true));
 				honkPacketCooldown = 5;
 				usedToHonk = true;
 			}
 		}
 
 		if (!isSprintKeyPressed && usedToHonk) {
-			CatnipServices.NETWORK.sendToServer(new HonkPacket.Serverbound(train, false));
+			NetworkHelper.INSTANCE.sendToServer(new HonkPacket.Serverbound(train, false));
 			honkPacketCooldown = 0;
 			usedToHonk = false;
 		}
@@ -96,7 +96,7 @@ public class TrainHUD {
 		}
 
 		if (hudPacketCooldown-- <= 0) {
-			CatnipServices.NETWORK.sendToServer(new TrainHUDUpdatePacket.Serverbound(train, editedThrottle));
+			NetworkHelper.INSTANCE.sendToServer(new TrainHUDUpdatePacket.Serverbound(train, editedThrottle));
 			hudPacketCooldown = 5;
 		}
 	}
@@ -107,7 +107,7 @@ public class TrainHUD {
 		return cce.getCarriage();
 	}
 
-	private static void renderOverlay(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	private static void renderOverlay(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		float partialTicks = deltaTracker.getGameTimeDeltaPartialTick(false);
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.options.hideGui || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
@@ -159,9 +159,9 @@ public class TrainHUD {
 				poseStack.pushPose();
 				poseStack.translate(font.width(currentPrompt) / -2f + 82, -27, 100);
 				if (currentPromptShadow)
-					guiGraphics.drawString(font, currentPrompt, 9, 4, 0x544D45);
+					guiGraphics.text(font, currentPrompt, 9, 4, 0x544D45);
 				else
-					guiGraphics.drawString(font, currentPrompt, 9, 4, 0x544D45, false);
+					guiGraphics.text(font, currentPrompt, 9, 4, 0x544D45, false);
 				poseStack.popPose();
 			}
 		}

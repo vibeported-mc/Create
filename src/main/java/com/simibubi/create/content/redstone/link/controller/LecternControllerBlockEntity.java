@@ -1,5 +1,7 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
+import net.minecraft.core.UUIDUtil;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,8 +11,7 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import net.createmod.catnip.codecs.CatnipCodecUtils;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -51,7 +52,7 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		super.write(compound, registries, clientPacket);
 		compound.put("ControllerData", CatnipCodecUtils.encode(ItemContainerContents.CODEC, registries, controllerData).orElseThrow());
 		if (user != null)
-			compound.putUUID("User", user);
+			compound.store("User", UUIDUtil.CODEC, user);
 	}
 
 	@Override
@@ -66,7 +67,7 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 
 		controllerData = CatnipCodecUtils.decode(ItemContainerContents.CODEC, registries, compound.get("ControllerData"))
 			.orElse(ItemContainerContents.EMPTY);
-		user = compound.hasUUID("User") ? compound.getUUID("User") : null;
+		user = compound.hasUUID("User") ? compound.read("User", UUIDUtil.CODEC).orElse(null) : null;
 	}
 
 	public ItemStack getController() {
@@ -113,12 +114,12 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 	public void tick() {
 		super.tick();
 
-		if (level.isClientSide) {
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> this::tryToggleActive);
+		if (level.isClientSide()) {
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> this::tryToggleActive);
 			prevUser = user;
 		}
 
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			deactivatedThisTick = false;
 
 			if (!(level instanceof ServerLevel))
@@ -189,5 +190,12 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		ItemStack stack = AllItems.LINKED_CONTROLLER.asStack();
 		stack.set(AllDataComponents.LINKED_CONTROLLER_ITEMS, controllerData);
 		return stack;
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		if (level != null)
+			dropController(getBlockState());
 	}
 }

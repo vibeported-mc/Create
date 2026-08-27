@@ -1,40 +1,62 @@
 package com.simibubi.create.content.kinetics.mechanicalArm;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmBlockEntity.Phase;
+import com.simibubi.create.content.logistics.depot.DepotRenderer.ItemState;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.theme.Color;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.theme.Color;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
-public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity> {
+public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity, ArmRenderer.ArmRenderState> {
+
+	public static class ArmRenderState extends KineticRenderState {
+		public final List<SuperByteBufferRenderState> arm = new ArrayList<>(6);
+		public @Nullable ItemState heldItem;
+		public boolean goggles;
+		public boolean isBlockItem;
+		/** The arm's own transform, resolved during extraction and reapplied when the item is drawn. */
+		public @Nullable PoseStack itemTransform;
+	}
 
 	public ArmRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);
 	}
 
 	@Override
-	protected void renderSafe(ArmBlockEntity be, float pt, PoseStack ms, MultiBufferSource buffer, int light,
-		int overlay) {
-		super.renderSafe(be, pt, ms, buffer, light, overlay);
+	public ArmRenderState createRenderState() {
+		return new ArmRenderState();
+	}
+
+	@Override
+	protected void extractSafe(ArmBlockEntity be, ArmRenderState state, float pt, Vec3 cameraPosition) {
+		super.extractSafe(be, state, pt, cameraPosition);
+		state.arm.clear();
+		state.heldItem = null;
+		state.itemTransform = null;
 
 		ItemStack item = be.heldItem;
 		boolean hasItem = !item.isEmpty();
@@ -43,13 +65,7 @@ public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity> {
 		if (usingFlywheel && !hasItem)
 			return;
 
-		ItemRenderer itemRenderer = Minecraft.getInstance()
-			.getItemRenderer();
-
-		BakedModel bakedModel = itemRenderer.getModel(item, be.getLevel(), null, 0);
-		boolean isBlockItem = hasItem && (item.getItem() instanceof BlockItem) && bakedModel.isGui3d();
-
-		VertexConsumer builder = buffer.getBuffer(be.goggles ? RenderType.cutout() : RenderType.solid());
+		state.goggles = be.goggles;
 		BlockState blockState = be.getBlockState();
 
 		PoseStack msLocal = new PoseStack();
@@ -87,65 +103,68 @@ public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity> {
 		if (usingFlywheel)
 			doItemTransforms(msr, baseAngle, lowerArmAngle, upperArmAngle, headAngle);
 		else
-			renderArm(builder, ms, msLocal, msr, blockState, color, baseAngle, lowerArmAngle, upperArmAngle, headAngle,
-				be.goggles, inverted && be.goggles, hasItem, isBlockItem, light);
+			extractArm(state, msLocal, msr, blockState, color, baseAngle, lowerArmAngle, upperArmAngle, headAngle,
+				be.goggles, inverted && be.goggles, hasItem, item, state.lightCoords);
 
-		if (hasItem) {
-			ms.pushPose();
-			float itemScale = isBlockItem ? .5f : .625f;
-			msr.rotateXDegrees(90);
-			msLocal.translate(0, isBlockItem ? -9 / 16f : -10 / 16f, 0);
-			msLocal.scale(itemScale, itemScale, itemScale);
+		if (!hasItem)
+			return;
 
-			ms.last()
-				.pose()
-				.mul(msLocal.last()
-					.pose());
+		ItemState heldItem = ItemState.create(itemModelResolver, item, be.getLevel());
+		state.heldItem = heldItem;
+		state.isBlockItem = item.getItem() instanceof BlockItem && heldItem.blockItem();
 
-			itemRenderer.render(item, ItemDisplayContext.FIXED, false, ms, buffer, light, overlay, bakedModel);
-			ms.popPose();
-		}
-
+		float itemScale = state.isBlockItem ? .5f : .625f;
+		msr.rotateXDegrees(90);
+		msLocal.translate(0, state.isBlockItem ? -9 / 16f : -10 / 16f, 0);
+		msLocal.scale(itemScale, itemScale, itemScale);
+		state.itemTransform = msLocal;
 	}
 
-	private void renderArm(VertexConsumer builder, PoseStack ms, PoseStack msLocal, TransformStack msr,
-		BlockState blockState, int color, float baseAngle, float lowerArmAngle, float upperArmAngle, float headAngle,
-		boolean goggles, boolean inverted, boolean hasItem, boolean isBlockItem, int light) {
-		SuperByteBuffer base = CachedBuffers.partial(AllPartialModels.ARM_BASE, blockState)
-			.light(light);
-		SuperByteBuffer lowerBody = CachedBuffers.partial(AllPartialModels.ARM_LOWER_BODY, blockState)
-			.light(light);
-		SuperByteBuffer upperBody = CachedBuffers.partial(AllPartialModels.ARM_UPPER_BODY, blockState)
-			.light(light);
-		SuperByteBuffer claw = CachedBuffers
-			.partial(goggles ? AllPartialModels.ARM_CLAW_BASE_GOGGLES : AllPartialModels.ARM_CLAW_BASE, blockState)
-			.light(light);
-		SuperByteBuffer upperClawGrip = CachedBuffers.partial(AllPartialModels.ARM_CLAW_GRIP_UPPER,
-			blockState)
-			.light(light);
-		SuperByteBuffer lowerClawGrip = CachedBuffers.partial(AllPartialModels.ARM_CLAW_GRIP_LOWER, blockState)
-			.light(light);
+	@Override
+	protected void submitSafe(ArmRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		super.submitSafe(state, ms, queue, camera);
+
+		for (SuperByteBufferRenderState part : state.arm)
+			part.submit(ms, state.goggles ? RenderTypes.cutoutMovingBlock() : RenderTypes.solidMovingBlock(), queue);
+
+		if (state.heldItem == null || state.itemTransform == null)
+			return;
+
+		ms.pushPose();
+		ms.last()
+			.pose()
+			.mul(state.itemTransform.last()
+				.pose());
+		state.heldItem.item()
+			.submit(ms, queue, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+		ms.popPose();
+	}
+
+	/**
+	 * Each joint is drawn with the transform accumulated so far, so every part is baked into its own
+	 * state as the arm is walked rather than sharing one buffer.
+	 */
+	private void extractArm(ArmRenderState state, PoseStack msLocal, TransformStack msr, BlockState blockState,
+		int color, float baseAngle, float lowerArmAngle, float upperArmAngle, float headAngle, boolean goggles,
+		boolean inverted, boolean hasItem, ItemStack item, int light) {
+		boolean isBlockItem = hasItem && item.getItem() instanceof BlockItem;
 
 		transformBase(msr, baseAngle);
-		base.transform(msLocal)
-			.renderInto(ms, builder);
+		state.arm.add(baked(AllPartialModels.ARM_BASE, blockState, light, null, msLocal));
 
 		transformLowerArm(msr, lowerArmAngle);
-		lowerBody.color(color)
-			.transform(msLocal)
-			.renderInto(ms, builder);
+		state.arm.add(baked(AllPartialModels.ARM_LOWER_BODY, blockState, light, color, msLocal));
 
 		transformUpperArm(msr, upperArmAngle);
-		upperBody.color(color)
-			.transform(msLocal)
-			.renderInto(ms, builder);
+		state.arm.add(baked(AllPartialModels.ARM_UPPER_BODY, blockState, light, color, msLocal));
 
 		transformHead(msr, headAngle);
 
 		if (inverted)
 			msr.rotateZDegrees(180);
-		claw.transform(msLocal)
-			.renderInto(ms, builder);
+		state.arm.add(baked(goggles ? AllPartialModels.ARM_CLAW_BASE_GOGGLES : AllPartialModels.ARM_CLAW_BASE,
+			blockState, light, null, msLocal));
 
 		if (inverted)
 			msr.rotateZDegrees(180);
@@ -153,10 +172,20 @@ public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity> {
 		for (int flip : Iterate.positiveAndNegative) {
 			msLocal.pushPose();
 			transformClawHalf(msr, hasItem, isBlockItem, flip);
-			(flip > 0 ? lowerClawGrip : upperClawGrip).transform(msLocal)
-				.renderInto(ms, builder);
+			state.arm.add(baked(flip > 0 ? AllPartialModels.ARM_CLAW_GRIP_LOWER : AllPartialModels.ARM_CLAW_GRIP_UPPER,
+				blockState, light, null, msLocal));
 			msLocal.popPose();
 		}
+	}
+
+	private static SuperByteBufferRenderState baked(PartialModel model,
+		BlockState blockState, int light, @Nullable Integer color, PoseStack msLocal) {
+		SuperByteBuffer buffer = CachedBuffers.partial(model, blockState)
+			.light(light);
+		if (color != null)
+			buffer.color(color);
+		buffer.transform(msLocal);
+		return buffer.extractRenderState();
 	}
 
 	private void doItemTransforms(TransformStack msr, float baseAngle, float lowerArmAngle, float upperArmAngle,
@@ -193,7 +222,7 @@ public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity> {
 	}
 
 	@Override
-	public boolean shouldRenderOffScreen(ArmBlockEntity be) {
+	public boolean shouldRenderOffScreen() {
 		return true;
 	}
 

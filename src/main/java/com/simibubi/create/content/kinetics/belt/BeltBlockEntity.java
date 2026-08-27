@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.belt;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import static com.simibubi.create.content.kinetics.belt.BeltPart.MIDDLE;
 import static com.simibubi.create.content.kinetics.belt.BeltSlope.HORIZONTAL;
 import static net.minecraft.core.Direction.AxisDirection.NEGATIVE;
@@ -29,7 +31,7 @@ import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.inventory.VersionedInventoryTrackerBehaviour;
 
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -52,9 +54,7 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.items.IItemHandler;
-
+import net.neoforged.neoforge.model.data.ModelData;
 public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 	public Map<Entity, TransportedEntityInfo> passengers;
 	public Optional<DyeColor> color;
@@ -66,7 +66,7 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 
 	protected BlockPos controller;
 	protected BeltInventory inventory;
-	protected IItemHandler itemHandler;
+	protected ResourceHandler<ItemResource> itemHandler;
 	public VersionedInventoryTrackerBehaviour invVersionTracker;
 
 	public CompoundTag trackerUpdateTag;
@@ -85,7 +85,7 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.BELT.get(),
 				(be, context) -> {
 						if (!BeltBlock.canTransportObjects(be.getBlockState()))
@@ -167,7 +167,7 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 	}
 
 	protected void initializeItemHandler() {
-		if (level.isClientSide || itemHandler != null)
+		if (level.isClientSide() || itemHandler != null)
 			return;
 		if (beltLength == 0 || controller == null)
 			return;
@@ -206,7 +206,7 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (controller != null)
-			compound.put("Controller", NbtUtils.writeBlockPos(controller));
+			compound.store("Controller", BlockPos.CODEC, controller);
 		compound.putBoolean("IsController", isController());
 		compound.putInt("Length", beltLength);
 		compound.putInt("Index", index);
@@ -224,7 +224,7 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
 
-		if (compound.getBoolean("IsController"))
+		if (compound.getBooleanOr("IsController", false))
 			controller = worldPosition;
 
 		color = compound.contains("Dye") ? Optional.of(NBTHelper.readEnum(compound, "Dye", DyeColor.class))
@@ -234,17 +234,17 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 			if (!isController())
 				controller = NBTHelper.readBlockPos(compound, "Controller");
 			trackerUpdateTag = compound;
-			index = compound.getInt("Index");
-			beltLength = compound.getInt("Length");
+			index = compound.getIntOr("Index", 0);
+			beltLength = compound.getIntOr("Length", 0);
 		}
 
 		if (isController())
-			getInventory().read(compound.getCompound("Inventory"), registries);
+			getInventory().read(compound.getCompoundOrEmpty("Inventory"), registries);
 
 		CasingType casingBefore = casing;
 		boolean coverBefore = covered;
 		casing = NBTHelper.readEnum(compound, "Casing", CasingType.class);
-		covered = compound.getBoolean("Covered");
+		covered = compound.getBooleanOr("Covered", false);
 
 		if (!clientPacket)
 			return;
@@ -368,7 +368,7 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 		boolean notHorizontal = blockState.getValue(BeltBlock.SLOPE) != HORIZONTAL;
 		if (getSpeed() < 0)
 			movementFacing = movementFacing.getOpposite();
-		Vec3i movement = movementFacing.getNormal();
+		Vec3i movement = movementFacing.getUnitVec3i();
 
 		boolean slopeBeforeHalf = (part == BeltPart.END) == (beltFacing.getAxisDirection() == POSITIVE);
 		boolean onSlope = notHorizontal && (part == MIDDLE || slopeBeforeHalf == firstHalf || ignoreHalves);
@@ -426,7 +426,7 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 		BlockState blockState = getBlockState();
 		boolean shouldBlockHaveCasing = type != CasingType.NONE;
 
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			casing = type;
 			level.setBlock(worldPosition, blockState.setValue(BeltBlock.CASING, shouldBlockHaveCasing), 0);
 			requestModelDataUpdate();

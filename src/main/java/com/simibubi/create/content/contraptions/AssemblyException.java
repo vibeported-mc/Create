@@ -32,11 +32,11 @@ public class AssemblyException extends Exception {
 		if (!compound.contains("LastException"))
 			return null;
 
-		CompoundTag nbt = compound.getCompound("LastException");
-		String string = nbt.getString("Component");
+		CompoundTag nbt = compound.getCompoundOrEmpty("LastException");
+		String string = nbt.getStringOr("Component", "");
 		AssemblyException exception = new AssemblyException(Component.Serializer.fromJson(string, registries));
 		if (nbt.contains("Position"))
-			exception.position = BlockPos.of(nbt.getLong("Position"));
+			exception.position = BlockPos.of(nbt.getLongOr("Position", 0));
 
 		return exception;
 	}

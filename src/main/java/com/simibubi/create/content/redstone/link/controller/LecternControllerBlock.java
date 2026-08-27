@@ -1,5 +1,7 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.Direction;
 import java.util.ArrayList;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -12,7 +14,7 @@ import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -50,34 +52,32 @@ public class LecternControllerBlock extends LecternBlock
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (!player.isShiftKeyDown() && LecternControllerBlockEntity.playerInRange(player, level, pos)) {
-			if (!level.isClientSide)
+			if (!level.isClientSide())
 				withBlockEntityDo(level, pos, be -> be.tryStartUsing(player));
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 
 		if (player.isShiftKeyDown()) {
-			if (!level.isClientSide)
+			if (!level.isClientSide())
 				replaceWithLectern(state, level, pos);
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!state.is(newState.getBlock())) {
-			if (!world.isClientSide)
-				withBlockEntityDo(world, pos, be -> be.dropController(state));
-
-			super.onRemove(state, world, pos, newState, isMoving);
-		}
+	public void affectNeighborsAfterRemoval(BlockState state, ServerLevel world, BlockPos pos,
+		boolean isMoving) {
+		// The controller is dropped from the block entity's destroy hook now - by the time this runs
+		// the block entity is already gone.
+		super.affectNeighborsAfterRemoval(state, world, pos, isMoving);
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
 		return 15;
 	}
 
@@ -95,8 +95,9 @@ public class LecternControllerBlock extends LecternBlock
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-		return Blocks.LECTERN.getCloneItemStack(state, target, level, pos, player);
+	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state,
+		boolean includeData, Player player) {
+		return Blocks.LECTERN.getCloneItemStack(level, pos, state, includeData, player);
 	}
 
 	@Override

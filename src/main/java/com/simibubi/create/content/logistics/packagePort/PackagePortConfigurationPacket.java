@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packagePort;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
@@ -27,8 +28,8 @@ public class PackagePortConfigurationPacket extends BlockEntityConfigurationPack
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.PACKAGE_PORT_CONFIGURATION;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.PACKAGE_PORT_CONFIGURATION.getType();
 	}
 
 	@Override

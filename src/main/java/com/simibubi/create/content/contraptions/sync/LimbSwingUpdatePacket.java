@@ -1,10 +1,10 @@
 package com.simibubi.create.content.contraptions.sync;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public record LimbSwingUpdatePacket(int entityId, Vec3 position, float limbSwing) implements ClientboundPacketPayload {
+public record LimbSwingUpdatePacket(int entityId, Vec3 position, float limbSwing) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, LimbSwingUpdatePacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, LimbSwingUpdatePacket::entityId,
 			CatnipStreamCodecs.VEC3, LimbSwingUpdatePacket::position,
@@ -23,7 +23,6 @@ public record LimbSwingUpdatePacket(int entityId, Vec3 position, float limbSwing
 	        LimbSwingUpdatePacket::new
 	);
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		Entity entity = player.clientLevel.getEntity(entityId);
@@ -37,7 +36,7 @@ public record LimbSwingUpdatePacket(int entityId, Vec3 position, float limbSwing
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.LIMBSWING_UPDATE;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.LIMBSWING_UPDATE.getType();
 	}
 }

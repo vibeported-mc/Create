@@ -7,13 +7,13 @@ import com.simibubi.create.foundation.advancement.AllAdvancements;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup.RegistryLookup;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -29,7 +29,7 @@ public class DivingHelmetItem extends BaseArmorItem {
 	public static final EquipmentSlot SLOT = EquipmentSlot.HEAD;
 	public static final ArmorItem.Type TYPE = ArmorItem.Type.HELMET;
 
-	public DivingHelmetItem(Holder<ArmorMaterial> material, Properties properties, ResourceLocation textureLoc) {
+	public DivingHelmetItem(Holder<ArmorMaterial> material, Properties properties, Identifier textureLoc) {
 		super(material, TYPE, properties, textureLoc);
 	}
 
@@ -74,7 +74,7 @@ public class DivingHelmetItem extends BaseArmorItem {
 		LivingEntity entity = event.getEntity();
 		Level level = entity.level();
 
-		if (level.isClientSide)
+		if (level.isClientSide())
 			entity.getPersistentData().remove("VisualBacktankAir");
 
 		ItemStack helmet = getWornItem(entity);
@@ -104,7 +104,7 @@ public class DivingHelmetItem extends BaseArmorItem {
 		for (ItemStack stack : backtanks)
 			visualBacktankAir += BacktankUtil.getAir(stack);
 
-		if (level.isClientSide)
+		if (level.isClientSide())
 			entity.getPersistentData()
 				.putInt("VisualBacktankAir", Math.round(visualBacktankAir));
 

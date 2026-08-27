@@ -65,7 +65,10 @@ public abstract class BlockEntityBehaviour {
 
 	}
 
-	public void onNeighborChanged(BlockPos neighborPos) {
+	/**
+	 * A neighbouring block changed. 26.2 no longer reports which one, so this fires for any of them.
+	 */
+	public void onNeighborChanged() {
 
 	}
 

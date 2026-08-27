@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 public class DimensionPalette {
@@ -68,8 +68,8 @@ public class DimensionPalette {
 
 	public static DimensionPalette read(CompoundTag tag) {
 		DimensionPalette palette = new DimensionPalette();
-		NBTHelper.iterateCompoundList(tag.getList("DimensionPalette", Tag.TAG_COMPOUND), c -> palette.gatheredDims
-			.add(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(c.getString("Id")))));
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("DimensionPalette"), c -> palette.gatheredDims
+			.add(ResourceKey.create(Registries.DIMENSION, Identifier.parse(c.getStringOr("Id", "")))));
 		return palette;
 	}
 

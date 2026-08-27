@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.elevator;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.decoration.slidingDoor.DoorControl;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
@@ -38,7 +39,7 @@ public class ElevatorContactEditPacket extends BlockEntityConfigurationPacket<El
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_ELEVATOR_CONTACT;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_ELEVATOR_CONTACT.getType();
 	}
 }

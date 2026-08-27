@@ -1,5 +1,10 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.minecraft.core.UUIDUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,9 +33,8 @@ import com.simibubi.create.foundation.item.SmartInventory;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import dan200.computercraft.api.peripheral.PeripheralCapability;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -55,8 +59,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class StockTickerBlockEntity extends StockCheckingBlockEntity implements IHaveHoveringInformation, Clearable {
 	public AbstractComputerBehaviour computerBehaviour;
 
@@ -83,7 +85,7 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-			Capabilities.ItemHandler.BLOCK,
+			Capabilities.Item.BLOCK,
 			AllBlockEntityTypes.STOCK_TICKER.get(),
 			(be, context) -> be.receivedPayments
 		);
@@ -111,10 +113,10 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 
 	public void refreshClientStockSnapshot() {
 		ticksSinceLastUpdate = 0;
-		CatnipServices.NETWORK.sendToServer(new LogisticalStockRequestPacket(worldPosition));
+		NetworkHelper.INSTANCE.sendToServer(new LogisticalStockRequestPacket(worldPosition));
 	}
 
-	public IItemHandler getReceivedPaymentsHandler() {
+	public ResourceHandler<ItemResource> getReceivedPaymentsHandler() {
 		return receivedPayments;
 	}
 
@@ -167,7 +169,7 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 		tag.put("Categories", NBTHelper.writeItemList(categories, registries));
 		tag.put("HiddenCategories", NBTHelper.writeCompoundList(hiddenCategoriesByPlayer.entrySet(), e -> {
 			CompoundTag c = new CompoundTag();
-			c.putUUID("Id", e.getKey());
+			c.store("Id", UUIDUtil.CODEC, e.getKey());
 			c.putIntArray("Indices", e.getValue());
 			return c;
 		}));
@@ -179,19 +181,19 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 	@Override
 	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(tag, registries, clientPacket);
-		previouslyUsedAddress = tag.getString("PreviousAddress");
-		receivedPayments.deserializeNBT(registries, tag.getCompound("ReceivedPayments"));
-		categories = NBTHelper.readItemList(tag.getList("Categories", Tag.TAG_COMPOUND), registries);
+		previouslyUsedAddress = tag.getStringOr("PreviousAddress", "");
+		receivedPayments.deserializeNBT(registries, tag.getCompoundOrEmpty("ReceivedPayments"));
+		categories = NBTHelper.readItemList(tag.getListOrEmpty("Categories"), registries);
 		categories.removeIf(stack -> !stack.isEmpty() && !(stack.getItem() instanceof FilterItem));
 		hiddenCategoriesByPlayer.clear();
 
-		NBTHelper.iterateCompoundList(tag.getList("HiddenCategories", Tag.TAG_COMPOUND),
-			c -> hiddenCategoriesByPlayer.put(c.getUUID("Id"), IntStream.of(c.getIntArray("Indices"))
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("HiddenCategories"),
+			c -> hiddenCategoriesByPlayer.put(c.read("Id", UUIDUtil.CODEC).orElse(null), IntStream.of(c.getIntArray("Indices"))
 				.boxed()
 				.toList()));
 
 		if (clientPacket)
-			activeLinks = tag.getInt("ActiveLinks");
+			activeLinks = tag.getIntOr("ActiveLinks", 0);
 	}
 
 	public void receiveStockPacket(List<BigItemStack> stacks, boolean endOfTransmission) {
@@ -256,8 +258,8 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 			.forGoggles(tooltip);
 
 		InventorySummary summary = new InventorySummary();
-		for (int i = 0; i < receivedPayments.getSlots(); i++)
-			summary.add(receivedPayments.getStackInSlot(i));
+		for (int i = 0; i < receivedPayments.size(); i++)
+			summary.add(ItemHandlerHelpers.getStackInSlot(receivedPayments, i));
 		for (BigItemStack entry : summary.getStacksByCount())
 			CreateLang.builder()
 				.text(Component.translatable(entry.stack.getDescriptionId())

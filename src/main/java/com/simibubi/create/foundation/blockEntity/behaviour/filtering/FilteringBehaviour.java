@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.filtering;
 
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -23,8 +24,8 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -45,8 +46,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-
 public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSettingsBehaviour {
 	public static final BehaviourType<FilteringBehaviour> TYPE = new BehaviourType<>();
 
@@ -88,7 +87,7 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 
 	@Override
 	public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		nbt.put("Filter", getFilter().saveOptional(registries));
+		nbt.store("Filter", ItemStack.OPTIONAL_CODEC, getFilter());
 		nbt.putInt("FilterAmount", count);
 		nbt.putBoolean("UpTo", upTo);
 		super.write(nbt, registries, clientPacket);
@@ -96,9 +95,9 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 
 	@Override
 	public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		filter = FilterItemStack.of(registries, nbt.getCompound("Filter"));
-		count = nbt.getInt("FilterAmount");
-		upTo = nbt.getBoolean("UpTo");
+		filter = FilterItemStack.of(registries, nbt.getCompoundOrEmpty("Filter"));
+		count = nbt.getIntOr("FilterAmount", 0);
+		upTo = nbt.getBooleanOr("UpTo", false);
 
 		// Migrate from previous behaviour
 		if (count == 0) {
@@ -296,7 +295,7 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 
 		if (getFilter(side).getItem() instanceof FilterItem) {
 			if (!player.isCreative() || ItemHelper
-				.extract(new InvWrapper(player.getInventory()),
+				.extract(VanillaContainerWrapper.of(player.getInventory()),
 					stack -> ItemStack.isSameItemSameComponents(stack, getFilter(side)), true)
 				.isEmpty())
 				player.getInventory()
@@ -307,7 +306,7 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 			toApply.setCount(1);
 
 		if (!setFilter(side, toApply)) {
-			player.displayClientMessage(CreateLang.translateDirect("logistics.filter.invalid_item"), true);
+			player.sendOverlayMessage(CreateLang.translateDirect("logistics.filter.invalid_item"));
 			AllSoundEvents.DENY.playOnServer(player.level(), player.blockPosition(), 1, 1);
 			return;
 		}
@@ -362,7 +361,7 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 	public boolean writeToClipboard(HolderLookup.@NotNull Provider registries, CompoundTag tag, Direction side) {
 		ValueSettingsBehaviour.super.writeToClipboard(registries, tag, side);
 		ItemStack filter = getFilter(side);
-		tag.put("Filter", filter.saveOptional(registries));
+		tag.store("Filter", ItemStack.OPTIONAL_CODEC, filter);
 		return true;
 	}
 
@@ -375,17 +374,17 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 			return upstreamResult;
 		if (simulate)
 			return true;
-		if (getWorld().isClientSide)
+		if (getWorld().isClientSide())
 			return true;
 
 		ItemStack refund = ItemStack.EMPTY;
 		if (getFilter(side).getItem() instanceof FilterItem && !player.isCreative())
 			refund = getFilter(side).copy();
 
-		ItemStack copied = ItemStack.parseOptional(registries, tag.getCompound("Filter"));
+		ItemStack copied = tag.read("Filter", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
 
 		if (copied.getItem() instanceof FilterItem filterType && !player.isCreative()) {
-			InvWrapper inv = new InvWrapper(player.getInventory());
+			InvWrapper inv = VanillaContainerWrapper.of(player.getInventory());
 
 			for (boolean preferStacksWithoutData : Iterate.trueAndFalse) {
 				if (refund.getItem() != filterType && ItemHelper
@@ -402,12 +401,12 @@ public class FilteringBehaviour extends BlockEntityBehaviour implements ValueSet
 				return true;
 			}
 
-			player.displayClientMessage(CreateLang
+			player.sendOverlayMessage(CreateLang
 				.translate("logistics.filter.requires_item_in_inventory", copied.getHoverName()
 					.copy()
 					.withStyle(ChatFormatting.WHITE))
 				.style(ChatFormatting.RED)
-				.component(), true);
+				.component());
 			AllSoundEvents.DENY.playOnServer(player.level(), player.blockPosition(), 1, 1);
 			return false;
 		}

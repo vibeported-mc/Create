@@ -1,16 +1,16 @@
 package com.simibubi.create.content.trains.schedule;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllPackets;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-public record ScheduleEditPacket(Schedule schedule) implements ServerboundPacketPayload {
+public record ScheduleEditPacket(Schedule schedule) implements SelfHandlingPayload {
 	public static final StreamCodec<RegistryFriendlyByteBuf, ScheduleEditPacket> STREAM_CODEC = Schedule.STREAM_CODEC.map(
 			ScheduleEditPacket::new, ScheduleEditPacket::schedule
 	);
@@ -31,7 +31,7 @@ public record ScheduleEditPacket(Schedule schedule) implements ServerboundPacket
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_SCHEDULE;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_SCHEDULE.getType();
 	}
 }

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.redstone.smartObserver;
 
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
@@ -11,7 +13,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.inventory.InvManipulationBehaviour;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -63,8 +65,8 @@ public class SmartObserverBlock extends DirectedDirectionalBlock implements IBE<
 			else if (BlockEntityBehaviour.get(blockEntity, FluidTransportBehaviour.TYPE) != null)
 				canDetect = true;
 			else if (blockEntity != null && (
-					context.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, blockEntity.getBlockPos(), null) != null ||
-					context.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), null) != null
+					context.getLevel().getCapability(Capabilities.Item.BLOCK, blockEntity.getBlockPos(), null) != null ||
+					context.getLevel().getCapability(Capabilities.Fluid.BLOCK, blockEntity.getBlockPos(), null) != null
 			))
 				canDetect = true;
 			else if (blockEntity instanceof FunnelBlockEntity)
@@ -114,16 +116,11 @@ public class SmartObserverBlock extends DirectedDirectionalBlock implements IBE<
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		IBE.onRemove(state, worldIn, pos, newState);
-	}
-
-	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation,
 		boolean isMoving) {
 		InvManipulationBehaviour behaviour = BlockEntityBehaviour.get(worldIn, pos, InvManipulationBehaviour.TYPE);
 		if (behaviour != null)
-			behaviour.onNeighborChanged(fromPos);
+			behaviour.onNeighborChanged();
 	}
 
 	public void onFunnelTransfer(Level world, BlockPos funnelPos, ItemStack transferred) {

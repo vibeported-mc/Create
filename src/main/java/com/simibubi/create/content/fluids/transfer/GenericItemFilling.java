@@ -1,5 +1,8 @@
 package com.simibubi.create.content.fluids.transfer;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.fluids.potion.PotionFluidHandler;
@@ -17,14 +20,10 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
-
 public class GenericItemFilling {
 
 	/**
-	 * Checks if an ItemStack's IFluidHandlerItem is valid. Ideally, this check would
+	 * Checks if an ItemStack's ResourceHandler<FluidResource> is valid. Ideally, this check would
 	 * not be necessary. Unfortunately, some mods that copy the functionality of the
 	 * MilkBucketItem copy the FluidBucketWrapper capability that is patched in by
 	 * Forge without looking into what it actually does. In all cases this is
@@ -35,10 +34,10 @@ public class GenericItemFilling {
 	 * empty if it is initialized with a non-bucket item.
 	 *
 	 * @param stack The ItemStack.
-	 * @param fluidHandler The IFluidHandlerItem instance retrieved from the ItemStack.
-	 * @return If the IFluidHandlerItem is valid for the passed ItemStack.
+	 * @param fluidHandler The ResourceHandler<FluidResource> instance retrieved from the ItemStack.
+	 * @return If the ResourceHandler<FluidResource> is valid for the passed ItemStack.
 	 */
-	public static boolean isFluidHandlerValid(ItemStack stack, IFluidHandlerItem fluidHandler) {
+	public static boolean isFluidHandlerValid(ItemStack stack, ResourceHandler<FluidResource> fluidHandler) {
 		// Not instanceof in case a correct subclass is made
 		if (fluidHandler.getClass() == FluidBucketWrapper.class) {
 			Item item = stack.getItem();
@@ -56,14 +55,14 @@ public class GenericItemFilling {
 		if (stack.getItem() == Items.MILK_BUCKET)
 			return false;
 
-		IFluidHandlerItem capability = stack.getCapability(Capabilities.FluidHandler.ITEM);
+		ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
 		if (capability == null)
 			return false;
 		if (!isFluidHandlerValid(stack, capability))
 			return false;
-		for (int i = 0; i < capability.getTanks(); i++) {
-			if (capability.getFluidInTank(i)
-				.getAmount() < capability.getTankCapacity(i))
+		for (int i = 0; i < capability.size(); i++) {
+			if (FluidHandlerHelpers.getFluidInTank(capability, i)
+				.getAmount() < FluidHandlerHelpers.getTankCapacity(capability, i))
 				return true;
 		}
 		return false;
@@ -75,7 +74,7 @@ public class GenericItemFilling {
 		if (stack.getItem() == Items.BUCKET && canFillBucketInternally(availableFluid))
 			return 1000;
 
-		IFluidHandlerItem capability = stack.getCapability(Capabilities.FluidHandler.ITEM);
+		ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
 		if (capability == null)
 			return -1;
 		if (capability instanceof FluidBucketWrapper) {
@@ -89,7 +88,7 @@ public class GenericItemFilling {
 			return 1000;
 		}
 
-		int filled = capability.fill(availableFluid, FluidAction.SIMULATE);
+		int filled = FluidHandlerHelpers.fill(capability, availableFluid, true);
 		return filled == 0 ? -1 : filled;
 	}
 
@@ -128,10 +127,10 @@ public class GenericItemFilling {
 
 		ItemStack split = stack.copy();
 		split.setCount(1);
-		IFluidHandlerItem capability = split.getCapability(Capabilities.FluidHandler.ITEM);
+		ResourceHandler<FluidResource> capability = split.getCapability(Capabilities.Fluid.ITEM);
 		if (capability == null)
 			return ItemStack.EMPTY;
-		capability.fill(toFill, FluidAction.EXECUTE);
+		FluidHandlerHelpers.fill(capability, toFill, false);
 		ItemStack container = capability.getContainer()
 			.copy();
 		stack.shrink(1);

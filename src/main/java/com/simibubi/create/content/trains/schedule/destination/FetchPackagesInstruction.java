@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains.schedule.destination;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -21,13 +23,13 @@ import com.simibubi.create.content.trains.station.GlobalPackagePort;
 import com.simibubi.create.content.trains.station.GlobalStation;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.data.Glob;
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Glob;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -35,8 +37,6 @@ import net.minecraft.world.level.Level;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-
 public class FetchPackagesInstruction extends TextScheduleInstruction {
 
 	@Override
@@ -88,7 +88,7 @@ public class FetchPackagesInstruction extends TextScheduleInstruction {
 	}
 
 	@Override
-	public ResourceLocation getId() {
+	public Identifier getId() {
 		return Create.asResource("package_retrieval");
 	}
 
@@ -123,12 +123,12 @@ public class FetchPackagesInstruction extends TextScheduleInstruction {
 				GlobalPackagePort port = entry.getValue();
 				BlockPos pos = entry.getKey();
 
-				IItemHandlerModifiable postboxInventory = port.offlineBuffer;
+				ModifiableItemHandler postboxInventory = port.offlineBuffer;
 				if (dimLevel.isLoaded(pos) && dimLevel.getBlockEntity(pos) instanceof PostboxBlockEntity ppbe)
 					postboxInventory = ppbe.inventory;
 
-				for (int slot = 0; slot < postboxInventory.getSlots(); slot++) {
-					ItemStack stack = postboxInventory.getStackInSlot(slot);
+				for (int slot = 0; slot < postboxInventory.size(); slot++) {
+					ItemStack stack = ItemHandlerHelpers.getStackInSlot(postboxInventory, slot);
 					if (!PackageItem.isPackage(stack))
 						continue;
 					if (PackageItem.matchAddress(stack, port.address))

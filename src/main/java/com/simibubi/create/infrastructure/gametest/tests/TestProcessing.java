@@ -1,5 +1,7 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
 
 import com.simibubi.create.AllBlocks;
@@ -19,8 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
-import net.neoforged.neoforge.items.IItemHandler;
-
 @GameTestGroup(path = "processing")
 public class TestProcessing {
 	@GameTest(template = "brass_mixing", timeoutTicks = CreateGameTestHelper.TEN_SECONDS)
@@ -121,7 +121,7 @@ public class TestProcessing {
 		ItemStack expected = new ItemStack(AllBlocks.TRACK.get(), 6);
 		helper.succeedWhen(() -> {
 			helper.assertContainerContains(output, expected);
-			IItemHandler handler = helper.itemStorageAt(output);
+			ResourceHandler<ItemResource> handler = helper.itemStorageAt(output);
 			ItemHelper.extract(handler, ItemHelper.sameItemPredicate(expected), 6, false);
 			helper.assertContainerEmpty(output);
 		});

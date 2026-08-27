@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.item;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,20 +12,17 @@ import java.util.stream.Stream;
 
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 
-import net.createmod.catnip.data.IntAttached;
+import net.createmod.catnip.api.data.IntAttached;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 public class CountedItemStackList {
 
 	Map<Item, Set<ItemStackEntry>> items = new HashMap<>();
 
-	public CountedItemStackList(IItemHandler inventory, FilteringBehaviour filteringBehaviour) {
-		for (int slot = 0; slot < inventory.getSlots(); slot++) {
-			ItemStack extractItem = inventory.getStackInSlot(slot);
+	public CountedItemStackList(ResourceHandler<ItemResource> inventory, FilteringBehaviour filteringBehaviour) {
+		for (int slot = 0; slot < inventory.size(); slot++) {
+			ItemStack extractItem = ItemHandlerHelpers.getStackInSlot(inventory, slot);
 			if (filteringBehaviour.test(extractItem))
 				add(extractItem);
 		}

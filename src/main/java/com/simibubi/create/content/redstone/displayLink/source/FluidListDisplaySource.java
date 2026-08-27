@@ -1,5 +1,8 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -18,14 +21,12 @@ import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringB
 import com.simibubi.create.foundation.blockEntity.behaviour.inventory.TankManipulationBehaviour;
 import com.simibubi.create.foundation.utility.FluidFormatter;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.IntAttached;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.IntAttached;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
 public class FluidListDisplaySource extends ValueListDisplaySource {
 
 
@@ -37,7 +38,7 @@ public class FluidListDisplaySource extends ValueListDisplaySource {
 
 		TankManipulationBehaviour tankManipulationBehaviour = cobe.getBehaviour(TankManipulationBehaviour.OBSERVE);
 		FilteringBehaviour filteringBehaviour = cobe.getBehaviour(FilteringBehaviour.TYPE);
-		IFluidHandler handler = tankManipulationBehaviour.getInventory();
+		ResourceHandler<FluidResource> handler = tankManipulationBehaviour.getInventory();
 
 		if (handler == null)
 			return Stream.empty();
@@ -46,8 +47,8 @@ public class FluidListDisplaySource extends ValueListDisplaySource {
 		Map<Fluid, Integer> fluids = new HashMap<>();
 		Map<Fluid, FluidStack> fluidNames = new HashMap<>();
 
-		for (int i = 0; i < handler.getTanks(); i++) {
-			FluidStack stack = handler.getFluidInTank(i);
+		for (int i = 0; i < handler.size(); i++) {
+			FluidStack stack = FluidHandlerHelpers.getFluidInTank(handler, i);
 			if (stack.isEmpty())
 				continue;
 			if (!filteringBehaviour.test(stack))

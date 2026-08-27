@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.signal;
 
+import net.minecraft.core.UUIDUtil;
 import java.util.UUID;
 
 import com.simibubi.create.Create;
@@ -12,7 +13,7 @@ import com.simibubi.create.content.trains.graph.TrackNodeLocation;
 import com.simibubi.create.content.trains.track.TrackTargetingBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.api.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -91,9 +92,9 @@ public abstract class TrackEdgePoint {
 		if (migration)
 			return;
 
-		id = nbt.getUUID("Id");
-		position = nbt.getDouble("Position");
-		edgeLocation = Couple.deserializeEach(nbt.getList("Edge", Tag.TAG_COMPOUND),
+		id = nbt.read("Id", UUIDUtil.CODEC).orElse(null);
+		position = nbt.getDoubleOr("Position", 0);
+		edgeLocation = Couple.deserializeEach(nbt.getListOrEmpty("Edge"),
 			tag -> TrackNodeLocation.read(tag, dimensions));
 	}
 
@@ -104,7 +105,7 @@ public abstract class TrackEdgePoint {
 	}
 
 	public void write(CompoundTag nbt, HolderLookup.Provider registries, DimensionPalette dimensions) {
-		nbt.putUUID("Id", id);
+		nbt.store("Id", UUIDUtil.CODEC, id);
 		nbt.putDouble("Position", position);
 		nbt.put("Edge", edgeLocation.serializeEach(loc -> loc.write(dimensions)));
 	}

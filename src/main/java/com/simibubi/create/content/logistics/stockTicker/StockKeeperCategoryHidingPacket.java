@@ -1,12 +1,13 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.List;
 
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,8 +28,8 @@ public class StockKeeperCategoryHidingPacket extends BlockEntityConfigurationPac
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.STOCK_KEEPER_HIDE_CATEGORY;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.STOCK_KEEPER_HIDE_CATEGORY.getType();
 	}
 
 	@Override

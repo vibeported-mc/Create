@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.depot.storage;
 
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
@@ -20,8 +23,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
-
-import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> implements SyncedMountedStorage {
 	public static final MapCodec<DepotMountedStorage> CODEC = ItemStack.OPTIONAL_CODEC.xmap(
@@ -84,17 +85,17 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 	}
 
 	public static DepotMountedStorage fromLegacy(HolderLookup.Provider registries, CompoundTag nbt) {
-		ItemStackHandler handler = new ItemStackHandler();
+		ItemStacksResourceHandler handler = new ItemStacksResourceHandler();
 		handler.deserializeNBT(registries, nbt);
-		if (handler.getSlots() == 1) {
-			ItemStack stack = handler.getStackInSlot(0);
+		if (handler.size() == 1) {
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, 0);
 			return new DepotMountedStorage(stack);
 		} else {
 			return new DepotMountedStorage(ItemStack.EMPTY);
 		}
 	}
 
-	public static final class Handler extends ItemStackHandler {
+	public static final class Handler extends ItemStacksResourceHandler implements ModifiableItemHandler {
 		private Runnable onChange = () -> {};
 
 		private Handler(ItemStack stack) {

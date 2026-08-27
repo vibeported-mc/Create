@@ -13,19 +13,19 @@ import com.simibubi.create.infrastructure.config.CClient;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.api.data.Couple;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 
@@ -130,7 +130,7 @@ public class TrainMapRenderer implements AutoCloseable {
 
 	//
 
-	public void render(GuiGraphics graphics, boolean linearFiltering, Rect2i bounds) {
+	public void render(GuiGraphicsExtractor graphics, boolean linearFiltering, Rect2i bounds) {
 		BufferSource bufferSource = graphics.bufferSource();
 		PoseStack pose = graphics.pose();
 		maps.forEach((key, tmi) -> {
@@ -177,7 +177,7 @@ public class TrainMapRenderer implements AutoCloseable {
 		private boolean untouched;
 		private Couple<Integer> sectionKey;
 
-		public ResourceLocation location;
+		public Identifier location;
 
 		public TrainMapInstance(Couple<Integer> sectionKey) {
 			TextureManager textureManager = Minecraft.getInstance()
@@ -224,7 +224,7 @@ public class TrainMapRenderer implements AutoCloseable {
 				renderType = RenderTypes.TRAIN_MAP.apply(location, linearFiltering);
 			}
 
-			int pPackedLight = LightTexture.FULL_BRIGHT;
+			int pPackedLight = LightCoordsUtil.FULL_BRIGHT;
 
 			Matrix4f matrix4f = pPoseStack.last()
 				.pose();

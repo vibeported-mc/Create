@@ -1,15 +1,15 @@
 package com.simibubi.create.content.redstone.contact;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.LevelReader;
+import org.jspecify.annotations.NullMarked;
 import org.jetbrains.annotations.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.elevator.ElevatorColumn;
 import com.simibubi.create.content.contraptions.elevator.ElevatorColumn.ColumnCoords;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import com.simibubi.create.foundation.utility.BlockHelper;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -28,8 +28,7 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NullMarked
 public class RedstoneContactBlock extends WrenchableDirectionalBlock {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -86,8 +85,8 @@ public class RedstoneContactBlock extends WrenchableDirectionalBlock {
 	}
 
 	@Override
-	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn,
-		BlockPos currentPos, BlockPos facingPos) {
+	public BlockState updateShape(BlockState stateIn, LevelReader worldIn, ScheduledTickAccess ticks,
+		BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
 		if (facing != stateIn.getValue(FACING))
 			return stateIn;
 		boolean hasValidContact = hasValidContact(worldIn, currentPos, facing);
@@ -98,11 +97,11 @@ public class RedstoneContactBlock extends WrenchableDirectionalBlock {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock() == this && newState.getBlock() == this)
-			if (state == newState.cycle(POWERED))
-				worldIn.updateNeighborsAt(pos, this);
-		super.onRemove(state, worldIn, pos, newState, isMoving);
+	public void affectNeighborsAfterRemoval(BlockState state, ServerLevel worldIn, BlockPos pos,
+		boolean isMoving) {
+		// The powered-toggle case used to ride along here; it only ever fired when the block stayed
+		// the same, which no longer reaches this hook, and onPlace covers it instead.
+		super.affectNeighborsAfterRemoval(state, worldIn, pos, isMoving);
 	}
 
 	@Override

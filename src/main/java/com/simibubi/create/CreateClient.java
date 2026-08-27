@@ -1,6 +1,7 @@
 package com.simibubi.create;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.simibubi.create.foundation.networking.CreateClientPayloadHandlers;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.simibubi.create.compat.Mods;
 import com.simibubi.create.compat.ftb.FTBIntegration;
@@ -29,9 +30,9 @@ import com.simibubi.create.infrastructure.gui.CreateMainMenuScreen;
 
 import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.createmod.catnip.config.ui.ConfigScreen;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBufferCache;
-import net.createmod.ponder.foundation.PonderIndex;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBufferCache;
+import net.createmod.ponder.api.client.PonderIndex;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
@@ -90,6 +91,10 @@ public class CreateClient {
 	}
 
 	public static void clientInit(final FMLClientSetupEvent event) {
+		// Clientbound payload handlers cannot be registered from the common side; see
+		// CreateClientPayloadHandlers.
+		CreateClientPayloadHandlers.register();
+
 		//BUFFER_CACHE.registerCompartment(CachedBufferer.GENERIC_BLOCK);
 		//BUFFER_CACHE.registerCompartment(CachedPartialBuffers.partial);
 		//BUFFER_CACHE.registerCompartment(CachedBufferer.DIRECTIONAL_PARTIAL);
@@ -159,7 +164,7 @@ public class CreateClient {
                             Component.literal("Click here to disable this warning")));
             });
 
-		mc.player.displayClientMessage(text, false);
+		mc.player.sendSystemMessage(text);
 	}
 
 }

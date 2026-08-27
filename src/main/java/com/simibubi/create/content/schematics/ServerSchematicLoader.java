@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -257,7 +258,7 @@ public class ServerSchematicLoader {
 				if (table == null)
 					return;
 				table.finishUpload();
-				table.inventory.setStackInSlot(1, SchematicItem.create(world, schematic, player.getGameProfile()
+				ItemHandlerHelpers.setStackInSlot(table.inventory, 1, SchematicItem.create(world, schematic, player.getGameProfile()
 					.getName()));
 
 			} catch (IOException e) {

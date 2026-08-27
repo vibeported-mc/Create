@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.computercraft;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SyncedBlockEntity;
@@ -34,7 +35,7 @@ public class AttachedComputerPacket extends BlockEntityDataPacket<SyncedBlockEnt
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.ATTACHED_COMPUTER;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.ATTACHED_COMPUTER.getType();
 	}
 }

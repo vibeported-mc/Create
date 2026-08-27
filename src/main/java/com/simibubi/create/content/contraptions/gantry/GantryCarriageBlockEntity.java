@@ -63,7 +63,7 @@ public class GantryCarriageBlockEntity extends KineticBlockEntity implements IDi
 	public void tick() {
 		super.tick();
 
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 
 		if (assembleNextTick) {

@@ -3,6 +3,8 @@ package com.simibubi.create.foundation.blockEntity.behaviour.filtering;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllSpecialTextures;
@@ -16,19 +18,22 @@ import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform.Sided;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.outliner.Outliner;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.client.outliner.Outliner;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -106,28 +111,29 @@ public class FilteringRenderer {
 		}
 	}
 
-	public static void renderOnBlockEntity(SmartBlockEntity be, float partialTicks, PoseStack ms,
-										   MultiBufferSource buffer, int light, int overlay) {
-
+	/**
+	 * Extract phase: walk the block entity's filtering behaviours and resolve everything needed to draw
+	 * them, so that submission never has to touch the block entity again.
+	 */
+	@Nullable
+	public static FilterRenderState getFilterRenderState(SmartBlockEntity be, ItemModelResolver itemModelResolver,
+		Vec3 cameraPosition) {
 		if (be == null || be.isRemoved())
-			return;
+			return null;
 
 		Level level = be.getLevel();
 		BlockPos blockPos = be.getBlockPos();
+		BlockState blockState = be.getBlockState();
+		List<FilterRenderState> states = new ArrayList<>();
 
 		for (BlockEntityBehaviour b : be.getAllBehaviours()) {
 			if (!(b instanceof FilteringBehaviour behaviour))
 				continue;
 
 			if (!be.isVirtual()) {
-				Entity cameraEntity = Minecraft.getInstance().cameraEntity;
-				if (cameraEntity != null && level == cameraEntity.level()) {
-					float max = behaviour.getRenderDistance();
-					if (cameraEntity.position()
-						.distanceToSqr(VecHelper.getCenterOf(blockPos)) > (max * max)) {
-						continue;
-					}
-				}
+				float max = behaviour.getRenderDistance();
+				if (cameraPosition.distanceToSqr(VecHelper.getCenterOf(blockPos)) > (max * max))
+					continue;
 			}
 
 			if (!behaviour.isActive())
@@ -136,10 +142,9 @@ public class FilteringRenderer {
 				continue;
 
 			ValueBoxTransform slotPositioning = behaviour.slotPositioning;
-			BlockState blockState = be.getBlockState();
 
 			if (slotPositioning instanceof Sided sided) {
-				Direction side = sided.getSide();
+				Direction previous = sided.getSide();
 				for (Direction d : Iterate.directions) {
 					ItemStack filter = behaviour.getFilter(d);
 					if (filter.isEmpty())
@@ -149,21 +154,62 @@ public class FilteringRenderer {
 					if (!slotPositioning.shouldRender(level, blockPos, blockState))
 						continue;
 
-					ms.pushPose();
-					slotPositioning.transform(level, blockPos, blockState, ms);
-					if (AllBlocks.CONTRAPTION_CONTROLS.has(blockState))
-						ValueBoxRenderer.renderFlatItemIntoValueBox(filter, ms, buffer, light, overlay);
-					else
-						ValueBoxRenderer.renderItemIntoValueBox(filter, ms, buffer, light, overlay);
-					ms.popPose();
+					// CONTRAPTION_CONTROLS draws its filter flat against the face rather than as a
+					// floating item, which needs the GUI display context instead of FIXED.
+					boolean flat = AllBlocks.CONTRAPTION_CONTROLS.has(blockState);
+					states.add(SingleFilterRenderState.create(sided, d, level, blockPos, itemModelResolver, filter,
+						flat));
 				}
-				sided.fromSide(side);
+				sided.fromSide(previous);
 			} else if (slotPositioning.shouldRender(level, blockPos, blockState)) {
-				ms.pushPose();
-				slotPositioning.transform(level, blockPos, blockState, ms);
-				ValueBoxRenderer.renderItemIntoValueBox(behaviour.getFilter(), ms, buffer, light, overlay);
-				ms.popPose();
+				states.add(SingleFilterRenderState.create(slotPositioning, null, level, blockPos, itemModelResolver,
+					behaviour.getFilter(), false));
 			}
+		}
+
+		return states.isEmpty() ? null : new FilterRenderStates(states);
+	}
+
+	public interface FilterRenderState {
+		void submit(BlockState blockState, SubmitNodeCollector queue, PoseStack ms, int light);
+	}
+
+	private record FilterRenderStates(List<FilterRenderState> states) implements FilterRenderState {
+		@Override
+		public void submit(BlockState blockState, SubmitNodeCollector queue, PoseStack ms, int light) {
+			for (FilterRenderState state : states)
+				state.submit(blockState, queue, ms, light);
+		}
+	}
+
+	/**
+	 * The level and position are held because Create's {@link ValueBoxTransform} resolves against them.
+	 * Both are stable for the lifetime of a block entity, unlike the per-frame data that must be copied.
+	 */
+	public record SingleFilterRenderState(ValueBoxTransform slotPositioning, @Nullable Direction side, Level level,
+		BlockPos pos, ItemStackRenderState item, boolean flat, float zOffset) implements FilterRenderState {
+
+		static SingleFilterRenderState create(ValueBoxTransform slotPositioning, @Nullable Direction side, Level level,
+			BlockPos pos, ItemModelResolver itemModelResolver, ItemStack filter, boolean flat) {
+			ItemStackRenderState item = new ItemStackRenderState();
+			ItemDisplayContext context = flat ? ItemDisplayContext.GUI : ItemDisplayContext.FIXED;
+			item.displayContext = context;
+			itemModelResolver.appendItemLayers(item, filter, context, level, null, 0);
+			return new SingleFilterRenderState(slotPositioning, side, level, pos, item, flat,
+				flat ? 0 : ValueBoxRenderer.customZOffset(filter.getItem()));
+		}
+
+		@Override
+		public void submit(BlockState blockState, SubmitNodeCollector queue, PoseStack ms, int light) {
+			ms.pushPose();
+			if (side != null && slotPositioning instanceof Sided sided)
+				sided.fromSide(side);
+			slotPositioning.transform(level, pos, blockState, ms);
+			if (flat)
+				ValueBoxRenderer.renderFlatItemIntoValueBox(item, queue, ms, light);
+			else
+				ValueBoxRenderer.renderItemIntoValueBox(item, queue, ms, light, zOffset);
+			ms.popPose();
 		}
 	}
 }

@@ -22,12 +22,12 @@ import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 
-import net.createmod.catnip.nbt.NBTProcessors;
+import net.createmod.catnip.api.nbt.NBTProcessors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -81,7 +81,7 @@ public abstract class DisplaySource {
 		return true;
 	}
 
-	protected final ResourceLocation getId() {
+	protected final Identifier getId() {
 		return CreateBuiltInRegistries.DISPLAY_SOURCE.getKey(this);
 	}
 
@@ -126,7 +126,7 @@ public abstract class DisplaySource {
 	 * Get the DisplaySource with the given ID, accounting for legacy names.
 	 */
 	@Nullable
-	public static DisplaySource get(@Nullable ResourceLocation id) {
+	public static DisplaySource get(@Nullable Identifier id) {
 		if (id == null)
 			return null;
 

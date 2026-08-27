@@ -1,5 +1,8 @@
 package com.simibubi.create.content.equipment.clipboard;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
@@ -12,8 +15,7 @@ import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -99,7 +101,7 @@ public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 
 		return onBlockEntityUse(level, pos, cbe -> {
 			if (level.isClientSide())
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> openScreen(player, cbe.components(), pos));
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> openScreen(player, cbe.components(), pos));
 			return InteractionResult.SUCCESS;
 		});
 	}
@@ -118,9 +120,9 @@ public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 	private void breakAndCollect(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer) {
 		if (pPlayer instanceof FakePlayer)
 			return;
-		if (pLevel.isClientSide)
+		if (pLevel.isClientSide())
 			return;
-		ItemStack cloneItemStack = getCloneItemStack(pLevel, pPos, pState);
+		ItemStack cloneItemStack = getCloneItemStack(pLevel, pPos, pState, true);
 		pLevel.destroyBlock(pPos, false);
 		if (pLevel.getBlockState(pPos) != pState) {
 			Inventory inv = pPlayer.getInventory();
@@ -134,7 +136,7 @@ public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
 		return applyComponentsToDropStack(new ItemStack(this), level.getBlockEntity(pos));
 	}
 
@@ -142,7 +144,7 @@ public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
 		if (!(level.getBlockEntity(pos) instanceof ClipboardBlockEntity cbe))
 			return state;
-		if (level.isClientSide || player.isCreative())
+		if (level.isClientSide() || player.isCreative())
 			return state;
 		Block.popResource(level, pos, applyComponentsToDropStack(new ItemStack(this), cbe));
 
@@ -173,10 +175,10 @@ public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 	}
 
 	@Override
-	public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel,
-		BlockPos pCurrentPos, BlockPos pFacingPos) {
-		updateWater(pLevel, pState, pCurrentPos);
-		return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+	public BlockState updateShape(BlockState pState, LevelReader pLevel, ScheduledTickAccess ticks,
+		BlockPos pCurrentPos, Direction pFacing, BlockPos pFacingPos, BlockState pFacingState, RandomSource random) {
+		updateWater(pLevel, ticks, pState, pCurrentPos);
+		return super.updateShape(pState, pLevel, ticks, pCurrentPos, pFacing, pFacingPos, pFacingState, random);
 	}
 
 	@Override

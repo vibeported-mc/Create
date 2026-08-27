@@ -7,10 +7,10 @@ import java.util.function.Consumer;
 import com.simibubi.create.foundation.gui.widget.ScrollInput;
 import com.simibubi.create.foundation.gui.widget.TooltipArea;
 
-import net.createmod.catnip.gui.UIRenderHelper;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Pair;
-import net.minecraft.client.gui.GuiGraphics;
+import net.createmod.catnip.api.client.gui.UIRenderHelper;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Pair;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
@@ -30,7 +30,7 @@ public class ModularGuiLine {
 		speechBubble = false;
 	}
 
-	public void renderWidgetBG(int guiLeft, GuiGraphics graphics) {
+	public void renderWidgetBG(int guiLeft, GuiGraphicsExtractor graphics) {
 		boolean first = true;
 
 		if (!customBoxes.isEmpty()) {
@@ -62,7 +62,7 @@ public class ModularGuiLine {
 		}
 	}
 
-	private void box(GuiGraphics graphics, int x, int width, boolean b) {
+	private void box(GuiGraphicsExtractor graphics, int x, int width, boolean b) {
 		UIRenderHelper.drawStretched(graphics, x, 0, width, 18, 0, AllGuiTextures.DATA_AREA);
 		if (b)
 			AllGuiTextures.DATA_AREA_SPEECH.render(graphics, x - 3, 0);
@@ -89,9 +89,9 @@ public class ModularGuiLine {
 			AbstractWidget w = pair.getFirst();
 			String key = pair.getSecond();
 			if (w instanceof EditBox eb)
-				eb.setValue(data.getString(key));
+				eb.setValue(data.getStringOr(key, ""));
 			if (w instanceof ScrollInput si)
-				si.setState(data.getInt(key));
+				si.setState(data.getIntOr(key, 0));
 
 			if (w instanceof TooltipArea)
 				addRenderableOnly.accept((T) w);

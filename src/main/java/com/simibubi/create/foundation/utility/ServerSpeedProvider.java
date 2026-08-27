@@ -1,12 +1,12 @@
 package com.simibubi.create.foundation.utility;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -24,7 +24,7 @@ public class ServerSpeedProvider {
 	public static void serverTick() {
 		serverTimer++;
 		if (serverTimer > getSyncInterval()) {
-			CatnipServices.NETWORK.sendToAllClients(Packet.INSTANCE);
+			NetworkHelper.INSTANCE.sendToAllClients(Packet.INSTANCE);
 			serverTimer = 0;
 		}
 	}
@@ -48,12 +48,11 @@ public class ServerSpeedProvider {
 		return modifier.getValue();
 	}
 
-	public enum Packet implements ClientboundPacketPayload {
+	public enum Packet implements CustomPacketPayload {
 		INSTANCE;
 
 		public static final StreamCodec<ByteBuf, Packet> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
-		@Override
 		@OnlyIn(Dist.CLIENT)
 		public void handle(LocalPlayer player) {
 			if (!initialized) {
@@ -70,8 +69,8 @@ public class ServerSpeedProvider {
 		}
 
 		@Override
-		public PacketTypeProvider getTypeProvider() {
-			return AllPackets.SERVER_SPEED;
+		public Type<? extends CustomPacketPayload> type() {
+			return AllPackets.SERVER_SPEED.getType();
 		}
 	}
 

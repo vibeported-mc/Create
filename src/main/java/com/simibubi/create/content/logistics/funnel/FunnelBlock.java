@@ -1,5 +1,9 @@
 package com.simibubi.create.content.logistics.funnel;
 
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.util.RandomSource;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
@@ -10,13 +14,13 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.item.ItemHelper;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -71,50 +75,44 @@ public abstract class FunnelBlock extends AbstractDirectionalFunnelBlock {
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (newState.getBlock() instanceof BeltFunnelBlock bfb && bfb.isOfSameType(this))
-			return;
-		super.onRemove(state, world, pos, newState, isMoving);
-	}
-
-	@Override
 	public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, LivingEntity pPlacer, ItemStack pStack) {
 		super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
 		AdvancementBehaviour.setPlacedBy(pLevel, pPos, pPlacer);
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		boolean shouldntInsertItem = AllBlocks.MECHANICAL_ARM.isIn(stack) || !canInsertIntoFunnel(state);
 
 		if (AllItems.WRENCH.isIn(stack))
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		if (hitResult.getDirection() == getFunnelFacing(state) && !shouldntInsertItem) {
-			if (!level.isClientSide)
+			if (!level.isClientSide())
 				withBlockEntityDo(level, pos, be -> {
 					ItemStack toInsert = stack.copy();
 					ItemStack remainder = tryInsert(level, pos, toInsert, false);
 					if (!ItemStack.matches(remainder, toInsert) || remainder.getCount() != stack.getCount())
 						player.setItemInHand(hand, remainder);
 				});
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	@Override
 	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
 		Level world = context.getLevel();
-		if (!world.isClientSide)
+		if (!world.isClientSide())
 			world.setBlockAndUpdate(context.getClickedPos(), state.cycle(EXTRACTING));
 		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public void entityInside(BlockState state, Level worldIn, BlockPos pos, Entity entityIn) {
-		if (worldIn.isClientSide)
+	public void entityInside(BlockState state, Level worldIn, BlockPos pos, Entity entityIn,
+		InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+		if (worldIn.isClientSide())
 			return;
 		ItemStack stack = ItemHelper.fromItemEntity(entityIn);
 		if (stack.isEmpty())
@@ -124,7 +122,7 @@ public abstract class FunnelBlock extends AbstractDirectionalFunnelBlock {
 
 		Direction direction = getFunnelFacing(state);
 		Vec3 openPos = VecHelper.getCenterOf(pos)
-			.add(Vec3.atLowerCornerOf(direction.getNormal())
+			.add(Vec3.atLowerCornerOf(direction.getUnitVec3i())
 				.scale(entityIn instanceof ItemEntity ? -.25f : -.125f));
 		Vec3 diff = entityIn.position()
 			.subtract(openPos);
@@ -165,9 +163,9 @@ public abstract class FunnelBlock extends AbstractDirectionalFunnelBlock {
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState p_196271_3_, LevelAccessor world,
-		BlockPos pos, BlockPos p_196271_6_) {
-		updateWater(world, state, pos);
+	public BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess ticks,
+		BlockPos pos, Direction direction, BlockPos p_196271_6_, BlockState p_196271_3_, RandomSource random) {
+		updateWater(world, ticks, state, pos);
 		if (getFacing(state).getAxis()
 			.isVertical() || direction != Direction.DOWN)
 			return state;

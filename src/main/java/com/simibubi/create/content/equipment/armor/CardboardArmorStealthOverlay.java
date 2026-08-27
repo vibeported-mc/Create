@@ -3,13 +3,13 @@ package com.simibubi.create.content.equipment.armor;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.mixin.accessor.GuiAccessor;
 
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -21,7 +21,7 @@ public class CardboardArmorStealthOverlay extends Gui implements IClientItemExte
 		super(Minecraft.getInstance());
 	}
 
-	private static final ResourceLocation PACKAGE_BLUR_LOCATION = Create.asResource("textures/misc/package_blur.png");
+	private static final Identifier PACKAGE_BLUR_LOCATION = Create.asResource("textures/misc/package_blur.png");
 
 	private static LerpedFloat opacity = LerpedFloat.linear()
 		.startWithValue(0)
@@ -42,7 +42,7 @@ public class CardboardArmorStealthOverlay extends Gui implements IClientItemExte
 		float value = opacity.getValue(partialTick);
 		if (value == 0)
 			return;
-		((GuiAccessor) this).create$renderTextureOverlay(new GuiGraphics(mc, mc.renderBuffers()
+		((GuiAccessor) this).create$renderTextureOverlay(new GuiGraphicsExtractor(mc, mc.renderBuffers()
 			.bufferSource()), PACKAGE_BLUR_LOCATION, value);
 	}
 

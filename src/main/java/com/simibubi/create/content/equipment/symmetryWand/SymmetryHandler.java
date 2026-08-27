@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.symmetryWand;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.joml.Vector3f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,13 +9,13 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.symmetryWand.mirror.EmptyMirror;
 import com.simibubi.create.content.equipment.symmetryWand.mirror.SymmetryMirror;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -36,7 +37,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.event.level.BlockEvent.BreakEvent;
 import net.neoforged.neoforge.event.level.BlockEvent.EntityPlaceEvent;
 
@@ -111,12 +112,12 @@ public class SymmetryHandler {
 			mirror.applyModelTransform(ms);
 			BakedModel model = mirror.getModel()
 				.get();
-			VertexConsumer builder = buffer.getBuffer(RenderType.solid());
+			VertexConsumer builder = buffer.getBuffer(RenderTypes.solidMovingBlock());
 
 			mc.getBlockRenderer()
 				.getModelRenderer()
 				.tesselateBlock(player.level(), model, Blocks.AIR.defaultBlockState(), pos, ms, builder, true,
-					random, Mth.getSeed(pos), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, RenderType.solid());
+					random, Mth.getSeed(pos), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, RenderTypes.solidMovingBlock());
 
 			ms.popPose();
 			buffer.endBatch();
@@ -148,7 +149,7 @@ public class SymmetryHandler {
 					if (mirror instanceof EmptyMirror)
 						continue;
 
-					RandomSource random = mc.level.random;
+					RandomSource random = mc.level.getRandom();
 					double offsetX = (random.nextDouble() - 0.5) * 0.3;
 					double offsetZ = (random.nextDouble() - 0.5) * 0.3;
 
@@ -164,7 +165,7 @@ public class SymmetryHandler {
 
 	public static void drawEffect(BlockPos from, BlockPos to) {
 		ClientLevel level = Minecraft.getInstance().level;
-		RandomSource random = level.random;
+		RandomSource random = level.getRandom();
 
 		double density = 0.8f;
 		Vec3 start = Vec3.atLowerCornerOf(from)

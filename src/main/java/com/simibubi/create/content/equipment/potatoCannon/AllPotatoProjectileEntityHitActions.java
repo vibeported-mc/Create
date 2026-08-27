@@ -11,7 +11,7 @@ import com.simibubi.create.api.equipment.potatoCannon.PotatoProjectileEntityHitA
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 import com.simibubi.create.foundation.codec.CreateCodecs;
 
-import net.createmod.catnip.data.WorldAttached;
+import net.createmod.catnip.api.data.WorldAttached;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -28,8 +28,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.entity.animal.fox.Fox;
+import net.minecraft.world.entity.monster.zombie.ZombieVillager;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.FoodProperties.PossibleEffect;
 import net.minecraft.world.food.Foods;
@@ -97,7 +97,7 @@ public class AllPotatoProjectileEntityHitActions {
 		@Override
 		public boolean execute(ItemStack projectile, EntityHitResult ray, Type type) {
 			Entity entity = ray.getEntity();
-			if (entity.level().isClientSide)
+			if (entity.level().isClientSide())
 				return true;
 			if (entity instanceof LivingEntity livingEntity)
 				applyEffect(livingEntity, new MobEffectInstance(effect, ticks, level - 1));
@@ -120,7 +120,7 @@ public class AllPotatoProjectileEntityHitActions {
 		@Override
 		public boolean execute(ItemStack projectile, EntityHitResult ray, Type type) {
 			Entity entity = ray.getEntity();
-			if (entity.level().isClientSide)
+			if (entity.level().isClientSide())
 				return true;
 
 			if (entity instanceof LivingEntity livingEntity) {
@@ -147,7 +147,7 @@ public class AllPotatoProjectileEntityHitActions {
 		public boolean execute(ItemStack projectile, EntityHitResult ray, Type type) {
 			Entity entity = ray.getEntity();
 			Level level = entity.getCommandSenderWorld();
-			if (level.isClientSide)
+			if (level.isClientSide())
 				return true;
 			if (!(entity instanceof LivingEntity livingEntity))
 				return false;
@@ -208,7 +208,7 @@ public class AllPotatoProjectileEntityHitActions {
 
 			if (!(entity instanceof ZombieVillager zombieVillager) || !zombieVillager.hasEffect(MobEffects.WEAKNESS))
 				return EFFECT.execute(projectile, ray, type);
-			if (world.isClientSide)
+			if (world.isClientSide())
 				return false;
 
 			FakePlayer dummy = ZOMBIE_CONVERTERS.get(world);

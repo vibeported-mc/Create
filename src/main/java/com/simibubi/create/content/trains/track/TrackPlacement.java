@@ -19,16 +19,16 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.outliner.Outliner;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.client.outliner.Outliner;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -131,7 +131,7 @@ public class TrackPlacement {
 		int lookAngle = (int) (22.5 + AngleHelper.deg(Mth.atan2(lookVec.z, lookVec.x)) % 360) / 8;
 		int maxLength = AllConfigs.server().trains.maxTrackPlacementLength.get();
 
-		if (level.isClientSide && cached != null && pos2.equals(hoveringPos) && stack.equals(lastItem)
+		if (level.isClientSide() && cached != null && pos2.equals(hoveringPos) && stack.equals(lastItem)
 			&& hoveringMaxed == maximiseTurn && lookAngle == hoveringAngle)
 			return cached;
 
@@ -160,7 +160,7 @@ public class TrackPlacement {
 		Vec3 normal1 = connectingFrom.normal();
 		BlockState state1 = level.getBlockState(pos1);
 
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			info.end1 = end1;
 			info.end2 = end2;
 			info.normal1 = normal1;
@@ -183,7 +183,7 @@ public class TrackPlacement {
 			axis1 = axis1.scale(-1);
 			normedAxis1 = normedAxis1.scale(-1);
 			end1 = track.getCurveStart(level, pos1, state1, axis1);
-			if (level.isClientSide) {
+			if (level.isClientSide()) {
 				info.end1 = end1;
 				info.axis1 = axis1;
 			}
@@ -197,7 +197,7 @@ public class TrackPlacement {
 			axis2 = axis2.scale(-1);
 			normedAxis2 = normedAxis2.scale(-1);
 			end2 = track.getCurveStart(level, pos2, state2, axis2);
-			if (level.isClientSide) {
+			if (level.isClientSide()) {
 				info.end2 = end2;
 				info.axis2 = axis2;
 			}
@@ -212,7 +212,7 @@ public class TrackPlacement {
 		double absAscend = Math.abs(ascend);
 		boolean slope = !normal1.equals(normal2);
 
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			Vec3 offset1 = axis1.scale(info.end1Extent);
 			Vec3 offset2 = axis2.scale(info.end2Extent);
 			BlockPos targetPos1 = pos1.offset(BlockPos.containing(offset1));
@@ -403,7 +403,7 @@ public class TrackPlacement {
 
 		if (!player.isCreative()) {
 			for (boolean simulate : Iterate.trueAndFalse) {
-				if (level.isClientSide && !simulate)
+				if (level.isClientSide() && !simulate)
 					break;
 
 				int tracks = info.requiredTracks;
@@ -641,12 +641,11 @@ public class TrackPlacement {
 			BlueprintOverlayRenderer.displayTrackRequirements(info, player.getOffhandItem());
 
 		if (info.valid)
-			player.displayClientMessage(CreateLang.translateDirect("track.valid_connection")
-				.withStyle(ChatFormatting.GREEN), true);
+			player.sendOverlayMessage(CreateLang.translateDirect("track.valid_connection")
+				.withStyle(ChatFormatting.GREEN));
 		else if (info.message != null)
-			player.displayClientMessage(CreateLang.translateDirect(info.message)
-					.withStyle(info.message.equals("track.second_point") ? ChatFormatting.WHITE : ChatFormatting.RED),
-				true);
+			player.sendOverlayMessage(CreateLang.translateDirect(info.message)
+					.withStyle(info.message.equals("track.second_point") ? ChatFormatting.WHITE : ChatFormatting.RED));
 
 		if (bhr.getDirection() == Direction.UP) {
 			Vec3 lookVec = player.getLookAngle();

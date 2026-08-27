@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.vault;
 
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
@@ -18,18 +19,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
-
-public class ItemVaultMountedStorage extends WrapperMountedItemStorage<ItemStackHandler> {
+public class ItemVaultMountedStorage extends WrapperMountedItemStorage<ItemStacksResourceHandler> {
 	public static final MapCodec<ItemVaultMountedStorage> CODEC = CreateCodecs.ITEM_STACK_HANDLER.xmap(
 		ItemVaultMountedStorage::new, storage -> storage.wrapped
 	).fieldOf("value");
 
-	protected ItemVaultMountedStorage(MountedItemStorageType<?> type, ItemStackHandler handler) {
+	protected ItemVaultMountedStorage(MountedItemStorageType<?> type, ItemStacksResourceHandler handler) {
 		super(type, handler);
 	}
 
-	protected ItemVaultMountedStorage(ItemStackHandler handler) {
+	protected ItemVaultMountedStorage(ItemStacksResourceHandler handler) {
 		this(AllMountedStorageTypes.VAULT.get(), handler);
 	}
 
@@ -52,7 +51,7 @@ public class ItemVaultMountedStorage extends WrapperMountedItemStorage<ItemStack
 	}
 
 	public static ItemVaultMountedStorage fromLegacy(HolderLookup.Provider registries,  CompoundTag nbt) {
-		ItemStackHandler handler = new ItemStackHandler();
+		ItemStacksResourceHandler handler = new ItemStacksResourceHandler();
 		handler.deserializeNBT(registries, nbt);
 		return new ItemVaultMountedStorage(handler);
 	}

@@ -1,9 +1,10 @@
 package com.simibubi.create.content.contraptions;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.foundation.damageTypes.CreateDamageSources;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,7 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
-public record TrainCollisionPacket(int damage, int contraptionEntityId) implements ServerboundPacketPayload {
+public record TrainCollisionPacket(int damage, int contraptionEntityId) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, TrainCollisionPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, TrainCollisionPacket::damage,
 			ByteBufCodecs.INT, TrainCollisionPacket::contraptionEntityId,
@@ -34,7 +35,7 @@ public record TrainCollisionPacket(int damage, int contraptionEntityId) implemen
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.TRAIN_COLLISION;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.TRAIN_COLLISION.getType();
 	}
 }

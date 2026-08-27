@@ -1,19 +1,16 @@
 package com.simibubi.create.content.processing.recipe;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import org.jspecify.annotations.NullMarked;
 import com.mojang.serialization.MapCodec;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NullMarked
 public abstract class StandardProcessingRecipe<T extends RecipeInput> extends ProcessingRecipe<T, ProcessingRecipeParams> {
 	public StandardProcessingRecipe(IRecipeTypeInfo typeInfo, ProcessingRecipeParams params) {
 		super(typeInfo, params);
@@ -27,7 +24,7 @@ public abstract class StandardProcessingRecipe<T extends RecipeInput> extends Pr
 	public static class Builder<R extends StandardProcessingRecipe<?>>
 		extends ProcessingRecipeBuilder<ProcessingRecipeParams, R, Builder<R>> {
 
-		public Builder(Factory<R> factory, ResourceLocation recipeId) {
+		public Builder(Factory<R> factory, Identifier recipeId) {
 			super(factory, recipeId);
 		}
 

@@ -1,44 +1,69 @@
 package com.simibubi.create.content.logistics.packagePort.postbox;
 
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 
 import dev.engine_room.flywheel.lib.transform.Transform;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import dev.engine_room.flywheel.lib.transform.TransformStack;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
-public class PostboxRenderer extends SmartBlockEntityRenderer<PostboxBlockEntity> {
+public class PostboxRenderer extends SmartBlockEntityRenderer<PostboxBlockEntity, PostboxRenderer.PostboxRenderState> {
+
+	public static class PostboxRenderState extends SmartRenderState {
+		public @Nullable SuperByteBufferRenderState flag;
+	}
 
 	public PostboxRenderer(Context context) {
 		super(context);
 	}
 
 	@Override
-	protected void renderSafe(PostboxBlockEntity blockEntity, float partialTicks, PoseStack ms,
-		MultiBufferSource buffer, int light, int overlay) {
+	public PostboxRenderState createRenderState() {
+		return new PostboxRenderState();
+	}
 
-		if (blockEntity.addressFilter != null && !blockEntity.addressFilter.isBlank()) {
-            renderNameplateOnHover(blockEntity, Component.literal(blockEntity.addressFilter), 1, ms, buffer, light);
-        }
+	@Override
+	protected void extractSafe(PostboxBlockEntity be, PostboxRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		super.extractSafe(be, state, partialTicks, cameraPosition);
 
-		SuperByteBuffer sbb = CachedBuffers.partial(AllPartialModels.POSTBOX_FLAG, blockEntity.getBlockState());
+		state.nameplate = null;
+		if (be.addressFilter != null && !be.addressFilter.isBlank())
+			state.nameplate = extractNameplateOnHover(be, Component.literal(be.addressFilter), 1, cameraPosition,
+				state.lightCoords);
 
-		sbb.light(light)
-			.overlay(overlay)
-			.rotateCentered(Mth.DEG_TO_RAD * (180 - blockEntity.getBlockState()
-				.getValue(PostboxBlock.FACING)
-				.toYRot()), Axis.YP);
+		SuperByteBuffer sbb = CachedBuffers.partial(AllPartialModels.POSTBOX_FLAG, be.getBlockState());
 
-		transformFlag(sbb, blockEntity, partialTicks);
+		var msr = TransformStack.of(sbb.getTransforms());
+		msr.rotateCentered(Mth.DEG_TO_RAD * (180 - be.getBlockState()
+			.getValue(PostboxBlock.FACING)
+			.toYRot()), Axis.YP);
 
-		sbb.renderInto(ms, buffer.getBuffer(RenderType.cutout()));
+		transformFlag(msr, be, partialTicks);
+
+		state.flag = sbb.light(state.lightCoords)
+			.extractRenderState();
+	}
+
+	@Override
+	protected void submitSafe(PostboxRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		super.submitSafe(state, ms, queue, camera);
+		if (state.flag != null)
+			state.flag.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
 	}
 
 	public static void transformFlag(Transform<?> flag, PostboxBlockEntity be, float partialTicks) {

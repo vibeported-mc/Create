@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
@@ -28,8 +29,8 @@ public class FactoryPanelConnectionPacket extends BlockEntityConfigurationPacket
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONNECT_FACTORY_PANEL;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONNECT_FACTORY_PANEL.getType();
 	}
 
 	@Override

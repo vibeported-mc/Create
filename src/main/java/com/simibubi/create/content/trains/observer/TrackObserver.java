@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.observer;
 
+import net.minecraft.core.UUIDUtil;
 import java.util.UUID;
 
 import com.simibubi.create.Create;
@@ -85,10 +86,10 @@ public class TrackObserver extends SingleBlockEntityEdgePoint {
 	@Override
 	public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean migration, DimensionPalette dimensions) {
 		super.read(nbt, registries, migration, dimensions);
-		activated = nbt.getInt("Activated");
-		filter = FilterItemStack.of(registries, nbt.getCompound("Filter"));
+		activated = nbt.getIntOr("Activated", 0);
+		filter = FilterItemStack.of(registries, nbt.getCompoundOrEmpty("Filter"));
 		if (nbt.contains("TrainId"))
-			currentTrain = nbt.getUUID("TrainId");
+			currentTrain = nbt.read("TrainId", UUIDUtil.CODEC).orElse(null);
 	}
 
 	@Override
@@ -102,7 +103,7 @@ public class TrackObserver extends SingleBlockEntityEdgePoint {
 		nbt.putInt("Activated", activated);
 		nbt.put("Filter", filter.serializeNBT(registries));
 		if (currentTrain != null)
-			nbt.putUUID("TrainId", currentTrain);
+			nbt.store("TrainId", UUIDUtil.CODEC, currentTrain);
 	}
 
 	@Override

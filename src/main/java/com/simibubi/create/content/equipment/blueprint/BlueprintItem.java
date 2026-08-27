@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,8 +36,6 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.common.crafting.CompoundIngredient;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class BlueprintItem extends Item {
 
 	public BlueprintItem(Properties properties) {
@@ -62,21 +62,21 @@ public class BlueprintItem extends Item {
 			EntityType.updateCustomEntityTag(world, player, hangingentity, customData);
 		if (!hangingentity.survives())
 			return InteractionResult.CONSUME;
-		if (!world.isClientSide) {
+		if (!world.isClientSide()) {
 			hangingentity.playPlacementSound();
 			world.addFreshEntity(hangingentity);
 		}
 
 		stack.shrink(1);
-		return InteractionResult.sidedSuccess(world.isClientSide);
+		return InteractionResult.sidedSuccess(world.isClientSide());
 	}
 
-	public static void assignCompleteRecipe(Level level, ItemStackHandler inv, Recipe<?> recipe) {
+	public static void assignCompleteRecipe(Level level, ItemStacksResourceHandler inv, Recipe<?> recipe) {
 		NonNullList<Ingredient> ingredients = recipe.getIngredients();
 
 		for (int i = 0; i < 9; i++)
 			inv.setStackInSlot(i, ItemStack.EMPTY);
-		inv.setStackInSlot(9, recipe.getResultItem(level.registryAccess()));
+		ItemHandlerHelpers.setStackInSlot(inv, 9, recipe.getResultItem(level.registryAccess()));
 
 		if (recipe instanceof ShapedRecipe shapedRecipe) {
 			for (int row = 0; row < shapedRecipe.getHeight(); row++)
@@ -100,7 +100,7 @@ public class BlueprintItem extends Item {
 			return convertIItemListToFilter(acceptedItems[0], isCompoundIngredient);
 
 		ItemStack result = AllItems.FILTER.asStack();
-		ItemStackHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
+		ItemStacksResourceHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
 		for (int i = 0; i < acceptedItems.length; i++)
 			filterItems.setStackInSlot(i, convertIItemListToFilter(acceptedItems[i], isCompoundIngredient));
 		result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));
@@ -126,12 +126,12 @@ public class BlueprintItem extends Item {
 
 		if (isCompoundIngredient) {
 			ItemStack result = AllItems.FILTER.asStack();
-			ItemStackHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
+			ItemStacksResourceHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
 			int i = 0;
 			for (ItemStack itemStack : stacks) {
 				if (i >= 18)
 					break;
-				filterItems.setStackInSlot(i++, itemStack);
+				ItemHandlerHelpers.setStackInSlot(filterItems, i++, itemStack);
 			}
 			result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));
 			result.set(AllDataComponents.FILTER_ITEMS_RESPECT_NBT, true);

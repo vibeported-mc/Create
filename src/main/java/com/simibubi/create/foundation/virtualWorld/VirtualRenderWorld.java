@@ -14,7 +14,7 @@ import dev.engine_room.flywheel.api.visualization.VisualizationLevel;
 import it.unimi.dsi.fastutil.objects.Object2ShortMap;
 import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -55,7 +55,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
 
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 
 public class VirtualRenderWorld extends Level implements VisualizationLevel {
 	protected final Level level;
@@ -127,9 +127,9 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 		var selfBrightness = super.getBrightness(lightType, blockPos);
 
 		if (lightType == LightLayer.SKY) {
-			return Math.max(selfBrightness, LightTexture.sky(externalPackedLight));
+			return Math.max(selfBrightness, LightCoordsUtil.sky(externalPackedLight));
 		} else {
-			return Math.max(selfBrightness, LightTexture.block(externalPackedLight));
+			return Math.max(selfBrightness, LightCoordsUtil.block(externalPackedLight));
 		}
 	}
 
@@ -196,7 +196,7 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 		blockStates.put(pos, newState);
 
 		SectionPos sectionPos = SectionPos.of(pos);
-		short nonEmptyBlockCount = nonEmptyBlockCounts.getShort(sectionPos);
+		short nonEmptyBlockCount = nonEmptyBlockCounts.getShortOr(sectionPos, (short) 0);
 		boolean prevEmpty = nonEmptyBlockCount == 0;
 		if (!oldState.isAir()) {
 			--nonEmptyBlockCount;

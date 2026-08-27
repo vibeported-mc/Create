@@ -1,10 +1,10 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.inventory;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class VersionedInventoryTrackerBehaviour extends BlockEntityBehaviour {
 
 	public static final BehaviourType<VersionedInventoryTrackerBehaviour> TYPE = new BehaviourType<>();
@@ -21,7 +21,7 @@ public class VersionedInventoryTrackerBehaviour extends BlockEntityBehaviour {
 		return behaviour.hasInventory() && stillWaiting(behaviour.getInventory());
 	}
 
-	public boolean stillWaiting(IItemHandler handler) {
+	public boolean stillWaiting(ResourceHandler<ItemResource> handler) {
 		if (handler instanceof VersionedInventoryWrapper viw)
 			return viw.getId() == ignoredId && viw.getVersion() == ignoredVersion;
 		return false;
@@ -32,7 +32,7 @@ public class VersionedInventoryTrackerBehaviour extends BlockEntityBehaviour {
 			awaitNewVersion(behaviour.getInventory());
 	}
 
-	public void awaitNewVersion(IItemHandler handler) {
+	public void awaitNewVersion(ResourceHandler<ItemResource> handler) {
 		if (handler instanceof VersionedInventoryWrapper viw) {
 			ignoredId = viw.getId();
 			ignoredVersion = viw.getVersion();

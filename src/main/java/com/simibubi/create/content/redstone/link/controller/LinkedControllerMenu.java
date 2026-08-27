@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.foundation.gui.menu.HeldItemGhostItemMenu;
@@ -10,7 +11,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class LinkedControllerMenu extends HeldItemGhostItemMenu {
@@ -28,7 +28,7 @@ public class LinkedControllerMenu extends HeldItemGhostItemMenu {
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
+	protected ItemStacksResourceHandler createGhostInventory() {
 		return LinkedControllerItem.getFrequencyItems(contentHolder);
 	}
 

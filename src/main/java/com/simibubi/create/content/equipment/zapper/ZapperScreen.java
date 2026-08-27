@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.zapper;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,10 +12,9 @@ import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.widget.IconButton;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.gui.AbstractSimiScreen;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.platform.CatnipServices;
-import net.minecraft.client.gui.GuiGraphics;
+import net.createmod.catnip.api.client.gui.AbstractSimiScreen;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -89,7 +89,7 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		int x = guiLeft;
 		int y = guiTop;
 
@@ -100,8 +100,8 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 		renderZapper(graphics, x, y);
 	}
 
-	protected void drawOnBackground(GuiGraphics graphics, int x, int y) {
-		graphics.drawString(font, title, x + (background.getWidth() - font.width(title)) / 2, y + 4, 0x54214F, false);
+	protected void drawOnBackground(GuiGraphicsExtractor graphics, int x, int y) {
+		graphics.text(font, title, x + (background.getWidth() - font.width(title)) / 2, y + 4, 0x54214F, false);
 	}
 
 	@Override
@@ -114,17 +114,17 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 	public void removed() {
 		ConfigureZapperPacket packet = getConfigurationPacket();
 		packet.configureZapper(zapper);
-		CatnipServices.NETWORK.sendToServer(packet);
+		NetworkHelper.INSTANCE.sendToServer(packet);
 	}
 
-	protected void renderZapper(GuiGraphics graphics, int x, int y) {
+	protected void renderZapper(GuiGraphicsExtractor graphics, int x, int y) {
 		GuiGameElement.of(zapper)
 			.scale(4)
 			.at(x + background.getWidth(), y + background.getHeight() - 48, -200)
 			.render(graphics);
 	}
 
-	protected void renderBlock(GuiGraphics graphics, int x, int y) {
+	protected void renderBlock(GuiGraphicsExtractor graphics, int x, int y) {
 		PoseStack ms = graphics.pose();
 		ms.pushPose();
 		ms.translate(x + 32, y + 42, 120);

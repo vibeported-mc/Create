@@ -45,11 +45,11 @@ import com.simibubi.create.infrastructure.data.CreateDatagen;
 import com.simibubi.create.infrastructure.worldgen.AllFeatures;
 import com.simibubi.create.infrastructure.worldgen.AllPlacementModifiers;
 
-import net.createmod.catnip.lang.FontHelper;
-import net.createmod.catnip.lang.LangBuilder;
+import net.createmod.catnip.api.client.lang.FontHelper;
+import net.createmod.catnip.api.lang.LangBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.Level;
@@ -206,8 +206,8 @@ public class Create {
 		return new LangBuilder(ID);
 	}
 
-	public static ResourceLocation asResource(String path) {
-		return ResourceLocation.fromNamespaceAndPath(ID, path);
+	public static Identifier asResource(String path) {
+		return Identifier.fromNamespaceAndPath(ID, path);
 	}
 
 	public static CreateRegistrate registrate() {

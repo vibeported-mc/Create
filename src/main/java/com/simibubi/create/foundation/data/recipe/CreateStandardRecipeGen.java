@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.data.recipe;
 
+import org.jspecify.annotations.NullMarked;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.ALUMINUM;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.LEAD;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.NICKEL;
@@ -17,8 +18,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -42,11 +41,10 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.predicates.ItemPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -61,7 +59,7 @@ import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
@@ -99,6 +97,7 @@ import net.neoforged.neoforge.common.conditions.NotCondition;
  * @see SpecialRecipeBuilder
  */
 @SuppressWarnings("unused")
+@NullMarked
 public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 	final List<GeneratedRecipe> all = new ArrayList<>();
 
@@ -1397,7 +1396,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 		return new GeneratedRecipeBuilder(currentFolder, result);
 	}
 
-	GeneratedRecipeBuilder create(ResourceLocation result) {
+	GeneratedRecipeBuilder create(Identifier result) {
 		return new GeneratedRecipeBuilder(currentFolder, result);
 	}
 
@@ -1407,7 +1406,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 
 	GeneratedRecipe createSpecial(Function<CraftingBookCategory, Recipe<?>> builder, String recipeType,
 								  String path) {
-		ResourceLocation location = Create.asResource(recipeType + "/" + currentFolder + "/" + path);
+		Identifier location = Create.asResource(recipeType + "/" + currentFolder + "/" + path);
 		return register(consumer -> {
 			SpecialRecipeBuilder b = SpecialRecipeBuilder.special(builder);
 			b.save(consumer, location.toString());
@@ -1424,7 +1423,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 	GeneratedRecipe blastModdedCrushedMetal(ItemEntry<? extends Item> ingredient, CommonMetal metal) {
 		for (Mods mod : metal.mods) {
 			String metalName = metal.getName(mod);
-			ResourceLocation ingot = mod.ingotOf(metalName);
+			Identifier ingot = mod.ingotOf(metalName);
 			String modId = mod.getId();
 			create(ingot).withSuffix("_compat_" + modId)
 				.whenModLoaded(modId)
@@ -1509,7 +1508,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 		private String path;
 		private String suffix;
 		private Supplier<? extends ItemLike> result;
-		private ResourceLocation compatDatagenOutput;
+		private Identifier compatDatagenOutput;
 		List<ICondition> recipeConditions;
 
 		private Supplier<ItemPredicate> unlockedBy;
@@ -1527,7 +1526,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			this.result = result;
 		}
 
-		public GeneratedRecipeBuilder(String path, ResourceLocation result) {
+		public GeneratedRecipeBuilder(String path, Identifier result) {
 			this(path);
 			this.compatDatagenOutput = result;
 		}
@@ -1606,15 +1605,15 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			});
 		}
 
-		private ResourceLocation createSimpleLocation(String recipeType) {
+		private Identifier createSimpleLocation(String recipeType) {
 			return Create.asResource(recipeType + "/" + getRegistryName().getPath() + suffix);
 		}
 
-		private ResourceLocation createLocation(String recipeType) {
+		private Identifier createLocation(String recipeType) {
 			return Create.asResource(recipeType + "/" + path + "/" + getRegistryName().getPath() + suffix);
 		}
 
-		private ResourceLocation getRegistryName() {
+		private Identifier getRegistryName() {
 			return compatDatagenOutput == null ? RegisteredObjectsHelper.getKeyOrThrow(result.get()
 				.asItem()) : compatDatagenOutput;
 		}
@@ -1711,16 +1710,14 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 		super(output, registries, Create.ID);
 	}
 
-	@ParametersAreNonnullByDefault
-	@MethodsReturnNonnullByDefault
 	private static class ModdedCookingRecipeOutputShim implements Recipe<RecipeInput> {
 
 		private static final Map<RecipeType<?>, Serializer> serializers = new ConcurrentHashMap<>();
 
 		private final Recipe<?> wrapped;
-		private final ResourceLocation overrideID;
+		private final Identifier overrideID;
 
-		private ModdedCookingRecipeOutputShim(Recipe<?> wrapped, ResourceLocation overrideID) {
+		private ModdedCookingRecipeOutputShim(Recipe<?> wrapped, Identifier overrideID) {
 			this.wrapped = wrapped;
 			this.overrideID = overrideID;
 		}
@@ -1805,17 +1802,15 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			}
 		}
 
-		private record FakeItemStack(ResourceLocation id) {
+		private record FakeItemStack(Identifier id) {
 			public static Codec<FakeItemStack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				ResourceLocation.CODEC.fieldOf("id").forGetter(FakeItemStack::id)
+				Identifier.CODEC.fieldOf("id").forGetter(FakeItemStack::id)
 			).apply(instance, FakeItemStack::new));
 		}
 	}
 
-	@ParametersAreNonnullByDefault
-	@MethodsReturnNonnullByDefault
 	private record ModdedCookingRecipeOutput(RecipeOutput wrapped,
-											 ResourceLocation outputOverride) implements RecipeOutput {
+											 Identifier outputOverride) implements RecipeOutput {
 
 		@Override
 		public Advancement.Builder advancement() {
@@ -1823,7 +1818,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 		}
 
 		@Override
-		public void accept(ResourceLocation id, Recipe<?> recipe, @Nullable AdvancementHolder advancement, ICondition... conditions) {
+		public void accept(Identifier id, Recipe<?> recipe, @Nullable AdvancementHolder advancement, ICondition... conditions) {
 			wrapped.accept(id, new ModdedCookingRecipeOutputShim(recipe, outputOverride), advancement, conditions);
 		}
 	}

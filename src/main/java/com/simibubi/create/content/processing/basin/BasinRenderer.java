@@ -1,106 +1,123 @@
 package com.simibubi.create.content.processing.basin;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import com.simibubi.create.content.logistics.depot.DepotRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.data.IntAttached;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.platform.NeoForgeCatnipServices;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.render.FluidRenderHelper;
+import net.createmod.catnip.api.data.IntAttached;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.math.VecHelper;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
-public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity> {
+public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity, BasinRenderer.BasinRenderState> {
+
+	public static class BasinRenderState extends SmartRenderState {
+		public final List<FluidBox> fluids = new ArrayList<>();
+		public final List<StackedItem> ingredients = new ArrayList<>();
+		public final List<OutputItem> outputs = new ArrayList<>();
+		public float fluidLevel;
+		public float rotation;
+		public float bobPhase;
+		public int seed;
+		public int itemCount;
+		public Vec3 baseVector = Vec3.ZERO;
+		public @Nullable Direction outputDirection;
+		public boolean outToBasin;
+	}
+
+	public record FluidBox(FluidStack fluid, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax) {
+	}
+
+	/**
+	 * One ingredient, drawn once per copy with a small random scatter.
+	 */
+	public record StackedItem(DepotRenderer.ItemState item, int copies) {
+	}
+
+	public record OutputItem(DepotRenderer.ItemState item, float progress) {
+	}
+
+	/**
+	 * Stand-in for a basin whose item capability has not been resolved yet.
+	 */
+	private static class EmptyItemHandler extends ItemStacksResourceHandler implements ModifiableItemHandler {
+		EmptyItemHandler() {
+			super(0);
+		}
+	}
 
 	public BasinRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);
 	}
 
 	@Override
-	protected void renderSafe(BasinBlockEntity basin, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-		int light, int overlay) {
-		super.renderSafe(basin, partialTicks, ms, buffer, light, overlay);
+	public BasinRenderState createRenderState() {
+		return new BasinRenderState();
+	}
 
-		float fluidLevel = renderFluids(basin, partialTicks, ms, buffer, light, overlay);
+	@Override
+	protected void extractSafe(BasinBlockEntity basin, BasinRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		super.extractSafe(basin, state, partialTicks, cameraPosition);
+		state.fluids.clear();
+		state.ingredients.clear();
+		state.outputs.clear();
+		state.outputDirection = null;
+
+		float fluidLevel = extractFluids(basin, state, partialTicks);
 		float level = Mth.clamp(fluidLevel - .3f, .125f, .6f);
+		state.fluidLevel = fluidLevel;
+		state.rotation = basin.ingredientRotation.getValue(partialTicks);
+		state.seed = basin.getBlockPos()
+			.hashCode();
+		state.bobPhase = AnimationTickHolder.getRenderTime(basin.getLevel()) / 12f;
 
-		ms.pushPose();
-
-		BlockPos pos = basin.getBlockPos();
-		ms.translate(.5, .2f, .5);
-		TransformStack.of(ms)
-			.rotateYDegrees(basin.ingredientRotation.getValue(partialTicks));
-
-		RandomSource r = RandomSource.create(pos.hashCode());
-		Vec3 baseVector = new Vec3(.125, level, 0);
-
-		IItemHandlerModifiable inv = basin.itemCapability;
+		ModifiableItemHandler inv = basin.itemCapability;
 		if (inv == null)
-			inv = new ItemStackHandler();
+			inv = new EmptyItemHandler();
 
 		int itemCount = 0;
-		for (int slot = 0; slot < inv.getSlots(); slot++)
-			if (!inv.getStackInSlot(slot)
+		for (int slot = 0; slot < inv.size(); slot++)
+			if (!inv.getResource(slot)
 				.isEmpty())
 				itemCount++;
 
-		if (itemCount == 1)
-			baseVector = new Vec3(0, level, 0);
+		state.baseVector = itemCount == 1 ? new Vec3(0, level, 0) : new Vec3(.125, level, 0);
+		state.itemCount = itemCount;
 
-		float anglePartition = 360f / itemCount;
-		for (int slot = 0; slot < inv.getSlots(); slot++) {
-			ItemStack stack = inv.getStackInSlot(slot);
+		for (int slot = 0; slot < inv.size(); slot++) {
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(inv, slot);
 			if (stack.isEmpty())
 				continue;
-
-			ms.pushPose();
-
-			if (fluidLevel > 0) {
-				ms.translate(0,
-					(Mth.sin(
-							AnimationTickHolder.getRenderTime(basin.getLevel()) / 12f + anglePartition * itemCount) + 1.5f)
-						* 1 / 32f,
-					0);
-			}
-
-			Vec3 itemPosition = VecHelper.rotate(baseVector, anglePartition * itemCount, Axis.Y);
-			ms.translate(itemPosition.x, itemPosition.y, itemPosition.z);
-            TransformStack.of(ms)
-				.rotateYDegrees(anglePartition * itemCount + 35)
-				.rotateXDegrees(65);
-
-			for (int i = 0; i <= stack.getCount() / 8; i++) {
-				ms.pushPose();
-
-				Vec3 vec = VecHelper.offsetRandomly(Vec3.ZERO, r, 1 / 16f);
-
-				ms.translate(vec.x, vec.y, vec.z);
-				renderItem(ms, buffer, light, overlay, stack);
-				ms.popPose();
-			}
-			ms.popPose();
-
-			itemCount--;
+			state.ingredients.add(new StackedItem(
+				DepotRenderer.ItemState.create(itemModelResolver, stack, basin.getLevel()), stack.getCount() / 8));
 		}
-		ms.popPose();
 
 		BlockState blockState = basin.getBlockState();
 		if (!(blockState.getBlock() instanceof BasinBlock))
@@ -108,42 +125,96 @@ public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity> {
 		Direction direction = blockState.getValue(BasinBlock.FACING);
 		if (direction == Direction.DOWN)
 			return;
-		Vec3 directionVec = Vec3.atLowerCornerOf(direction.getNormal());
-		Vec3 outVec = VecHelper.getCenterOf(BlockPos.ZERO)
-			.add(directionVec.scale(.55)
-				.subtract(0, 1 / 2f, 0));
-
-		boolean outToBasin = basin.getLevel()
+		state.outputDirection = direction;
+		state.outToBasin = basin.getLevel()
 			.getBlockState(basin.getBlockPos()
 				.relative(direction))
 			.getBlock() instanceof BasinBlock;
 
 		for (IntAttached<ItemStack> intAttached : basin.visualizedOutputItems) {
 			float progress = 1 - (intAttached.getFirst() - partialTicks) / BasinBlockEntity.OUTPUT_ANIMATION_TIME;
-
-			if (!outToBasin && progress > .35f)
+			if (!state.outToBasin && progress > .35f)
 				continue;
+			state.outputs.add(new OutputItem(
+				DepotRenderer.ItemState.create(itemModelResolver, intAttached.getValue(), basin.getLevel()), progress));
+		}
+	}
 
+	@Override
+	protected void submitSafe(BasinRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		super.submitSafe(state, ms, queue, camera);
+
+		for (FluidBox box : state.fluids)
+			FluidRenderHelper.submitFluidBox(queue, box.fluid(), box.xMin(), box.yMin(), box.zMin(), box.xMax(),
+				box.yMax(), box.zMax(), ms, state.lightCoords, false, false);
+
+		ms.pushPose();
+		ms.translate(.5, .2f, .5);
+		TransformStack.of(ms)
+			.rotateYDegrees(state.rotation);
+
+		RandomSource r = RandomSource.create(state.seed);
+		float anglePartition = 360f / state.itemCount;
+		int itemCount = state.itemCount;
+
+		for (StackedItem ingredient : state.ingredients) {
 			ms.pushPose();
-            TransformStack.of(ms)
+
+			if (state.fluidLevel > 0)
+				ms.translate(0, (Mth.sin(state.bobPhase + anglePartition * itemCount) + 1.5f) * 1 / 32f, 0);
+
+			Vec3 itemPosition = VecHelper.rotate(state.baseVector, anglePartition * itemCount, Axis.Y);
+			ms.translate(itemPosition.x, itemPosition.y, itemPosition.z);
+			TransformStack.of(ms)
+				.rotateYDegrees(anglePartition * itemCount + 35)
+				.rotateXDegrees(65);
+
+			for (int i = 0; i <= ingredient.copies(); i++) {
+				ms.pushPose();
+				Vec3 vec = VecHelper.offsetRandomly(Vec3.ZERO, r, 1 / 16f);
+				ms.translate(vec.x, vec.y, vec.z);
+				submitItem(ms, queue, state.lightCoords, ingredient.item());
+				ms.popPose();
+			}
+			ms.popPose();
+			itemCount--;
+		}
+		ms.popPose();
+
+		if (state.outputDirection == null)
+			return;
+
+		Direction direction = state.outputDirection;
+		Vec3 directionVec = Vec3.atLowerCornerOf(direction.getUnitVec3i());
+		Vec3 outVec = VecHelper.getCenterOf(BlockPos.ZERO)
+			.add(directionVec.scale(.55)
+				.subtract(0, 1 / 2f, 0));
+
+		for (OutputItem output : state.outputs) {
+			float progress = output.progress();
+			ms.pushPose();
+			TransformStack.of(ms)
 				.translate(outVec)
 				.translate(new Vec3(0, Math.max(-.55f, -(progress * progress * 2)), 0))
 				.translate(directionVec.scale(progress * .5f))
 				.rotateYDegrees(AngleHelper.horizontalAngle(direction))
 				.rotateXDegrees(progress * 180);
-			renderItem(ms, buffer, light, overlay, intAttached.getValue());
+			submitItem(ms, queue, state.lightCoords, output.item());
 			ms.popPose();
 		}
 	}
 
-	protected void renderItem(PoseStack ms, MultiBufferSource buffer, int light, int overlay, ItemStack stack) {
-		Minecraft mc = Minecraft.getInstance();
-		mc.getItemRenderer()
-			.renderStatic(stack, ItemDisplayContext.GROUND, light, overlay, ms, buffer, mc.level, 0);
+	protected void submitItem(PoseStack ms, SubmitNodeCollector queue, int light, DepotRenderer.ItemState item) {
+		item.item()
+			.submit(ms, queue, light, OverlayTexture.NO_OVERLAY, 0);
 	}
 
-	protected float renderFluids(BasinBlockEntity basin, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-		int light, int overlay) {
+	/**
+	 * Fluids are laid out side by side across the basin, each taking a slice proportional to its
+	 * share. The returned value is the surface height the ingredients float at.
+	 */
+	protected float extractFluids(BasinBlockEntity basin, BasinRenderState state, float partialTicks) {
 		SmartFluidTankBehaviour inputFluids = basin.getBehaviour(SmartFluidTankBehaviour.INPUT);
 		SmartFluidTankBehaviour outputFluids = basin.getBehaviour(SmartFluidTankBehaviour.OUTPUT);
 		SmartFluidTankBehaviour[] tanks = { inputFluids, outputFluids };
@@ -152,7 +223,6 @@ public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity> {
 			return 0;
 
 		float fluidLevel = Mth.clamp(totalUnits / 2000, 0, 1);
-
 		fluidLevel = 1 - ((1 - fluidLevel) * (1 - fluidLevel));
 
 		float xMin = 2 / 16f;
@@ -175,9 +245,7 @@ public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity> {
 
 				float partial = Mth.clamp(units / totalUnits, 0, 1);
 				xMax += partial * 12 / 16f;
-				NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(renderedFluid, xMin, yMin, zMin, xMax, yMax, zMax,
-					buffer, ms, light, false, false);
-
+				state.fluids.add(new FluidBox(renderedFluid.copy(), xMin, yMin, zMin, xMax, yMax, zMax));
 				xMin = xMax;
 			}
 		}

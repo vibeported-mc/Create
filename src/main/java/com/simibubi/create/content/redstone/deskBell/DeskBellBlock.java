@@ -1,5 +1,9 @@
 package com.simibubi.create.content.redstone.deskBell;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -47,9 +51,9 @@ public class DeskBellBlock extends WrenchableDirectionalBlock
 	}
 
 	@Override
-	public BlockState updateShape(BlockState pState, Direction pDirection, BlockState pNeighborState,
-		LevelAccessor pLevel, BlockPos pPos, BlockPos pNeighborPos) {
-		updateWater(pLevel, pState, pPos);
+	public BlockState updateShape(BlockState pState, LevelReader pLevel, ScheduledTickAccess ticks,
+		BlockPos pPos, Direction pDirection, BlockPos pNeighborPos, BlockState pNeighborState, RandomSource random) {
+		updateWater(pLevel, ticks, pState, pPos);
 		return pState;
 	}
 
@@ -71,7 +75,7 @@ public class DeskBellBlock extends WrenchableDirectionalBlock
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 		playSound(player, level, pos);
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return InteractionResult.SUCCESS;
 		level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
 		updateNeighbours(state, level, pos);
@@ -85,11 +89,10 @@ public class DeskBellBlock extends WrenchableDirectionalBlock
 	}
 
 	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-		if (!pIsMoving && !pState.is(pNewState.getBlock()))
-			if (pState.getValue(POWERED))
-				updateNeighbours(pState, pLevel, pPos);
-		IBE.onRemove(pState, pLevel, pPos, pNewState);
+	public void affectNeighborsAfterRemoval(BlockState pState, ServerLevel pLevel, BlockPos pPos,
+		boolean pIsMoving) {
+		if (!pIsMoving && pState.getValue(POWERED))
+			updateNeighbours(pState, pLevel, pPos);
 	}
 
 	@Override

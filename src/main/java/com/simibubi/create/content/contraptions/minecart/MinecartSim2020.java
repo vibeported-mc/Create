@@ -7,14 +7,14 @@ import com.mojang.datafixers.util.Pair;
 import com.simibubi.create.AllAttachmentTypes;
 import com.simibubi.create.content.contraptions.minecart.capability.MinecartController;
 
-import net.createmod.catnip.math.VecHelper;
-import net.minecraft.Util;
+import net.createmod.catnip.api.math.VecHelper;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
-import net.minecraft.world.entity.vehicle.MinecartFurnace;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.minecart.MinecartFurnace;
 import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
@@ -27,10 +27,10 @@ import net.minecraft.world.phys.Vec3;
 public class MinecartSim2020 {
 	private static final Map<RailShape, Pair<Vec3i, Vec3i>> MATRIX =
 		Util.make(Maps.newEnumMap(RailShape.class), (map) -> {
-			Vec3i west = Direction.WEST.getNormal();
-			Vec3i east = Direction.EAST.getNormal();
-			Vec3i north = Direction.NORTH.getNormal();
-			Vec3i south = Direction.SOUTH.getNormal();
+			Vec3i west = Direction.WEST.getUnitVec3i();
+			Vec3i east = Direction.EAST.getUnitVec3i();
+			Vec3i north = Direction.NORTH.getUnitVec3i();
+			Vec3i south = Direction.SOUTH.getUnitVec3i();
 			map.put(RailShape.NORTH_SOUTH, Pair.of(north, south));
 			map.put(RailShape.EAST_WEST, Pair.of(west, east));
 			map.put(RailShape.ASCENDING_EAST, Pair.of(west.below(), east));

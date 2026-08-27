@@ -1,33 +1,57 @@
 package com.simibubi.create.content.kinetics.steamEngine;
 
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import dev.engine_room.flywheel.lib.transform.TransformStack;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
-public class SteamEngineRenderer extends SafeBlockEntityRenderer<SteamEngineBlockEntity> {
+public class SteamEngineRenderer
+	extends SafeBlockEntityRenderer<SteamEngineBlockEntity, SteamEngineRenderer.SteamEngineRenderState> {
 
-	public SteamEngineRenderer(BlockEntityRendererProvider.Context context) {}
+	public static class SteamEngineRenderState extends SafeRenderState {
+		public @Nullable SuperByteBufferRenderState piston;
+		public @Nullable SuperByteBufferRenderState linkage;
+		public @Nullable SuperByteBufferRenderState connector;
+	}
+
+	public SteamEngineRenderer(BlockEntityRendererProvider.Context context) {
+	}
 
 	@Override
-	protected void renderSafe(SteamEngineBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-		int light, int overlay) {
-		if (VisualizationManager.supportsVisualization(be.getLevel()))
+	public SteamEngineRenderState createRenderState() {
+		return new SteamEngineRenderState();
+	}
+
+	@Override
+	protected void extractSafe(SteamEngineBlockEntity be, SteamEngineRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		state.piston = null;
+		state.linkage = null;
+		state.connector = null;
+
+		if (VisualizationManager.supportsVisualization(be.getLevel())) {
+			state.skip = true;
 			return;
+		}
 
 		Float angle = be.getTargetAngle();
 		if (angle == null)
@@ -43,44 +67,59 @@ public class SteamEngineRenderer extends SafeBlockEntityRenderer<SteamEngineBloc
 			axis = KineticBlockEntityRenderer.getRotationAxisOf(shaft);
 
 		boolean roll90 = facingAxis.isHorizontal() && axis == Axis.Y || facingAxis.isVertical() && axis == Axis.Z;
-		float piston = ((6 / 16f) * Mth.sin(angle) - Mth.sqrt(Mth.square(14 / 16f) - Mth.square(6 / 16f) * Mth.square(Mth.cos(angle))));
+		float piston = ((6 / 16f) * Mth.sin(angle)
+			- Mth.sqrt(Mth.square(14 / 16f) - Mth.square(6 / 16f) * Mth.square(Mth.cos(angle))));
 		float distance = Mth.sqrt(Mth.square(piston - 6 / 16f * Mth.sin(angle)));
 		float angle2 = (float) Math.acos(distance / (14 / 16f)) * (Mth.cos(angle) >= 0 ? 1f : -1f);
 
-		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
+		SuperByteBuffer pistonBuffer = transformed(AllPartialModels.ENGINE_PISTON, blockState, facing, roll90);
+		TransformStack.of(pistonBuffer.getTransforms())
+			.translate(0, piston + 20 / 16f, 0);
+		state.piston = pistonBuffer.light(state.lightCoords)
+			.extractRenderState();
 
-		transformed(AllPartialModels.ENGINE_PISTON, blockState, facing, roll90)
-			.translate(0, piston + 20 / 16f, 0)
-			.light(light)
-			.renderInto(ms, vb);
-
-		transformed(AllPartialModels.ENGINE_LINKAGE, blockState, facing, roll90)
+		SuperByteBuffer linkageBuffer = transformed(AllPartialModels.ENGINE_LINKAGE, blockState, facing, roll90);
+		TransformStack.of(linkageBuffer.getTransforms())
 			.center()
 			.translate(0, 1, 0)
 			.uncenter()
 			.translate(0, piston + 20 / 16f, 0)
 			.translate(0, 4 / 16f, 8 / 16f)
 			.rotateX(angle2)
-			.translate(0, -4 / 16f, -8 / 16f)
-			.light(light)
-			.renderInto(ms, vb);
+			.translate(0, -4 / 16f, -8 / 16f);
+		state.linkage = linkageBuffer.light(state.lightCoords)
+			.extractRenderState();
 
-		transformed(AllPartialModels.ENGINE_CONNECTOR, blockState, facing, roll90)
+		SuperByteBuffer connectorBuffer = transformed(AllPartialModels.ENGINE_CONNECTOR, blockState, facing, roll90);
+		TransformStack.of(connectorBuffer.getTransforms())
 			.translate(0, 2, 0)
 			.center()
 			.rotateX(-(angle + Mth.HALF_PI))
-			.uncenter()
-			.light(light)
-			.renderInto(ms, vb);
+			.uncenter();
+		state.connector = connectorBuffer.light(state.lightCoords)
+			.extractRenderState();
+	}
+
+	@Override
+	protected void submitSafe(SteamEngineRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		if (state.piston != null)
+			state.piston.submit(ms, RenderTypes.solidMovingBlock(), queue);
+		if (state.linkage != null)
+			state.linkage.submit(ms, RenderTypes.solidMovingBlock(), queue);
+		if (state.connector != null)
+			state.connector.submit(ms, RenderTypes.solidMovingBlock(), queue);
 	}
 
 	private SuperByteBuffer transformed(PartialModel model, BlockState blockState, Direction facing, boolean roll90) {
-		return CachedBuffers.partial(model, blockState)
+		SuperByteBuffer buffer = CachedBuffers.partial(model, blockState);
+		TransformStack.of(buffer.getTransforms())
 			.center()
 			.rotateYDegrees(AngleHelper.horizontalAngle(facing))
 			.rotateXDegrees(AngleHelper.verticalAngle(facing) + 90)
 			.rotateYDegrees(roll90 ? -90 : 0)
 			.uncenter();
+		return buffer;
 	}
 
 	@Override

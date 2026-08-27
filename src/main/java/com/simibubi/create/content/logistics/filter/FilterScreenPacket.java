@@ -1,20 +1,22 @@
 package com.simibubi.create.content.logistics.filter;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-public record FilterScreenPacket(Option option, @Nullable CompoundTag data) implements ServerboundPacketPayload {
+public record FilterScreenPacket(Option option, @Nullable CompoundTag data) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, FilterScreenPacket> STREAM_CODEC = StreamCodec.composite(
 			Option.STREAM_CODEC, FilterScreenPacket::option,
 			CatnipStreamCodecBuilders.nullable(ByteBufCodecs.COMPOUND_TAG), FilterScreenPacket::data,
@@ -26,8 +28,8 @@ public record FilterScreenPacket(Option option, @Nullable CompoundTag data) impl
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_FILTER;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_FILTER.getType();
 	}
 
 	@Override
@@ -44,10 +46,8 @@ public record FilterScreenPacket(Option option, @Nullable CompoundTag data) impl
 			if (this.option == Option.IGNORE_DATA)
 				c.respectNBT = false;
 			if (this.option == Option.UPDATE_FILTER_ITEM)
-				c.ghostInventory.setStackInSlot(
-					tag.getInt("Slot"),
-					ItemStack.parseOptional(player.registryAccess(), tag.getCompound("Item"))
-				);
+				c.ghostInventory.setStackInSlot(tag.getIntOr("Slot", 0),
+					tag.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
 		}
 
 		if (player.containerMenu instanceof AttributeFilterMenu c) {
@@ -65,7 +65,7 @@ public record FilterScreenPacket(Option option, @Nullable CompoundTag data) impl
 
 		if (player.containerMenu instanceof PackageFilterMenu c) {
 			if (option == Option.UPDATE_ADDRESS)
-				c.address = tag.getString("Address");
+				c.address = tag.getStringOr("Address", "");
 		}
 	}
 

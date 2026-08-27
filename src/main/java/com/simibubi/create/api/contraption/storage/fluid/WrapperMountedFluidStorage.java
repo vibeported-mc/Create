@@ -1,14 +1,15 @@
 package com.simibubi.create.api.contraption.storage.fluid;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
 /**
  * Partial implementation of a MountedFluidStorage that wraps a fluid handler.
  */
-public abstract class WrapperMountedFluidStorage<T extends IFluidHandler> extends MountedFluidStorage {
+public abstract class WrapperMountedFluidStorage<T extends ResourceHandler<FluidResource>> extends MountedFluidStorage {
 	protected final T wrapped;
 
 	protected WrapperMountedFluidStorage(MountedFluidStorageType<?> type, T wrapped) {
@@ -17,40 +18,37 @@ public abstract class WrapperMountedFluidStorage<T extends IFluidHandler> extend
 	}
 
 	@Override
-	public int getTanks() {
-		return this.wrapped.getTanks();
+	public int size() {
+		return this.wrapped.size();
 	}
 
 	@Override
-	@NotNull
-	public FluidStack getFluidInTank(int tank) {
-		return this.wrapped.getFluidInTank(tank);
+	public FluidResource getResource(int tank) {
+		return this.wrapped.getResource(tank);
 	}
 
 	@Override
-	public int getTankCapacity(int tank) {
-		return this.wrapped.getTankCapacity(tank);
+	public long getAmountAsLong(int tank) {
+		return this.wrapped.getAmountAsLong(tank);
 	}
 
 	@Override
-	public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
-		return this.wrapped.isFluidValid(tank, stack);
+	public long getCapacityAsLong(int tank, FluidResource resource) {
+		return this.wrapped.getCapacityAsLong(tank, resource);
 	}
 
 	@Override
-	public int fill(FluidStack resource, FluidAction action) {
-		return this.wrapped.fill(resource, action);
+	public boolean isValid(int tank, FluidResource resource) {
+		return this.wrapped.isValid(tank, resource);
 	}
 
 	@Override
-	@NotNull
-	public FluidStack drain(FluidStack resource, FluidAction action) {
-		return this.wrapped.drain(resource, action);
+	public int insert(int tank, FluidResource resource, int amount, TransactionContext transaction) {
+		return this.wrapped.insert(tank, resource, amount, transaction);
 	}
 
 	@Override
-	@NotNull
-	public FluidStack drain(int maxDrain, FluidAction action) {
-		return this.wrapped.drain(maxDrain, action);
+	public int extract(int tank, FluidResource resource, int amount, TransactionContext transaction) {
+		return this.wrapped.extract(tank, resource, amount, transaction);
 	}
 }

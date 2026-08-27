@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.crusher;
 
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.server.level.ServerLevel;
 import static com.simibubi.create.content.kinetics.crusher.CrushingWheelControllerBlock.VALID;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -8,7 +10,7 @@ import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.kinetics.base.RotatedPillarKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -46,7 +48,8 @@ public class CrushingWheelBlock extends RotatedPillarKineticBlock implements IBE
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+	public void affectNeighborsAfterRemoval(BlockState state, ServerLevel worldIn, BlockPos pos,
+		boolean isMoving) {
 		for (Direction d : Iterate.directions) {
 			if (d.getAxis() == state.getValue(AXIS))
 				continue;
@@ -54,7 +57,7 @@ public class CrushingWheelBlock extends RotatedPillarKineticBlock implements IBE
 				worldIn.removeBlock(pos.relative(d), isMoving);
 		}
 
-		super.onRemove(state, worldIn, pos, newState, isMoving);
+		super.affectNeighborsAfterRemoval(state, worldIn, pos, isMoving);
 	}
 
 	public void updateControllers(BlockState state, Level world, BlockPos pos, Direction side) {
@@ -127,7 +130,8 @@ public class CrushingWheelBlock extends RotatedPillarKineticBlock implements IBE
 	}
 
 	@Override
-	public void entityInside(BlockState state, Level worldIn, BlockPos pos, Entity entityIn) {
+	public void entityInside(BlockState state, Level worldIn, BlockPos pos, Entity entityIn,
+		InsideBlockEffectApplier effectApplier, boolean isPrecise) {
 		if (entityIn.getY() < pos.getY() + 1.25f || !entityIn.onGround())
 			return;
 

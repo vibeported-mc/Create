@@ -1,5 +1,11 @@
 package com.simibubi.create.content.kinetics.millstone;
 
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +20,7 @@ import com.simibubi.create.foundation.mixin.accessor.ItemStackHandlerAccessor;
 import com.simibubi.create.foundation.sound.SoundScapes;
 import com.simibubi.create.foundation.sound.SoundScapes.AmbienceGroup;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
@@ -33,29 +39,23 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-
 public class MillstoneBlockEntity extends KineticBlockEntity implements Clearable {
-	public ItemStackHandler inputInv;
-	public ItemStackHandler outputInv;
-	public IItemHandler capability;
+	public ItemStacksResourceHandler inputInv;
+	public ItemStacksResourceHandler outputInv;
+	public ResourceHandler<ItemResource> capability;
 	public int timer;
 	private MillingRecipe lastRecipe;
 
 	public MillstoneBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		inputInv = new ItemStackHandler(1);
-		outputInv = new ItemStackHandler(9);
+		inputInv = new ItemStacksResourceHandler(1);
+		outputInv = new ItemStacksResourceHandler(9);
 		capability = new MillstoneInventoryHandler();
 	}
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.MILLSTONE.get(),
 				(be, context) -> be.capability
 		);
@@ -75,7 +75,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 
 		if (getSpeed() == 0)
 			return;
-		if (inputInv.getStackInSlot(0)
+		if (ItemHandlerHelpers.getStackInSlot(inputInv, 0)
 			.isEmpty())
 			return;
 
@@ -89,15 +89,15 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 
 		if (getSpeed() == 0)
 			return;
-		for (int i = 0; i < outputInv.getSlots(); i++)
-			if (outputInv.getStackInSlot(i)
-				.getCount() == outputInv.getSlotLimit(i))
+		for (int i = 0; i < outputInv.size(); i++)
+			if (ItemHandlerHelpers.getStackInSlot(outputInv, i)
+				.getCount() == ItemHandlerHelpers.getSlotLimit(outputInv, i))
 				return;
 
 		if (timer > 0) {
 			timer -= getProcessingSpeed();
 
-			if (level.isClientSide) {
+			if (level.isClientSide()) {
 				spawnParticles();
 				return;
 			}
@@ -106,7 +106,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 			return;
 		}
 
-		if (inputInv.getStackInSlot(0)
+		if (ItemHandlerHelpers.getStackInSlot(inputInv, 0)
 			.isEmpty())
 			return;
 
@@ -157,14 +157,14 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 			lastRecipe = recipe.get().value();
 		}
 
-		ItemStack stackInSlot = inputInv.getStackInSlot(0);
+		ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inputInv, 0);
 		ItemStack craftingRemainingItem = stackInSlot.getCraftingRemainingItem();
 		stackInSlot.shrink(1);
-		inputInv.setStackInSlot(0, stackInSlot);
-		lastRecipe.rollResults(level.random)
-			.forEach(stack -> ItemHandlerHelper.insertItemStacked(outputInv, stack, false));
+		ItemHandlerHelpers.setStackInSlot(inputInv, 0, stackInSlot);
+		lastRecipe.rollResults(level.getRandom())
+			.forEach(stack -> ItemHandlerHelpers.insertItemStacked(outputInv, stack, false));
 		if (!craftingRemainingItem.isEmpty()) {
-			ItemHandlerHelper.insertItemStacked(outputInv, craftingRemainingItem, false);
+			ItemHandlerHelpers.insertItemStacked(outputInv, craftingRemainingItem, false);
 		}
 		award(AllAdvancements.MILLSTONE);
 
@@ -173,18 +173,18 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 	}
 
 	public void spawnParticles() {
-		ItemStack stackInSlot = inputInv.getStackInSlot(0);
+		ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inputInv, 0);
 		if (stackInSlot.isEmpty())
 			return;
 
 		ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, stackInSlot);
-		float angle = level.random.nextFloat() * 360;
+		float angle = level.getRandom().nextFloat() * 360;
 		Vec3 offset = new Vec3(0, 0, 0.5f);
 		offset = VecHelper.rotate(offset, angle, Axis.Y);
 		Vec3 target = VecHelper.rotate(offset, getSpeed() > 0 ? 25 : -25, Axis.Y);
 
 		Vec3 center = offset.add(VecHelper.getCenterOf(worldPosition));
-		target = VecHelper.offsetRandomly(target.subtract(offset), level.random, 1 / 128f);
+		target = VecHelper.offsetRandomly(target.subtract(offset), level.getRandom(), 1 / 128f);
 		level.addParticle(data, center.x, center.y, center.z, target.x, target.y, target.z);
 	}
 
@@ -198,9 +198,9 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		timer = compound.getInt("Timer");
-		inputInv.deserializeNBT(registries, compound.getCompound("InputInventory"));
-		outputInv.deserializeNBT(registries, compound.getCompound("OutputInventory"));
+		timer = compound.getIntOr("Timer", 0);
+		inputInv.deserializeNBT(registries, compound.getCompoundOrEmpty("InputInventory"));
+		outputInv.deserializeNBT(registries, compound.getCompoundOrEmpty("OutputInventory"));
 		super.read(compound, registries, clientPacket);
 	}
 
@@ -209,8 +209,8 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 	}
 
 	private boolean canProcess(ItemStack stack) {
-		ItemStackHandler tester = new ItemStackHandler(1);
-		tester.setStackInSlot(0, stack);
+		ItemStacksResourceHandler tester = new ItemStacksResourceHandler(1);
+		ItemHandlerHelpers.setStackInSlot(tester, 0, stack);
 		RecipeWrapper inventoryIn = new RecipeWrapper(tester);
 
 		if (lastRecipe != null && lastRecipe.matches(inventoryIn, level))
@@ -219,7 +219,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 			.isPresent();
 	}
 
-	private class MillstoneInventoryHandler extends CombinedInvWrapper {
+	private class MillstoneInventoryHandler extends CombinedResourceHandler<ItemResource> {
 
 		public MillstoneInventoryHandler() {
 			super(inputInv, outputInv);

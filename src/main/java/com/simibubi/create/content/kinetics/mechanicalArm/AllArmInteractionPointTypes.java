@@ -1,5 +1,8 @@
 package com.simibubi.create.content.kinetics.mechanicalArm;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.Optional;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -33,14 +36,13 @@ import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringB
 import com.simibubi.create.foundation.blockEntity.behaviour.inventory.InvManipulationBehaviour;
 import com.simibubi.create.foundation.item.SmartInventory;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -58,10 +60,6 @@ import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
-
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
 
 public class AllArmInteractionPointTypes {
 	static {
@@ -361,9 +359,14 @@ public class AllArmInteractionPointTypes {
 		@Override
 		public ItemStack insert(ArmBlockEntity armBlockEntity, ItemStack stack, boolean simulate) {
 			ItemStack input = stack.copy();
-			InteractionResultHolder<ItemStack> res =
+			InteractionResult res =
 				BlazeBurnerBlock.tryInsert(cachedState, level, pos, input, false, false, simulate);
-			ItemStack remainder = res.getObject();
+			ItemStack remainder = ItemStack.EMPTY;
+			if (res instanceof InteractionResult.Success success) {
+				ItemStack transformed = success.heldItemTransformedTo();
+				if (transformed != null)
+					remainder = transformed;
+			}
 			if (input.isEmpty()) {
 				return remainder;
 			} else {
@@ -388,7 +391,7 @@ public class AllArmInteractionPointTypes {
 
 		@Override
 		protected Vec3 getInteractionPositionVector() {
-			return super.getInteractionPositionVector().add(Vec3.atLowerCornerOf(getInteractionDirection().getNormal())
+			return super.getInteractionPositionVector().add(Vec3.atLowerCornerOf(getInteractionDirection().getUnitVec3i())
 				.scale(.5f));
 		}
 
@@ -427,7 +430,7 @@ public class AllArmInteractionPointTypes {
 
 		@Override
 		protected Vec3 getInteractionPositionVector() {
-			return super.getInteractionPositionVector().add(Vec3.atLowerCornerOf(getInteractionDirection().getNormal())
+			return super.getInteractionPositionVector().add(Vec3.atLowerCornerOf(getInteractionDirection().getUnitVec3i())
 				.scale(.65f));
 		}
 
@@ -460,7 +463,7 @@ public class AllArmInteractionPointTypes {
 		@Override
 		protected Vec3 getInteractionPositionVector() {
 			Direction funnelFacing = FunnelBlock.getFunnelFacing(cachedState);
-			Vec3i normal = funnelFacing != null ? funnelFacing.getNormal() : Vec3i.ZERO;
+			Vec3i normal = funnelFacing != null ? funnelFacing.getUnitVec3i() : Vec3i.ZERO;
 			return VecHelper.getCenterOf(pos)
 				.add(Vec3.atLowerCornerOf(normal)
 					.scale(-.15f));
@@ -561,7 +564,7 @@ public class AllArmInteractionPointTypes {
 
 		@Nullable
 		@Override
-		protected IItemHandler getHandler(ArmBlockEntity armBlockEntity) {
+		protected ResourceHandler<ItemResource> getHandler(ArmBlockEntity armBlockEntity) {
 			return null;
 		}
 
@@ -572,13 +575,13 @@ public class AllArmInteractionPointTypes {
 
 		@Override
 		public ItemStack insert(ArmBlockEntity armBlockEntity, ItemStack stack, boolean simulate) {
-			IItemHandler handler = new SidedInvWrapper(getContainer(), Direction.UP);
-			return ItemHandlerHelper.insertItem(handler, stack, simulate);
+			ResourceHandler<ItemResource> handler = new SidedInvWrapper(getContainer(), Direction.UP);
+			return ItemHandlerHelpers.insertItem(handler, stack, simulate);
 		}
 
 		@Override
 		public ItemStack extract(ArmBlockEntity armBlockEntity, int slot, int amount, boolean simulate) {
-			IItemHandler handler = new SidedInvWrapper(getContainer(), Direction.DOWN);
+			ResourceHandler<ItemResource> handler = new SidedInvWrapper(getContainer(), Direction.DOWN);
 			return handler.extractItem(slot, amount, simulate);
 		}
 

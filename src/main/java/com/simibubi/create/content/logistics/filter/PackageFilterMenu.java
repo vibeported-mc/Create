@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.filter;
 
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllMenuTypes;
 
@@ -9,8 +10,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class PackageFilterMenu extends AbstractFilterMenu {
 
 	String address;
@@ -42,8 +41,8 @@ public class PackageFilterMenu extends AbstractFilterMenu {
 	protected void addFilterSlots() {}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
-		return new ItemStackHandler();
+	protected ItemStacksResourceHandler createGhostInventory() {
+		return new ItemStacksResourceHandler();
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
@@ -17,8 +18,8 @@ public class LogisticalStockRequestPacket extends BlockEntityConfigurationPacket
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.LOGISTICS_STOCK_REQUEST;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.LOGISTICS_STOCK_REQUEST.getType();
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -59,7 +59,7 @@ public class ToolSelectionScreen extends Screen {
 		selection = (selection + tools.size()) % tools.size();
 	}
 
-	private void draw(GuiGraphics graphics, float partialTicks) {
+	private void draw(GuiGraphicsExtractor graphics, float partialTicks) {
 		PoseStack matrixStack = graphics.pose();
 		Window mainWindow = minecraft.getWindow();
 		if (!initialized)
@@ -88,13 +88,13 @@ public class ToolSelectionScreen extends Screen {
 			RenderSystem.setShaderColor(1, 1, 1, 1);
 
 			if (toolTip.size() > 0)
-				graphics.drawString(font, toolTip.get(0), x - 10, y + 38, 0xEEEEEE + stringAlphaComponent, false);
+				graphics.text(font, toolTip.get(0), x - 10, y + 38, 0xEEEEEE + stringAlphaComponent, false);
 			if (toolTip.size() > 1)
-				graphics.drawString(font, toolTip.get(1), x - 10, y + 50, 0xCCDDFF + stringAlphaComponent, false);
+				graphics.text(font, toolTip.get(1), x - 10, y + 50, 0xCCDDFF + stringAlphaComponent, false);
 			if (toolTip.size() > 2)
-				graphics.drawString(font, toolTip.get(2), x - 10, y + 60, 0xCCDDFF + stringAlphaComponent, false);
+				graphics.text(font, toolTip.get(2), x - 10, y + 60, 0xCCDDFF + stringAlphaComponent, false);
 			if (toolTip.size() > 3)
-				graphics.drawString(font, toolTip.get(3), x - 10, y + 72, 0xCCCCDD + stringAlphaComponent, false);
+				graphics.text(font, toolTip.get(3), x - 10, y + 72, 0xCCCCDD + stringAlphaComponent, false);
 		}
 
 		RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -103,10 +103,10 @@ public class ToolSelectionScreen extends Screen {
 			int width = minecraft.getWindow()
 				.getGuiScaledWidth();
 			if (!focused)
-				graphics.drawCenteredString(minecraft.font, CreateLang.translateDirect(holdToFocus, keyName), width / 2,
+				graphics.centeredText(minecraft.font, CreateLang.translateDirect(holdToFocus, keyName), width / 2,
 					y - 10, 0xCCDDFF);
 			else
-				graphics.drawCenteredString(minecraft.font, scrollToCycle, width / 2, y - 10, 0xCCDDFF);
+				graphics.centeredText(minecraft.font, scrollToCycle, width / 2, y - 10, 0xCCDDFF);
 		} else {
 			x += 65;
 		}
@@ -120,7 +120,7 @@ public class ToolSelectionScreen extends Screen {
 			if (i == selection) {
 				matrixStack.translate(0, -10, 0);
 				RenderSystem.setShaderColor(1, 1, 1, 1);
-				graphics.drawCenteredString(minecraft.font, tools.get(i)
+				graphics.centeredText(minecraft.font, tools.get(i)
 					.getDisplayName()
 					.getString(), x + i * 50 + 24, y + 28, 0xCCDDFF);
 				alpha = 1;
@@ -149,7 +149,7 @@ public class ToolSelectionScreen extends Screen {
 			yOffset *= .9f;
 	}
 
-	public void renderPassive(GuiGraphics graphics, float partialTicks) {
+	public void renderPassive(GuiGraphicsExtractor graphics, float partialTicks) {
 		draw(graphics, partialTicks);
 	}
 

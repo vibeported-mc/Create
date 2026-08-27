@@ -1,5 +1,8 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,8 +18,8 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemSlots;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -25,10 +28,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 // TODO - This should use NonNullList<ItemStack>
-public class ToolboxInventory extends ItemStackHandler {
+public class ToolboxInventory extends ItemStacksResourceHandler implements ModifiableItemHandler {
 	public static final int STACKS_PER_COMPARTMENT = 4;
 	public static final Codec<ToolboxInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		ItemSlots.maxSizeCodec(8 * STACKS_PER_COMPARTMENT).fieldOf("items").forGetter(ItemSlots::fromHandler),
@@ -170,7 +171,7 @@ public class ToolboxInventory extends ItemStackHandler {
 
 	@Override
 	protected void onContentsChanged(int slot) {
-		if (!settling && (blockEntity == null || !blockEntity.getLevel().isClientSide))
+		if (!settling && (blockEntity == null || !blockEntity.getLevel().isClientSide()))
 			settle(slot / STACKS_PER_COMPARTMENT);
 		notifyUpdate();
 		super.onContentsChanged(slot);
@@ -178,7 +179,7 @@ public class ToolboxInventory extends ItemStackHandler {
 
 	@Override
 	public void deserializeNBT(@NotNull HolderLookup.Provider registries, CompoundTag nbt) {
-		filters = NBTHelper.readItemList(nbt.getList("Compartments", Tag.TAG_COMPOUND), registries);
+		filters = NBTHelper.readItemList(nbt.getListOrEmpty("Compartments"), registries);
 		if (filters.size() != 8) {
 			filters.clear();
 			for (int i = 0; i < 8; i++)

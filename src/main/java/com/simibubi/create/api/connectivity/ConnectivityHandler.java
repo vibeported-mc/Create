@@ -1,5 +1,7 @@
 package com.simibubi.create.api.connectivity;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.simibubi.create.content.fluids.tank.CreativeFluidTankBlockEntity;
 import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -26,8 +28,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.IFluidTank;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
 public class ConnectivityHandler {
 
 	public static <T extends BlockEntity & IMultiBlockEntityContainer> void formMulti(T be) {
@@ -189,7 +189,7 @@ public class ConnectivityHandler {
 
 					BlockPos conPos = controller.getBlockPos();
 					if (!conPos.equals(origin)) {
-						if (axis == Direction.Axis.Y) { // vertical multi, like a FluidTank
+						if (axis == Direction.Axis.Y) { // vertical multi, like a FluidStacksResourceHandler
 							if (conPos.getX() < origin.getX())
 								break Search;
 							if (conPos.getZ() < origin.getZ())
@@ -257,10 +257,10 @@ public class ConnectivityHandler {
 							}
 							if (be instanceof IMultiBlockEntityContainer.Fluid ifluidBE && ifluidBE.hasTank()
 								&& beTank != null) {
-								beTank.fill(fluidAt, IFluidHandler.FluidAction.EXECUTE);
+								FluidHandlerHelpers.fill(beTank, fluidAt, false);
 							}
 						}
-						tankAt.drain(tankAt.getCapacity(), IFluidHandler.FluidAction.EXECUTE);
+						tankAt.drain(tankAt.getCapacity(), false);
 					}
 
 					splitMultiAndInvalidate(part, cache, false);
@@ -346,7 +346,7 @@ public class ConnectivityHandler {
 							copy.setAmount(split);
 							toDistribute.shrink(split);
 							if (tank != null)
-								tank.fill(copy, IFluidHandler.FluidAction.EXECUTE);
+								tank.fill(copy, false);
 						}
 					}
 					if (tryReconnect) {

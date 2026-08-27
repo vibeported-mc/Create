@@ -1,5 +1,8 @@
 package com.simibubi.create.content.redstone.displayLink;
 
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -16,9 +19,8 @@ import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -70,11 +72,6 @@ public class DisplayLinkBlock extends WrenchableDirectionalBlock implements IBE<
 		AdvancementBehaviour.setPlacedBy(pLevel, pPos, pPlacer);
 	}
 
-	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
-		IBE.onRemove(pState, pLevel, pPos, pNewState);
-	}
-
 	public static void notifyGatherers(LevelAccessor level, BlockPos pos) {
 		forEachAttachedGatherer(level, pos, DisplayLinkBlockEntity::tickSource);
 	}
@@ -109,14 +106,15 @@ public class DisplayLinkBlock extends WrenchableDirectionalBlock implements IBE<
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation,
 		boolean isMoving) {
-		if (worldIn.isClientSide)
+		if (worldIn.isClientSide())
 			return;
 
-		if (fromPos.equals(pos.relative(state.getValue(FACING)
-			.getOpposite())))
-			sendToGatherers(worldIn, fromPos, (dlte, p) -> dlte.tickSource(), RedstonePowerDisplaySource.class);
+		// The source used to be told apart by the neighbour's position; without it, the block the link
+		// is attached to is the only one that could be a redstone source anyway.
+		sendToGatherers(worldIn, pos.relative(state.getValue(FACING)
+			.getOpposite()), (dlte, p) -> dlte.tickSource(), RedstonePowerDisplaySource.class);
 
 		boolean powered = shouldBePowered(state, worldIn, pos);
 		boolean previouslyPowered = state.getValue(POWERED);
@@ -151,7 +149,7 @@ public class DisplayLinkBlock extends WrenchableDirectionalBlock implements IBE<
 			return InteractionResult.PASS;
 		if (player.isShiftKeyDown())
 			return InteractionResult.PASS;
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> this.displayScreen(be, player)));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> this.displayScreen(be, player)));
 		return InteractionResult.SUCCESS;
 	}
 
@@ -160,7 +158,7 @@ public class DisplayLinkBlock extends WrenchableDirectionalBlock implements IBE<
 		if (!(player instanceof LocalPlayer))
 			return;
 		if (be.targetOffset.equals(BlockPos.ZERO)) {
-			player.displayClientMessage(CreateLang.translateDirect("display_link.invalid"), true);
+			player.sendOverlayMessage(CreateLang.translateDirect("display_link.invalid"));
 			return;
 		}
 		ScreenOpener.open(new DisplayLinkScreen(be));

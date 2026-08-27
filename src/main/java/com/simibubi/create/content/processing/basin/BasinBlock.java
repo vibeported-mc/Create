@@ -1,5 +1,12 @@
 package com.simibubi.create.content.processing.basin;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.Create;
@@ -20,7 +27,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +43,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -45,14 +51,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrenchable {
 
-	public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
+	public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING_HOPPER;
 
 	public BasinBlock(Properties p_i48440_1_) {
 		super(p_i48440_1_);
@@ -78,60 +79,61 @@ public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrencha
 
 	@Override
 	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
-		if (!context.getLevel().isClientSide)
+		if (!context.getLevel().isClientSide())
 			withBlockEntityDo(context.getLevel(), context.getClickedPos(),
 				bte -> bte.onWrenched(context.getClickedFace()));
 		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 								 return onBlockEntityUseItemOn(level, pos, be -> {
 			if (!stack.isEmpty()) {
 				if (FluidHelper.tryEmptyItemIntoBE(level, player, hand, stack, be))
-					return ItemInteractionResult.SUCCESS;
+					return InteractionResult.SUCCESS;
 				if (FluidHelper.tryFillItemFromBE(level, player, hand, stack, be))
-					return ItemInteractionResult.SUCCESS;
+					return InteractionResult.SUCCESS;
 
 				if (GenericItemEmptying.canItemBeEmptied(level, stack)
 					|| GenericItemFilling.canItemBeFilled(level, stack))
-					return ItemInteractionResult.SUCCESS;
+					return InteractionResult.SUCCESS;
 				if (stack.getItem().equals(Items.SPONGE)) {
-					IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null);
+					ResourceHandler<FluidResource> fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, pos, null);
 					if (fluidHandler != null) {
-					FluidStack drained = fluidHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
+					FluidStack drained = FluidHandlerHelpers.drain(fluidHandler, Integer.MAX_VALUE, false);
 					if (!drained.isEmpty()) {
-							return ItemInteractionResult.SUCCESS;
+							return InteractionResult.SUCCESS;
 						}
 					}
 				}
-				return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+				return InteractionResult.TRY_WITH_EMPTY_HAND;
 			}
 
-			IItemHandlerModifiable inv = be.itemCapability;
+			ModifiableItemHandler inv = be.itemCapability;
 			if (inv == null)
-				inv = new ItemStackHandler(1);
+				inv = new ItemStacksResourceHandler(1);
 			boolean success = false;
-			for (int slot = 0; slot < inv.getSlots(); slot++) {
-				ItemStack stackInSlot = inv.getStackInSlot(slot);
+			for (int slot = 0; slot < inv.size(); slot++) {
+				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inv, slot);
 				if (stackInSlot.isEmpty())
 					continue;
 				player.getInventory()
 					.placeItemBackInInventory(stackInSlot);
-				inv.setStackInSlot(slot, ItemStack.EMPTY);
+				ItemHandlerHelpers.setStackInSlot(inv, slot, ItemStack.EMPTY);
 				success = true;
 			}
 			if (success)
 				level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f,
 					1f + level.getRandom().nextFloat());
 			be.onEmptied();
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		});
 	}
 
 	@Override
-	public void updateEntityAfterFallOn(BlockGetter worldIn, Entity entityIn) {
-		super.updateEntityAfterFallOn(worldIn, entityIn);
+	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
+		double fallDistance) {
+		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
 		if (!worldIn.getBlockState(entityIn.blockPosition())
 			.is(this))
 			return;
@@ -140,7 +142,7 @@ public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrencha
 		if (!entityIn.isAlive())
 			return;
 		withBlockEntityDo(worldIn, entityIn.blockPosition(), be -> {
-			ItemStack insertItem = ItemHandlerHelper.insertItem(be.inputInventory, itemEntity.getItem()
+			ItemStack insertItem = ItemHandlerHelpers.insertItem(be.inputInventory, itemEntity.getItem()
 				.copy(), false);
 			if (insertItem.isEmpty()) {
 				itemEntity.discard();
@@ -168,17 +170,12 @@ public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrencha
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		IBE.onRemove(state, worldIn, pos, newState);
-	}
-
-	@Override
 	public boolean hasAnalogOutputSignal(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos, Direction direction) {
 		return getBlockEntityOptional(worldIn, pos).map(BasinBlockEntity::getInputInventory)
 			.map(ItemHelper::calcRedstoneFromInventory)
 			.orElse(0);

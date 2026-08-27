@@ -1,7 +1,8 @@
 package com.simibubi.create.foundation.model;
 
-import static net.createmod.catnip.render.SpriteShiftEntry.getUnInterpolatedU;
-import static net.createmod.catnip.render.SpriteShiftEntry.getUnInterpolatedV;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import static net.createmod.catnip.api.client.render.SpriteShiftEntry.getUnInterpolatedU;
+import static net.createmod.catnip.api.client.render.SpriteShiftEntry.getUnInterpolatedV;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.VecHelper;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.VecHelper;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -22,7 +23,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 
 public class BakedModelHelper {
 
@@ -101,12 +102,12 @@ public class BakedModelHelper {
 		Map<Direction, List<BakedQuad>> culledFaces = new EnumMap<>(Direction.class);
 		for (Direction cullFace : Iterate.directions) {
 			random.setSeed(42L);
-			List<BakedQuad> quads = template.getQuads(null, cullFace, random, ModelData.EMPTY, RenderType.solid());
+			List<BakedQuad> quads = template.getQuads(null, cullFace, random, ModelData.EMPTY, RenderTypes.solidMovingBlock());
 			culledFaces.put(cullFace, swapSprites(quads, spriteSwapper));
 		}
 
 		random.setSeed(42L);
-		List<BakedQuad> quads = template.getQuads(null, null, random, ModelData.EMPTY, RenderType.solid());
+		List<BakedQuad> quads = template.getQuads(null, null, random, ModelData.EMPTY, RenderTypes.solidMovingBlock());
 		List<BakedQuad> unculledFaces = swapSprites(quads, spriteSwapper);
 
 		TextureAtlasSprite particleSprite = template.getParticleIcon(ModelData.EMPTY);

@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.events;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.function.Supplier;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -74,10 +75,9 @@ import com.simibubi.create.foundation.utility.TickBasedCache;
 import com.simibubi.create.infrastructure.command.AllCommands;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.config.ui.BaseConfigScreen;
-import net.createmod.catnip.levelWrappers.WrappedClientLevel;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.client.level.wrapper.WrappedClientLevel;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Camera;
@@ -346,7 +346,7 @@ public class ClientEvents {
 	public static void leftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
 		ItemStack stack = event.getItemStack();
 		if (stack.getItem() instanceof ZapperItem) {
-			CatnipServices.NETWORK.sendToServer(LeftClickPacket.INSTANCE);
+			NetworkHelper.INSTANCE.sendToServer(LeftClickPacket.INSTANCE);
 		}
 	}
 

@@ -33,13 +33,13 @@ public class SequencedGearshiftPeripheral extends SyncedPeripheral<SequencedGear
 	}
 
 	private void runInstruction(IArguments arguments, SequencerInstructions instructionType) throws LuaException {
-		int speedModifier = arguments.count() > 1 ? arguments.getInt(1) : 1;
+		int speedModifier = arguments.count() > 1 ? arguments.getIntOr(1, 0) : 1;
 		this.blockEntity.getInstructions().clear();
 
 		this.blockEntity.getInstructions().add(new Instruction(
 				instructionType,
 				InstructionSpeedModifiers.getByModifier(speedModifier),
-				Math.abs(arguments.getInt(0))));
+				Math.abs(arguments.getIntOr(0, 0))));
 		this.blockEntity.getInstructions().add(new Instruction(SequencerInstructions.END));
 
 		this.blockEntity.run(0);

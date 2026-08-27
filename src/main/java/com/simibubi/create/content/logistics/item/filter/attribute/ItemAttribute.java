@@ -11,7 +11,7 @@ import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 import com.simibubi.create.api.registry.CreateRegistries;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.codecs.CatnipCodecUtils;
+import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;

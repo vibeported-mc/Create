@@ -1,17 +1,18 @@
 package com.simibubi.create.content.equipment.symmetryWand;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.equipment.symmetryWand.mirror.SymmetryMirror;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 
-public record ConfigureSymmetryWandPacket(InteractionHand hand, SymmetryMirror mirror) implements ServerboundPacketPayload {
+public record ConfigureSymmetryWandPacket(InteractionHand hand, SymmetryMirror mirror) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, ConfigureSymmetryWandPacket> STREAM_CODEC = StreamCodec.composite(
 			CatnipStreamCodecs.HAND, ConfigureSymmetryWandPacket::hand,
 			SymmetryMirror.STREAM_CODEC, ConfigureSymmetryWandPacket::mirror,
@@ -27,7 +28,7 @@ public record ConfigureSymmetryWandPacket(InteractionHand hand, SymmetryMirror m
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_SYMMETRY_WAND;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_SYMMETRY_WAND.getType();
 	}
 }

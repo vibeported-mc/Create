@@ -1,11 +1,12 @@
 package com.simibubi.create.content.schematics.packet;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.schematics.SchematicPrinter;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,14 +14,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public record SchematicPlacePacket(ItemStack stack) implements ServerboundPacketPayload {
+public record SchematicPlacePacket(ItemStack stack) implements SelfHandlingPayload {
 	public static final StreamCodec<RegistryFriendlyByteBuf, SchematicPlacePacket> STREAM_CODEC = ItemStack.STREAM_CODEC.map(
 			SchematicPlacePacket::new, SchematicPlacePacket::stack
 	);
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.PLACE_SCHEMATIC;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.PLACE_SCHEMATIC.getType();
 	}
 
 	@Override

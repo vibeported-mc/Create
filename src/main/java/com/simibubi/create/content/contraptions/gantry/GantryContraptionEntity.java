@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.gantry;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllEntityTypes;
@@ -11,9 +12,8 @@ import com.simibubi.create.content.kinetics.gantry.GantryShaftBlock;
 import com.simibubi.create.content.kinetics.gantry.GantryShaftBlockEntity;
 import com.simibubi.create.foundation.utility.ServerSpeedProvider;
 
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -60,7 +60,7 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 			return;
 
 		double prevAxisMotion = axisMotion;
-		if (level().isClientSide) {
+		if (level().isClientSide()) {
 			clientOffsetDiff *= .75;
 			updateClientMotion();
 		}
@@ -70,7 +70,7 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 		Vec3 movementVec = getDeltaMovement();
 
 		if (ContraptionCollider.collideBlocks(this)) {
-			if (!level().isClientSide)
+			if (!level().isClientSide())
 				disassemble();
 			return;
 		}
@@ -85,7 +85,7 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 
 		if (Math.signum(prevAxisMotion) != Math.signum(axisMotion) && prevAxisMotion != 0)
 			contraption.stop(level());
-		if (!level().isClientSide && (prevAxisMotion != axisMotion || tickCount % 3 == 0))
+		if (!level().isClientSide() && (prevAxisMotion != axisMotion || tickCount % 3 == 0))
 			sendPacket();
 	}
 
@@ -103,7 +103,7 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 
 		BlockEntity be = level().getBlockEntity(gantryShaftPos);
 		if (!(be instanceof GantryShaftBlockEntity gantryShaftBlockEntity) || !AllBlocks.GANTRY_SHAFT.has(be.getBlockState())) {
-			if (!level().isClientSide) {
+			if (!level().isClientSide()) {
 				setContraptionMotion(Vec3.ZERO);
 				disassemble();
 			}
@@ -116,14 +116,14 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 		float pinionMovementSpeed = gantryShaftBlockEntity.getPinionMovementSpeed();
 		if (blockState.getValue(GantryShaftBlock.POWERED) || pinionMovementSpeed == 0) {
 			setContraptionMotion(Vec3.ZERO);
-			if (!level().isClientSide)
+			if (!level().isClientSide())
 				disassemble();
 			return;
 		}
 
 		if (sequencedOffsetLimit >= 0)
 			pinionMovementSpeed = (float) Mth.clamp(pinionMovementSpeed, -sequencedOffsetLimit, sequencedOffsetLimit);
-		movementVec = Vec3.atLowerCornerOf(direction.getNormal())
+		movementVec = Vec3.atLowerCornerOf(direction.getUnitVec3i())
 			.scale(pinionMovementSpeed);
 
 		Vec3 nextPosition = currentPosition.add(movementVec);
@@ -136,12 +136,12 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 			.getStep() < 0)))
 			if (!gantryShaftBlockEntity.canAssembleOn()) {
 				setContraptionMotion(Vec3.ZERO);
-				if (!level().isClientSide)
+				if (!level().isClientSide())
 					disassemble();
 				return;
 			}
 
-		if (level().isClientSide)
+		if (level().isClientSide())
 			return;
 
 		axisMotion = pinionMovementSpeed;
@@ -160,7 +160,7 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 	protected void readAdditional(CompoundTag compound, boolean spawnData) {
 		movementAxis = NBTHelper.readEnum(compound, "GantryAxis", Direction.class);
 		sequencedOffsetLimit =
-			compound.contains("SequencedOffsetLimit") ? compound.getDouble("SequencedOffsetLimit") : -1;
+			compound.contains("SequencedOffsetLimit") ? compound.getDoubleOr("SequencedOffsetLimit", 0) : -1;
 		super.readAdditional(compound, spawnData);
 	}
 
@@ -212,7 +212,7 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 	public void updateClientMotion() {
 		float modifier = movementAxis.getAxisDirection()
 			.getStep();
-		Vec3 motion = Vec3.atLowerCornerOf(movementAxis.getNormal())
+		Vec3 motion = Vec3.atLowerCornerOf(movementAxis.getUnitVec3i())
 			.scale((axisMotion + clientOffsetDiff * modifier / 2d) * ServerSpeedProvider.get());
 		if (sequencedOffsetLimit >= 0)
 			motion = VecHelper.clampComponentWise(motion, (float) sequencedOffsetLimit);
@@ -226,7 +226,7 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 	}
 
 	public void sendPacket() {
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(this,
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(this,
 				new GantryContraptionUpdatePacket(getId(), getAxisCoord(), axisMotion, sequencedOffsetLimit));
 	}
 

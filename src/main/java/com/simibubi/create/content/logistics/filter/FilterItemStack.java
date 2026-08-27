@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.filter;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,7 @@ import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -16,8 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class FilterItemStack {
 	private final ItemStack filterItemStack;
 	private boolean fluidExtracted;
@@ -126,9 +126,9 @@ public class FilterItemStack {
 			boolean hasFilterItems = filter.has(AllDataComponents.FILTER_ITEMS);
 
 			containedItems = new ArrayList<>();
-			ItemStackHandler items = ((ListFilterItem) filter.getItem()).getFilterItemHandler(filter);
-			for (int i = 0; i < items.getSlots(); i++) {
-				ItemStack stackInSlot = items.getStackInSlot(i);
+			ItemStacksResourceHandler items = ((ListFilterItem) filter.getItem()).getFilterItemHandler(filter);
+			for (int i = 0; i < items.size(); i++) {
+				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(items, i);
 				if (!stackInSlot.isEmpty())
 					containedItems.add(FilterItemStack.of(stackInSlot));
 			}

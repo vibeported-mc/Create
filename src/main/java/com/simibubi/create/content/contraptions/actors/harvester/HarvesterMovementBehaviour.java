@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.harvester;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import com.simibubi.create.compat.Mods;
 
 import com.simibubi.create.compat.farmersdelight.FarmersDelightCompat;
@@ -23,8 +24,7 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.math.VecHelper;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
@@ -57,14 +57,14 @@ public class HarvesterMovementBehaviour implements MovementBehaviour {
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
 		return Vec3.atLowerCornerOf(context.state.getValue(HarvesterBlock.FACING)
-				.getNormal())
+				.getUnitVec3i())
 			.scale(.45);
 	}
 
 	@Override
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
 		Level world = context.world;
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return;
 
 		BlockState stateVisited = world.getBlockState(pos);
@@ -226,7 +226,7 @@ public class HarvesterMovementBehaviour implements MovementBehaviour {
 
 	@Override
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-									ContraptionMatrices matrices, MultiBufferSource buffers) {
+									ContraptionMatrices matrices, SubmitNodeCollector buffers) {
 		if (!VisualizationManager.supportsVisualization(context.world))
 			HarvesterRenderer.renderInContraption(context, renderWorld, matrices, buffers);
 	}

@@ -1,5 +1,9 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +22,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockEntity> {
@@ -37,8 +39,8 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
-		ItemStackHandler inventory = new ItemStackHandler(9);
+	protected ItemStacksResourceHandler createGhostInventory() {
+		ItemStacksResourceHandler inventory = new ItemStacksResourceHandler(9);
 		List<BigItemStack> stacks = contentHolder.encodedRequest.stacks();
 		for (int i = 0; i < stacks.size(); i++)
 			inventory.setStackInSlot(i, stacks.get(i).stack.copyWithCount(1));
@@ -74,8 +76,8 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 	protected void saveData(RedstoneRequesterBlockEntity contentHolder) {
 		List<BigItemStack> stacks = contentHolder.encodedRequest.stacks();
 		ArrayList<BigItemStack> list = new ArrayList<>();
-		for (int i = 0; i < ghostInventory.getSlots(); i++) {
-			ItemStack stackInSlot = ghostInventory.getStackInSlot(i);
+		for (int i = 0; i < ghostInventory.size(); i++) {
+			ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(ghostInventory, i);
 			if (stackInSlot.isEmpty())
 				continue;
 			list.add(new BigItemStack(stackInSlot.copyWithCount(1), i < stacks.size() ? stacks.get(i).count : 1));
@@ -91,7 +93,7 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 	// this is used to prevent InventorySorter from interfering with scrolling on the slots.
 	// we just need a class to use as a marker, see InventorySorterCompat
 	public static class SorterProofSlot extends SlotItemHandler {
-		public SorterProofSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+		public SorterProofSlot(ResourceHandler<ItemResource> itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, index, xPosition, yPosition);
 		}
 	}

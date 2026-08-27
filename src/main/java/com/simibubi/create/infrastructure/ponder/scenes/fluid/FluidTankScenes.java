@@ -1,5 +1,8 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
@@ -15,14 +18,14 @@ import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 
-import net.createmod.catnip.math.Pointing;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.ponder.api.PonderPalette;
-import net.createmod.ponder.api.element.ElementLink;
-import net.createmod.ponder.api.element.WorldSectionElement;
-import net.createmod.ponder.api.scene.SceneBuilder;
-import net.createmod.ponder.api.scene.SceneBuildingUtil;
-import net.createmod.ponder.api.scene.Selection;
+import net.createmod.catnip.api.math.Pointing;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.ponder.api.client.PonderPalette;
+import net.createmod.ponder.api.client.element.ElementLink;
+import net.createmod.ponder.api.client.element.WorldSectionElement;
+import net.createmod.ponder.api.client.scene.SceneBuilder;
+import net.createmod.ponder.api.client.scene.SceneBuildingUtil;
+import net.createmod.ponder.api.client.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -32,9 +35,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-
 public class FluidTankScenes {
 
 	public static void storage(SceneBuilder builder, SceneBuildingUtil util) {
@@ -88,8 +88,7 @@ public class FluidTankScenes {
 		scene.idle(5);
 		FluidStack content = new FluidStack(AllFluids.CHOCOLATE.get()
 			.getSource(), 16000);
-		scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> be.getTankInventory()
-			.fill(content, FluidAction.EXECUTE));
+		scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), content, false));
 		scene.idle(25);
 
 		scene.world().moveSection(tankLink, util.vector().of(0, 0, 1), 10);
@@ -106,13 +105,11 @@ public class FluidTankScenes {
 
 		scene.idle(5);
 		scene.world().propagatePipeChange(pumpPos);
-		scene.world().modifyBlockEntity(util.grid().at(2, 0, 5), FluidTankBlockEntity.class, be -> be.getTankInventory()
-			.fill(content, FluidAction.EXECUTE));
+		scene.world().modifyBlockEntity(util.grid().at(2, 0, 5), FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), content, false));
 		scene.idle(20);
 
 		for (int i = 0; i < 4; i++) {
-			scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> be.getTankInventory()
-				.drain(2000, FluidAction.EXECUTE));
+			scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> FluidHandlerHelpers.drain(be.getTankInventory(), 2000, false));
 			scene.idle(5);
 		}
 
@@ -126,8 +123,7 @@ public class FluidTankScenes {
 		scene.world().modifyBlock(pumpPos, s -> s.setValue(PumpBlock.FACING, Direction.NORTH), true);
 		scene.world().propagatePipeChange(pumpPos);
 		for (int i = 0; i < 4; i++) {
-			scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> be.getTankInventory()
-				.fill(FluidHelper.copyStackWithAmount(content, 2000), FluidAction.EXECUTE));
+			scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), FluidHelper.copyStackWithAmount(content, 2000), false));
 			scene.idle(5);
 		}
 		scene.idle(40);
@@ -169,9 +165,9 @@ public class FluidTankScenes {
 		scene.idle(80);
 		scene.world().modifyBlockEntity(util.grid().at(4, 3, 0), SpoutBlockEntity.class,
 			be -> {
-				IFluidHandler handler = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+				ResourceHandler<FluidResource> handler = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (handler != null)
-					handler.fill(content, FluidAction.EXECUTE);
+					handler.fill(content, false);
 			});
 
 		scene.world().moveSection(tankLink, util.vector().of(0, 0, 1), 7);

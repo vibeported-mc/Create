@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.packagePort.frogport;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -21,10 +24,10 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.TooltipHelper;
 
 import dan200.computercraft.api.peripheral.PeripheralCapability;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -35,7 +38,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -45,11 +48,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 public class FrogportBlockEntity extends PackagePortBlockEntity implements IHaveHoveringInformation {
 
 	public ItemStack animatedPackage;
@@ -86,7 +86,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-			Capabilities.ItemHandler.BLOCK,
+			Capabilities.Item.BLOCK,
 			AllBlockEntityTypes.PACKAGE_FROGPORT.get(),
 			(be, context) -> be.itemHandler
 		);
@@ -137,8 +137,8 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 	public void sendAnticipate() {
 		if (isAnimationInProgress())
 			return;
-		for (int i = 0; i < inventory.getSlots(); i++)
-			if (inventory.getStackInSlot(i)
+		for (int i = 0; i < inventory.size(); i++)
+			if (ItemHandlerHelpers.getStackInSlot(inventory, i)
 				.isEmpty()) {
 				sendAnticipate = true;
 				sendData();
@@ -209,7 +209,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 		}
 
 		if (!currentlyDepositing) {
-			if (!ItemHandlerHelper.insertItem(inventory, animatedPackage.copy(), false)
+			if (!ItemHandlerHelpers.insertItem(inventory, animatedPackage.copy(), false)
 				.isEmpty())
 				drop(animatedPackage);
 			else
@@ -248,7 +248,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 					for (int i = 0; i < 5; i++)
 						level.addParticle(
 							new BlockParticleOption(ParticleTypes.BLOCK, AllBlocks.ROPE.getDefaultState()), vec.x,
-							vec.y - level.random.nextFloat() * 0.25, vec.z, 0, 0, 0);
+							vec.y - level.getRandom().nextFloat() * 0.25, vec.z, 0, 0, 0);
 			}
 		}
 
@@ -265,23 +265,23 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 			return;
 
 		boolean empty = true;
-		for (int i = 0; i < itemHandler.getSlots(); i++)
-			if (!itemHandler.getStackInSlot(i)
+		for (int i = 0; i < itemHandler.size(); i++)
+			if (!ItemHandlerHelpers.getStackInSlot(itemHandler, i)
 				.isEmpty())
 				empty = false;
 		if (empty)
 			return;
-		IItemHandler handler = getAdjacentInventory(Direction.DOWN);
+		ResourceHandler<ItemResource> handler = getAdjacentInventory(Direction.DOWN);
 		if (handler == null)
 			return;
 
-		for (int i = 0; i < itemHandler.getSlots(); i++) {
-			ItemStack stackInSlot = itemHandler.extractItem(i, 1, true);
+		for (int i = 0; i < itemHandler.size(); i++) {
+			ItemStack stackInSlot = ItemHandlerHelpers.extractItem(itemHandler, i, 1, true);
 			if (stackInSlot.isEmpty())
 				continue;
-			ItemStack remainder = ItemHandlerHelper.insertItemStacked(handler, stackInSlot, false);
+			ItemStack remainder = ItemHandlerHelpers.insertItemStacked(handler, stackInSlot, false);
 			if (remainder.isEmpty()) {
-				itemHandler.extractItem(i, 1, false);
+				ItemHandlerHelpers.extractItem(itemHandler, i, 1, false);
 				level.blockEntityChanged(worldPosition);
 			} else
 				failedLastExport = true;
@@ -302,7 +302,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 		for (Direction side : Iterate.directions) {
 			if (side != Direction.DOWN)
 				continue;
-			IItemHandler handler = getAdjacentInventory(side);
+			ResourceHandler<ItemResource> handler = getAdjacentInventory(side);
 			if (handler == null)
 				continue;
 			if (tryPullingFrom(handler))
@@ -310,7 +310,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 		}
 	}
 
-	public boolean tryPullingFrom(IItemHandler handler) {
+	public boolean tryPullingFrom(ResourceHandler<ItemResource> handler) {
 		ItemStack extract = ItemHelper.extract(handler, stack -> {
 			if (!PackageItem.isPackage(stack))
 				return false;
@@ -325,7 +325,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 
 	}
 
-	protected IItemHandler getAdjacentInventory(Direction side) {
+	protected ResourceHandler<ItemResource> getAdjacentInventory(Direction side) {
 		BlockEntity blockEntity = level.getBlockEntity(worldPosition.relative(side));
 		if (blockEntity == null || blockEntity instanceof FrogportBlockEntity)
 			return null;
@@ -337,7 +337,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 		super.write(tag, registries, clientPacket);
 		tag.putFloat("PlacedYaw", passiveYaw);
 		if (animatedPackage != null && isAnimationInProgress()) {
-			tag.put("AnimatedPackage", animatedPackage.saveOptional(registries));
+			tag.store("AnimatedPackage", ItemStack.OPTIONAL_CODEC, animatedPackage);
 			tag.putBoolean("Deposit", currentlyDepositing);
 		}
 		if (sendAnticipate) {
@@ -353,14 +353,14 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 	@Override
 	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(tag, registries, clientPacket);
-		passiveYaw = tag.getFloat("PlacedYaw");
-		failedLastExport = tag.getBoolean("FailedLastExport");
-		goggles = tag.getBoolean("Goggles");
+		passiveYaw = tag.getFloatOr("PlacedYaw", 0);
+		failedLastExport = tag.getBooleanOr("FailedLastExport", false);
+		goggles = tag.getBooleanOr("Goggles", false);
 		if (!clientPacket)
 			animatedPackage = null;
 		if (tag.contains("AnimatedPackage")) {
-			deferAnimationInward = tag.getBoolean("Deposit");
-			deferAnimationStart = ItemStack.parseOptional(registries, tag.getCompound("AnimatedPackage"));
+			deferAnimationInward = tag.getBooleanOr("Deposit", false);
+			deferAnimationStart = tag.read("AnimatedPackage", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
 		}
 		if (clientPacket && tag.contains("Anticipate"))
 			anticipate();
@@ -390,9 +390,9 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 	}
 
 	@Override
-	public ItemInteractionResult use(Player player) {
+	public InteractionResult use(Player player) {
 		if (player == null)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		ItemStack mainHandItem = player.getMainHandItem();
 		if (!goggles && AllItems.GOGGLES.isIn(mainHandItem)) {
@@ -401,7 +401,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 				notifyUpdate();
 				level.playSound(null, worldPosition, SoundEvents.ARMOR_EQUIP_GOLD.value(), SoundSource.BLOCKS, 0.5f, 1.0f);
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 
 		return super.use(player);

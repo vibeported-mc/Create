@@ -19,7 +19,7 @@ public class CameraDistanceCommand {
 				})
 			).then(Commands.argument("multiplier", FloatArgumentType.floatArg(1))
 				.executes(ctx -> {
-					float multiplier = FloatArgumentType.getFloat(ctx, "multiplier");
+					float multiplier = FloatArgumentType.getFloatOr(ctx, "multiplier", 0);
 					CameraDistanceModifier.zoomOut(multiplier);
 
 					return Command.SINGLE_SUCCESS;

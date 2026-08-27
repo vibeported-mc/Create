@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains.entity;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
+import net.minecraft.core.UUIDUtil;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,13 +29,12 @@ import com.simibubi.create.content.trains.graph.TrackGraph;
 import com.simibubi.create.content.trains.graph.TrackNodeLocation;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -510,30 +511,30 @@ public class Carriage {
 		serialisedEntity = new CompoundTag();
 		entity.saveAsPassenger(serialisedEntity);
 		serialisedEntity.remove("Passengers");
-		serialisedEntity.getCompound("Contraption")
+		serialisedEntity.getCompoundOrEmpty("Contraption")
 			.remove("Passengers");
 	}
 
 	public static Carriage read(CompoundTag tag, HolderLookup.Provider registries, TrackGraph graph, DimensionPalette dimensions) {
-		CarriageBogey bogey1 = CarriageBogey.read(tag.getCompound("FirstBogey"), graph, dimensions);
+		CarriageBogey bogey1 = CarriageBogey.read(tag.getCompoundOrEmpty("FirstBogey"), graph, dimensions);
 		CarriageBogey bogey2 =
-			tag.contains("SecondBogey") ? CarriageBogey.read(tag.getCompound("SecondBogey"), graph, dimensions) : null;
+			tag.contains("SecondBogey") ? CarriageBogey.read(tag.getCompoundOrEmpty("SecondBogey"), graph, dimensions) : null;
 
-		Carriage carriage = new Carriage(bogey1, bogey2, tag.getInt("Spacing"));
+		Carriage carriage = new Carriage(bogey1, bogey2, tag.getIntOr("Spacing", 0));
 
-		carriage.stalled = tag.getBoolean("Stalled");
-		carriage.presentConductors = Couple.create(tag.getBoolean("FrontConductor"), tag.getBoolean("BackConductor"));
-		carriage.serialisedEntity = tag.getCompound("Entity")
+		carriage.stalled = tag.getBooleanOr("Stalled", false);
+		carriage.presentConductors = Couple.create(tag.getBooleanOr("FrontConductor", false), tag.getBooleanOr("BackConductor", false));
+		carriage.serialisedEntity = tag.getCompoundOrEmpty("Entity")
 			.copy();
 
-		NBTHelper.iterateCompoundList(tag.getList("EntityPositioning", Tag.TAG_COMPOUND),
-			c -> carriage.getDimensional(dimensions.decode(c.getInt("Dim")))
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("EntityPositioning"),
+			c -> carriage.getDimensional(dimensions.decode(c.getIntOr("Dim", 0)))
 				.read(c, registries));
 
-		CompoundTag passengersTag = tag.getCompound("Passengers");
+		CompoundTag passengersTag = tag.getCompoundOrEmpty("Passengers");
 		passengersTag.getAllKeys()
 			.forEach(key -> carriage.serialisedPassengers.put(Integer.valueOf(key.substring(4)),
-				passengersTag.getCompound(key)));
+				passengersTag.getCompoundOrEmpty(key)));
 
 		return carriage;
 	}
@@ -660,17 +661,17 @@ public class Carriage {
 		}
 
 		public void read(CompoundTag tag, HolderLookup.Provider registries) {
-			cutoff = tag.getFloat("Cutoff");
-			discardTicks = tag.getInt("DiscardTicks");
+			cutoff = tag.getFloatOr("Cutoff", 0);
+			discardTicks = tag.getIntOr("DiscardTicks", 0);
 			storage.read(tag, registries, false, null);
 			if (tag.contains("Pivot"))
-				pivot = TrackNodeLocation.read(tag.getCompound("Pivot"), null);
+				pivot = TrackNodeLocation.read(tag.getCompoundOrEmpty("Pivot"), null);
 			if (positionAnchor != null)
 				return;
 			if (tag.contains("PositionAnchor"))
-				positionAnchor = VecHelper.readNBT(tag.getList("PositionAnchor", Tag.TAG_DOUBLE));
+				positionAnchor = VecHelper.readNBT(tag.getListOrEmpty("PositionAnchor"));
 			if (tag.contains("RotationAnchors"))
-				rotationAnchors = Couple.deserializeEach(tag.getList("RotationAnchors", Tag.TAG_COMPOUND),
+				rotationAnchors = Couple.deserializeEach(tag.getListOrEmpty("RotationAnchors"),
 					VecHelper::readNBTCompound);
 		}
 
@@ -726,7 +727,7 @@ public class Carriage {
 				if (tag.contains("PlayerPassenger")) {
 					passenger = sLevel.getServer()
 						.getPlayerList()
-						.getPlayer(tag.getUUID("PlayerPassenger"));
+						.getPlayer(tag.read("PlayerPassenger", UUIDUtil.CODEC).orElse(null));
 
 				} else {
 					passenger = EntityType.loadEntityRecursive(tag, entity.level(), e -> {
@@ -780,7 +781,7 @@ public class Carriage {
 			}
 
 			CompoundTag tag = new CompoundTag();
-			tag.putUUID("PlayerPassenger", sp.getUUID());
+			tag.store("PlayerPassenger", UUIDUtil.CODEC, sp.getUUID());
 			serialisedPassengers.put(seat, tag);
 			sp.stopRiding();
 			sp.getPersistentData()
@@ -815,7 +816,7 @@ public class Carriage {
 			cc.portalCutoffMax = maxAllowedLocalCoord();
 			if (!entity.level().isClientSide())
 				return;
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> invalidate(cce));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> invalidate(cce));
 		}
 
 		@OnlyIn(Dist.CLIENT)

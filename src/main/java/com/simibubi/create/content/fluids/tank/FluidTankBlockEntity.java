@@ -1,5 +1,8 @@
 package com.simibubi.create.content.fluids.tank;
 
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import static java.lang.Math.abs;
 
 import java.util.List;
@@ -18,9 +21,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -38,17 +41,13 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.IFluidTank;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-
 public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IMultiBlockEntityContainer.Fluid {
 
 	private static final int MAX_SIZE = 3;
 
-	protected IFluidHandler fluidCapability;
+	protected ResourceHandler<FluidResource> fluidCapability;
 	protected boolean forceFluidLevelUpdate;
-	protected FluidTank tankInventory;
+	protected FluidStacksResourceHandler tankInventory;
 	protected BlockPos controller;
 	protected BlockPos lastKnownPos;
 	protected boolean updateConnectivity;
@@ -82,7 +81,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
+				Capabilities.Fluid.BLOCK,
 				AllBlockEntityTypes.FLUID_TANK.get(),
 				(be, context) -> {
 					if (be.fluidCapability == null)
@@ -98,7 +97,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 	protected void updateConnectivity() {
 		updateConnectivity = false;
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		if (!isController())
 			return;
@@ -155,7 +154,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	public void initialize() {
 		super.initialize();
 		sendData();
-		if (level.isClientSide)
+		if (level.isClientSide())
 			invalidateRenderBoundingBox();
 	}
 
@@ -193,7 +192,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 			}
 		}
 
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			setChanged();
 			sendData();
 		}
@@ -207,7 +206,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	}
 
 	protected void setLuminosity(int luminosity) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		if (this.luminosity == luminosity)
 			return;
@@ -230,12 +229,12 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		tankInventory.setCapacity(blocks * getCapacityMultiplier());
 		int overflow = tankInventory.getFluidAmount() - tankInventory.getCapacity();
 		if (overflow > 0)
-			tankInventory.drain(overflow, FluidAction.EXECUTE);
+			tankInventory.drain(overflow, false);
 		forceFluidLevelUpdate = true;
 	}
 
 	public void removeController(boolean keepFluids) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		updateConnectivity = true;
 		if (!keepFluids)
@@ -355,7 +354,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 	@Override
 	public void setController(BlockPos controller) {
-		if (level.isClientSide && !isVirtual())
+		if (level.isClientSide() && !isVirtual())
 			return;
 		if (controller.equals(this.controller))
 			return;
@@ -370,9 +369,9 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		invalidateCapabilities();
 	}
 
-	private IFluidHandler handlerForCapability() {
+	private ResourceHandler<FluidResource> handlerForCapability() {
 		return isController() ? (boiler.isActive() ? boiler.createHandler() : tankInventory)
-				: ((getControllerBE() != null) ? getControllerBE().handlerForCapability() : new FluidTank(0));
+				: ((getControllerBE() != null) ? getControllerBE().handlerForCapability() : new FluidStacksResourceHandler(0));
 	}
 
 	@Override
@@ -404,7 +403,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		if (controllerBE.boiler.addToGoggleTooltip(tooltip, isPlayerSneaking, controllerBE.getTotalTankSize()))
 			return true;
 		return containedFluidTooltip(tooltip, isPlayerSneaking,
-			level.getCapability(Capabilities.FluidHandler.BLOCK, controllerBE.getBlockPos(), null));
+			level.getCapability(Capabilities.Fluid.BLOCK, controllerBE.getBlockPos(), null));
 	}
 
 	@Override
@@ -417,7 +416,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		int prevLum = luminosity;
 
 		updateConnectivity = compound.contains("Uninitialized");
-		luminosity = compound.getInt("Luminosity");
+		luminosity = compound.getIntOr("Luminosity", 0);
 
 		lastKnownPos = null;
 		if (compound.contains("LastKnownPos"))
@@ -428,17 +427,17 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 			controller = NBTHelper.readBlockPos(compound, "Controller");
 
 		if (isController()) {
-			window = compound.getBoolean("Window");
-			width = compound.getInt("Size");
-			height = compound.getInt("Height");
+			window = compound.getBooleanOr("Window", false);
+			width = compound.getIntOr("Size", 0);
+			height = compound.getIntOr("Height", 0);
 			tankInventory.setCapacity(getTotalTankSize() * getCapacityMultiplier());
 
-			tankInventory.readFromNBT(registries, compound.getCompound("TankContent"));
+			tankInventory.readFromNBT(registries, compound.getCompoundOrEmpty("TankContent"));
 			if (tankInventory.getSpace() < 0)
-				tankInventory.drain(-tankInventory.getSpace(), FluidAction.EXECUTE);
+				tankInventory.drain(-tankInventory.getSpace(), false);
 		}
 
-		boiler.read(compound.getCompound("Boiler"), width * width * height);
+		boiler.read(compound.getCompoundOrEmpty("Boiler"), width * width * height);
 
 		if (compound.contains("ForceFluidLevel") || fluidLevel == null)
 			fluidLevel = LerpedFloat.linear()
@@ -483,9 +482,9 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 			compound.putBoolean("Uninitialized", true);
 		compound.put("Boiler", boiler.write());
 		if (lastKnownPos != null)
-			compound.put("LastKnownPos", NbtUtils.writeBlockPos(lastKnownPos));
+			compound.store("LastKnownPos", BlockPos.CODEC, lastKnownPos);
 		if (!isController())
-			compound.put("Controller", NbtUtils.writeBlockPos(controller));
+			compound.store("Controller", BlockPos.CODEC, controller);
 		if (isController()) {
 			compound.putBoolean("Window", window);
 			compound.put("TankContent", tankInventory.writeToNBT(registries, new CompoundTag()));
@@ -518,7 +517,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		registerAwardables(behaviours, AllAdvancements.STEAM_ENGINE_MAXED, AllAdvancements.PIPE_ORGAN);
 	}
 
-	public FluidTank getTankInventory() {
+	public FluidStacksResourceHandler getTankInventory() {
 		return tankInventory;
 	}
 
@@ -648,5 +647,15 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	public FluidStack getFluid(int tank) {
 		return tankInventory.getFluid()
 			.copy();
+	}
+
+	/**
+	 * A tank leaving the multiblock has to split it, and the block entity is already detached by the
+	 * time the block is told, so this runs from here.
+	 */
+	@Override
+	public void destroy() {
+		super.destroy();
+		ConnectivityHandler.splitMulti(this);
 	}
 }

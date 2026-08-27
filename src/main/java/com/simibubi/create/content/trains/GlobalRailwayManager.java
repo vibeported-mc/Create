@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,7 +29,6 @@ import com.simibubi.create.content.trains.signal.EdgeGroupColor;
 import com.simibubi.create.content.trains.signal.SignalEdgeGroup;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -71,7 +72,7 @@ public class GlobalRailwayManager {
 			sync.sendEdgeGroups(ids, colors, serverPlayer);
 
 			for (Train train : trains.values()) {
-				CatnipServices.NETWORK.sendToClient(serverPlayer, new AddTrainPacket(train));
+				NetworkHelper.INSTANCE.sendToClient(serverPlayer, new AddTrainPacket(train));
 			}
 		}
 	}
@@ -239,7 +240,7 @@ public class GlobalRailwayManager {
 			if (train.invalid) {
 				iterator.remove();
 				trains.remove(train.id);
-				CatnipServices.NETWORK.sendToAllClients(new RemoveTrainPacket(train));
+				NetworkHelper.INSTANCE.sendToAllClients(new RemoveTrainPacket(train));
 				continue;
 			}
 
@@ -255,7 +256,7 @@ public class GlobalRailwayManager {
 			if (train.invalid) {
 				iterator.remove();
 				trains.remove(train.id);
-				CatnipServices.NETWORK.sendToAllClients(new RemoveTrainPacket(train));
+				NetworkHelper.INSTANCE.sendToAllClients(new RemoveTrainPacket(train));
 				continue;
 			}
 
@@ -290,7 +291,7 @@ public class GlobalRailwayManager {
 		if (level != null && !level.isClientSide())
 			return this;
 		MutableObject<GlobalRailwayManager> m = new MutableObject<>();
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> clientManager(m));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> clientManager(m));
 		return m.getValue();
 	}
 

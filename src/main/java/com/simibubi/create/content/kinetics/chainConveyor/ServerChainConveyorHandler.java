@@ -1,12 +1,12 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Map;
 import java.util.UUID;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.world.entity.player.Player;
 
 public class ServerChainConveyorHandler {
@@ -55,7 +55,7 @@ public class ServerChainConveyorHandler {
 	}
 
 	public static void sync() {
-		CatnipServices.NETWORK.sendToAllClients(new ClientboundChainConveyorRidingPacket(hangingPlayers.keySet()));
+		NetworkHelper.INSTANCE.sendToAllClients(new ClientboundChainConveyorRidingPacket(hangingPlayers.keySet()));
 	}
 
 }

@@ -17,7 +17,7 @@ import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
@@ -35,7 +35,7 @@ public abstract class SequencedAssemblySubCategory {
 
 	public void setRecipe(IRecipeLayoutBuilder builder, SequencedRecipe<?> recipe, IFocusGroup focuses, int x) {}
 
-	public abstract void draw(SequencedRecipe<?> recipe, GuiGraphics graphics, double mouseX, double mouseY, int index);
+	public abstract void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index);
 
 	public static class AssemblyPressing extends SequencedAssemblySubCategory {
 
@@ -47,7 +47,7 @@ public abstract class SequencedAssemblySubCategory {
 		}
 
 		@Override
-		public void draw(SequencedRecipe<?> recipe, GuiGraphics graphics, double mouseX, double mouseY, int index) {
+		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
 			PoseStack ms = graphics.pose();
 			press.offset = index;
 			ms.pushPose();
@@ -78,7 +78,7 @@ public abstract class SequencedAssemblySubCategory {
 		}
 
 		@Override
-		public void draw(SequencedRecipe<?> recipe, GuiGraphics graphics, double mouseX, double mouseY, int index) {
+		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
 			PoseStack ms = graphics.pose();
 			spout.offset = index;
 			ms.pushPose();
@@ -118,7 +118,7 @@ public abstract class SequencedAssemblySubCategory {
 		}
 
 		@Override
-		public void draw(SequencedRecipe<?> recipe, GuiGraphics graphics, double mouseX, double mouseY, int index) {
+		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
 			PoseStack ms = graphics.pose();
 			deployer.offset = index;
 			ms.pushPose();
@@ -140,7 +140,7 @@ public abstract class SequencedAssemblySubCategory {
 		}
 
 		@Override
-		public void draw(SequencedRecipe<?> recipe, GuiGraphics graphics, double mouseX, double mouseY, int index) {
+		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
 			PoseStack ms = graphics.pose();
 			ms.pushPose();
 			ms.translate(0, 51.5f, 0);

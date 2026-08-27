@@ -1,17 +1,18 @@
 package com.simibubi.create.api.contraption.storage.item;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 /**
  * Partial implementation of a MountedItemStorage that wraps an item handler.
  */
-public abstract class WrapperMountedItemStorage<T extends IItemHandlerModifiable> extends MountedItemStorage {
+public abstract class WrapperMountedItemStorage<T extends ModifiableItemHandler> extends MountedItemStorage {
 	protected final T wrapped;
 
 	protected WrapperMountedItemStorage(MountedItemStorageType<?> type, T wrapped) {
@@ -21,12 +22,12 @@ public abstract class WrapperMountedItemStorage<T extends IItemHandlerModifiable
 
 	@Override
 	public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-		this.wrapped.setStackInSlot(slot, stack);
+		ItemHandlerHelpers.setStackInSlot(this.wrapped, slot, stack);
 	}
 
 	@Override
 	public int getSlots() {
-		return this.wrapped.getSlots();
+		return this.wrapped.size();
 	}
 
 	@Override
@@ -57,10 +58,10 @@ public abstract class WrapperMountedItemStorage<T extends IItemHandlerModifiable
 		return this.wrapped.isItemValid(slot, stack);
 	}
 
-	public static ItemStackHandler copyToItemStackHandler(IItemHandler handler) {
-		ItemStackHandler copy = new ItemStackHandler(handler.getSlots());
-		for (int i = 0; i < handler.getSlots(); i++) {
-			copy.setStackInSlot(i, handler.getStackInSlot(i).copy());
+	public static ItemStacksResourceHandler copyToItemStackHandler(ResourceHandler<ItemResource> handler) {
+		ItemStacksResourceHandler copy = new ItemStacksResourceHandler(handler.size());
+		for (int i = 0; i < handler.size(); i++) {
+			ItemHandlerHelpers.setStackInSlot(copy, i, ItemHandlerHelpers.getStackInSlot(handler, i).copy());
 		}
 		return copy;
 	}

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.funnel;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.api.schematic.requirement.SpecialBlockItemRequirement;
@@ -13,8 +15,8 @@ import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.tterrag.registrate.util.entry.BlockEntry;
 
-import net.createmod.catnip.lang.Lang;
-import net.createmod.catnip.math.VoxelShaper;
+import net.createmod.catnip.api.lang.Lang;
+import net.createmod.catnip.api.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
@@ -78,13 +80,6 @@ public class BeltFunnelBlock extends AbstractHorizontalFunnelBlock implements Sp
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (newState.getBlock() instanceof FunnelBlock fb && isOfSameType(fb))
-			return;
-		super.onRemove(state, world, pos, newState, isMoving);
-	}
-
-	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter p_220053_2_, BlockPos p_220053_3_,
 							   CollisionContext p_220053_4_) {
 		return state.getValue(SHAPE).shaper.get(state.getValue(HORIZONTAL_FACING));
@@ -126,14 +121,15 @@ public class BeltFunnelBlock extends AbstractHorizontalFunnelBlock implements Sp
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state,
+		boolean includeData, Player player) {
 		return parent.asStack();
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState neighbour, LevelAccessor world,
-								  BlockPos pos, BlockPos p_196271_6_) {
-		updateWater(world, state, pos);
+	public BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess ticks,
+		BlockPos pos, Direction direction, BlockPos p_196271_6_, BlockState neighbour, RandomSource random) {
+		updateWater(world, ticks, state, pos);
 		if (!isOnValidBelt(state, world, pos)) {
 			BlockState parentState = ProperWaterloggedBlock.withWater(world, parent.getDefaultState(), pos);
 			if (state.getOptionalValue(POWERED)
@@ -172,7 +168,7 @@ public class BeltFunnelBlock extends AbstractHorizontalFunnelBlock implements Sp
 	@Override
 	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
 		Level world = context.getLevel();
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return InteractionResult.SUCCESS;
 
 		Shape shape = state.getValue(SHAPE);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import net.minecraft.core.UUIDUtil;
 import java.util.UUID;
 
 import net.minecraft.nbt.CompoundTag;
@@ -12,7 +13,7 @@ import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.content.contraptions.mounted.MountedContraption;
 
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
@@ -40,16 +41,16 @@ public class DeployerMovingInteraction extends MovingInteractionBehaviour {
 				mode == DeployerBlockEntity.Mode.PUNCH ? DeployerBlockEntity.Mode.USE : DeployerBlockEntity.Mode.PUNCH);
 
 		} else {
-			if (ctx.world.isClientSide)
+			if (ctx.world.isClientSide())
 				return true; // we'll try again on the server side
 			DeployerFakePlayer fake = null;
 
 			if (!(ctx.temporaryData instanceof DeployerFakePlayer) && ctx.world instanceof ServerLevel) {
-				UUID owner = ctx.blockEntityData.contains("Owner") ? ctx.blockEntityData.getUUID("Owner") : null;
+				UUID owner = ctx.blockEntityData.contains("Owner") ? ctx.blockEntityData.read("Owner", UUIDUtil.CODEC).orElse(null) : null;
 				DeployerFakePlayer deployerFakePlayer = new DeployerFakePlayer((ServerLevel) ctx.world, owner);
 				deployerFakePlayer.onMinecartContraption = ctx.contraption instanceof MountedContraption;
 				deployerFakePlayer.getInventory()
-					.load(ctx.blockEntityData.getList("Inventory", Tag.TAG_COMPOUND));
+					.load(ctx.blockEntityData.getListOrEmpty("Inventory"));
 				ctx.temporaryData = fake = deployerFakePlayer;
 				ctx.blockEntityData.remove("Inventory");
 			} else
@@ -61,8 +62,8 @@ public class DeployerMovingInteraction extends MovingInteractionBehaviour {
 			ItemStack deployerItem = fake.getMainHandItem();
 			player.setItemInHand(activeHand, deployerItem.copy());
 			fake.setItemInHand(InteractionHand.MAIN_HAND, heldStack.copy());
-			ctx.blockEntityData.put("HeldItem", heldStack.saveOptional(player.registryAccess()));
-			ctx.data.put("HeldItem", heldStack.saveOptional(player.registryAccess()));
+			ctx.blockEntityData.store("HeldItem", ItemStack.OPTIONAL_CODEC, heldStack);
+			ctx.data.store("HeldItem", ItemStack.OPTIONAL_CODEC, heldStack);
 		}
 //		if (index >= 0)
 //			setContraptionActorData(contraptionEntity, index, info, ctx);

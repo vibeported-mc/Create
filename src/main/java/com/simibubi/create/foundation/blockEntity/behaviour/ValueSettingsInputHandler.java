@@ -1,12 +1,12 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.SidedFilteringBehaviour;
 import com.simibubi.create.foundation.utility.AdventureUtil;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -39,7 +39,7 @@ public class ValueSettingsInputHandler {
 			return;
 
 		if (event.getSide() == LogicalSide.CLIENT)
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> CreateClient.VALUE_SETTINGS_HANDLER.cancelIfWarmupAlreadyStarted(event));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> CreateClient.VALUE_SETTINGS_HANDLER.cancelIfWarmupAlreadyStarted(event));
 
 		if (event.isCanceled())
 			return;
@@ -86,7 +86,7 @@ public class ValueSettingsInputHandler {
 
 			if (event.getSide() == LogicalSide.CLIENT) {
 				BehaviourType<?> type = behaviour.getType();
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> CreateClient.VALUE_SETTINGS_HANDLER
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> CreateClient.VALUE_SETTINGS_HANDLER
 					.startInteractionWith(pos, type, hand, ray.getDirection()));
 			}
 

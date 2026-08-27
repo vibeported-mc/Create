@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
@@ -57,7 +58,7 @@ public class CurvedTrackDestroyPacket extends BlockEntityConfigurationPacket<Tra
 
 		if (wrench) {
 			AllSoundEvents.WRENCH_REMOVE.playOnServer(player.level(), soundSource, 1,
-				level.random.nextFloat() * .5f + .5f);
+				level.getRandom().nextFloat() * .5f + .5f);
 			if (!player.isCreative() && bezierConnection != null)
 				bezierConnection.addItemsToPlayer(player);
 		} else if (!player.isCreative() && bezierConnection != null)
@@ -78,7 +79,7 @@ public class CurvedTrackDestroyPacket extends BlockEntityConfigurationPacket<Tra
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.DESTROY_CURVED_TRACK;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.DESTROY_CURVED_TRACK.getType();
 	}
 }

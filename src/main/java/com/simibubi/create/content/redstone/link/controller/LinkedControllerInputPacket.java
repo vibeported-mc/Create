@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -7,8 +8,8 @@ import java.util.stream.Collectors;
 
 import com.simibubi.create.AllPackets;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -59,7 +60,7 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.LINKED_CONTROLLER_INPUT;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.LINKED_CONTROLLER_INPUT.getType();
 	}
 }

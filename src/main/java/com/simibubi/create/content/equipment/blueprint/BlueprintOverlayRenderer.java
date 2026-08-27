@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -21,15 +23,15 @@ import com.simibubi.create.content.logistics.tableCloth.TableClothBlockEntity;
 import com.simibubi.create.content.trains.track.TrackPlacement.PlacementInfo;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.gui.element.GuiGameElement;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
 import net.minecraft.network.chat.Component;
@@ -47,9 +49,6 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
-
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
 // TODO - Split up into specific overlays
 public class BlueprintOverlayRenderer {
@@ -194,10 +193,10 @@ public class BlueprintOverlayRenderer {
 
 	public static void rebuild(BlueprintSection sectionAt, boolean sneak) {
 		cachedRenderedFilters.clear();
-		ItemStackHandler items = sectionAt.getItems();
+		ItemStacksResourceHandler items = sectionAt.getItems();
 		boolean empty = true;
 		for (int i = 0; i < 9; i++) {
-			if (!items.getStackInSlot(i)
+			if (!ItemHandlerHelpers.getStackInSlot(items, i)
 				.isEmpty()) {
 				empty = false;
 				break;
@@ -213,9 +212,9 @@ public class BlueprintOverlayRenderer {
 		boolean firstPass = true;
 		boolean success = true;
 		Minecraft mc = Minecraft.getInstance();
-		ItemStackHandler playerInv = new ItemStackHandler(mc.player.getInventory()
+		ItemStacksResourceHandler playerInv = new ItemStacksResourceHandler(mc.player.getInventory()
 			.getContainerSize());
-		for (int i = 0; i < playerInv.getSlots(); i++)
+		for (int i = 0; i < playerInv.size(); i++)
 			playerInv.setStackInSlot(i, mc.player.getInventory()
 				.getItem(i)
 				.copy());
@@ -224,8 +223,8 @@ public class BlueprintOverlayRenderer {
 		Optional<RecipeHolder<CraftingRecipe>> recipe = Optional.empty();
 		Map<Integer, ItemStack> craftingGrid = new HashMap<>();
 		ingredients.clear();
-		ItemStackHandler missingItems = new ItemStackHandler(64);
-		ItemStackHandler availableItems = new ItemStackHandler(64);
+		ItemStacksResourceHandler missingItems = new ItemStacksResourceHandler(64);
+		ItemStacksResourceHandler availableItems = new ItemStacksResourceHandler(64);
 		List<ItemStack> newlyAdded = new ArrayList<>();
 		List<ItemStack> newlyMissing = new ArrayList<>();
 		boolean invalid = false;
@@ -237,16 +236,16 @@ public class BlueprintOverlayRenderer {
 
 			Search:
 			for (int i = 0; i < 9; i++) {
-				FilterItemStack requestedItem = FilterItemStack.of(items.getStackInSlot(i));
+				FilterItemStack requestedItem = FilterItemStack.of(ItemHandlerHelpers.getStackInSlot(items, i));
 				if (requestedItem.isEmpty()) {
 					craftingGrid.put(i, ItemStack.EMPTY);
 					continue;
 				}
 
-				for (int slot = 0; slot < playerInv.getSlots(); slot++) {
-					if (!requestedItem.test(mc.level, playerInv.getStackInSlot(slot)))
+				for (int slot = 0; slot < playerInv.size(); slot++) {
+					if (!requestedItem.test(mc.level, ItemHandlerHelpers.getStackInSlot(playerInv, slot)))
 						continue;
-					ItemStack currentItem = playerInv.extractItem(slot, 1, false);
+					ItemStack currentItem = ItemHandlerHelpers.extractItem(playerInv, slot, 1, false);
 					craftingGrid.put(i, currentItem);
 					newlyAdded.add(currentItem);
 					continue Search;
@@ -284,15 +283,15 @@ public class BlueprintOverlayRenderer {
 			}
 
 			if (success || firstPass) {
-				newlyAdded.forEach(s -> ItemHandlerHelper.insertItemStacked(availableItems, s, false));
-				newlyMissing.forEach(s -> ItemHandlerHelper.insertItemStacked(missingItems, s, false));
+				newlyAdded.forEach(s -> ItemHandlerHelpers.insertItemStacked(availableItems, s, false));
+				newlyMissing.forEach(s -> ItemHandlerHelpers.insertItemStacked(missingItems, s, false));
 			}
 
 			if (!success) {
 				if (firstPass) {
 					results.clear();
 					if (!invalid)
-						results.add(items.getStackInSlot(9));
+						results.add(ItemHandlerHelpers.getStackInSlot(items, 9));
 					resultCraftable = false;
 				}
 				break;
@@ -304,20 +303,20 @@ public class BlueprintOverlayRenderer {
 		} while (success);
 
 		for (int i = 0; i < 9; i++) {
-			ItemStack available = availableItems.getStackInSlot(i);
+			ItemStack available = ItemHandlerHelpers.getStackInSlot(availableItems, i);
 			if (available.isEmpty())
 				continue;
 			ingredients.add(Pair.of(available, true));
 		}
 		for (int i = 0; i < 9; i++) {
-			ItemStack missing = missingItems.getStackInSlot(i);
+			ItemStack missing = ItemHandlerHelpers.getStackInSlot(missingItems, i);
 			if (missing.isEmpty())
 				continue;
 			ingredients.add(Pair.of(missing, false));
 		}
 	}
 
-	public static void renderOverlay(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public static void renderOverlay(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.options.hideGui || mc.screen != null)
 			return;
@@ -345,8 +344,8 @@ public class BlueprintOverlayRenderer {
 
 			AllGuiTextures.TRADE_OVERLAY.render(guiGraphics, guiGraphics.guiWidth() / 2 - 48, y - 19);
 			if (shopContext.purchases() > 0) {
-				guiGraphics.renderItem(AllItems.SHOPPING_LIST.asStack(), guiGraphics.guiWidth() / 2 + 20, y - 20);
-				guiGraphics.drawString(mc.font, Component.literal("x" + shopContext.purchases()), guiGraphics.guiWidth() / 2 + 20 + 16,
+				guiGraphics.item(AllItems.SHOPPING_LIST.asStack(), guiGraphics.guiWidth() / 2 + 20, y - 20);
+				guiGraphics.text(mc.font, Component.literal("x" + shopContext.purchases()), guiGraphics.guiWidth() / 2 + 20 + 16,
 					y - 20 + 4, 0xff_eeeeee, true);
 			}
 		}
@@ -405,7 +404,7 @@ public class BlueprintOverlayRenderer {
 					}
 					if ((mc.gui.getGuiTicks() / 40) % cycle != i)
 						continue;
-					guiGraphics.renderComponentTooltip(mc.gui.getFont(), tooltipLines, mc.getWindow()
+					guiGraphics.setComponentTooltipForNextFrame(mc.gui.getFont(), tooltipLines, mc.getWindow()
 							.getGuiScaledWidth(),
 						mc.getWindow()
 							.getGuiScaledHeight());
@@ -415,7 +414,7 @@ public class BlueprintOverlayRenderer {
 		RenderSystem.disableBlend();
 	}
 
-	public static void drawItemStack(GuiGraphics graphics, Minecraft mc, int x, int y, ItemStack itemStack,
+	public static void drawItemStack(GuiGraphicsExtractor graphics, Minecraft mc, int x, int y, ItemStack itemStack,
 									 String count) {
 		if (itemStack.getItem() instanceof FilterItem) {
 			int step = AnimationTickHolder.getTicks(mc.level) / 10;
@@ -427,7 +426,7 @@ public class BlueprintOverlayRenderer {
 		GuiGameElement.of(itemStack)
 			.at(x + 3, y + 3)
 			.render(graphics);
-		graphics.renderItemDecorations(mc.font, itemStack, x + 3, y + 3, count);
+		graphics.itemDecorations(mc.font, itemStack, x + 3, y + 3, count);
 	}
 
 	private static ItemStack[] getItemsMatchingFilter(ItemStack filter) {

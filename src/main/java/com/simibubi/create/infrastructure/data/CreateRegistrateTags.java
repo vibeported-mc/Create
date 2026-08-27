@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.data;
 
+import net.minecraft.world.entity.EntityTypes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -280,7 +281,7 @@ public class CreateRegistrateTags {
 		CreateTagsProvider<EntityType<?>> prov = new CreateTagsProvider<>(provIn, EntityType::builtInRegistryHolder);
 
 		prov.tag(AllEntityTags.BLAZE_BURNER_CAPTURABLE.tag)
-			.add(EntityType.BLAZE);
+			.add(EntityTypes.BLAZE);
 
 		prov.tag(AllEntityTags.IGNORE_SEAT.tag)
 			.addTag(Tags.EntityTypes.CAPTURING_NOT_SUPPORTED);

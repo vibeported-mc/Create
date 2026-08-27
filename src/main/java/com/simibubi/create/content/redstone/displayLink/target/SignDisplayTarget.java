@@ -5,7 +5,7 @@ import java.util.List;
 import com.simibubi.create.api.behaviour.display.DisplayTarget;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
 
-import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.api.data.Couple;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,7 +29,7 @@ public class SignDisplayTarget extends DisplayTarget {
 				break;
 
 			final int iFinal = i;
-			String content = text.get(iFinal).getString(sign.getMaxTextLineWidth());
+			String content = text.get(iFinal).getStringOr(sign.getMaxTextLineWidth(), "");
 			signText = signText.map(st -> st.setMessage(iFinal + line, Component.literal(content)));
 			changed = true;
 		}

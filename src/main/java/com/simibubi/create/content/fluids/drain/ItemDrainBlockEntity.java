@@ -1,5 +1,7 @@
 package com.simibubi.create.content.fluids.drain;
 
+import net.minecraft.world.Containers;
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +17,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.utility.BlockHelper;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -33,9 +35,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, Clearable {
 
 	public static final int FILLING_TIME = 20;
@@ -55,7 +54,7 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.ITEM_DRAIN.get(),
 				(be, context) -> {
 					if (context != null && context.getAxis().isHorizontal())
@@ -65,7 +64,7 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		);
 
 		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
+				Capabilities.Fluid.BLOCK,
 				AllBlockEntityTypes.ITEM_DRAIN.get(),
 				(be, context) -> {
 					if (context != Direction.UP)
@@ -126,7 +125,7 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 			return;
 		}
 
-		boolean onClient = level.isClientSide && !isVirtual();
+		boolean onClient = level.isClientSide() && !isVirtual();
 
 		if (processingTicks > 0) {
 			heldItem.prevBeltPosition = .5f;
@@ -178,10 +177,10 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 					side.getOpposite())) {
 					ItemStack ejected = heldItem.stack;
 					Vec3 outPos = VecHelper.getCenterOf(worldPosition)
-						.add(Vec3.atLowerCornerOf(side.getNormal())
+						.add(Vec3.atLowerCornerOf(side.getUnitVec3i())
 							.scale(.75));
 					float movementSpeed = itemMovementPerTick();
-					Vec3 outMotion = Vec3.atLowerCornerOf(side.getNormal())
+					Vec3 outMotion = Vec3.atLowerCornerOf(side.getUnitVec3i())
 						.scale(movementSpeed)
 						.add(0, 1 / 8f, 0);
 					outPos.add(outMotion.normalize());
@@ -232,7 +231,7 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	}
 
 	protected boolean continueProcessing() {
-		if (level.isClientSide && !isVirtual())
+		if (level.isClientSide() && !isVirtual())
 			return true;
 		if (processingTicks < 5)
 			return true;
@@ -244,8 +243,7 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 		if (processingTicks > 5) {
 			internalTank.allowInsertion();
-			if (internalTank.getPrimaryHandler()
-				.fill(fluidFromItem, FluidAction.SIMULATE) != fluidFromItem.getAmount()) {
+			if (FluidHandlerHelpers.fill(internalTank.getPrimaryHandler(), fluidFromItem, true) != fluidFromItem.getAmount()) {
 				internalTank.forbidInsertion();
 				processingTicks = FILLING_TIME;
 				return true;
@@ -264,8 +262,7 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		else
 			heldItem = null;
 		internalTank.allowInsertion();
-		internalTank.getPrimaryHandler()
-			.fill(fluidFromItem, FluidAction.EXECUTE);
+		FluidHandlerHelpers.fill(internalTank.getPrimaryHandler(), fluidFromItem, false);
 		internalTank.forbidInsertion();
 		notifyUpdate();
 		return true;
@@ -302,15 +299,24 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		heldItem = null;
-		processingTicks = compound.getInt("ProcessingTicks");
+		processingTicks = compound.getIntOr("ProcessingTicks", 0);
 		if (compound.contains("HeldItem"))
-			heldItem = TransportedItemStack.read(compound.getCompound("HeldItem"), registries);
+			heldItem = TransportedItemStack.read(compound.getCompoundOrEmpty("HeldItem"), registries);
 		super.read(compound, registries, clientPacket);
 	}
 
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-		return containedFluidTooltip(tooltip, isPlayerSneaking, level.getCapability(Capabilities.FluidHandler.BLOCK, worldPosition, null));
+		return containedFluidTooltip(tooltip, isPlayerSneaking, level.getCapability(Capabilities.Fluid.BLOCK, worldPosition, null));
 	}
 
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		ItemStack heldItemStack = getHeldItemStack();
+		if (level != null && !heldItemStack.isEmpty())
+			Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(),
+				heldItemStack);
+	}
 }

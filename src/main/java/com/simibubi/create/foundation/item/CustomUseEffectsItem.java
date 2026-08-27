@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.item;
 
+import net.minecraft.util.TriState;
 import net.createmod.catnip.data.TriState;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;

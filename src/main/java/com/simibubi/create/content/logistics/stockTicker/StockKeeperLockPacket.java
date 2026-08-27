@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.packagerLink.LogisticsNetwork;
@@ -26,8 +27,8 @@ public class StockKeeperLockPacket extends BlockEntityConfigurationPacket<StockT
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.LOCK_STOCK_KEEPER;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.LOCK_STOCK_KEEPER.getType();
 	}
 
 	@Override

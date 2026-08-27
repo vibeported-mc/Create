@@ -18,7 +18,7 @@ public class KineticSpeedDisplaySource extends NumericSingleLineDisplaySource {
 			return ZERO.copy();
 
 		boolean absoluteValue = context.sourceConfig()
-			.getInt("Directional") == 0;
+			.getIntOr("Directional", 0) == 0;
 		float speed = absoluteValue ? Math.abs(speedGauge.getSpeed()) : speedGauge.getSpeed();
 		return CreateLang.number(speed)
 			.space()

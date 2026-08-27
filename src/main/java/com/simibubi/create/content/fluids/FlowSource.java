@@ -1,5 +1,8 @@
 package com.simibubi.create.content.fluids;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.lang.ref.WeakReference;
 import java.util.function.Predicate;
 
@@ -8,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import com.simibubi.create.foundation.ICapabilityProvider;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import net.createmod.catnip.math.BlockFace;
-import net.createmod.ponder.api.level.PonderLevel;
+import net.createmod.catnip.api.math.BlockFace;
+import net.createmod.ponder.api.client.level.PonderLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,12 +20,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-
 public abstract class FlowSource {
 
-	private static final ICapabilityProvider<IFluidHandler> EMPTY = null;
+	private static final ICapabilityProvider<ResourceHandler<FluidResource>> EMPTY = null;
 
 	BlockFace location;
 
@@ -31,25 +31,25 @@ public abstract class FlowSource {
 	}
 
 	public FluidStack provideFluid(Predicate<FluidStack> extractionPredicate) {
-		@Nullable ICapabilityProvider<IFluidHandler> tankCache = provideHandler();
+		@Nullable ICapabilityProvider<ResourceHandler<FluidResource>> tankCache = provideHandler();
 		if (tankCache == null)
 			return FluidStack.EMPTY;
-		IFluidHandler tank = tankCache.getCapability();
+		ResourceHandler<FluidResource> tank = tankCache.getCapability();
 		if (tank == null)
 			return FluidStack.EMPTY;
-		FluidStack immediateFluid = tank.drain(1, FluidAction.SIMULATE);
+		FluidStack immediateFluid = FluidHandlerHelpers.drain(tank, 1, true);
 		if (extractionPredicate.test(immediateFluid))
 			return immediateFluid;
 
-		for (int i = 0; i < tank.getTanks(); i++) {
-			FluidStack contained = tank.getFluidInTank(i);
+		for (int i = 0; i < tank.size(); i++) {
+			FluidStack contained = FluidHandlerHelpers.getFluidInTank(tank, i);
 			if (contained.isEmpty())
 				continue;
 			if (!extractionPredicate.test(contained))
 				continue;
 			FluidStack toExtract = contained.copy();
 			toExtract.setAmount(1);
-			return tank.drain(toExtract, FluidAction.SIMULATE);
+			return tank.drain(toExtract, true);
 		}
 
 		return FluidStack.EMPTY;
@@ -65,13 +65,13 @@ public abstract class FlowSource {
 
 	public void whileFlowPresent(Level world, boolean pulling) {}
 
-	public @Nullable ICapabilityProvider<IFluidHandler> provideHandler() {
+	public @Nullable ICapabilityProvider<ResourceHandler<FluidResource>> provideHandler() {
 		return EMPTY;
 	}
 
 	public static class FluidHandler extends FlowSource {
 		@Nullable
-		ICapabilityProvider<IFluidHandler> fluidHandlerCache;
+		ICapabilityProvider<ResourceHandler<FluidResource>> fluidHandlerCache;
 
 		public FluidHandler(BlockFace location) {
 			super(location);
@@ -84,7 +84,7 @@ public abstract class FlowSource {
 				if (blockEntity != null) {
 					if (level instanceof ServerLevel serverLevel) {
 						fluidHandlerCache = ICapabilityProvider.of((invalidate) -> BlockCapabilityCache.create(
-							Capabilities.FluidHandler.BLOCK,
+							Capabilities.Fluid.BLOCK,
 							serverLevel,
 							blockEntity.getBlockPos(),
 							location.getOppositeFace(),
@@ -96,7 +96,7 @@ public abstract class FlowSource {
 						));
 					} else if (level instanceof PonderLevel) {
 						fluidHandlerCache = ICapabilityProvider.of(() -> level.getCapability(
-							Capabilities.FluidHandler.BLOCK,
+							Capabilities.Fluid.BLOCK,
 							blockEntity.getBlockPos(),
 							location.getOppositeFace()
 						));
@@ -107,7 +107,7 @@ public abstract class FlowSource {
 
 		@Override
 		@Nullable
-		public ICapabilityProvider<IFluidHandler> provideHandler() {
+		public ICapabilityProvider<ResourceHandler<FluidResource>> provideHandler() {
 			return fluidHandlerCache;
 		}
 

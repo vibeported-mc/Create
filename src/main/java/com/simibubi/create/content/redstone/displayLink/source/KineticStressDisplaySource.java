@@ -6,7 +6,7 @@ import com.simibubi.create.content.trains.display.FlapDisplayBlockEntity;
 import com.simibubi.create.foundation.gui.ModularGuiLineBuilder;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.lang.LangBuilder;
+import net.createmod.catnip.api.lang.LangBuilder;
 import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -27,7 +27,7 @@ public class KineticStressDisplaySource extends PercentOrProgressBarDisplaySourc
 
 	private int getMode(DisplayLinkContext context) {
 		return context.sourceConfig()
-			.getInt("Mode");
+			.getIntOr("Mode", 0);
 	}
 
 	@Override

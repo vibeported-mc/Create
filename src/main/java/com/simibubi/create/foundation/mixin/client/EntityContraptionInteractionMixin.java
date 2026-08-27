@@ -112,7 +112,7 @@ public abstract class EntityContraptionInteractionMixin {
 	// involves client-side view bobbing animation on contraptions
 	@Inject(method = "move", at = @At(value = "TAIL"))
 	private void create$onMove(MoverType mover, Vec3 movement, CallbackInfo ci) {
-		if (!level.isClientSide)
+		if (!level.isClientSide())
 			return;
 		Entity self = (Entity) (Object) this;
 		if (self.onGround())

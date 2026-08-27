@@ -18,14 +18,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GrassColor;
@@ -49,7 +49,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 
 public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEntity>, IWrenchable {
@@ -90,9 +90,9 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 								 if (player == null)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		Direction face = hitResult.getDirection();
 		BlockState materialIn = getAcceptedBlockState(level, pos, stack, face);
@@ -100,23 +100,23 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 		if (materialIn != null)
 			materialIn = prepareMaterial(level, pos, state, player, hand, hitResult, materialIn);
 		if (materialIn == null)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		BlockState material = materialIn;
 		return onBlockEntityUseItemOn(level, pos, ufte -> {
 			if (ufte.getMaterial()
 				.is(material.getBlock())) {
 				if (!ufte.cycleMaterial())
-					return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+					return InteractionResult.TRY_WITH_EMPTY_HAND;
 				ufte.getLevel()
 					.playSound(null, ufte.getBlockPos(), SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .75f,
 						.95f);
-				return ItemInteractionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			}
 			if (ufte.hasCustomMaterial())
-				return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+				return InteractionResult.TRY_WITH_EMPTY_HAND;
 			if (level.isClientSide())
-				return ItemInteractionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 
 			ufte.setMaterial(material);
 			ufte.setConsumedItem(stack);
@@ -125,12 +125,12 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 					.getPlaceSound(), SoundSource.BLOCKS, 1, .75f);
 
 			if (player.isCreative())
-				return ItemInteractionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 
 			stack.shrink(1);
 			if (stack.isEmpty())
 				player.setItemInHand(hand, ItemStack.EMPTY);
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		});
 	}
 
@@ -216,15 +216,6 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	public BlockState prepareMaterial(Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer,
 									  InteractionHand pHand, BlockHitResult pHit, BlockState material) {
 		return material;
-	}
-
-	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-		if (!pState.hasBlockEntity() || pState.getBlock() == pNewState.getBlock())
-			return;
-		if (!pIsMoving)
-			withBlockEntityDo(pLevel, pPos, ufte -> Block.popResource(pLevel, pPos, ufte.getConsumedItem()));
-		pLevel.removeBlockEntity(pPos);
 	}
 
 	@Override
@@ -322,12 +313,12 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos,
-									   Player player) {
+	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state,
+		boolean includeData, Player player) {
 		BlockState material = getMaterial(level, pos);
 		if (AllBlocks.COPYCAT_BASE.has(material) || player != null && player.isShiftKeyDown())
 			return new ItemStack(this);
-		return material.getCloneItemStack(target, level, pos, player);
+		return material.getCloneItemStack(pos, level, includeData, player);
 	}
 
 	@Override
@@ -352,7 +343,7 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	}
 
 	@Override
-	public void fallOn(Level pLevel, BlockState pState, BlockPos pPos, Entity pEntity, float p_152430_) {
+	public void fallOn(Level pLevel, BlockState pState, BlockPos pPos, Entity pEntity, double p_152430_) {
 		BlockState material = getMaterial(pLevel, pPos);
 		material.getBlock()
 			.fallOn(pLevel, material, pPos, pEntity, p_152430_);

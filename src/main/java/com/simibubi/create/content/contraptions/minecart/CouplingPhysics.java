@@ -2,16 +2,16 @@ package com.simibubi.create.content.contraptions.minecart;
 
 import com.simibubi.create.content.contraptions.minecart.capability.MinecartController;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,7 +35,7 @@ public class CouplingPhysics {
 		float couplingLength = c.getFirst()
 			.getCouplingLength(true);
 		softCollisionStep(world, carts, couplingLength);
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return;
 		hardCollisionStep(world, carts, couplingLength);
 	}

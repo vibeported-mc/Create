@@ -79,7 +79,7 @@ public class FillingBySpout {
 				});
 
 		if (fillingRecipe != null) {
-			List<ItemStack> results = fillingRecipe.value().rollResults(level.random);
+			List<ItemStack> results = fillingRecipe.value().rollResults(level.getRandom());
 			availableFluid.shrink(requiredAmount);
 			stack.shrink(1);
 			return results.isEmpty() ? ItemStack.EMPTY : results.get(0);

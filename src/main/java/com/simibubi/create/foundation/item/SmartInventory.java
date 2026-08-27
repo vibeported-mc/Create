@@ -3,21 +3,21 @@ package com.simibubi.create.foundation.item;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.simibubi.create.foundation.blockEntity.ItemHandlerContainer;
 import com.simibubi.create.foundation.blockEntity.SyncedBlockEntity;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import net.neoforged.neoforge.common.util.INBTSerializable;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
-public class SmartInventory extends ItemHandlerContainer
-	implements IItemHandlerModifiable, INBTSerializable<CompoundTag> {
+public class SmartInventory extends ItemHandlerContainer implements ModifiableItemHandler {
 
 	protected boolean extractionAllowed;
 	protected boolean insertionAllowed;
@@ -37,11 +37,12 @@ public class SmartInventory extends ItemHandlerContainer
 		this(new SyncedStackHandler(slots, be, stackNonStackables, stackSize), stackSize, stackNonStackables);
 	}
 
-	public SmartInventory(int slots, SyncedBlockEntity be, int stackSize, boolean stackNonStackables, BiPredicate<Integer, ItemStack> isValid) {
+	public SmartInventory(int slots, SyncedBlockEntity be, int stackSize, boolean stackNonStackables,
+		BiPredicate<Integer, ItemStack> isValid) {
 		this(new SyncedStackHandler(slots, be, stackNonStackables, stackSize, isValid), stackSize, stackNonStackables);
 	}
 
-	public SmartInventory(IItemHandlerModifiable inv, int stackSize, boolean stackNonStackables) {
+	public SmartInventory(ModifiableItemHandler inv, int stackSize, boolean stackNonStackables) {
 		super(inv);
 		this.stackNonStackables = stackNonStackables;
 		insertionAllowed = true;
@@ -57,7 +58,7 @@ public class SmartInventory extends ItemHandlerContainer
 	}
 
 	public SmartInventory whenContentsChanged(Consumer<Integer> updateCallback) {
-		((SyncedStackHandler) inv).whenContentsChange(updateCallback);
+		wrapped.whenContentsChange(updateCallback);
 		return this;
 	}
 
@@ -82,76 +83,84 @@ public class SmartInventory extends ItemHandlerContainer
 	}
 
 	@Override
-	public int getSlots() {
-		return inv.getSlots();
+	public int size() {
+		return inv.size();
 	}
 
 	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+	public ItemResource getResource(int index) {
+		return inv.getResource(index);
+	}
+
+	@Override
+	public long getAmountAsLong(int index) {
+		return inv.getAmountAsLong(index);
+	}
+
+	@Override
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
 		if (!insertionAllowed)
-			return stack;
-		return inv.insertItem(slot, stack, simulate);
+			return 0;
+		return inv.insert(index, resource, amount, transaction);
 	}
 
 	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
 		if (!extractionAllowed)
-			return ItemStack.EMPTY;
+			return 0;
 		if (stackNonStackables) {
-			ItemStack extractItem = inv.extractItem(slot, amount, true);
-			if (!extractItem.isEmpty() && extractItem.getMaxStackSize() < extractItem.getCount())
-				amount = extractItem.getMaxStackSize();
+			// Slots holding more than a stack of an unstackable item still hand out at most one
+			// stack at a time, as they did before.
+			int maxStackSize = resource.getMaxStackSize();
+			if (maxStackSize < inv.getAmountAsInt(index))
+				amount = Math.min(amount, maxStackSize);
 		}
-		return inv.extractItem(slot, amount, simulate);
+		return inv.extract(index, resource, amount, transaction);
 	}
 
 	@Override
-	public int getSlotLimit(int slot) {
-		return Math.min(inv.getSlotLimit(slot), stackSize);
+	public long getCapacityAsLong(int index, ItemResource resource) {
+		return Math.min(inv.getCapacityAsLong(index, resource), stackSize);
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemStack stack) {
-		return inv.isItemValid(slot, stack);
+	public boolean isValid(int index, ItemResource resource) {
+		return inv.isValid(index, resource);
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int slot) {
-		return inv.getStackInSlot(slot);
+	public void set(int index, ItemResource resource, int amount) {
+		inv.set(index, resource, amount);
 	}
 
-	@Override
-	public void setStackInSlot(int slot, ItemStack stack) {
-		((SyncedStackHandler) inv).setStackInSlot(slot, stack);
+	public int getStackLimit(int slot, ItemStack stack) {
+		return Math.min(getCapacityAsInt(slot, ItemResource.of(stack)), stack.getMaxStackSize());
 	}
 
-	public int getStackLimit(int slot, @NotNull ItemStack stack) {
-		return Math.min(getSlotLimit(slot), stack.getMaxStackSize());
-	}
-
-	@Override
+	/**
+	 * The handler serializes through ValueIO now; these bridge the CompoundTag form that Create's
+	 * block entities still read and write.
+	 */
 	public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-		return getInv().serializeNBT(registries);
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+		wrapped.serialize(output);
+		return output.buildResult();
 	}
 
-	@Override
 	public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
-		getInv().deserializeNBT(registries, nbt);
+		wrapped.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, nbt));
 	}
 
-	private SyncedStackHandler getInv() {
-		return (SyncedStackHandler) inv;
-	}
-
-	protected static class SyncedStackHandler extends ItemStackHandler {
+	protected static class SyncedStackHandler extends ItemStacksResourceHandler implements ModifiableItemHandler {
 
 		private SyncedBlockEntity blockEntity;
 		private boolean stackNonStackables;
 		private int stackSize;
-		private BiPredicate<Integer, ItemStack> isValid = super::isItemValid;
+		private BiPredicate<Integer, ItemStack> isValid;
 		private Consumer<Integer> updateCallback;
 
-		public SyncedStackHandler(int slots, SyncedBlockEntity be, boolean stackNonStackables, int stackSize, BiPredicate<Integer, ItemStack> isValid) {
+		public SyncedStackHandler(int slots, SyncedBlockEntity be, boolean stackNonStackables, int stackSize,
+			BiPredicate<Integer, ItemStack> isValid) {
 			this(slots, be, stackNonStackables, stackSize);
 			this.isValid = isValid;
 		}
@@ -163,22 +172,29 @@ public class SmartInventory extends ItemHandlerContainer
 			this.stackSize = stackSize;
 		}
 
+		/**
+		 * Fires once the outermost transaction commits, so a rolled back transfer no longer marks the
+		 * block entity dirty.
+		 */
 		@Override
-		protected void onContentsChanged(int slot) {
-			super.onContentsChanged(slot);
+		protected void onContentsChanged(int index, ItemStack previousContents) {
+			super.onContentsChanged(index, previousContents);
 			if (updateCallback != null)
-				updateCallback.accept(slot);
+				updateCallback.accept(index);
 			blockEntity.notifyUpdate();
 		}
 
 		@Override
-		public int getSlotLimit(int slot) {
-			return Math.min(stackNonStackables ? 64 : super.getSlotLimit(slot), stackSize);
+		protected int getCapacity(int index, ItemResource resource) {
+			int base = stackNonStackables ? Item.ABSOLUTE_MAX_STACK_SIZE : super.getCapacity(index, resource);
+			return Math.min(base, stackSize);
 		}
 
 		@Override
-		public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-			return isValid.test(slot, stack);
+		public boolean isValid(int index, ItemResource resource) {
+			if (isValid == null)
+				return super.isValid(index, resource);
+			return isValid.test(index, resource.toStack(1));
 		}
 
 		public void whenContentsChange(Consumer<Integer> updateCallback) {

@@ -1,12 +1,13 @@
 package com.simibubi.create.content.kinetics.turntable;
 
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.kinetics.base.KineticBlock;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.block.IBE;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -42,7 +43,8 @@ public class TurntableBlock extends KineticBlock implements IBE<TurntableBlockEn
 	}
 
 	@Override
-	public void entityInside(BlockState state, Level worldIn, BlockPos pos, Entity e) {
+	public void entityInside(BlockState state, Level worldIn, BlockPos pos, Entity e,
+		InsideBlockEffectApplier effectApplier, boolean isPrecise) {
 		if (!e.onGround())
 			return;
 		if (e.getDeltaMovement().y > 0)
@@ -56,7 +58,7 @@ public class TurntableBlock extends KineticBlock implements IBE<TurntableBlockEn
 				return;
 
 			Level world = e.getCommandSenderWorld();
-			if (world.isClientSide && (e instanceof Player)) {
+			if (world.isClientSide() && (e instanceof Player)) {
 				if (worldIn.getBlockState(e.blockPosition()) != state) {
 					Vec3 origin = VecHelper.getCenterOf(pos);
 					Vec3 offset = e.position()
@@ -72,7 +74,7 @@ public class TurntableBlock extends KineticBlock implements IBE<TurntableBlockEn
 
 			if ((e instanceof Player))
 				return;
-			if (world.isClientSide)
+			if (world.isClientSide())
 				return;
 
 			if (e instanceof LivingEntity livingEntity) {

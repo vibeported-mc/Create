@@ -1,5 +1,8 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
 import com.simibubi.create.content.redstone.displayLink.target.DisplayTargetStats;
 import com.simibubi.create.content.redstone.smartObserver.SmartObserverBlockEntity;
@@ -11,8 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
 public class FluidAmountDisplaySource extends SingleLineDisplaySource {
 
 	@Override
@@ -23,14 +24,14 @@ public class FluidAmountDisplaySource extends SingleLineDisplaySource {
 
 		TankManipulationBehaviour tankManipulationBehaviour = cobe.getBehaviour(TankManipulationBehaviour.OBSERVE);
 		FilteringBehaviour filteringBehaviour = cobe.getBehaviour(FilteringBehaviour.TYPE);
-		IFluidHandler handler = tankManipulationBehaviour.getInventory();
+		ResourceHandler<FluidResource> handler = tankManipulationBehaviour.getInventory();
 
 		if (handler == null)
 			return EMPTY_LINE;
 
 		long collected = 0;
-		for (int i = 0; i < handler.getTanks(); i++) {
-			FluidStack stack = handler.getFluidInTank(i);
+		for (int i = 0; i < handler.size(); i++) {
+			FluidStack stack = FluidHandlerHelpers.getFluidInTank(handler, i);
 			if (stack.isEmpty())
 				continue;
 			if (!filteringBehaviour.test(stack))

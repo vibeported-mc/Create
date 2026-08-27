@@ -1,5 +1,10 @@
 package com.simibubi.create.infrastructure.gametest;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +32,7 @@ import com.simibubi.create.foundation.mixin.accessor.GameTestHelperAccessor;
 
 import it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -53,10 +58,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.items.IItemHandler;
-
 /**
  * A helper class expanding the functionality of {@link GameTestHelper}.
  * This class may replace the default helper parameter if a test is registered through {@link CreateTestFunction}.
@@ -246,11 +247,11 @@ public class CreateGameTestHelper extends GameTestHelper {
 
 	// transfer - fluids
 
-	public IFluidHandler fluidStorageAt(BlockPos pos) {
+	public ResourceHandler<FluidResource> fluidStorageAt(BlockPos pos) {
 		BlockEntity be = getBlockEntity(pos);
 		if (be == null)
 			fail("BlockEntity not present");
-		IFluidHandler handler = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+		ResourceHandler<FluidResource> handler = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 		if (handler == null)
 			fail("handler not present");
 		return handler;
@@ -261,18 +262,18 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 * content is determined by what the tank allows to be extracted.
 	 */
 	public FluidStack getTankContents(BlockPos tank) {
-		IFluidHandler handler = fluidStorageAt(tank);
-		return handler.drain(Integer.MAX_VALUE, FluidAction.SIMULATE);
+		ResourceHandler<FluidResource> handler = fluidStorageAt(tank);
+		return handler.drain(Integer.MAX_VALUE, true);
 	}
 
 	/**
 	 * Get the total capacity of a tank at the given position.
 	 */
 	public long getTankCapacity(BlockPos pos) {
-		IFluidHandler handler = fluidStorageAt(pos);
+		ResourceHandler<FluidResource> handler = fluidStorageAt(pos);
 		long total = 0;
-		for (int i = 0; i < handler.getTanks(); i++) {
-			total += handler.getTankCapacity(i);
+		for (int i = 0; i < handler.size(); i++) {
+			total += FluidHandlerHelpers.getTankCapacity(handler, i);
 		}
 		return total;
 	}
@@ -314,11 +315,11 @@ public class CreateGameTestHelper extends GameTestHelper {
 
 	// transfer - items
 
-	public IItemHandler itemStorageAt(BlockPos pos) {
+	public ResourceHandler<ItemResource> itemStorageAt(BlockPos pos) {
 		BlockEntity be = getBlockEntity(pos);
 		if (be == null)
 			fail("BlockEntity not present");
-		IItemHandler handler = be.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, be.getBlockPos(), null);
+		ResourceHandler<ItemResource> handler = be.getLevel().getCapability(Capabilities.Item.BLOCK, be.getBlockPos(), null);
 		if (handler == null)
 			fail("handler not present");
 		return handler;
@@ -328,14 +329,14 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 * Get a map of contained items to their amounts. This is not safe for NBT!
 	 */
 	public Object2LongMap<Item> getItemContent(BlockPos pos) {
-		IItemHandler handler = itemStorageAt(pos);
+		ResourceHandler<ItemResource> handler = itemStorageAt(pos);
 		Object2LongMap<Item> map = new Object2LongArrayMap<>();
-		for (int i = 0; i < handler.getSlots(); i++) {
-			ItemStack stack = handler.getStackInSlot(i);
+		for (int i = 0; i < handler.size(); i++) {
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
 			if (stack.isEmpty())
 				continue;
 			Item item = stack.getItem();
-			long amount = map.getLong(item);
+			long amount = map.getLongOr(item, 0);
 			amount += stack.getCount();
 			map.put(item, amount);
 		}
@@ -346,10 +347,10 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 * Get the combined total of all ItemStacks inside the inventory.
 	 */
 	public long getTotalItems(BlockPos pos) {
-		IItemHandler storage = itemStorageAt(pos);
+		ResourceHandler<ItemResource> storage = itemStorageAt(pos);
 		long total = 0;
-		for (int i = 0; i < storage.getSlots(); i++) {
-			total += storage.getStackInSlot(i).getCount();
+		for (int i = 0; i < storage.size(); i++) {
+			total += ItemHandlerHelpers.getStackInSlot(storage, i).getCount();
 		}
 		return total;
 	}
@@ -358,11 +359,11 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 * Of the provided items, assert that at least one is present in the given inventory.
 	 */
 	public void assertAnyContained(BlockPos pos, Item... items) {
-		IItemHandler handler = itemStorageAt(pos);
+		ResourceHandler<ItemResource> handler = itemStorageAt(pos);
 		boolean noneFound = true;
-		for (int i = 0; i < handler.getSlots(); i++) {
+		for (int i = 0; i < handler.size(); i++) {
 			for (Item item : items) {
-				if (handler.getStackInSlot(i).is(item)) {
+				if (ItemHandlerHelpers.getStackInSlot(handler, i).is(item)) {
 					noneFound = false;
 					break;
 				}
@@ -376,14 +377,14 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 * Assert that the inventory contains all the provided content.
 	 */
 	public void assertContentPresent(Object2LongMap<Item> content, BlockPos pos) {
-		IItemHandler handler = itemStorageAt(pos);
+		ResourceHandler<ItemResource> handler = itemStorageAt(pos);
 		Object2LongMap<Item> map = new Object2LongArrayMap<>(content);
-		for (int i = 0; i < handler.getSlots(); i++) {
-			ItemStack stack = handler.getStackInSlot(i);
+		for (int i = 0; i < handler.size(); i++) {
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
 			if (stack.isEmpty())
 				continue;
 			Item item = stack.getItem();
-			long amount = map.getLong(item);
+			long amount = map.getLongOr(item, 0);
 			amount -= stack.getCount();
 			if (amount == 0)
 				map.removeLong(item);
@@ -407,9 +408,9 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 */
 	@Override
 	public void assertContainerEmpty(@NotNull BlockPos pos) {
-		IItemHandler storage = itemStorageAt(pos);
-		for (int i = 0; i < storage.getSlots(); i++) {
-			if (!storage.getStackInSlot(i).isEmpty())
+		ResourceHandler<ItemResource> storage = itemStorageAt(pos);
+		for (int i = 0; i < storage.size(); i++) {
+			if (!ItemHandlerHelpers.getStackInSlot(storage, i).isEmpty())
 				fail("Storage not empty");
 		}
 	}
@@ -429,7 +430,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 * Assert that the inventory holds at least the given ItemStack. It may also hold more than the stack.
 	 */
 	public void assertContainerContains(BlockPos pos, ItemStack item) {
-		IItemHandler storage = itemStorageAt(pos);
+		ResourceHandler<ItemResource> storage = itemStorageAt(pos);
 		ItemStack extracted = ItemHelper.extract(storage, stack -> ItemStack.isSameItemSameComponents(stack, item), item.getCount(), true);
 		if (extracted.isEmpty())
 			fail("item not present: " + item);

@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.depot;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,15 +25,14 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.data.IntAttached;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.api.data.IntAttached;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.nbt.NBTHelper;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -67,8 +69,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class EjectorBlockEntity extends KineticBlockEntity {
 
 	List<IntAttached<ItemStack>> launchedItems;
@@ -104,7 +104,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.WEIGHTED_EJECTOR.get(),
 				(be, context) -> be.depotBehaviour.itemHandler
 		);
@@ -140,7 +140,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 	}
 
 	protected boolean cannotLaunch() {
-		return state != State.CHARGED && !(level.isClientSide && state == State.LAUNCHING);
+		return state != State.CHARGED && !(level.isClientSide() && state == State.LAUNCHING);
 	}
 
 	public void activateDeferred() {
@@ -151,7 +151,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 			level.getEntitiesOfClass(Entity.class, new AABB(worldPosition).inflate(-1 / 16f, 0, -1 / 16f));
 
 		// Launch Items
-		boolean doLogic = !level.isClientSide || isVirtual();
+		boolean doLogic = !level.isClientSide() || isVirtual();
 		if (doLogic)
 			launchItems();
 
@@ -169,7 +169,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 
 			entity.setOnGround(false);
 
-			if (isPlayerEntity != level.isClientSide)
+			if (isPlayerEntity != level.isClientSide())
 				continue;
 
 			entity.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 1.0, worldPosition.getZ() + 0.5);
@@ -182,7 +182,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 
 			if (launcher.getHorizontalDistance() * launcher.getHorizontalDistance()
 				+ launcher.getVerticalDistance() * launcher.getVerticalDistance() >= 25 * 25)
-				CatnipServices.NETWORK.sendToServer(new EjectorAwardPacket(worldPosition));
+				NetworkHelper.INSTANCE.sendToServer(new EjectorAwardPacket(worldPosition));
 
 			if (!(playerEntity.getItemBySlot(EquipmentSlot.CHEST)
 				.getItem() instanceof ElytraItem))
@@ -193,13 +193,13 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 			playerEntity.setDeltaMovement(playerEntity.getDeltaMovement()
 				.scale(.75f));
 			deployElytra(playerEntity);
-			CatnipServices.NETWORK.sendToServer(new EjectorElytraPacket(worldPosition));
+			NetworkHelper.INSTANCE.sendToServer(new EjectorElytraPacket(worldPosition));
 		}
 
 		if (doLogic) {
 			lidProgress.chase(1, .8f, Chaser.EXP);
 			state = State.LAUNCHING;
-			if (!level.isClientSide) {
+			if (!level.isClientSide()) {
 				level.playSound(null, worldPosition, SoundEvents.WOODEN_TRAPDOOR_CLOSE, SoundSource.BLOCKS, .35f, 1f);
 				level.playSound(null, worldPosition, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, .1f, 1.4f);
 			}
@@ -239,24 +239,25 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 					transportedItemStack.stack = remainder;
 			}
 
-			ItemStackHandler outputs = depotBehaviour.processingOutputBuffer;
-			for (int i = 0; i < outputs.getSlots(); i++) {
+			ItemStacksResourceHandler outputs = depotBehaviour.processingOutputBuffer;
+			for (int i = 0; i < outputs.size(); i++) {
 				ItemStack remainder =
-					directOutput.tryExportingToBeltFunnel(outputs.getStackInSlot(i), funnelFacing, false);
+					directOutput.tryExportingToBeltFunnel(ItemHandlerHelpers.getStackInSlot(outputs, i), funnelFacing, false);
 				if (remainder != null)
 					outputs.setStackInSlot(i, remainder);
 			}
 			return;
 		}
 
-		if (!level.isClientSide)
+		if (!level.isClientSide())
 			for (Direction d : Iterate.directions) {
 				BlockState blockState = level.getBlockState(worldPosition.relative(d));
 				if (!(blockState.getBlock() instanceof ObserverBlock))
 					continue;
 				if (blockState.getValue(ObserverBlock.FACING) != d.getOpposite())
 					continue;
-				blockState.updateShape(d.getOpposite(), blockState, level, worldPosition.relative(d), worldPosition);
+				blockState.updateShape(level, level, worldPosition.relative(d), d.getOpposite(), worldPosition,
+					blockState, level.getRandom());
 			}
 
 		if (depotBehaviour.heldItem != null) {
@@ -268,16 +269,16 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 			addToLaunchedItems(transportedItemStack.stack);
 		depotBehaviour.incoming.clear();
 
-		ItemStackHandler outputs = depotBehaviour.processingOutputBuffer;
-		for (int i = 0; i < outputs.getSlots(); i++) {
-			ItemStack extractItem = outputs.extractItem(i, 64, false);
+		ItemStacksResourceHandler outputs = depotBehaviour.processingOutputBuffer;
+		for (int i = 0; i < outputs.size(); i++) {
+			ItemStack extractItem = ItemHandlerHelpers.extractItem(outputs, i, 64, false);
 			if (!extractItem.isEmpty())
 				addToLaunchedItems(extractItem);
 		}
 	}
 
 	protected boolean addToLaunchedItems(ItemStack stack) {
-		if ((!level.isClientSide || isVirtual()) && trackedItem == null && scanCooldown == 0) {
+		if ((!level.isClientSide() || isVirtual()) && trackedItem == null && scanCooldown == 0) {
 			scanCooldown = AllConfigs.server().kinetics.ejectorScanInterval.get();
 			trackedItem = stack;
 		}
@@ -296,7 +297,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 	public void tick() {
 		super.tick();
 
-		boolean doLogic = !level.isClientSide || isVirtual();
+		boolean doLogic = !level.isClientSide() || isVirtual();
 		State prevState = state;
 		float totalTime = Math.max(3, (float) launcher.getTotalFlyingTicks());
 
@@ -392,7 +393,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 
 		Vec3 vec = rayTraceBlocks.getLocation();
 		earlyTarget = Pair.of(vec.add(Vec3.atLowerCornerOf(rayTraceBlocks.getDirection()
-			.getNormal())
+			.getUnitVec3i())
 			.scale(.25f)), rayTraceBlocks.getBlockPos());
 		earlyTargetTime = (float) (time + (source.distanceTo(vec) / source.distanceTo(target)));
 		sendData();
@@ -530,7 +531,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 
 		if (earlyTarget != null) {
 			compound.put("EarlyTarget", VecHelper.writeNBT(earlyTarget.getFirst()));
-			compound.put("EarlyTargetPos", NbtUtils.writeBlockPos(earlyTarget.getSecond()));
+			compound.store("EarlyTargetPos", BlockPos.CODEC, earlyTarget.getSecond());
 			compound.putFloat("EarlyTargetTime", earlyTargetTime);
 		}
 	}
@@ -545,8 +546,8 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
-		int horizontalDistance = compound.getInt("HorizontalDistance");
-		int verticalDistance = compound.getInt("VerticalDistance");
+		int horizontalDistance = compound.getIntOr("HorizontalDistance", 0);
+		int verticalDistance = compound.getIntOr("VerticalDistance", 0);
 
 		if (launcher.getHorizontalDistance() != horizontalDistance
 			|| launcher.getVerticalDistance() != verticalDistance) {
@@ -554,22 +555,22 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 			launcher.clamp(AllConfigs.server().kinetics.maxEjectorDistance.get());
 		}
 
-		powered = compound.getBoolean("Powered");
+		powered = compound.getBooleanOr("Powered", false);
 		state = NBTHelper.readEnum(compound, "State", State.class);
-		lidProgress.readNBT(compound.getCompound("Lid"), false);
-		launchedItems = NBTHelper.readCompoundList(compound.getList("LaunchedItems", Tag.TAG_COMPOUND),
+		lidProgress.readNBT(compound.getCompoundOrEmpty("Lid"), false);
+		launchedItems = NBTHelper.readCompoundList(compound.getListOrEmpty("LaunchedItems"),
 			nbt -> IntAttached.read(nbt, t -> ItemStack.parseOptional(registries, t)));
 
 		earlyTarget = null;
 		earlyTargetTime = 0;
 		if (compound.contains("EarlyTarget")) {
-			earlyTarget = Pair.of(VecHelper.readNBT(compound.getList("EarlyTarget", Tag.TAG_DOUBLE)),
+			earlyTarget = Pair.of(VecHelper.readNBT(compound.getListOrEmpty("EarlyTarget")),
 					NBTHelper.readBlockPos(compound, "EarlyTargetPos"));
-			earlyTargetTime = compound.getFloat("EarlyTargetTime");
+			earlyTargetTime = compound.getFloatOr("EarlyTargetTime", 0);
 		}
 
 		if (compound.contains("ForceAngle"))
-			lidProgress.startWithValue(compound.getFloat("ForceAngle"));
+			lidProgress.startWithValue(compound.getFloatOr("ForceAngle", 0));
 	}
 
 	public void updateSignal() {

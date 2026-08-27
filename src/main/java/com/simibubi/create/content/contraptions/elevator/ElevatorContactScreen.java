@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.elevator;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import org.lwjgl.glfw.GLFW;
 
 import com.google.common.collect.ImmutableList;
@@ -11,14 +12,13 @@ import com.simibubi.create.foundation.gui.widget.IconButton;
 import com.simibubi.create.foundation.gui.widget.Label;
 import com.simibubi.create.foundation.gui.widget.ScrollInput;
 import com.simibubi.create.foundation.gui.widget.TooltipArea;
-import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.gui.AbstractSimiScreen;
-import net.createmod.catnip.gui.element.GuiGameElement;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.client.gui.AbstractSimiScreen;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
@@ -119,14 +119,14 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		int x = guiLeft;
 		int y = guiTop;
 
 		background.render(graphics, x, y);
 
 		FormattedCharSequence formattedcharsequence = title.getVisualOrderText();
-		graphics.drawString(font, formattedcharsequence,
+		graphics.text(font, formattedcharsequence,
 			(float) (x + (background.getWidth() - 8) / 2 - font.width(formattedcharsequence) / 2), (float) y + 6, 0x2F3738, false);
 
 		GuiGameElement.of(AllBlocks.ELEVATOR_CONTACT.asStack()).<GuiGameElement
@@ -134,7 +134,7 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 			.scale(5)
 			.render(graphics);
 
-		graphics.renderItem(AllBlocks.TRAIN_DOOR.asStack(), x + 37, y + 58);
+		graphics.item(AllBlocks.TRAIN_DOOR.asStack(), x + 37, y + 58);
 	}
 
 	@Override
@@ -177,7 +177,7 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 	}
 
 	private void confirm() {
-		CatnipServices.NETWORK.sendToServer(new ElevatorContactEditPacket(pos, shortName, longName, doorControl));
+		NetworkHelper.INSTANCE.sendToServer(new ElevatorContactEditPacket(pos, shortName, longName, doorControl));
 		onClose();
 	}
 

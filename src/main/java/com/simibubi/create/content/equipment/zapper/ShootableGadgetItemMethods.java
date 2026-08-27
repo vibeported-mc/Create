@@ -1,12 +1,12 @@
 package com.simibubi.create.content.equipment.zapper;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllPackets;
 
-import net.createmod.catnip.platform.CatnipServices;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -31,8 +31,8 @@ public class ShootableGadgetItemMethods {
 	public static void sendPackets(Player player, Function<Boolean, ? extends ShootGadgetPacket> factory) {
 		if (!(player instanceof ServerPlayer))
 			return;
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(player, factory.apply(false));
-		CatnipServices.NETWORK.sendToClient((ServerPlayer) player, factory.apply(true));
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(player, factory.apply(false));
+		NetworkHelper.INSTANCE.sendToClient((ServerPlayer) player, factory.apply(true));
 	}
 
 	public static boolean shouldSwap(Player player, ItemStack item, InteractionHand hand, Predicate<ItemStack> predicate) {

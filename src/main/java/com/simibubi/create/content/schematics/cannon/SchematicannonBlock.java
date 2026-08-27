@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -46,7 +47,7 @@ public class SchematicannonBlock extends Block implements IBE<SchematicannonBloc
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return InteractionResult.SUCCESS;
 		withBlockEntityDo(level, pos,
 				be -> player.openMenu(be, be::sendToMenu));
@@ -54,18 +55,9 @@ public class SchematicannonBlock extends Block implements IBE<SchematicannonBloc
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation,
 			boolean isMoving) {
 		withBlockEntityDo(worldIn, pos, be -> be.neighbourCheckCooldown = 0);
-	}
-
-	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!state.hasBlockEntity() || state.getBlock() == newState.getBlock())
-			return;
-
-		withBlockEntityDo(worldIn, pos, be -> ItemHelper.dropContents(worldIn, pos, be.inventory));
-		worldIn.removeBlockEntity(pos);
 	}
 
 	@Override

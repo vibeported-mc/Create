@@ -35,7 +35,7 @@ public abstract class EnchantedCountIncreaseFunctionMixin {
 		if (damageSource != null && damageSource.is(AllDamageTypes.CRUSH)) {
 			int lootingLevel = 2;
 
-			float f = (float) lootingLevel * this.value.getFloat(context);
+			float f = (float) lootingLevel * this.value.getFloatOr(context, 0);
 			stack.grow(Math.round(f));
 			if (this.hasLimit())
 				stack.limitSize(this.limit);

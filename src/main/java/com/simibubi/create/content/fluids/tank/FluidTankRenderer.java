@@ -1,37 +1,68 @@
 package com.simibubi.create.content.fluids.tank;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.platform.NeoForgeCatnipServices;
-import net.createmod.catnip.render.CachedBuffers;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.FluidRenderHelper;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.createmod.catnip.api.data.Iterate;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
-public class FluidTankRenderer extends SafeBlockEntityRenderer<FluidTankBlockEntity> {
+public class FluidTankRenderer
+	extends SafeBlockEntityRenderer<FluidTankBlockEntity, FluidTankRenderer.FluidTankRenderState> {
 
-	public FluidTankRenderer(BlockEntityRendererProvider.Context context) {}
+	public static class FluidTankRenderState extends SafeRenderState {
+		public @Nullable FluidBox fluid;
+		public final List<SuperByteBufferRenderState> gauges = new ArrayList<>();
+		/** The multiblock's footprint; the gauges are placed relative to its centre. */
+		public int width = 1;
+	}
+
+	/**
+	 * The fluid box is drawn by Catnip at submit time, so only its extents and contents are carried.
+	 */
+	public record FluidBox(FluidStack fluid, float xMin, float yMin, float zMin, float xMax, float yMax, float zMax,
+		float verticalOffset) {
+	}
+
+	public FluidTankRenderer(BlockEntityRendererProvider.Context context) {
+	}
 
 	@Override
-	protected void renderSafe(FluidTankBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-		int light, int overlay) {
+	public FluidTankRenderState createRenderState() {
+		return new FluidTankRenderState();
+	}
+
+	@Override
+	protected void extractSafe(FluidTankBlockEntity be, FluidTankRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		state.fluid = null;
+		state.gauges.clear();
+
 		if (!be.isController())
 			return;
 		if (!be.window) {
 			if (be.boiler.isActive())
-				renderAsBoiler(be, partialTicks, ms, buffer, light, overlay);
+				extractBoilerGauges(be, state, partialTicks);
 			return;
 		}
 
@@ -49,9 +80,7 @@ public class FluidTankRenderer extends SafeBlockEntityRenderer<FluidTankBlockEnt
 			return;
 		float clampedLevel = Mth.clamp(level * totalHeight, 0, totalHeight);
 
-		FluidTank tank = be.tankInventory;
-		FluidStack fluidStack = tank.getFluid();
-
+		FluidStack fluidStack = be.tankInventory.getFluid();
 		if (fluidStack.isEmpty())
 			return;
 
@@ -72,20 +101,13 @@ public class FluidTankRenderer extends SafeBlockEntityRenderer<FluidTankBlockEnt
 		float zMin = tankHullWidth;
 		float zMax = zMin + be.width - 2 * tankHullWidth;
 
-		ms.pushPose();
-		ms.translate(0, clampedLevel - totalHeight, 0);
-		NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, xMin, yMin, zMin, xMax, yMax, zMax, buffer,
-			ms, light, false, true);
-		ms.popPose();
+		state.fluid = new FluidBox(fluidStack.copy(), xMin, yMin, zMin, xMax, yMax, zMax,
+			clampedLevel - totalHeight);
 	}
 
-	protected void renderAsBoiler(FluidTankBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-		int light, int overlay) {
+	protected void extractBoilerGauges(FluidTankBlockEntity be, FluidTankRenderState state, float partialTicks) {
 		BlockState blockState = be.getBlockState();
-		VertexConsumer vb = buffer.getBuffer(RenderType.cutout());
-		ms.pushPose();
-		var msr = TransformStack.of(ms);
-		msr.translate(be.width / 2f, 0.5, be.width / 2f);
+		state.width = be.width;
 
 		float dialPivotY = 6f / 16;
 		float dialPivotZ = 8f / 16;
@@ -94,32 +116,60 @@ public class FluidTankRenderer extends SafeBlockEntityRenderer<FluidTankBlockEnt
 		for (Direction d : Iterate.horizontalDirections) {
 			if (be.boiler.occludedDirections[d.get2DDataValue()])
 				continue;
-			ms.pushPose();
 			float yRot = -d.toYRot() - 90;
-			CachedBuffers.partial(AllPartialModels.BOILER_GAUGE, blockState)
+
+			SuperByteBuffer gauge = CachedBuffers.partial(AllPartialModels.BOILER_GAUGE, blockState);
+			TransformStack.of(gauge.getTransforms())
 				.rotateYDegrees(yRot)
 				.uncenter()
-				.translate(be.width / 2f - 6 / 16f, 0, 0)
-				.light(light)
-				.renderInto(ms, vb);
-			CachedBuffers.partial(AllPartialModels.BOILER_GAUGE_DIAL, blockState)
+				.translate(be.width / 2f - 6 / 16f, 0, 0);
+			state.gauges.add(gauge.light(state.lightCoords)
+				.extractRenderState());
+
+			SuperByteBuffer dial = CachedBuffers.partial(AllPartialModels.BOILER_GAUGE_DIAL, blockState);
+			TransformStack.of(dial.getTransforms())
 				.rotateYDegrees(yRot)
 				.uncenter()
 				.translate(be.width / 2f - 6 / 16f, 0, 0)
 				.translate(0, dialPivotY, dialPivotZ)
 				.rotateXDegrees(-145 * progress + 90)
-				.translate(0, -dialPivotY, -dialPivotZ)
-				.light(light)
-				.renderInto(ms, vb);
-			ms.popPose();
+				.translate(0, -dialPivotY, -dialPivotZ);
+			state.gauges.add(dial.light(state.lightCoords)
+				.extractRenderState());
 		}
-
-		ms.popPose();
 	}
 
 	@Override
-	public boolean shouldRenderOffScreen(FluidTankBlockEntity be) {
-		return be.isController();
+	protected void submitSafe(FluidTankRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		if (state.fluid != null) {
+			FluidBox box = state.fluid;
+			ms.pushPose();
+			ms.translate(0, box.verticalOffset(), 0);
+			FluidRenderHelper.submitFluidBox(queue, box.fluid(), box.xMin(), box.yMin(), box.zMin(), box.xMax(),
+				box.yMax(), box.zMax(), ms, state.lightCoords, false, true);
+			ms.popPose();
+		}
+
+		if (state.gauges.isEmpty())
+			return;
+
+		ms.pushPose();
+		TransformStack.of(ms)
+			.translate(state.width / 2f, 0.5, state.width / 2f);
+		for (SuperByteBufferRenderState gauge : state.gauges)
+			gauge.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
+		ms.popPose();
+	}
+
+	/**
+	 * 26.2 dropped the block entity argument, so this can no longer be narrowed to controllers only.
+	 * Non-controllers extract nothing, so the difference is a wasted visibility check, not extra
+	 * geometry.
+	 */
+	@Override
+	public boolean shouldRenderOffScreen() {
+		return true;
 	}
 
 }

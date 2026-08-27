@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.symmetryWand;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,14 +22,12 @@ import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -70,8 +70,8 @@ public class SymmetryWandItem extends Item {
 
 		// Shift -> open GUI
 		if (player.isShiftKeyDown()) {
-			if (player.level().isClientSide) {
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> {
+			if (player.level().isClientSide()) {
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
 					openWandGUI(wand, context.getHand());
 				});
 				player.getCooldowns()
@@ -80,7 +80,7 @@ public class SymmetryWandItem extends Item {
 			return InteractionResult.SUCCESS;
 		}
 
-		if (context.getLevel().isClientSide || context.getHand() != InteractionHand.MAIN_HAND)
+		if (context.getLevel().isClientSide() || context.getHand() != InteractionHand.MAIN_HAND)
 			return InteractionResult.SUCCESS;
 
 		pos = pos.relative(context.getClickedFace());
@@ -126,25 +126,25 @@ public class SymmetryWandItem extends Item {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+	public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn) {
 		ItemStack wand = playerIn.getItemInHand(handIn);
 		checkComponents(wand);
 
 		// Shift -> Open GUI
 		if (playerIn.isShiftKeyDown()) {
-			if (worldIn.isClientSide) {
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> {
+			if (worldIn.isClientSide()) {
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
 					openWandGUI(playerIn.getItemInHand(handIn), handIn);
 				});
 				playerIn.getCooldowns()
 					.addCooldown(this, 5);
 			}
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, wand);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(wand);
 		}
 
 		// No Shift -> Clear Mirror
 		wand.set(AllDataComponents.SYMMETRY_WAND_ENABLE, false);
-		return new InteractionResultHolder<>(InteractionResult.SUCCESS, wand);
+		return InteractionResult.SUCCESS.heldItemTransformedTo(wand);
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -205,8 +205,8 @@ public class SymmetryWandItem extends Item {
 			if (world.isUnobstructed(block, position, CollisionContext.of(player))) {
 				BlockState blockState = blockSet.get(position);
 				for (Direction face : Iterate.directions)
-					blockState = blockState.updateShape(face, world.getBlockState(position.relative(face)), world,
-						position, position.relative(face));
+					blockState = blockState.updateShape(world, world, position, face, position.relative(face),
+						world.getBlockState(position.relative(face)), world.getRandom());
 
 				if (player.isCreative()) {
 					world.setBlockAndUpdate(position, blockState);
@@ -248,7 +248,7 @@ public class SymmetryWandItem extends Item {
 			}
 		}
 
-		CatnipServices.NETWORK.sendToClientsTrackingAndSelf(player, new SymmetryEffectPacket(to, targets));
+		NetworkHelper.INSTANCE.sendToClientsTrackingAndSelf(player, new SymmetryEffectPacket(to, targets));
 	}
 
 	private static boolean isHoldingBlock(Player player, BlockState block) {
@@ -301,7 +301,7 @@ public class SymmetryWandItem extends Item {
 			}
 		}
 
-		CatnipServices.NETWORK.sendToClientsTrackingAndSelf(player, new SymmetryEffectPacket(to, targets));
+		NetworkHelper.INSTANCE.sendToClientsTrackingAndSelf(player, new SymmetryEffectPacket(to, targets));
 	}
 
 	public static boolean presentInHotbar(Player player) {

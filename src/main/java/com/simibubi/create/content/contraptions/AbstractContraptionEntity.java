@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -36,9 +37,8 @@ import com.simibubi.create.foundation.collision.Matrix3d;
 import com.simibubi.create.foundation.mixin.accessor.ServerLevelAccessor;
 
 import io.netty.handler.codec.DecoderException;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -64,7 +64,7 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
@@ -109,7 +109,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		this.contraption = contraption;
 		if (contraption == null)
 			return;
-		if (level().isClientSide)
+		if (level().isClientSide())
 			return;
 		contraption.onEntityCreated(this);
 	}
@@ -157,12 +157,12 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		passenger.startRiding(this, true);
 		if (passenger instanceof TamableAnimal ta)
 			ta.setInSittingPose(true);
-		if (level().isClientSide)
+		if (level().isClientSide())
 			return;
 		contraption.getSeatMapping()
 			.put(passenger.getUUID(), seatIndex);
 
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(this, new ContraptionSeatMappingPacket(getId(), contraption.getSeatMapping()));
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(this, new ContraptionSeatMappingPacket(getId(), contraption.getSeatMapping()));
 	}
 
 	@Override
@@ -171,7 +171,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		super.removePassenger(passenger);
 		if (passenger instanceof TamableAnimal ta)
 			ta.setInSittingPose(false);
-		if (level().isClientSide)
+		if (level().isClientSide())
 			return;
 		if (transformedVector != null)
 			passenger.getPersistentData()
@@ -179,7 +179,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		contraption.getSeatMapping()
 			.remove(passenger.getUUID());
 
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(this,
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(this,
 				new ContraptionSeatMappingPacket(getId(), contraption.getSeatMapping(), passenger.getId()));
 	}
 
@@ -190,14 +190,14 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		if (!data.contains("ContraptionDismountLocation"))
 			return position;
 
-		position = VecHelper.readNBT(data.getList("ContraptionDismountLocation", Tag.TAG_DOUBLE));
+		position = VecHelper.readNBT(data.getListOrEmpty("ContraptionDismountLocation"));
 		data.remove("ContraptionDismountLocation");
 		entityLiving.setOnGround(false);
 
 		if (!data.contains("ContraptionMountLocation"))
 			return position;
 
-		Vec3 prevPosition = VecHelper.readNBT(data.getList("ContraptionMountLocation", Tag.TAG_DOUBLE));
+		Vec3 prevPosition = VecHelper.readNBT(data.getListOrEmpty("ContraptionMountLocation"));
 		data.remove("ContraptionMountLocation");
 		if (entityLiving instanceof Player player && !prevPosition.closerThan(position, 5000))
 			AllAdvancements.LONG_TRAVEL.awardTo(player);
@@ -280,7 +280,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	public void stopControlling(BlockPos controlsLocalPos) {
 		getControllingPlayer().map(level()::getPlayerByUUID)
 			.map(p -> (p instanceof ServerPlayer) ? ((ServerPlayer) p) : null)
-			.ifPresent(p -> CatnipServices.NETWORK.sendToClient(p, ControlsStopControllingPacket.INSTANCE));
+			.ifPresent(p -> NetworkHelper.INSTANCE.sendToClient(p, ControlsStopControllingPacket.INSTANCE));
 		setControllingPlayer(null);
 	}
 
@@ -313,14 +313,14 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 			}
 		}
 
-		if (toDismount != null && !level().isClientSide) {
+		if (toDismount != null && !level().isClientSide()) {
 			Vec3 transformedVector = getPassengerPosition(toDismount, 1);
 			toDismount.stopRiding();
 			if (transformedVector != null)
 				toDismount.teleportTo(transformedVector.x, transformedVector.y, transformedVector.z);
 		}
 
-		if (level().isClientSide)
+		if (level().isClientSide())
 			return true;
 		addSittingPassenger(SeatBlock.getLeashed(level(), player)
 			.or(player), indexOfSeat);
@@ -413,7 +413,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		float prevAngle = living.getYRot();
 		float angle = AngleHelper.deg(-Mth.atan2(motion.x, motion.z));
 		angle = AngleHelper.angleLerp(0.4f, prevAngle, angle);
-		if (level().isClientSide) {
+		if (level().isClientSide()) {
 			living.lerpTo(0, 0, 0, 0, 0, 0);
 			living.lerpHeadTo(0, 0);
 			living.setYRot(angle);
@@ -426,7 +426,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 	public void setBlock(BlockPos localPos, StructureBlockInfo newInfo) {
 		contraption.blocks.put(localPos, newInfo);
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(this, new ContraptionBlockChangedPacket(getId(), localPos, newInfo.state()));
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(this, new ContraptionBlockChangedPacket(getId(), localPos, newInfo.state()));
 	}
 
 	protected abstract void tickContraption();
@@ -438,7 +438,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	public void tickActors() {
 		boolean stalledPreviously = contraption.stalled;
 
-		if (!level().isClientSide)
+		if (!level().isClientSide())
 			contraption.stalled = false;
 
 		skipActorStop = true;
@@ -494,7 +494,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 			}
 		}
 
-		if (!level().isClientSide) {
+		if (!level().isClientSide()) {
 			if (!stalledPreviously && contraption.stalled)
 				onContraptionStalled();
 			entityData.set(STALLED, contraption.stalled);
@@ -520,7 +520,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	}
 
 	protected void onContraptionStalled() {
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(this, new ContraptionStallPacket(getId(), getX(), getY(), getZ(), getStalledAngle()));
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(this, new ContraptionStallPacket(getId(), getX(), getY(), getZ(), getStalledAngle()));
 	}
 
 	protected boolean shouldActorTrigger(MovementContext context, StructureBlockInfo blockInfo, MovementBehaviour actor,
@@ -647,10 +647,10 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		if (compound.isEmpty())
 			return;
 
-		initialized = compound.getBoolean("Initialized");
-		contraption = Contraption.fromNBT(level(), compound.getCompound("Contraption"), spawnData);
+		initialized = compound.getBooleanOr("Initialized", false);
+		contraption = Contraption.fromNBT(level(), compound.getCompoundOrEmpty("Contraption"), spawnData);
 		contraption.entity = this;
-		entityData.set(STALLED, compound.getBoolean("Stalled"));
+		entityData.set(STALLED, compound.getBooleanOr("Stalled", false));
 	}
 
 	public void disassemble() {
@@ -662,7 +662,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		StructureTransform transform = makeStructureTransform();
 
 		contraption.stop(level());
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(this, new ContraptionDisassemblyPacket(this.getId(), transform));
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(this, new ContraptionDisassemblyPacket(this.getId(), transform));
 
 		contraption.addBlocksToWorld(level(), transform);
 		contraption.addPassengersToWorld(level(), transform, getPassengers());
@@ -691,7 +691,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		for (Entity entity : collidingEntities.keySet()) {
 			Vec3 localVec = toLocalVector(entity.position(), 0);
 			Vec3 transformed = transform.apply(localVec);
-			if (level().isClientSide)
+			if (level().isClientSide())
 				entity.setPos(transformed.x, transformed.y + 1 / 16f, transformed.z);
 			else
 				entity.teleportTo(transformed.x, transformed.y + 1 / 16f, transformed.z);
@@ -700,7 +700,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 	@Override
 	public void remove(RemovalReason p_146834_) {
-		if (!level().isClientSide && !isRemoved() && contraption != null && !skipActorStop)
+		if (!level().isClientSide() && !isRemoved() && contraption != null && !skipActorStop)
 			contraption.stop(level());
 		super.remove(p_146834_);
 	}

@@ -1,5 +1,8 @@
 package com.simibubi.create.content.trains.schedule;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.gui.menu.HeldItemGhostItemMenu;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -9,8 +12,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class ScheduleMenu extends HeldItemGhostItemMenu {
@@ -29,8 +30,8 @@ public class ScheduleMenu extends HeldItemGhostItemMenu {
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
-		return new ItemStackHandler(slots);
+	protected ItemStacksResourceHandler createGhostInventory() {
+		return new ItemStacksResourceHandler(slots);
 	}
 
 	@Override
@@ -70,7 +71,7 @@ public class ScheduleMenu extends HeldItemGhostItemMenu {
 
 		private int targetIndex;
 
-		public InactiveItemHandlerSlot(IItemHandler itemHandler, int targetIndex, int index, int xPosition,
+		public InactiveItemHandlerSlot(ResourceHandler<ItemResource> itemHandler, int targetIndex, int index, int xPosition,
 			int yPosition) {
 			super(itemHandler, index, xPosition, yPosition);
 			this.targetIndex = targetIndex;

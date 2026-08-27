@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.thresholdSwitch;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,20 +11,19 @@ import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.widget.IconButton;
 import com.simibubi.create.foundation.gui.widget.ScrollInput;
-import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.foundation.gui.widget.SelectionScrollInput;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.ponder.AllCreatePonderTags;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.gui.AbstractSimiScreen;
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.gui.widget.AbstractSimiWidget;
-import net.createmod.ponder.foundation.ui.PonderTagScreen;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.client.gui.AbstractSimiScreen;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.createmod.catnip.api.client.gui.widget.AbstractSimiWidget;
+import net.createmod.ponder.impl.client.gui.PonderTagScreen;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -137,12 +137,12 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		int x = guiLeft;
 		int y = guiTop;
 
 		background.render(graphics, x, y);
-		graphics.drawString(font, title, x + background.getWidth() / 2 - font.width(title) / 2, y + 4, 0x592424, false);
+		graphics.text(font, title, x + background.getWidth() / 2 - font.width(title) / 2, y + 4, 0x592424, false);
 
 		ThresholdType typeOfCurrentTarget = blockEntity.getTypeOfCurrentTarget();
 		boolean forItems = typeOfCurrentTarget == ThresholdType.ITEM;
@@ -162,18 +162,18 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 				inStacks.getState() == 0 ? CreateLang.translateDirect("schedule.condition.threshold.items")
 					: CreateLang.translateDirect("schedule.condition.threshold.stacks");
 			valueStep = inStacks.getState() == 0 ? 1 : 64;
-			graphics.drawString(font, suffix, x + 105, y + 28, 0xFFFFFFFF, true);
-			graphics.drawString(font, suffix, x + 105, y + 28 + 24, 0xFFFFFFFF, true);
+			graphics.text(font, suffix, x + 105, y + 28, 0xFFFFFFFF, true);
+			graphics.text(font, suffix, x + 105, y + 28 + 24, 0xFFFFFFFF, true);
 
 		}
 
-		graphics.drawString(font,
+		graphics.text(font,
 			Component.literal("\u2265 " + (typeOfCurrentTarget == ThresholdType.UNSUPPORTED ? ""
 				: forItems ? onAbove.getState() / valueStep
 				: blockEntity.format(onAbove.getState() / valueStep, stacks)
 				.getString())),
 			x + 53, y + 28, 0xFFFFFFFF, true);
-		graphics.drawString(font,
+		graphics.text(font,
 			Component.literal("\u2264 " + (typeOfCurrentTarget == ThresholdType.UNSUPPORTED ? ""
 				: forItems ? offBelow.getState() / valueStep
 				: blockEntity.format(offBelow.getState() / valueStep, stacks)
@@ -223,7 +223,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 				list.add(CreateLang.translateDirect("gui.threshold_switch.not_attached"));
 				list.add(CreateLang.translateDirect("display_link.view_compatible")
 					.withStyle(ChatFormatting.DARK_GRAY));
-				graphics.renderComponentTooltip(font, list, mouseX, mouseY);
+				graphics.setComponentTooltipForNextFrame(font, list, mouseX, mouseY);
 				return;
 			}
 
@@ -233,7 +233,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 					.withStyle(ChatFormatting.GRAY));
 				list.add(CreateLang.translateDirect("display_link.view_compatible")
 					.withStyle(ChatFormatting.DARK_GRAY));
-				graphics.renderComponentTooltip(font, list, mouseX, mouseY);
+				graphics.setComponentTooltipForNextFrame(font, list, mouseX, mouseY);
 				return;
 			}
 
@@ -259,14 +259,14 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 			list.add(CreateLang.translateDirect("display_link.view_compatible")
 				.withStyle(ChatFormatting.DARK_GRAY));
 
-			graphics.renderComponentTooltip(font, list, mouseX, mouseY);
+			graphics.setComponentTooltipForNextFrame(font, list, mouseX, mouseY);
 			return;
 		}
 
 		for (boolean power : Iterate.trueAndFalse) {
 			int thisTorchY = power ? torchY : torchY + 26;
 			if (mouseX >= torchX && mouseX < torchX + 16 && mouseY >= thisTorchY && mouseY < thisTorchY + 16) {
-				graphics.renderComponentTooltip(font,
+				graphics.setComponentTooltipForNextFrame(font,
 					List.of(CreateLang
 						.translate(power ^ blockEntity.isInverted() ? "gui.threshold_switch.power_on_when"
 							: "gui.threshold_switch.power_off_when")
@@ -342,7 +342,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 	}
 
 	protected void send(boolean invert) {
-		CatnipServices.NETWORK.sendToServer(new ConfigureThresholdSwitchPacket(blockEntity.getBlockPos(), offBelow.getState(),
+		NetworkHelper.INSTANCE.sendToServer(new ConfigureThresholdSwitchPacket(blockEntity.getBlockPos(), offBelow.getState(),
 				onAbove.getState(), invert, inStacks.getState() == 1));
 	}
 

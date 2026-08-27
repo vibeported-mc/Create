@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.trainmap;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,9 +9,8 @@ import java.util.UUID;
 
 import com.simibubi.create.compat.trainmap.TrainMapSync.TrainMapSyncEntry;
 
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.data.Pair;
 
 public class TrainMapSyncClient {
 
@@ -23,7 +23,7 @@ public class TrainMapSyncClient {
 	public static void requestData() {
 		ticks++;
 		if (ticks % 5 == 0)
-			CatnipServices.NETWORK.sendToServer(TrainMapSyncRequestPacket.INSTANCE);
+			NetworkHelper.INSTANCE.sendToServer(TrainMapSyncRequestPacket.INSTANCE);
 	}
 
 	public static void stopRequesting() {

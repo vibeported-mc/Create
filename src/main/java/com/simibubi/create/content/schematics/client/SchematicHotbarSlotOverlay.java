@@ -6,11 +6,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class SchematicHotbarSlotOverlay  {
 
-	public void renderOn(GuiGraphics graphics, int slot) {
+	public void renderOn(GuiGraphicsExtractor graphics, int slot) {
 		Window mainWindow = Minecraft.getInstance().getWindow();
 		int x = mainWindow.getGuiScaledWidth() / 2 - 88;
 		int y = mainWindow.getGuiScaledHeight() - 19;

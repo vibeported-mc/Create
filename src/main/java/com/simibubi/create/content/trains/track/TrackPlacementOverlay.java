@@ -4,11 +4,11 @@ import com.mojang.blaze3d.platform.Window;
 import com.simibubi.create.foundation.mixin.accessor.GuiAccessor;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -19,7 +19,7 @@ public class TrackPlacementOverlay implements LayeredDraw.Layer {
 	public static final TrackPlacementOverlay INSTANCE = new TrackPlacementOverlay();
 
 	@Override
-	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.options.hideGui || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
 			return;
@@ -41,7 +41,7 @@ public class TrackPlacementOverlay implements LayeredDraw.Layer {
 		int x = (window.getGuiScaledWidth() - mc.font.width(text)) / 2;
 		int y = window.getGuiScaledHeight() - 61;
 		Color color = new Color(0x4ADB4A).setAlpha(Mth.clamp((TrackPlacement.extraTipWarmup - 4) / 3f, 0.1f, 1));
-		guiGraphics.drawString(mc.font, text, x, y, color.getRGB(), false);
+		guiGraphics.text(mc.font, text, x, y, color.getRGB(), false);
 
 	}
 

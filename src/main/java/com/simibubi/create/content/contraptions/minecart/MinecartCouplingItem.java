@@ -1,15 +1,15 @@
 package com.simibubi.create.content.contraptions.minecart;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import com.simibubi.create.AllAttachmentTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.contraptions.minecart.capability.MinecartController;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -60,12 +60,12 @@ public class MinecartCouplingItem extends Item {
 														  AbstractMinecart minecart, Player player, MinecartController controller) {
 		Level world = event.getLevel();
 		if (controller.isFullyCoupled()) {
-			if (!world.isClientSide)
+			if (!world.isClientSide())
 				CouplingHandler.status(player, "two_couplings_max");
 			return true;
 		}
-		if (world != null && world.isClientSide)
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> cartClicked(player, minecart));
+		if (world != null && world.isClientSide())
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> cartClicked(player, minecart));
 		return true;
 	}
 
@@ -74,7 +74,7 @@ public class MinecartCouplingItem extends Item {
 		int couplings = (controller.isConnectedToCoupling() ? 1 : 0) + (controller.isLeadingCoupling() ? 1 : 0);
 		if (couplings == 0)
 			return false;
-		if (event.getLevel().isClientSide)
+		if (event.getLevel().isClientSide())
 			return true;
 
 		for (boolean forward : Iterate.trueAndFalse) {

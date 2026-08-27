@@ -9,7 +9,7 @@ import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 import com.simibubi.create.content.contraptions.Contraption;
 
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 
 public final class ContraptionType {
@@ -35,7 +35,7 @@ public final class ContraptionType {
 			return legacy.factory.get();
 		}
 
-		ResourceLocation id = ResourceLocation.tryParse(typeId);
+		Identifier id = Identifier.tryParse(typeId);
 		ContraptionType type = CreateBuiltInRegistries.CONTRAPTION_TYPE.get(id);
 		return type == null ? null : type.factory.get();
 	}

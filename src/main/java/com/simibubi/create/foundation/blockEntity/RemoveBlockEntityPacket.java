@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityDataPacket;
 
@@ -30,7 +31,7 @@ public class RemoveBlockEntityPacket extends BlockEntityDataPacket<SyncedBlockEn
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.REMOVE_TE;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.REMOVE_TE.getType();
 	}
 }

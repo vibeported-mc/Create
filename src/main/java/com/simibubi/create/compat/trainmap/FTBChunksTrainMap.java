@@ -13,7 +13,7 @@ import dev.ftb.mods.ftblibrary.ui.BaseScreen;
 import dev.ftb.mods.ftblibrary.ui.ScreenWrapper;
 import dev.ftb.mods.ftblibrary.ui.Widget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.FormattedText;
@@ -71,7 +71,7 @@ public class FTBChunksTrainMap {
 		Object panel = ObfuscationReflectionHelper.getPrivateValue(LargeMapScreen.class, largeMapScreen, "regionPanel");
 		if (!(panel instanceof RegionMapPanel regionMapPanel))
 			return;
-		GuiGraphics graphics = event.getGuiGraphics();
+		GuiGraphicsExtractor graphics = event.getGuiGraphics();
 		if (!AllConfigs.client().showTrainMapOverlay.get()) {
 			renderToggleWidgetAndTooltip(event, largeMapScreen, graphics);
 			return;
@@ -137,7 +137,7 @@ public class FTBChunksTrainMap {
 	}
 
 	private static boolean renderToggleWidgetAndTooltip(ScreenEvent.Render.Post event, LargeMapScreen largeMapScreen,
-		GuiGraphics graphics) {
+		GuiGraphicsExtractor graphics) {
 		TrainMapManager.renderToggleWidget(graphics, 20, 2);
 		if (!TrainMapManager.isToggleWidgetHovered(event.getMouseX(), event.getMouseY(), 20, 2))
 			return false;

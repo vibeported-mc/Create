@@ -1,5 +1,8 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,12 +13,12 @@ import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 
-import net.createmod.ponder.api.PonderPalette;
-import net.createmod.ponder.api.element.ElementLink;
-import net.createmod.ponder.api.element.WorldSectionElement;
-import net.createmod.ponder.api.scene.SceneBuilder;
-import net.createmod.ponder.api.scene.SceneBuildingUtil;
-import net.createmod.ponder.api.scene.Selection;
+import net.createmod.ponder.api.client.PonderPalette;
+import net.createmod.ponder.api.client.element.ElementLink;
+import net.createmod.ponder.api.client.element.WorldSectionElement;
+import net.createmod.ponder.api.client.scene.SceneBuilder;
+import net.createmod.ponder.api.client.scene.SceneBuildingUtil;
+import net.createmod.ponder.api.client.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
@@ -24,9 +27,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-
 public class HosePulleyScenes {
 
 	public static void intro(SceneBuilder builder, SceneBuildingUtil util) {
@@ -126,9 +126,9 @@ public class HosePulleyScenes {
 		}
 
 		scene.world().modifyBlockEntity(util.grid().at(1, 5, 1), HosePulleyBlockEntity.class, be -> {
-			IFluidHandler ifh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(new FluidStack(Fluids.WATER, 100), FluidAction.EXECUTE);
+				ifh.fill(new FluidStack(Fluids.WATER, 100), false);
 		});
 
 		scene.idle(20);
@@ -230,9 +230,9 @@ public class HosePulleyScenes {
 		scene.world().showSectionAndMerge(cogs, Direction.NORTH, hoselink);
 		scene.world().showSectionAndMerge(pipes, Direction.WEST, hoselink);
 		scene.world().modifyBlockEntity(util.grid().at(1, 6, 1), HosePulleyBlockEntity.class, be -> {
-			IFluidHandler ifh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(new FluidStack(Fluids.WATER, 100), FluidAction.EXECUTE);
+				ifh.fill(new FluidStack(Fluids.WATER, 100), false);
 		});
 		scene.world().propagatePipeChange(util.grid().at(3, 2, 1));
 
@@ -346,9 +346,9 @@ public class HosePulleyScenes {
 
 		scene.idle(40);
 		scene.world().modifyBlockEntity(util.grid().at(1, 3, 2), HosePulleyBlockEntity.class, be -> {
-			IFluidHandler ifh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(new FluidStack(Fluids.WATER, 1000), FluidAction.EXECUTE);
+				ifh.fill(new FluidStack(Fluids.WATER, 1000), false);
 		});
 		scene.world().setKineticSpeed(hose, 0);
 		scene.world().modifyBlock(pumpPos, s -> s.setValue(PumpBlock.FACING, Direction.DOWN), true);
@@ -365,8 +365,7 @@ public class HosePulleyScenes {
 
 		scene.idle(60);
 
-		scene.world().modifyBlockEntity(util.grid().at(4, 1, 1), FluidTankBlockEntity.class, be -> be.getTankInventory()
-			.fill(new FluidStack(Fluids.WATER, 24000), FluidAction.EXECUTE));
+		scene.world().modifyBlockEntity(util.grid().at(4, 1, 1), FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), new FluidStack(Fluids.WATER, 24000), false));
 
 		scene.idle(20);
 

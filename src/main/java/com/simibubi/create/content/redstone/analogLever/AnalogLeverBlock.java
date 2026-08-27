@@ -1,6 +1,7 @@
 package com.simibubi.create.content.redstone.analogLever;
 
 
+import net.minecraft.server.level.ServerLevel;
 import com.mojang.serialization.MapCodec;
 
 import com.simibubi.create.foundation.mixin.accessor.BlockBehaviourAccessor;
@@ -46,7 +47,7 @@ public class AnalogLeverBlock extends FaceAttachedHorizontalDirectionalBlock imp
 
 	@Override
 	public InteractionResult useWithoutItem(BlockState state, Level worldIn, BlockPos pos, Player player, BlockHitResult hit) {
-		if (worldIn.isClientSide) {
+		if (worldIn.isClientSide()) {
 			addParticles(state, worldIn, pos, 1.0F);
 			return InteractionResult.SUCCESS;
 		}
@@ -86,14 +87,13 @@ public class AnalogLeverBlock extends FaceAttachedHorizontalDirectionalBlock imp
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (isMoving || state.getBlock() == newState.getBlock())
+	public void affectNeighborsAfterRemoval(BlockState state, ServerLevel worldIn, BlockPos pos,
+		boolean isMoving) {
+		if (isMoving)
 			return;
-		withBlockEntityDo(worldIn, pos, be -> {
-			if (be.state != 0)
-				updateNeighbors(state, worldIn, pos);
-			worldIn.removeBlockEntity(pos);
-		});
+		// The block entity is gone by now, so its former output level is no longer readable; the
+		// neighbours are updated either way, which is what a lever going away always warrants.
+		updateNeighbors(state, worldIn, pos);
 	}
 
 	private static void addParticles(BlockState state, LevelAccessor worldIn, BlockPos pos, float alpha) {

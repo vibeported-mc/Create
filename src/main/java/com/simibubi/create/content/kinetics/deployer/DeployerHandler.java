@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import net.minecraft.util.TriState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ import com.simibubi.create.content.trains.track.ITrackBlock;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.BlockHelper;
 
-import net.createmod.catnip.levelWrappers.WrappedLevel;
+import net.createmod.catnip.api.level.wrapper.WrappedLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -34,14 +35,13 @@ import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
@@ -72,7 +72,6 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.extensions.IBaseRailBlockExtension;
-import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
@@ -170,7 +169,7 @@ public class DeployerHandler {
 			.toList();
 		InteractionHand hand = InteractionHand.MAIN_HAND;
 		if (!entities.isEmpty()) {
-			Entity entity = entities.get(level.random.nextInt(entities.size()));
+			Entity entity = entities.get(level.getRandom().nextInt(entities.size()));
 			List<ItemEntity> capturedDrops = new ArrayList<>();
 			boolean success = false;
 			entity.captureDrops(capturedDrops);
@@ -349,15 +348,19 @@ public class DeployerHandler {
 		if (item instanceof BucketItem || item instanceof SandPaperItem)
 			itemUseWorld = new ItemUseWorld(level, face, pos);
 
-		InteractionResultHolder<ItemStack> onItemRightClick = item.use(itemUseWorld, player, hand);
+		InteractionResult onItemRightClick = item.use(itemUseWorld, player, hand);
 
-		if (onItemRightClick.getResult().consumesAction() && item instanceof MobBucketItem bucketItem)
+		if (onItemRightClick.consumesAction() && item instanceof MobBucketItem bucketItem)
 			bucketItem.checkExtraContent(player, level, stack, clickedPos);
 
-		ItemStack resultStack = onItemRightClick.getObject();
-		if (resultStack != stack || resultStack.getCount() != stack.getCount() || resultStack.getUseDuration(player) > 0
-			|| resultStack.getDamageValue() != stack.getDamageValue()) {
-			player.setItemInHand(hand, onItemRightClick.getObject());
+		// The replacement stack the old InteractionResultHolder carried now rides on Success, and is
+		// null whenever the item did not transform anything.
+		if (onItemRightClick instanceof InteractionResult.Success success) {
+			ItemStack resultStack = success.heldItemTransformedTo();
+			if (resultStack != null && (resultStack != stack || resultStack.getCount() != stack.getCount()
+				|| resultStack.getUseDuration(player) > 0 || resultStack.getDamageValue() != stack.getDamageValue())) {
+				player.setItemInHand(hand, resultStack);
+			}
 		}
 
 		if (stack.getItem() instanceof SandPaperItem && stack.has(AllDataComponents.SAND_PAPER_POLISHING)) {

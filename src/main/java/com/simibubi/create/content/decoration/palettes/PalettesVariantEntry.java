@@ -13,7 +13,7 @@ import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
@@ -36,9 +36,12 @@ public class PalettesVariantEntry {
 				REGISTRATE.block(pattern.createName(name), pattern.getBlockFactory())
 					.initialProperties(baseBlock)
 					.transform(pickaxeOnly())
-					.blockstate(pattern.getBlockStateGenerator()
-						.apply(pattern)
-						.apply(name)::accept);
+					// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+					// .blockstate(pattern.getBlockStateGenerator()
+																					// .apply(pattern)
+																					// .apply(name)::accept)
+					
+					;
 
 			ItemBuilder<BlockItem, ? extends BlockBuilder<? extends Block, CreateRegistrate>> itemBuilder =
 				builder.item();
@@ -52,8 +55,6 @@ public class PalettesVariantEntry {
 
 			itemBuilder.tag(paletteStoneVariants.materialTag);
 
-			if (pattern.isTranslucent())
-				builder.addLayer(() -> RenderType::translucent);
 			pattern.createCTBehaviour(name)
 				.ifPresent(b -> builder.onRegister(connectedTextures(b)));
 

@@ -1,10 +1,10 @@
 package com.simibubi.create.content.legacy;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
-import net.minecraft.util.FastColor.ARGB32;
+import net.minecraft.util.ARGB.ARGB32;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 

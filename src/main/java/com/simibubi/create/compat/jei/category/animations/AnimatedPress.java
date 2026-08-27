@@ -5,8 +5,8 @@ import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.minecraft.client.gui.GuiGraphics;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Direction;
 
 public class AnimatedPress extends AnimatedKinetics {
@@ -18,7 +18,7 @@ public class AnimatedPress extends AnimatedKinetics {
 	}
 
 	@Override
-	public void draw(GuiGraphics graphics, int xOffset, int yOffset) {
+	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
 		PoseStack matrixStack = graphics.pose();
 		matrixStack.pushPose();
 		matrixStack.translate(xOffset, yOffset, 200);

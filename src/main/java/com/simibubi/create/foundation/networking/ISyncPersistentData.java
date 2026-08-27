@@ -1,11 +1,11 @@
 package com.simibubi.create.foundation.networking;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.HashSet;
 
 import com.simibubi.create.AllPackets;
 
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -20,10 +20,10 @@ public interface ISyncPersistentData {
 	void onPersistentDataUpdated();
 
 	default void syncPersistentDataWithTracking(Entity self) {
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(self, new PersistentDataPacket(self));
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(self, new PersistentDataPacket(self));
 	}
 
-	record PersistentDataPacket(int entityId, CompoundTag readData) implements ClientboundPacketPayload {
+	record PersistentDataPacket(int entityId, CompoundTag readData) implements CustomPacketPayload {
 		public static final StreamCodec<FriendlyByteBuf, PersistentDataPacket> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.VAR_INT, PersistentDataPacket::entityId,
 				ByteBufCodecs.COMPOUND_TAG, PersistentDataPacket::readData,
@@ -34,7 +34,6 @@ public interface ISyncPersistentData {
 			this(entity.getId(), entity.getPersistentData());
 		}
 
-		@Override
 		@OnlyIn(Dist.CLIENT)
 		public void handle(LocalPlayer player) {
 			Entity entityByID = player.clientLevel.getEntity(entityId);
@@ -47,8 +46,8 @@ public interface ISyncPersistentData {
 		}
 
 		@Override
-		public PacketTypeProvider getTypeProvider() {
-			return AllPackets.PERSISTENT_DATA;
+		public Type<? extends CustomPacketPayload> type() {
+			return AllPackets.PERSISTENT_DATA.getType();
 		}
 	}
 

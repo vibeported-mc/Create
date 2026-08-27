@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category.animations;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
@@ -8,13 +9,13 @@ import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SpriteShiftEntry;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 
@@ -27,7 +28,7 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 		return this;
 	}
 
-	public void draw(GuiGraphics graphics, int xOffset, int yOffset) {
+	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
 		PoseStack matrixStack = graphics.pose();
 		matrixStack.pushPose();
 		matrixStack.translate(xOffset, yOffset, 200);
@@ -84,8 +85,8 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 
 		CachedBuffers.partial(AllPartialModels.BLAZE_BURNER_FLAME, Blocks.AIR.defaultBlockState())
 		.shiftUVScrolling(spriteShift, (float) uScroll, (float) vScroll)
-		.light(LightTexture.FULL_BRIGHT)
-			.renderInto(matrixStack, graphics.bufferSource().getBuffer(RenderType.cutoutMipped()));
+		.light(LightCoordsUtil.FULL_BRIGHT)
+			.renderInto(matrixStack, graphics.bufferSource().getBuffer(RenderTypes.cutoutMovingBlock()));
 		matrixStack.popPose();
 	}
 

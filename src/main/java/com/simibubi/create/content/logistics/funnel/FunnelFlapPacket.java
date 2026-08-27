@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.funnel;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityDataPacket;
 
@@ -33,7 +34,7 @@ public class FunnelFlapPacket extends BlockEntityDataPacket<FunnelBlockEntity> {
     }
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.FUNNEL_FLAP;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.FUNNEL_FLAP.getType();
 	}
 }

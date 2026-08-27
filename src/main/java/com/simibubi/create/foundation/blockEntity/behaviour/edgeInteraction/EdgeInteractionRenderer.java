@@ -11,8 +11,8 @@ import com.simibubi.create.foundation.blockEntity.behaviour.ValueBox;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.outliner.Outliner;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.client.outliner.Outliner;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -58,7 +58,7 @@ public class EdgeInteractionRenderer {
 		double bestDistance = Double.MAX_VALUE;
 		Vec3 center = VecHelper.getCenterOf(pos);
 		for (Direction direction : connectiveSides) {
-			double distance = Vec3.atLowerCornerOf(direction.getNormal())
+			double distance = Vec3.atLowerCornerOf(direction.getUnitVec3i())
 				.subtract(target.getLocation()
 					.subtract(center))
 				.length();
@@ -70,9 +70,9 @@ public class EdgeInteractionRenderer {
 
 		AABB bb = EdgeInteractionHandler.getBB(pos, closestEdge);
 		boolean hit = bb.contains(target.getLocation());
-		Vec3 offset = Vec3.atLowerCornerOf(closestEdge.getNormal())
+		Vec3 offset = Vec3.atLowerCornerOf(closestEdge.getUnitVec3i())
 			.scale(.5)
-			.add(Vec3.atLowerCornerOf(face.getNormal())
+			.add(Vec3.atLowerCornerOf(face.getUnitVec3i())
 				.scale(.469))
 			.add(VecHelper.CENTER_OF_ORIGIN);
 

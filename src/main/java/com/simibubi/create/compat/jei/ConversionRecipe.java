@@ -1,30 +1,29 @@
 package com.simibubi.create.compat.jei;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-
 /**
  * Helper recipe type for displaying an item relationship in JEI
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class ConversionRecipe extends StandardProcessingRecipe<RecipeWrapper> {
 
 	static int counter = 0;
 
 	public static RecipeHolder<ConversionRecipe> create(ItemStack from, ItemStack to) {
-		ResourceLocation recipeId = Create.asResource("conversion_" + counter++);
+		Identifier recipeId = Create.asResource("conversion_" + counter++);
 		ConversionRecipe recipe = new Builder<>(ConversionRecipe::new, recipeId)
 			.withItemIngredients(Ingredient.of(from))
 			.withSingleItemOutput(to)

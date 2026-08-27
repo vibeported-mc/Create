@@ -13,7 +13,7 @@ import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -31,12 +31,12 @@ import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, R extends ProcessingRecipe<?, P>, S extends ProcessingRecipeBuilder<P, R, S>> {
-	protected ResourceLocation recipeId;
+	protected Identifier recipeId;
 	protected Factory<P, R> factory;
 	protected P params;
 	protected List<ICondition> recipeConditions;
 
-	public ProcessingRecipeBuilder(Factory<P, R> factory, ResourceLocation recipeId) {
+	public ProcessingRecipeBuilder(Factory<P, R> factory, Identifier recipeId) {
 		this.recipeId = recipeId;
 		this.factory = factory;
 		this.params = createParams();
@@ -108,8 +108,8 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	public void build(RecipeOutput consumer) {
 		R recipe = build();
 		IRecipeTypeInfo recipeType = recipe.getTypeInfo();
-		ResourceLocation typeId = recipeType.getId();
-		ResourceLocation id = recipeId.withPrefix(typeId.getPath() + "/");
+		Identifier typeId = recipeType.getId();
+		Identifier id = recipeId.withPrefix(typeId.getPath() + "/");
 		var errors = recipe.validate();
 		if (!errors.isEmpty()) {
 			errors.add(recipe.getClass().getSimpleName() + "with id " + id + " failed validation:");
@@ -185,7 +185,7 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 		return output(new ProcessingOutput(mod.asResource(id), amount, chance));
 	}
 
-	public S output(ResourceLocation id) {
+	public S output(Identifier id) {
 		return output(1, id, 1);
 	}
 
@@ -193,7 +193,7 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 		return output(1, mod.asResource(id), 1);
 	}
 
-	public S output(float chance, ResourceLocation registryName, int amount) {
+	public S output(float chance, Identifier registryName, int amount) {
 		return output(new ProcessingOutput(registryName, amount, chance));
 	}
 

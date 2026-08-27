@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains.graph;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,9 +15,7 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.trains.GlobalRailwayManager;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,7 +23,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public record TrackGraphRollCallPacket(List<Entry> entries) implements ClientboundPacketPayload {
+public record TrackGraphRollCallPacket(List<Entry> entries) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, TrackGraphRollCallPacket> STREAM_CODEC = CatnipStreamCodecBuilders.list(Entry.STREAM_CODEC).map(
 					TrackGraphRollCallPacket::new, TrackGraphRollCallPacket::entries
 			);
@@ -36,7 +36,6 @@ public record TrackGraphRollCallPacket(List<Entry> entries) implements Clientbou
 		return new TrackGraphRollCallPacket(entries);
 	}
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		GlobalRailwayManager manager = Create.RAILWAYS.sided(null);
@@ -60,14 +59,14 @@ public record TrackGraphRollCallPacket(List<Entry> entries) implements Clientbou
 		}
 
 		for (Integer failed : failedIds)
-			CatnipServices.NETWORK.sendToServer(new TrackGraphRequestPacket(failed));
+			NetworkHelper.INSTANCE.sendToServer(new TrackGraphRequestPacket(failed));
 		for (UUID unused : unusedIds)
 			manager.trackNetworks.remove(unused);
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.TRACK_GRAPH_ROLL_CALL;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.TRACK_GRAPH_ROLL_CALL.getType();
 	}
 
 	public record Entry(int netId, int checksum) {

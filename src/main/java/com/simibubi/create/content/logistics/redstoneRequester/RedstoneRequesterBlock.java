@@ -1,5 +1,8 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.core.UUIDUtil;
 import java.util.List;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -80,7 +83,7 @@ public class RedstoneRequesterBlock extends Block implements IBE<RedstoneRequest
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState pBlockState, Level pLevel, BlockPos pPos) {
+	public int getAnalogOutputSignal(BlockState pBlockState, Level pLevel, BlockPos pPos, Direction direction) {
 		RedstoneRequesterBlockEntity req = getBlockEntity(pLevel, pPos);
 		return req != null && req.lastRequestSucceeded ? 15 : 0;
 	}
@@ -107,7 +110,7 @@ public class RedstoneRequesterBlock extends Block implements IBE<RedstoneRequest
 
 		if (isRequester) {
 			CompoundTag beTag = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
-			beTag.putUUID("Freq", be.behaviour.freqId);
+			beTag.store("Freq", UUIDUtil.CODEC, be.behaviour.freqId);
 			BlockEntity.addEntityType(beTag, AllBlockEntityTypes.REDSTONE_REQUESTER.get());
 			stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(beTag));
 		}
@@ -149,7 +152,7 @@ public class RedstoneRequesterBlock extends Block implements IBE<RedstoneRequest
 
 	@Override
 	public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pNeighborBlock,
-		BlockPos pNeighborPos, boolean pMovedByPiston) {
+		@Nullable Orientation orientation, boolean pMovedByPiston) {
 		if (pLevel.isClientSide())
 			return;
 		pLevel.setBlockAndUpdate(pPos, pState.setValue(POWERED, pLevel.hasNeighborSignal(pPos)));

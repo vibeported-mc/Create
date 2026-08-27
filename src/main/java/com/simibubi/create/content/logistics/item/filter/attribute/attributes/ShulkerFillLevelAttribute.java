@@ -16,8 +16,8 @@ import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.lang.Lang;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.lang.Lang;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -98,8 +98,8 @@ public record ShulkerFillLevelAttribute(ShulkerLevels levels) implements ItemAtt
 				return requiredSize.test(0);
 			if (testStack.has(DataComponents.CONTAINER_LOOT))
 				return false;
-			if (contents.getSlots() > 0) {
-				int rawSize = contents.getSlots();
+			if (contents.size() > 0) {
+				int rawSize = contents.size();
 				if (rawSize < 27)
 					return requiredSize.test(rawSize);
 

@@ -47,7 +47,7 @@ public class TrainTrapdoorBlock extends TrapDoorBlock implements IWrenchable {
 		if (state.getValue(WATERLOGGED))
 			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		playSound(player, level, pos, state.getValue(OPEN));
-		return InteractionResult.sidedSuccess(level.isClientSide);
+		return InteractionResult.sidedSuccess(level.isClientSide());
 	}
 
 	@Override

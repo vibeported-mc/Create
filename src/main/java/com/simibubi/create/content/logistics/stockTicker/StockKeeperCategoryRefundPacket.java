@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
@@ -25,8 +26,8 @@ public class StockKeeperCategoryRefundPacket extends BlockEntityConfigurationPac
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.REFUND_STOCK_KEEPER_CATEGORY;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.REFUND_STOCK_KEEPER_CATEGORY.getType();
 	}
 
 	@Override

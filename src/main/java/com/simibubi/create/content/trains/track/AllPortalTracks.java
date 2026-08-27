@@ -5,13 +5,13 @@ import com.simibubi.create.api.contraption.train.PortalTrackProvider;
 import com.simibubi.create.compat.Mods;
 import com.simibubi.create.content.contraptions.glue.SuperGlueEntity;
 
-import net.createmod.catnip.math.BlockFace;
+import net.createmod.catnip.api.math.BlockFace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -32,13 +32,13 @@ import net.minecraft.world.phys.AABB;
  */
 public class AllPortalTracks {
 	/**
-	 * Registers a portal track integration for a given block identified by its {@link ResourceLocation}, if it exists.
+	 * Registers a portal track integration for a given block identified by its {@link Identifier}, if it exists.
 	 * If it does not, a warning will be logged.
 	 *
 	 * @param id       The resource location of the portal block.
 	 * @param provider The portal track provider for the block.
 	 */
-	public static void tryRegisterIntegration(ResourceLocation id, PortalTrackProvider provider) {
+	public static void tryRegisterIntegration(Identifier id, PortalTrackProvider provider) {
 		if (BuiltInRegistries.BLOCK.containsKey(id)) {
 			Block block = BuiltInRegistries.BLOCK.get(id);
 			PortalTrackProvider.REGISTRY.register(block, provider);
@@ -48,7 +48,7 @@ public class AllPortalTracks {
 	}
 
 	/**
-	 * Registers a simple portal track integration for a given block identified by its {@link ResourceLocation}, if it exists.
+	 * Registers a simple portal track integration for a given block identified by its {@link Identifier}, if it exists.
 	 * If it does not, a warning will be logged.
 	 * <p>
 	 * Note: This only allows registering integrations that go from the Overworld to another dimension and vice versa.
@@ -56,13 +56,13 @@ public class AllPortalTracks {
 	 * @param portalBlockId The resource location of the portal block.
 	 * @param dimensionId   The resource location of the dimension to travel to
 	 */
-	private static void tryRegisterSimpleInteraction(ResourceLocation portalBlockId, ResourceLocation dimensionId) {
+	private static void tryRegisterSimpleInteraction(Identifier portalBlockId, Identifier dimensionId) {
 		ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, dimensionId);
 		tryRegisterSimpleInteraction(portalBlockId, levelKey);
 	}
 
 	/**
-	 * Registers a simple portal track integration for a given block identified by its {@link ResourceLocation}, if it exists.
+	 * Registers a simple portal track integration for a given block identified by its {@link Identifier}, if it exists.
 	 * If it does not, a warning will be logged.
 	 * <p>
 	 * Note: This only allows registering integrations that go from the Overworld to another dimension and vice versa.
@@ -70,7 +70,7 @@ public class AllPortalTracks {
 	 * @param portalBlockId The resource location of the portal block.
 	 * @param levelKey   The resource key of the dimension to travel to
 	 */
-	private static void tryRegisterSimpleInteraction(ResourceLocation portalBlockId, ResourceKey<Level> levelKey) {
+	private static void tryRegisterSimpleInteraction(Identifier portalBlockId, ResourceKey<Level> levelKey) {
 		tryRegisterSimpleInteraction(BuiltInRegistries.BLOCK.get(portalBlockId), levelKey);
 	}
 

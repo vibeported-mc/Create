@@ -1,5 +1,7 @@
 package com.simibubi.create.content.redstone.nixieTube;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.redstone.Orientation;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
 import java.util.List;
@@ -19,7 +21,7 @@ import com.simibubi.create.content.schematics.requirement.ItemRequirement;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement.ItemUseType;
 import com.simibubi.create.foundation.block.IBE;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -27,7 +29,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -64,25 +66,25 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (player.isShiftKeyDown())
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		NixieTubeBlockEntity nixie = getBlockEntity(level, pos);
 
 		if (nixie == null)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		// Refuse interaction if nixie tube is in a computer-controlled row
 		if (isInComputerControlledRow(level, pos))
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		if (stack.isEmpty()) {
 			if (nixie.reactsToRedstone())
-				return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+				return InteractionResult.TRY_WITH_EMPTY_HAND;
 			nixie.clearCustomText();
 			updateDisplayedRedstoneValue(state, level, pos);
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 
 		boolean display =
@@ -90,7 +92,7 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 		DyeColor dye = DyeColor.getColor(stack);
 
 		if (!display && dye == null)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		Component component = stack.getOrDefault(DataComponents.CUSTOM_NAME, Component.empty());
 
@@ -100,8 +102,8 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 				component = entries.getFirst().text;
 		}
 
-		if (level.isClientSide)
-			return ItemInteractionResult.SUCCESS;
+		if (level.isClientSide())
+			return InteractionResult.SUCCESS;
 
 		String tagUsed = Component.Serializer.toJson(component, level.registryAccess());
 		// Skip computer check in this walk since it was already performed at the start.
@@ -112,7 +114,7 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 				level.setBlockAndUpdate(currentPos, withColor(state, dye));
 		});
 
-		return ItemInteractionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	public static Direction getLeftNixieDirection(@NotNull BlockState state) {
@@ -215,10 +217,8 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (newState.getBlock() instanceof NixieTubeBlock)
-			return;
-		world.removeBlockEntity(pos);
+	public void affectNeighborsAfterRemoval(BlockState state, ServerLevel world, BlockPos pos,
+		boolean isMoving) {
 		if (Mods.COMPUTERCRAFT.isLoaded()) {
 			// A computer-controlled nixie tube row may have been broken in the middle.
 			Direction left = getLeftNixieDirection(state);
@@ -253,7 +253,7 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(LevelReader pLevel, BlockPos pPos, BlockState pState) {
+	public ItemStack getCloneItemStack(LevelReader pLevel, BlockPos pPos, BlockState pState, boolean includeData) {
 		return AllBlocks.ORANGE_NIXIE_TUBE.asStack();
 	}
 
@@ -274,12 +274,12 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos,
-									   Player player) {
+	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state,
+		boolean includeData, Player player) {
 		if (color != DyeColor.ORANGE)
 			return AllBlocks.ORANGE_NIXIE_TUBE.get()
-				.getCloneItemStack(state, target, level, pos, player);
-		return super.getCloneItemStack(state, target, level, pos, player);
+				.getCloneItemStack(level, pos, state, includeData, player);
+		return super.getCloneItemStack(level, pos, state, includeData, player);
 	}
 
 	@Override
@@ -288,10 +288,10 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState neighbourState, LevelAccessor world,
-		BlockPos pos, BlockPos neighbourPos) {
+	public BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess ticks,
+		BlockPos pos, Direction direction, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
 		if (state.getValue(WATERLOGGED))
-			world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+			ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
 		return state;
 	}
 
@@ -309,9 +309,9 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation,
 		boolean isMoving) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		if (!level.getBlockTicks()
 			.willTickThisTick(pos, this))
@@ -339,14 +339,14 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 	}
 
 	public static void updateDisplayedRedstoneValue(NixieTubeBlockEntity be, BlockState state, boolean force) {
-		if (be.getLevel() == null || be.getLevel().isClientSide)
+		if (be.getLevel() == null || be.getLevel().isClientSide())
 			return;
 		if (be.reactsToRedstone() || force)
 			be.updateRedstoneStrength(getPower(be.getLevel(), state, be.getBlockPos()));
 	}
 
 	private void updateDisplayedRedstoneValue(BlockState state, Level level, BlockPos pos) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		withBlockEntityDo(level, pos, be -> NixieTubeBlock.updateDisplayedRedstoneValue(be, state, false));
 	}

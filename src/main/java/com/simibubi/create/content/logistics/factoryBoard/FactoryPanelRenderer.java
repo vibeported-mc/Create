@@ -1,5 +1,11 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import dev.engine_room.flywheel.lib.transform.TransformStack;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -11,41 +17,65 @@ import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRende
 import com.simibubi.create.foundation.render.RenderTypes;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.createmod.catnip.theme.Color;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.theme.Color;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class FactoryPanelRenderer extends SmartBlockEntityRenderer<FactoryPanelBlockEntity> {
+public class FactoryPanelRenderer
+	extends SmartBlockEntityRenderer<FactoryPanelBlockEntity, FactoryPanelRenderer.PanelRenderState> {
+
+	public static class PanelRenderState extends SmartRenderState {
+		/** Bulbs and connection sprites, each already carrying its own transform. */
+		public final List<Part> parts = new ArrayList<>();
+	}
+
+	public record Part(SuperByteBufferRenderState buffer, RenderType renderType) {
+	}
+
 
 	public FactoryPanelRenderer(Context context) {
 		super(context);
 	}
 
 	@Override
-	protected void renderSafe(FactoryPanelBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-		int light, int overlay) {
-		super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
+	public PanelRenderState createRenderState() {
+		return new PanelRenderState();
+	}
+
+	@Override
+	protected void extractSafe(FactoryPanelBlockEntity be, PanelRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		super.extractSafe(be, state, partialTicks, cameraPosition);
+		state.parts.clear();
+
 		for (FactoryPanelBehaviour behaviour : be.panels.values()) {
 			if (!behaviour.isActive())
 				continue;
 			if (behaviour.getAmount() > 0)
-				renderBulb(behaviour, partialTicks, ms, buffer, light, overlay);
+				extractBulb(behaviour, partialTicks, state.parts, state.lightCoords);
 			for (FactoryPanelConnection connection : behaviour.targetedBy.values())
-				renderPath(behaviour, connection, partialTicks, ms, buffer, light, overlay);
+				extractPath(behaviour, connection, partialTicks, state.parts, state.lightCoords);
 			for (FactoryPanelConnection connection : behaviour.targetedByLinks.values())
-				renderPath(behaviour, connection, partialTicks, ms, buffer, light, overlay);
+				extractPath(behaviour, connection, partialTicks, state.parts, state.lightCoords);
 		}
 	}
 
-	public static void renderBulb(FactoryPanelBehaviour behaviour, float partialTicks, PoseStack ms,
-		MultiBufferSource buffer, int light, int overlay) {
+	@Override
+	protected void submitSafe(PanelRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		super.submitSafe(state, ms, queue, camera);
+		for (Part part : state.parts)
+			part.buffer()
+				.submit(ms, part.renderType(), queue);
+	}
+
+	public static void extractBulb(FactoryPanelBehaviour behaviour, float partialTicks, List<Part> out, int light) {
 		BlockState blockState = behaviour.blockEntity.getBlockState();
 
 		float xRot = FactoryPanelBlock.getXRot(blockState) + Mth.PI / 2;
@@ -56,14 +86,10 @@ public class FactoryPanelRenderer extends SmartBlockEntityRenderer<FactoryPanelB
 		PartialModel partial = behaviour.redstonePowered || missingAddress ? AllPartialModels.FACTORY_PANEL_RED_LIGHT
 			: AllPartialModels.FACTORY_PANEL_LIGHT;
 
-		CachedBuffers.partial(partial, blockState)
-			.rotateCentered(yRot, Direction.UP)
-			.rotateCentered(xRot, Direction.EAST)
-			.rotateCentered(Mth.PI, Direction.UP)
-			.translate(behaviour.slot.xOffset * .5, 0, behaviour.slot.yOffset * .5)
-			.light(glow > 0.125f ? LightTexture.FULL_BRIGHT : light)
-			.overlay(overlay)
-			.renderInto(ms, buffer.getBuffer(RenderType.translucent()));
+		SuperByteBuffer bulb = orient(CachedBuffers.partial(partial, blockState), behaviour, yRot, xRot);
+		out.add(new Part(bulb.light(glow > 0.125f ? LightCoordsUtil.FULL_BRIGHT : light)
+			.extractRenderState(),
+			net.minecraft.client.renderer.rendertype.RenderTypes.translucentMovingBlock()));
 
 		if (glow < .125f)
 			return;
@@ -72,19 +98,14 @@ public class FactoryPanelRenderer extends SmartBlockEntityRenderer<FactoryPanelB
 		glow = Mth.clamp(glow, -1, 1);
 		int color = (int) (200 * glow);
 
-		CachedBuffers.partial(partial, blockState)
-			.rotateCentered(yRot, Direction.UP)
-			.rotateCentered(xRot, Direction.EAST)
-			.rotateCentered(Mth.PI, Direction.UP)
-			.translate(behaviour.slot.xOffset * .5, 0, behaviour.slot.yOffset * .5)
-			.light(LightTexture.FULL_BRIGHT)
+		SuperByteBuffer glowBulb = orient(CachedBuffers.partial(partial, blockState), behaviour, yRot, xRot);
+		out.add(new Part(glowBulb.light(LightCoordsUtil.FULL_BRIGHT)
 			.color(color, color, color, 255)
-			.overlay(overlay)
-			.renderInto(ms, buffer.getBuffer(RenderTypes.additive()));
+			.extractRenderState(), RenderTypes.additive()));
 	}
 
-	public static void renderPath(FactoryPanelBehaviour behaviour, FactoryPanelConnection connection,
-		float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+	public static void extractPath(FactoryPanelBehaviour behaviour, FactoryPanelConnection connection,
+		float partialTicks, List<Part> out, int light) {
 		BlockState blockState = behaviour.blockEntity.getBlockState();
 		List<Direction> path = connection.getPath(behaviour.getWorld(), blockState, behaviour.getPanelPosition());
 
@@ -143,7 +164,8 @@ public class FactoryPanelRenderer extends SmartBlockEntityRenderer<FactoryPanelB
 			PartialModel partial = (dots ? AllPartialModels.FACTORY_PANEL_DOTTED
 				: isArrowSegment ? AllPartialModels.FACTORY_PANEL_ARROWS : AllPartialModels.FACTORY_PANEL_LINES)
 					.get(pathReversed ? direction : direction.getOpposite());
-			SuperByteBuffer connectionSprite = CachedBuffers.partial(partial, blockState)
+			SuperByteBuffer connectionSprite = CachedBuffers.partial(partial, blockState);
+			TransformStack.of(connectionSprite.getTransforms())
 				.rotateCentered(yRot, Direction.UP)
 				.rotateCentered(xRot, Direction.EAST)
 				.rotateCentered(Mth.PI, Direction.UP)
@@ -154,16 +176,29 @@ public class FactoryPanelRenderer extends SmartBlockEntityRenderer<FactoryPanelB
 				&& !behaviour.satisfied && !behaviour.redstonePowered)
 				connectionSprite.shiftUV(AllSpriteShifts.FACTORY_PANEL_CONNECTIONS);
 
-			connectionSprite.color(color)
+			out.add(new Part(connectionSprite.color(color)
 				.light(light)
-				.overlay(overlay)
-				.renderInto(ms, buffer.getBuffer(RenderType.cutoutMipped()));
+				.extractRenderState(),
+				net.minecraft.client.renderer.rendertype.RenderTypes.cutoutMovingBlock()));
 
 			if (pathReversed) {
 				currentX += direction.getStepX() * .5;
 				currentZ += direction.getStepZ() * .5;
 			}
 		}
+	}
+
+	/**
+	 * Bulbs sit flat against whichever face the panel is on, offset into their slot on the board.
+	 */
+	private static SuperByteBuffer orient(SuperByteBuffer buffer, FactoryPanelBehaviour behaviour, float yRot,
+		float xRot) {
+		TransformStack.of(buffer.getTransforms())
+			.rotateCentered(yRot, Direction.UP)
+			.rotateCentered(xRot, Direction.EAST)
+			.rotateCentered(Mth.PI, Direction.UP)
+			.translate(behaviour.slot.xOffset * .5, 0, behaviour.slot.yOffset * .5);
+		return buffer;
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.processing.burner;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
@@ -9,13 +10,12 @@ import com.simibubi.create.content.trains.entity.CarriageContraption;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.particles.ParticleTypes;
@@ -98,7 +98,7 @@ public class BlazeBurnerMovementBehaviour implements MovementBehaviour {
 		CompoundTag data = context.data;
 		if (!data.contains("Conductor"))
 			data.putBoolean("Conductor", determineIfConducting(context));
-		return data.getBoolean("Conductor") && (context.contraption.entity instanceof CarriageContraptionEntity cce)
+		return data.getBooleanOr("Conductor", false) && (context.contraption.entity instanceof CarriageContraptionEntity cce)
 			&& cce.hasSchedule();
 	}
 
@@ -121,7 +121,7 @@ public class BlazeBurnerMovementBehaviour implements MovementBehaviour {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffer) {
+		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
 		if (!shouldRender(context))
 			return;
 		BlazeBurnerRenderer.renderInContraption(context, renderWorld, matrices, buffer, getHeadAngle(context),

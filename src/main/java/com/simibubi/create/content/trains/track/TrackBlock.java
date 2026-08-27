@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
+import net.minecraft.world.level.ScheduledTickAccess;
 import static com.simibubi.create.AllShapes.TRACK_ASC;
 import static com.simibubi.create.AllShapes.TRACK_CROSS;
 import static com.simibubi.create.AllShapes.TRACK_CROSS_DIAG;
@@ -50,10 +51,10 @@ import dev.engine_room.flywheel.lib.transform.Affine;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.BlockFace;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.math.BlockFace;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -68,7 +69,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -214,7 +215,7 @@ public class TrackBlock extends Block
 	public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving) {
 		if (pOldState.getBlock() == this && pState.setValue(HAS_BE, true) == pOldState.setValue(HAS_BE, true))
 			return;
-		if (pLevel.isClientSide)
+		if (pLevel.isClientSide())
 			return;
 		LevelTickAccess<Block> blockTicks = pLevel.getBlockTicks();
 		if (!blockTicks.hasScheduledTick(pPos, this))
@@ -296,21 +297,21 @@ public class TrackBlock extends Block
 		Player player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 10, Predicates.alwaysTrue());
 		if (player == null)
 			return;
-		player.displayClientMessage(Component.literal("<!> ")
+		player.sendOverlayMessage(Component.literal("<!> ")
 			.append(CreateLang.translateDirect("portal_track.failed"))
 			.withStyle(ChatFormatting.GOLD), false);
 		MutableComponent component = failPos != null
 			? CreateLang.translateDirect("portal_track." + fail, failPos.getX(), failPos.getY(), failPos.getZ())
 			: CreateLang.translateDirect("portal_track." + fail);
-		player.displayClientMessage(Component.literal(" - ")
+		player.sendSystemMessage(Component.literal(" - ")
 			.withStyle(ChatFormatting.GRAY)
-			.append(component.withStyle(st -> st.withColor(0xFFD3B4))), false);
+			.append(component.withStyle(st -> st.withColor(0xFFD3B4))));
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction pDirection, BlockState pNeighborState,
-								  LevelAccessor level, BlockPos pCurrentPos, BlockPos pNeighborPos) {
-		updateWater(level, state, pCurrentPos);
+	public BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks,
+		BlockPos pCurrentPos, Direction pDirection, BlockPos pNeighborPos, BlockState pNeighborState, RandomSource random) {
+		updateWater(level, ticks, state, pCurrentPos);
 		TrackShape shape = state.getValue(SHAPE);
 		if (!shape.isPortal())
 			return state;
@@ -353,7 +354,7 @@ public class TrackBlock extends Block
 					ITrackBlock.addToListIfConnected(connectedTo, list,
 						(d, b) -> axis.scale(b ? 0 : fromCenter ? -d : d)
 							.add(center),
-						b -> shape.getNormal(), b -> world instanceof Level l ? l.dimension() : Level.OVERWORLD, v -> 0,
+						b -> shape.getUnitVec3i(), b -> world instanceof Level l ? l.dimension() : Level.OVERWORLD, v -> 0,
 						axis, null, (b, v) -> ITrackBlock.getMaterialSimple(world, v));
 		} else
 			list = ITrackBlock.super.getConnected(world, pos, state, linear, connectedTo);
@@ -396,7 +397,7 @@ public class TrackBlock extends Block
 
 		getTrackAxes(world, pos, state).forEach(axis -> {
 			ITrackBlock.addToListIfConnected(connectedTo, list, (d, b) -> (b ? axis : boundAxis).scale(d)
-					.add(b ? center : boundCenter), b -> (b ? shape : boundShape).getNormal(),
+					.add(b ? center : boundCenter), b -> (b ? shape : boundShape).getUnitVec3i(),
 				b -> b ? level.dimension() : otherLevel.dimension(), v -> 0, axis, null,
 				(b, v) -> ITrackBlock.getMaterialSimple(b ? level : otherLevel, v));
 		});
@@ -417,29 +418,18 @@ public class TrackBlock extends Block
 	}
 
 	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-		boolean removeBE = false;
-		if (pState.getValue(HAS_BE) && (!pState.is(pNewState.getBlock()) || !pNewState.getValue(HAS_BE))) {
-			BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
-			if (blockEntity instanceof TrackBlockEntity tbe && !pLevel.isClientSide) {
-				tbe.cancelDrops |= pNewState.getBlock() == this;
-				tbe.removeInboundConnections(true);
-			}
-			removeBE = true;
-		}
-
-		if (pNewState.getBlock() != this || pState.setValue(HAS_BE, true) != pNewState.setValue(HAS_BE, true))
-			TrackPropagator.onRailRemoved(pLevel, pPos, pState);
-		if (removeBE)
-			pLevel.removeBlockEntity(pPos);
-		if (!pLevel.isClientSide)
-			updateGirders(pState, pLevel, pPos, pLevel.getBlockTicks());
+	public void affectNeighborsAfterRemoval(BlockState pState, ServerLevel pLevel, BlockPos pPos,
+		boolean pIsMoving) {
+		// Inbound connections are dropped from TrackBlockEntity#destroy now; the block entity has
+		// already been removed by the time this runs.
+		TrackPropagator.onRailRemoved(pLevel, pPos, pState);
+		updateGirders(pState, pLevel, pPos, pLevel.getBlockTicks());
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		if (level.isClientSide)
-			return ItemInteractionResult.SUCCESS;
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+		if (level.isClientSide())
+			return InteractionResult.SUCCESS;
 		for (Entry<BlockPos, BoundingBox> entry : StationBlockEntity.assemblyAreas.get(level)
 			.entrySet()) {
 			if (!entry.getValue()
@@ -447,10 +437,10 @@ public class TrackBlock extends Block
 				continue;
 			if (level.getBlockEntity(entry.getKey()) instanceof StationBlockEntity station)
 				if (station.trackClicked(player, hand, this, state, pos))
-					return ItemInteractionResult.SUCCESS;
+					return InteractionResult.SUCCESS;
 		}
 
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	private void updateGirders(BlockState pState, Level pLevel, BlockPos pPos, LevelTickAccess<Block> blockTicks) {
@@ -559,7 +549,7 @@ public class TrackBlock extends Block
 	@Override
 	public Vec3 getUpNormal(BlockGetter world, BlockPos pos, BlockState state) {
 		return state.getValue(SHAPE)
-			.getNormal();
+			.getUnitVec3i();
 	}
 
 	@Override
@@ -585,7 +575,7 @@ public class TrackBlock extends Block
 	public InteractionResult onSneakWrenched(BlockState state, UseOnContext context) {
 		Player player = context.getPlayer();
 		Level level = context.getLevel();
-		if (!level.isClientSide && !player.isCreative() && state.getValue(HAS_BE)) {
+		if (!level.isClientSide() && !player.isCreative() && state.getValue(HAS_BE)) {
 			BlockEntity blockEntity = level.getBlockEntity(context.getClickedPos());
 			if (blockEntity instanceof TrackBlockEntity trackBE) {
 				trackBE.cancelDrops = true;

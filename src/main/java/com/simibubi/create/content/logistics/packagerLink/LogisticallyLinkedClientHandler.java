@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packagerLink;
 
+import net.minecraft.core.UUIDUtil;
 import java.util.UUID;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -8,8 +9,8 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelConnectionHandler;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.outliner.Outliner;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.outliner.Outliner;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
@@ -38,7 +39,7 @@ public class LogisticallyLinkedClientHandler {
 		if (!tag.hasUUID("Freq"))
 			return;
 
-		UUID uuid = tag.getUUID("Freq");
+		UUID uuid = tag.read("Freq", UUIDUtil.CODEC).orElse(null);
 		previouslyHeldFrequency = uuid;
 
 		for (LogisticallyLinkedBehaviour behaviour : LogisticallyLinkedBehaviour.getAllPresent(uuid, false, true)) {

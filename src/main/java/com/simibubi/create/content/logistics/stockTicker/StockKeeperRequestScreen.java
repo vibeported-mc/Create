@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,28 +47,27 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import mezz.jei.api.runtime.IIngredientFilter;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.config.ConfigBase.ConfigEnum;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.gui.UIRenderHelper;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.lang.Lang;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.config.ConfigBase.ConfigEnum;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.client.gui.UIRenderHelper;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.createmod.catnip.api.lang.Lang;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -460,7 +461,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+	public void renderBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 		PoseStack ms = guiGraphics.pose();
 		ms.pushPose();
 		ms.translate(0, 0, -300);
@@ -469,7 +470,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
 		if (this != minecraft.screen)
 			return; // stencil buffer does not cooperate with ponders gui fade out
 
@@ -493,7 +494,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		// Render text input hints
 		if (addressBox.getValue()
 			.isBlank() && !addressBox.isFocused()) {
-			graphics.drawString(Minecraft.getInstance().font, CreateLang.translate("gui.stock_keeper.package_address")
+			graphics.text(Minecraft.getInstance().font, CreateLang.translate("gui.stock_keeper.package_address")
 				.style(ChatFormatting.ITALIC)
 				.component(), addressBox.getX(), addressBox.getY(), 0xff_CDBCA8, false);
 		}
@@ -533,10 +534,10 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			int hashCode = keeperBE.hashCode();
 			Lighting.setupForEntityInInventory();
 
-			VertexConsumer cutout = graphics.bufferSource().getBuffer(RenderType.cutoutMipped());
+			VertexConsumer cutout = graphics.bufferSource().getBuffer(RenderTypes.cutoutMovingBlock());
 			CachedBuffers.partial(AllPartialModels.BLAZE_CAGE, keeperBE.getBlockState())
 				.rotateCentered(horizontalAngle + Mth.PI, Direction.UP)
-				.light(LightTexture.FULL_BRIGHT)
+				.light(LightCoordsUtil.FULL_BRIGHT)
 				.renderInto(ms, cutout);
 
 			BlazeBurnerRenderer.renderShared(ms, null, graphics.bufferSource(), minecraft.level,
@@ -571,7 +572,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		}
 
 		if (itemsToOrder.size() > 9) {
-			graphics.drawString(font, Component.literal("[+" + (itemsToOrder.size() - 9) + "]"), x + windowWidth - 40,
+			graphics.text(font, Component.literal("[+" + (itemsToOrder.size() - 9) + "]"), x + windowWidth - 40,
 				orderY + 21, 0xF8F8EC);
 		}
 
@@ -582,7 +583,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 
 		MutableComponent headerTitle = CreateLang.translate("gui.stock_keeper.title")
 			.component();
-		graphics.drawString(font, headerTitle, x + windowWidth / 2 - font.width(headerTitle) / 2, y + 4, 0x714A40,
+		graphics.text(font, headerTitle, x + windowWidth / 2 - font.width(headerTitle) / 2, y + 4, 0x714A40,
 			false);
 		MutableComponent component =
 			CreateLang.translate(encodeRequester ? "gui.stock_keeper.configure" : "gui.stock_keeper.send")
@@ -593,14 +594,14 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			ms.pushPose();
 			ms.translate(alpha * alpha * 50, 0, 0);
 			if (successTicks < 10)
-				graphics.drawString(font, component, x + windowWidth - 42 - font.width(component) / 2,
+				graphics.text(font, component, x + windowWidth - 42 - font.width(component) / 2,
 					y + windowHeight - 35, new Color(0x252525).setAlpha(1 - alpha * alpha)
 						.getRGB(),
 					false);
 			ms.popPose();
 
 		} else {
-			graphics.drawString(font, component, x + windowWidth - 42 - font.width(component) / 2,
+			graphics.text(font, component, x + windowWidth - 42 - font.width(component) / 2,
 				y + windowHeight - 35, 0x252525, false);
 		}
 
@@ -618,7 +619,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 				UIRenderHelper.drawStretched(graphics, msgX, msgY - 4, w, 16, 0,
 					AllGuiTextures.STOCK_KEEPER_REQUEST_BANNER_M);
 				AllGuiTextures.STOCK_KEEPER_REQUEST_BANNER_R.render(graphics, msgX + font.width(msg) + 10, msgY - 4);
-				graphics.drawString(font, msg, msgX + 5, msgY, c3, false);
+				graphics.text(font, msg, msgX + 5, msgY, c3, false);
 			}
 		}
 
@@ -647,7 +648,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		searchBox.render(graphics, mouseX, mouseY, partialTicks);
 		if (searchBox.getValue()
 			.isBlank() && !searchBox.isFocused())
-			graphics.drawString(font, searchBox.getMessage(),
+			graphics.text(font, searchBox.getMessage(),
 				x + windowWidth / 2 - font.width(searchBox.getMessage()) / 2, searchBox.getY(), 0xff4A2D31, false);
 
 		// Something isnt right
@@ -662,11 +663,11 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 				for (int i = 0; i < split.size(); i++) {
 					FormattedCharSequence sequence = split.get(i);
 					int lineWidth = font.width(sequence);
-					graphics.drawString(font, sequence, x + windowWidth / 2 - lineWidth / 2 + 1,
+					graphics.text(font, sequence, x + windowWidth / 2 - lineWidth / 2 + 1,
 						itemsY + 20 + 1 + i * (font.lineHeight + 1), new Color(0x4A2D31).setAlpha(alpha)
 							.getRGB(),
 						false);
-					graphics.drawString(font, sequence, x + windowWidth / 2 - lineWidth / 2,
+					graphics.text(font, sequence, x + windowWidth / 2 - lineWidth / 2,
 						itemsY + 20 + i * (font.lineHeight + 1), new Color(0xF8F8EC).setAlpha(alpha)
 							.getRGB(),
 						false);
@@ -685,8 +686,8 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			if (!categories.isEmpty()) {
 				(categoryEntry.hidden ? AllGuiTextures.STOCK_KEEPER_CATEGORY_HIDDEN
 					: AllGuiTextures.STOCK_KEEPER_CATEGORY_SHOWN).render(graphics, itemsX, itemsY + categoryY + 6);
-				graphics.drawString(font, categoryEntry.name, itemsX + 10, itemsY + categoryY + 8, 0x4A2D31, false);
-				graphics.drawString(font, categoryEntry.name, itemsX + 9, itemsY + categoryY + 7, 0xF8F8EC, false);
+				graphics.text(font, categoryEntry.name, itemsX + 10, itemsY + categoryY + 8, 0x4A2D31, false);
+				graphics.text(font, categoryEntry.name, itemsX + 9, itemsY + categoryY + 7, 0xF8F8EC, false);
 				if (categoryEntry.hidden)
 					continue;
 			}
@@ -772,7 +773,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 	}
 
 	@Override
-	protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderForeground(graphics, mouseX, mouseY, partialTicks);
 		float currentScroll = itemScroll.getValue(partialTicks);
 		Couple<Integer> hoveredSlot = getHoveredSlot(mouseX, mouseY);
@@ -793,9 +794,9 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 				if (lines.size() > 0)
 					lines.set(0, CreateLang.translateDirect("gui.stock_keeper.craft", lines.get(0)
 						.copy()));
-				graphics.renderComponentTooltip(font, lines, mouseX, mouseY);
+				graphics.setComponentTooltipForNextFrame(font, lines, mouseX, mouseY);
 			} else
-				graphics.renderTooltip(font, entry.stack, mouseX, mouseY);
+				graphics.setTooltipForNextFrame(font, entry.stack, mouseX, mouseY);
 		}
 
 		if (currentScroll < 1 && mouseY > besideSearchButtonY && mouseY <= besideSearchButtonY + 15) {
@@ -803,7 +804,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			if (Mods.JEI.isLoaded() && mouseX > jeiSyncX && mouseX <= jeiSyncX + 15) {
 				SearchSyncMode mode = AllConfigs.client().syncRecipeViewerSearch.get();
 				String langKey = "gui.stock_keeper.jei_sync." + mode.getSerializedName();
-				graphics.renderComponentTooltip(font,
+				graphics.setComponentTooltipForNextFrame(font,
 					List.of(
 						CreateLang.translate(langKey)
 							.component(),
@@ -819,7 +820,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 
 			// Render tooltip of lock option
 			if (isAdmin && mouseX > lockX && mouseX <= lockX + 15) {
-				graphics.renderComponentTooltip(font,
+				graphics.setComponentTooltipForNextFrame(font,
 					List.of(
 						CreateLang.translate(isLocked ? "gui.stock_keeper.network_locked" : "gui.stock_keeper.network_open")
 							.component(),
@@ -840,7 +841,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		// Render tooltip of address input
 		if (addressBox.getValue()
 			.isBlank() && !addressBox.isFocused() && addressBox.isHovered()) {
-			graphics.renderComponentTooltip(font, List.of(CreateLang.translate("gui.factory_panel.restocker_address")
+			graphics.setComponentTooltipForNextFrame(font, List.of(CreateLang.translate("gui.factory_panel.restocker_address")
 						.color(ScrollInput.HEADER_RGB)
 						.component(),
 					CreateLang.translate("gui.schedule.lmb_edit")
@@ -851,7 +852,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		}
 	}
 
-	private void renderItemEntry(GuiGraphics graphics, float scale, BigItemStack entry, boolean isStackHovered,
+	private void renderItemEntry(GuiGraphicsExtractor graphics, float scale, BigItemStack entry, boolean isStackHovered,
 								 boolean isRenderingOrders) {
 		int customCount = entry.count;
 		ItemStack stackWithCount = entry.stack.copyWithCount(customCount);
@@ -890,14 +891,14 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		ms.pushPose();
 		ms.translate(0, 0, 190);
 		if (customCount != 0 || craftable)
-			graphics.renderItemDecorations(font, stackWithCount, 1, 1, "");
+			graphics.itemDecorations(font, stackWithCount, 1, 1, "");
 		ms.translate(0, 0, 10);
 		if (customCount > 1 || craftable)
 			drawItemCount(graphics, entry.count, customCount);
 		ms.popPose();
 	}
 
-	private void drawItemCount(GuiGraphics graphics, int count, int customCount) {
+	private void drawItemCount(GuiGraphicsExtractor graphics, int count, int customCount) {
 		count = customCount;
 		String text = count >= 1000000 ? (count / 1000000) + "m"
 			: count >= 10000 ? (count / 1000) + "k"
@@ -1149,7 +1150,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			// Lock
 			if (isAdmin && pMouseX > lockX && pMouseX <= lockX + 15) {
 				isLocked = !isLocked;
-				CatnipServices.NETWORK.sendToServer(new StockKeeperLockPacket(blockEntity.getBlockPos(), isLocked));
+				NetworkHelper.INSTANCE.sendToServer(new StockKeeperLockPacket(blockEntity.getBlockPos(), isLocked));
 				playUiSound(SoundEvents.UI_BUTTON_CLICK.value(), 1, 1);
 				return true;
 			}
@@ -1424,9 +1425,9 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 	@Override
 	public void removed() {
 		BlockPos pos = blockEntity.getBlockPos();
-		CatnipServices.NETWORK.sendToServer(
+		NetworkHelper.INSTANCE.sendToServer(
 			new PackageOrderRequestPacket(pos, PackageOrderWithCrafts.empty(), addressBox.getValue(), false));
-		CatnipServices.NETWORK
+		NetworkHelper.INSTANCE
 			.sendToServer(new StockKeeperCategoryHidingPacket(pos, new ArrayList<>(hiddenCategories)));
 		super.removed();
 	}
@@ -1498,7 +1499,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			order = new PackageOrderWithCrafts(order.orderedStacks(), craftList);
 		}
 
-		CatnipServices.NETWORK.sendToServer(
+		NetworkHelper.INSTANCE.sendToServer(
 			new PackageOrderRequestPacket(blockEntity.getBlockPos(), order, addressBox.getValue(), encodeRequester));
 
 		itemsToOrder = new ArrayList<>();

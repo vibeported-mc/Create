@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.computercraft.implementation.peripherals;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,6 @@ import com.simibubi.create.compat.computercraft.AttachedComputerPacket;
 import com.simibubi.create.compat.computercraft.events.ComputerEvent;
 import com.simibubi.create.compat.computercraft.implementation.ComputerBehaviour;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import net.createmod.catnip.platform.CatnipServices;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -52,7 +52,7 @@ public abstract class SyncedPeripheral<T extends SmartBlockEntity> implements IP
 		boolean hasAttachedComputer = !computers.isEmpty();
 
 		blockEntity.getBehaviour(ComputerBehaviour.TYPE).setHasAttachedComputer(hasAttachedComputer);
-		CatnipServices.NETWORK.sendToAllClients(new AttachedComputerPacket(blockEntity.getBlockPos(), hasAttachedComputer));
+		NetworkHelper.INSTANCE.sendToAllClients(new AttachedComputerPacket(blockEntity.getBlockPos(), hasAttachedComputer));
 	}
 
 	@Override

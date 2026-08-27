@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei;
 
+import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,7 +9,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -90,7 +90,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -108,12 +108,12 @@ import net.minecraft.world.level.block.Blocks;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
+@NullMarked
 @JeiPlugin
 @SuppressWarnings("unused")
-@ParametersAreNonnullByDefault
 public class CreateJEI implements IModPlugin {
 
-	private static final ResourceLocation ID = Create.asResource("jei_plugin");
+	private static final Identifier ID = Create.asResource("jei_plugin");
 
 	private final List<CreateRecipeCategory<?>> allCategories = new ArrayList<>();
 	private IIngredientManager ingredientManager;
@@ -327,7 +327,7 @@ public class CreateJEI implements IModPlugin {
 
 	@Override
 	@NotNull
-	public ResourceLocation getPluginUid() {
+	public Identifier getPluginUid() {
 		return ID;
 	}
 
@@ -418,7 +418,7 @@ public class CreateJEI implements IModPlugin {
 		}
 
 		@Override
-		public CreateRecipeCategory<T> build(ResourceLocation id, Factory<T> factory) {
+		public CreateRecipeCategory<T> build(Identifier id, Factory<T> factory) {
 			CreateRecipeCategory<T> category = super.build(id, factory);
 			allCategories.add(category);
 			return category;

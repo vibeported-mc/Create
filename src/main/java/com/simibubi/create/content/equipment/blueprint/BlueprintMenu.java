@@ -1,5 +1,9 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.content.equipment.blueprint.BlueprintEntity.BlueprintSection;
@@ -24,8 +28,6 @@ import net.minecraft.world.level.Level;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 import java.util.Optional;
@@ -66,7 +68,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 	public void onCraftMatrixChanged() {
 		Level level = contentHolder.getBlueprintWorld();
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 
 		ServerPlayer serverplayerentity = (ServerPlayer) player;
@@ -76,13 +78,13 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 			.getRecipeFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), player.getCommandSenderWorld());
 
 		if (!optional.isPresent()) {
-			if (ghostInventory.getStackInSlot(9)
+			if (ItemHandlerHelpers.getStackInSlot(ghostInventory, 9)
 				.isEmpty())
 				return;
 			if (!contentHolder.inferredIcon)
 				return;
 
-			ghostInventory.setStackInSlot(9, ItemStack.EMPTY);
+			ItemHandlerHelpers.setStackInSlot(ghostInventory, 9, ItemStack.EMPTY);
 			serverplayerentity.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 36 + 9, ItemStack.EMPTY));
 			contentHolder.inferredIcon = false;
 			return;
@@ -90,7 +92,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 		CraftingRecipe icraftingrecipe = optional.get().value();
 		ItemStack itemstack = icraftingrecipe.assemble(craftingInventory.asCraftInput(), level.registryAccess());
-		ghostInventory.setStackInSlot(9, itemstack);
+		ItemHandlerHelpers.setStackInSlot(ghostInventory, 9, itemstack);
 		contentHolder.inferredIcon = true;
 		ItemStack toSend = itemstack.copy();
 		toSend.set(AllDataComponents.INFERRED_FROM_RECIPE, true);
@@ -107,7 +109,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
+	protected ItemStacksResourceHandler createGhostInventory() {
 		return contentHolder.getItems();
 	}
 
@@ -140,11 +142,11 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 	static class BlueprintCraftingInventory extends TransientCraftingContainer {
 
-		public BlueprintCraftingInventory(AbstractContainerMenu menu, ItemStackHandler items) {
+		public BlueprintCraftingInventory(AbstractContainerMenu menu, ItemStacksResourceHandler items) {
 			super(menu, 3, 3);
 			for (int y = 0; y < 3; y++) {
 				for (int x = 0; x < 3; x++) {
-					ItemStack stack = items.getStackInSlot(y * 3 + x);
+					ItemStack stack = ItemHandlerHelpers.getStackInSlot(items, y * 3 + x);
 					setItem(y * 3 + x, stack == null ? ItemStack.EMPTY : stack.copy());
 				}
 			}
@@ -156,7 +158,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 		private int index;
 
-		public BlueprintCraftSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+		public BlueprintCraftSlot(ResourceHandler<ItemResource> itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, index, xPosition, yPosition);
 			this.index = index;
 		}
@@ -164,7 +166,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 		@Override
 		public void setChanged() {
 			super.setChanged();
-			if (index == 9 && hasItem() && !contentHolder.getBlueprintWorld().isClientSide) {
+			if (index == 9 && hasItem() && !contentHolder.getBlueprintWorld().isClientSide()) {
 				contentHolder.inferredIcon = false;
 				ServerPlayer serverplayerentity = (ServerPlayer) player;
 				serverplayerentity.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 36 + 9, getItem()));

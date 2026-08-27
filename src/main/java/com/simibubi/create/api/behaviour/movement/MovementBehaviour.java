@@ -1,5 +1,7 @@
 package com.simibubi.create.api.behaviour.movement;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +14,6 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -21,8 +22,6 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 /**
  * MovementBehaviors, also known as Actors, provide behavior to blocks mounted on contraptions.
  * Blocks may be associated with a behavior through {@link #REGISTRY}.
@@ -81,7 +80,7 @@ public interface MovementBehaviour {
 	default void collectOrDropItem(MovementContext context, ItemStack stack) {
 		ItemStack remainder;
 		if (AllConfigs.server().kinetics.moveItemsToStorage.get())
-			remainder = ItemHandlerHelper.insertItem(context.contraption.getStorage().getAllItems(), stack, false);
+			remainder = ItemHandlerHelpers.insertItem(context.contraption.getStorage().getAllItems(), stack, false);
 		else
 			remainder = stack;
 		if (remainder.isEmpty())
@@ -94,7 +93,7 @@ public interface MovementBehaviour {
 
 		ItemEntity itemEntity = new ItemEntity(context.world, vec.x, vec.y, vec.z, remainder);
 		itemEntity.setDeltaMovement(context.motion.add(0, 0.5f, 0)
-			.scale(context.world.random.nextFloat() * .3f));
+			.scale(context.world.getRandom().nextFloat() * .3f));
 		context.world.addFreshEntity(itemEntity);
 	}
 
@@ -114,7 +113,7 @@ public interface MovementBehaviour {
 
 	@OnlyIn(Dist.CLIENT)
 	default void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffer) {}
+		ContraptionMatrices matrices, SubmitNodeCollector buffer) {}
 
 	@OnlyIn(Dist.CLIENT)
 	@Nullable

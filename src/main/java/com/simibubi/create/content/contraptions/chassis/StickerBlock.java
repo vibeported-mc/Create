@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.chassis;
 
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.block.IBE;
@@ -54,9 +56,9 @@ public class StickerBlock extends WrenchableDirectionalBlock implements IBE<Stic
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation,
 		boolean isMoving) {
-		if (worldIn.isClientSide)
+		if (worldIn.isClientSide())
 			return;
 
 		boolean previouslyPowered = state.getValue(POWERED);
@@ -91,28 +93,19 @@ public class StickerBlock extends WrenchableDirectionalBlock implements IBE<Stic
 	}
 
 	@Override
-	public void fallOn(Level p_152426_, BlockState p_152427_, BlockPos p_152428_, Entity p_152429_, float p_152430_) {
+	public void fallOn(Level p_152426_, BlockState p_152427_, BlockPos p_152428_, Entity p_152429_, double p_152430_) {
 		if (!isUprightSticker(p_152426_, p_152428_) || p_152429_.isSuppressingBounce())
 			super.fallOn(p_152426_, p_152427_, p_152428_, p_152429_, p_152430_);
 		p_152429_.causeFallDamage(p_152430_, 1.0F, p_152426_.damageSources().fall());
 	}
 
 	@Override
-	public void updateEntityAfterFallOn(BlockGetter p_176216_1_, Entity p_176216_2_) {
-		if (!isUprightSticker(p_176216_1_, p_176216_2_.blockPosition()
-			.below()) || p_176216_2_.isSuppressingBounce()) {
-			super.updateEntityAfterFallOn(p_176216_1_, p_176216_2_);
-		} else {
-			this.bounceUp(p_176216_2_);
-		}
-	}
-
-	private void bounceUp(Entity p_226946_1_) {
-		Vec3 Vector3d = p_226946_1_.getDeltaMovement();
-		if (Vector3d.y < 0.0D) {
-			double d0 = p_226946_1_ instanceof LivingEntity ? 1.0D : 0.8D;
-			p_226946_1_.setDeltaMovement(Vector3d.x, -Vector3d.y * d0, Vector3d.z);
-		}
+	/**
+	 * Only a sticker pointing up throws things back; the entity applies this itself in 26.2.
+	 */
+	@Override
+	public float getBounceRestitution(Level level, BlockPos pos, BlockState blockState, Entity entity) {
+		return isUprightSticker(level, pos) ? 1 : 0;
 	}
 
 	@Override
@@ -144,9 +137,9 @@ public class StickerBlock extends WrenchableDirectionalBlock implements IBE<Stic
 			Vec3 Vector3d = entity.getDeltaMovement();
 			world.addParticle(
 				new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SLIME_BLOCK.defaultBlockState()).setPos(pos),
-				entity.getX() + ((double) world.random.nextFloat() - 0.5D) * (double) entity.getBbWidth(),
+				entity.getX() + ((double) world.getRandom().nextFloat() - 0.5D) * (double) entity.getBbWidth(),
 				entity.getY() + 0.1D,
-				entity.getZ() + ((double) world.random.nextFloat() - 0.5D) * (double) entity.getBbWidth(),
+				entity.getZ() + ((double) world.getRandom().nextFloat() - 0.5D) * (double) entity.getBbWidth(),
 				Vector3d.x * -4.0D, 1.5D, Vector3d.z * -4.0D);
 			return true;
 		}

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.filter;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllMenuTypes;
@@ -9,7 +11,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class FilterMenu extends AbstractFilterMenu {
@@ -49,7 +50,7 @@ public class FilterMenu extends AbstractFilterMenu {
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
+	protected ItemStacksResourceHandler createGhostInventory() {
 		return AllItems.FILTER.get().getFilterItemHandler(contentHolder);
 	}
 
@@ -68,8 +69,8 @@ public class FilterMenu extends AbstractFilterMenu {
 
 		if (respectNBT || blacklist)
 			return;
-		for (int i = 0; i < ghostInventory.getSlots(); i++)
-			if (!ghostInventory.getStackInSlot(i)
+		for (int i = 0; i < ghostInventory.size(); i++)
+			if (!ItemHandlerHelpers.getStackInSlot(ghostInventory, i)
 				.isEmpty())
 				return;
 		filterItem.remove(AllDataComponents.FILTER_ITEMS_RESPECT_NBT);

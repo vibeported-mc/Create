@@ -1,15 +1,15 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.List;
 
 import com.simibubi.create.AllBlocks;
 
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -86,7 +86,7 @@ public class ValueSettingsClient implements LayeredDraw.Layer {
 			return;
 		}
 		if (!mc.options.keyUse.isDown()) {
-			CatnipServices.NETWORK.sendToServer(new ValueSettingsPacket(interactHeldPos, 0, 0, interactHeldHand, blockHitResult,
+			NetworkHelper.INSTANCE.sendToServer(new ValueSettingsPacket(interactHeldPos, 0, 0, interactHeldHand, blockHitResult,
 					interactHeldFace, false, valueSettingBehaviour.netId()));
 			valueSettingBehaviour.onShortInteract(player, interactHeldHand, interactHeldFace, blockHitResult);
 			cancelInteraction();
@@ -116,7 +116,7 @@ public class ValueSettingsClient implements LayeredDraw.Layer {
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.options.hideGui || !ValueSettingsInputHandler.canInteract(mc.player))
 			return;
@@ -134,7 +134,7 @@ public class ValueSettingsClient implements LayeredDraw.Layer {
 
 		for (int i = 0; i < lastHoverTip.size(); i++) {
 			MutableComponent mutableComponent = lastHoverTip.get(i);
-			guiGraphics.drawString(mc.font, mutableComponent, x - mc.font.width(mutableComponent) / 2, y,
+			guiGraphics.text(mc.font, mutableComponent, x - mc.font.width(mutableComponent) / 2, y,
 				(i == 0 ? titleColor : color).getRGB());
 			y += 12;
 		}

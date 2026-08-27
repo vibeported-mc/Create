@@ -7,12 +7,12 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.foundation.gui.ModularGuiLineBuilder;
 
-import net.createmod.catnip.data.Pair;
-import net.minecraft.client.gui.GuiGraphics;
+import net.createmod.catnip.api.data.Pair;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -21,7 +21,7 @@ public interface IScheduleInput {
 
 	public abstract Pair<ItemStack, Component> getSummary();
 
-	public abstract ResourceLocation getId();
+	public abstract Identifier getId();
 
 	public abstract CompoundTag getData();
 
@@ -32,7 +32,7 @@ public interface IScheduleInput {
 	}
 
 	public default List<Component> getTitleAs(String type) {
-		ResourceLocation id = getId();
+		Identifier id = getId();
         return ImmutableList
 			.of(Component.translatable(id.getNamespace() + ".schedule." + type + "." + id.getPath()));
 	}
@@ -56,7 +56,7 @@ public interface IScheduleInput {
 	public default void initConfigurationWidgets(ModularGuiLineBuilder builder) {};
 
 	@OnlyIn(Dist.CLIENT)
-	public default boolean renderSpecialIcon(GuiGraphics graphics, int x, int y) {
+	public default boolean renderSpecialIcon(GuiGraphicsExtractor graphics, int x, int y) {
 		return false;
 	}
 

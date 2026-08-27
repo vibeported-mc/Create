@@ -7,11 +7,11 @@ import com.simibubi.create.content.kinetics.base.DirectionalAxisKineticBlock;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.block.IBE;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.lang.Lang;
-import net.createmod.catnip.levelWrappers.WrappedLevel;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.lang.Lang;
+import net.createmod.catnip.api.level.wrapper.WrappedLevel;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -132,9 +132,9 @@ public class GaugeBlock extends DirectionalAxisKineticBlock implements IBE<Gauge
 				continue;
 
 			Vector3f rgb = new Color(color).asVectorF();
-			Vec3 faceVec = Vec3.atLowerCornerOf(face.getNormal());
+			Vec3 faceVec = Vec3.atLowerCornerOf(face.getUnitVec3i());
 			Direction positiveFacing = Direction.get(AxisDirection.POSITIVE, face.getAxis());
-			Vec3 positiveFaceVec = Vec3.atLowerCornerOf(positiveFacing.getNormal());
+			Vec3 positiveFaceVec = Vec3.atLowerCornerOf(positiveFacing.getUnitVec3i());
 			int particleCount = gaugeBE.dialTarget > 1 ? 4 : 1;
 
 			if (particleCount == 1 && rand.nextFloat() > 1 / 4f)
@@ -166,7 +166,7 @@ public class GaugeBlock extends DirectionalAxisKineticBlock implements IBE<Gauge
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos, Direction direction) {
 		BlockEntity be = worldIn.getBlockEntity(pos);
 		if (be instanceof GaugeBlockEntity gaugeBlockEntity) {
 			return Mth.ceil(Mth.clamp(gaugeBlockEntity.dialTarget * 14, 0, 15));

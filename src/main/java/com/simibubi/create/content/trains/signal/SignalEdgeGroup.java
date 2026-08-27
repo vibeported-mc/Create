@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.signal;
 
+import net.minecraft.core.UUIDUtil;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,7 +15,7 @@ import com.google.common.base.Predicates;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.trains.entity.Train;
 
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
@@ -132,22 +133,22 @@ public class SignalEdgeGroup {
 	}
 
 	public static SignalEdgeGroup read(CompoundTag tag) {
-		SignalEdgeGroup group = new SignalEdgeGroup(tag.getUUID("Id"));
+		SignalEdgeGroup group = new SignalEdgeGroup(tag.read("Id", UUIDUtil.CODEC).orElse(null));
 		group.color = NBTHelper.readEnum(tag, "Color", EdgeGroupColor.class);
-		NBTHelper.iterateCompoundList(tag.getList("Connected", Tag.TAG_COMPOUND),
-			nbt -> group.intersecting.put(nbt.getUUID("Key"), nbt.getUUID("Value")));
-		group.fallbackGroup = tag.getBoolean("Fallback");
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("Connected"),
+			nbt -> group.intersecting.put(nbt.read("Key", UUIDUtil.CODEC).orElse(null), nbt.read("Value", UUIDUtil.CODEC).orElse(null)));
+		group.fallbackGroup = tag.getBooleanOr("Fallback", false);
 		return group;
 	}
 
 	public CompoundTag write() {
 		CompoundTag tag = new CompoundTag();
-		tag.putUUID("Id", id);
+		tag.store("Id", UUIDUtil.CODEC, id);
 		NBTHelper.writeEnum(tag, "Color", color);
 		tag.put("Connected", NBTHelper.writeCompoundList(intersecting.entrySet(), e -> {
 			CompoundTag nbt = new CompoundTag();
-			nbt.putUUID("Key", e.getKey());
-			nbt.putUUID("Value", e.getValue());
+			nbt.store("Key", UUIDUtil.CODEC, e.getKey());
+			nbt.store("Value", UUIDUtil.CODEC, e.getValue());
 			return nbt;
 		}));
 		tag.putBoolean("Fallback", fallbackGroup);

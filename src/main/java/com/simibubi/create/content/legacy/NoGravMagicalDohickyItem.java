@@ -1,6 +1,6 @@
 package com.simibubi.create.content.legacy;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -22,17 +22,17 @@ public class NoGravMagicalDohickyItem extends Item {
 		Vec3 pos = entity.position();
 		CompoundTag persistentData = entity.getPersistentData();
 
-		if (world.isClientSide) {
-			if (world.random.nextFloat() < getIdleParticleChance(entity)) {
-				Vec3 ppos = VecHelper.offsetRandomly(pos, world.random, .5f);
+		if (world.isClientSide()) {
+			if (world.getRandom().nextFloat() < getIdleParticleChance(entity)) {
+				Vec3 ppos = VecHelper.offsetRandomly(pos, world.getRandom(), .5f);
 				world.addParticle(ParticleTypes.END_ROD, ppos.x, pos.y, ppos.z, 0, -.1f, 0);
 			}
 
-			if (entity.isSilent() && !persistentData.getBoolean("PlayEffects")) {
+			if (entity.isSilent() && !persistentData.getBooleanOr("PlayEffects", false)) {
 				Vec3 basemotion = new Vec3(0, 1, 0);
 				world.addParticle(ParticleTypes.FLASH, pos.x, pos.y, pos.z, 0, 0, 0);
 				for (int i = 0; i < 20; i++) {
-					Vec3 motion = VecHelper.offsetRandomly(basemotion, world.random, 1);
+					Vec3 motion = VecHelper.offsetRandomly(basemotion, world.getRandom(), 1);
 					world.addParticle(ParticleTypes.WITCH, pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
 					world.addParticle(ParticleTypes.END_ROD, pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
 				}

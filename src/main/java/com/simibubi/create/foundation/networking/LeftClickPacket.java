@@ -1,21 +1,22 @@
 package com.simibubi.create.foundation.networking;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.events.CommonEvents;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 
-public enum LeftClickPacket implements ServerboundPacketPayload {
+public enum LeftClickPacket implements SelfHandlingPayload {
 	INSTANCE;
 
 	public static final StreamCodec<ByteBuf, LeftClickPacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.LEFT_CLICK;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.LEFT_CLICK.getType();
 	}
 
 	@Override

@@ -19,7 +19,7 @@ public class HauntedBellMovementBehaviour extends BellMovementBehaviour {
 
 	@Override
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
-		if (!context.world.isClientSide && context.world instanceof ServerLevel serverLevel && getRecharge(context) == 0) {
+		if (!context.world.isClientSide() && context.world instanceof ServerLevel serverLevel && getRecharge(context) == 0) {
 			HauntedBellPulser.sendPulse(serverLevel, pos, DISTANCE, false);
 			setRecharge(context, HauntedBellBlockEntity.RECHARGE_TICKS);
 			playSound(context);
@@ -33,7 +33,7 @@ public class HauntedBellMovementBehaviour extends BellMovementBehaviour {
 
 	private int getRecharge(MovementContext context) {
 		if (!(context.temporaryData instanceof Integer) && context.world != null) {
-			context.temporaryData = context.blockEntityData.getInt("Recharge");
+			context.temporaryData = context.blockEntityData.getIntOr("Recharge", 0);
 		}
 		return (Integer) context.temporaryData;
 	}

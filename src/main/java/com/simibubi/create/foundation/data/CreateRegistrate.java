@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.data;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 
 import java.util.Collections;
@@ -35,13 +36,12 @@ import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -186,19 +186,24 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 																				 boolean hasNaturalVariants) {
 		BlockBuilder<T, CreateRegistrate> builder = super.block(name, factory).initialProperties(propertiesFrom)
 			.transform(pickaxeOnly())
-			.blockstate(hasNaturalVariants ? BlockStateGen.naturalStoneTypeBlock(name) : (c, p) -> {
-				final String location = "block/palettes/stone_types/" + c.getName();
-				p.simpleBlock(c.get(), p.models()
-					.cubeAll(c.getName(), p.modLoc(location)));
-			})
+			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
+			// .blockstate(hasNaturalVariants ? BlockStateGen.naturalStoneTypeBlock(name) : (c, p) -> {
+										// final String location = "block/palettes/stone_types/" + c.getName();
+										// p.simpleBlock(c.get(), p.models()
+											// .cubeAll(c.getName(), p.modLoc(location)));
+									// })
+			
+			
 			.tag(BlockTags.DRIPSTONE_REPLACEABLE)
 			.tag(BlockTags.AZALEA_ROOT_REPLACEABLE)
 			.tag(BlockTags.MOSS_REPLACEABLE)
 			.tag(BlockTags.LUSH_GROUND_REPLACEABLE)
 			.item()
-			.model((c, p) -> p.cubeAll(c.getName(),
-				p.modLoc(hasNaturalVariants ? "block/palettes/stone_types/natural/" + name + "_1"
-					: "block/palettes/stone_types/" + c.getName())))
+			// TODO 26.2: port datagen to RegistrateItemModelGenerator
+			// .model((c, p) -> p.cubeAll(c.getName(),
+				// p.modLoc(hasNaturalVariants ? "block/palettes/stone_types/natural/" + name + "_1"
+					// : "block/palettes/stone_types/" + c.getName())))
+			
 			.build();
 		return builder;
 	}
@@ -214,12 +219,12 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 																					   FluidBuilder.FluidTypeFactory typeFactory, NonNullFunction<BaseFlowingFluid.Properties, T> sourceFactory,
 																					   NonNullFunction<BaseFlowingFluid.Properties, T> flowingFactory) {
 		return entry(name,
-			c -> new VirtualFluidBuilder<>(self(), self(), name, c, ResourceLocation.fromNamespaceAndPath(getModid(), "fluid/" + name + "_still"),
-				ResourceLocation.fromNamespaceAndPath(getModid(), "fluid/" + name + "_flow"), typeFactory, sourceFactory, flowingFactory));
+			c -> new VirtualFluidBuilder<>(self(), self(), name, c, Identifier.fromNamespaceAndPath(getModid(), "fluid/" + name + "_still"),
+				Identifier.fromNamespaceAndPath(getModid(), "fluid/" + name + "_flow"), typeFactory, sourceFactory, flowingFactory));
 	}
 
 	public <T extends BaseFlowingFluid> FluidBuilder<T, CreateRegistrate> virtualFluid(String name,
-																						ResourceLocation still, ResourceLocation flow, FluidBuilder.FluidTypeFactory typeFactory,
+																						Identifier still, Identifier flow, FluidBuilder.FluidTypeFactory typeFactory,
 																						NonNullFunction<BaseFlowingFluid.Properties, T> sourceFactory, NonNullFunction<BaseFlowingFluid.Properties, T> flowingFactory) {
 		return entry(name, c -> new VirtualFluidBuilder<>(self(), self(), name, c, still, flow, typeFactory, sourceFactory, flowingFactory));
 	}
@@ -227,39 +232,39 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	public FluidBuilder<VirtualFluid, CreateRegistrate> virtualFluid(String name) {
 		return entry(name,
 			c -> new VirtualFluidBuilder<>(self(), self(), name, c,
-				ResourceLocation.fromNamespaceAndPath(getModid(), "fluid/" + name + "_still"), ResourceLocation.fromNamespaceAndPath(getModid(), "fluid/" + name + "_flow"),
+				Identifier.fromNamespaceAndPath(getModid(), "fluid/" + name + "_still"), Identifier.fromNamespaceAndPath(getModid(), "fluid/" + name + "_flow"),
 				CreateRegistrate::defaultFluidType, VirtualFluid::createSource, VirtualFluid::createFlowing));
 	}
 
-	public FluidBuilder<VirtualFluid, CreateRegistrate> virtualFluid(String name, ResourceLocation still,
-																	 ResourceLocation flow) {
+	public FluidBuilder<VirtualFluid, CreateRegistrate> virtualFluid(String name, Identifier still,
+																	 Identifier flow) {
 		return entry(name, c -> new VirtualFluidBuilder<>(self(), self(), name, c, still, flow,
 			CreateRegistrate::defaultFluidType, VirtualFluid::createSource, VirtualFluid::createFlowing));
 	}
 
 	public FluidBuilder<BaseFlowingFluid.Flowing, CreateRegistrate> standardFluid(String name) {
-		return fluid(name, ResourceLocation.fromNamespaceAndPath(getModid(), "fluid/" + name + "_still"), ResourceLocation.fromNamespaceAndPath(getModid(), "fluid/" + name + "_flow"));
+		return fluid(name, Identifier.fromNamespaceAndPath(getModid(), "fluid/" + name + "_still"), Identifier.fromNamespaceAndPath(getModid(), "fluid/" + name + "_flow"));
 	}
 
 	public FluidBuilder<BaseFlowingFluid.Flowing, CreateRegistrate> standardFluid(String name,
 																				   FluidBuilder.FluidTypeFactory typeFactory) {
-		return fluid(name, ResourceLocation.fromNamespaceAndPath(getModid(), "fluid/" + name + "_still"), ResourceLocation.fromNamespaceAndPath(getModid(), "fluid/" + name + "_flow"),
+		return fluid(name, Identifier.fromNamespaceAndPath(getModid(), "fluid/" + name + "_still"), Identifier.fromNamespaceAndPath(getModid(), "fluid/" + name + "_flow"),
 			typeFactory);
 	}
 
-	public static FluidType defaultFluidType(FluidType.Properties properties, ResourceLocation stillTexture,
-											 ResourceLocation flowingTexture) {
+	public static FluidType defaultFluidType(FluidType.Properties properties, Identifier stillTexture,
+											 Identifier flowingTexture) {
 		return new FluidType(properties) {
 			@Override
 			public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
 				consumer.accept(new IClientFluidTypeExtensions() {
 					@Override
-					public ResourceLocation getStillTexture() {
+					public Identifier getStillTexture() {
 						return stillTexture;
 					}
 
 					@Override
-					public ResourceLocation getFlowingTexture() {
+					public Identifier getFlowingTexture() {
 						return flowingTexture;
 					}
 				});
@@ -271,22 +276,22 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 
 	public static <T extends Block> NonNullConsumer<? super T> casingConnectivity(
 		BiConsumer<T, CasingConnectivity> consumer) {
-		return entry -> CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> registerCasingConnectivity(entry, consumer));
+		return entry -> PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> registerCasingConnectivity(entry, consumer));
 	}
 
 	public static <T extends Block> NonNullConsumer<? super T> blockModel(
 		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
-		return entry -> CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> registerBlockModel(entry, func));
+		return entry -> PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> registerBlockModel(entry, func));
 	}
 
 	public static <T extends Item> NonNullConsumer<? super T> itemModel(
 		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
-		return entry -> CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> registerItemModel(entry, func));
+		return entry -> PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> registerItemModel(entry, func));
 	}
 
 	public static NonNullConsumer<? super Block> connectedTextures(
 		Supplier<ConnectedTextureBehaviour> behavior) {
-		return entry -> CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> registerCTBehviour(entry, behavior));
+		return entry -> PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> registerCTBehviour(entry, behavior));
 	}
 
 	@OnlyIn(Dist.CLIENT)

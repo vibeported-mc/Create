@@ -41,7 +41,7 @@ public class AllItemAttributeTypes {
 	public static final ItemAttributeType
 		PLACEABLE = singleton("placeable", s -> s.getItem() instanceof BlockItem),
 		CONSUMABLE = singleton("consumable", s -> s.has(DataComponents.FOOD)),
-		FLUID_CONTAINER = singleton("fluid_container", s -> s.getCapability(Capabilities.FluidHandler.ITEM) != null),
+		FLUID_CONTAINER = singleton("fluid_container", s -> s.getCapability(Capabilities.Fluid.ITEM) != null),
 		ENCHANTED = singleton("enchanted", ItemStack::isEnchanted),
 		MAX_ENCHANTED = singleton("max_enchanted", AllItemAttributeTypes::maxEnchanted),
 		RENAMED = singleton("renamed", s -> s.has(DataComponents.CUSTOM_NAME)),

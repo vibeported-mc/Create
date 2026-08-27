@@ -1,10 +1,11 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import org.jspecify.annotations.NullMarked;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
@@ -21,9 +22,7 @@ import net.minecraft.world.level.Level;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-
-@ParametersAreNonnullByDefault
+@NullMarked
 public class CuttingRecipe extends StandardProcessingRecipe<RecipeWrapper> implements IAssemblyRecipe {
 
 	public CuttingRecipe(ProcessingRecipeParams params) {

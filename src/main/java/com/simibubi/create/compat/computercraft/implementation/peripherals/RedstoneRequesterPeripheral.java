@@ -18,7 +18,7 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
@@ -42,7 +42,7 @@ public class RedstoneRequesterPeripheral extends SyncedPeripheral<RedstoneReques
 
 	@LuaFunction(mainThread = true)
 	public final void setCraftingRequest(IArguments arguments) throws LuaException {
-		int count = arguments.getInt(0);
+		int count = arguments.getIntOr(0, 0);
 		arguments = arguments.drop(1);
 
 		List<BigItemStack> orderStacks = generateOrder(arguments);
@@ -123,7 +123,7 @@ public class RedstoneRequesterPeripheral extends SyncedPeripheral<RedstoneReques
 			} else {
 				Object arg = arguments.get(i);
 				if (arg instanceof String itemName) {
-					ResourceLocation resourceLocation = ResourceLocation.tryParse(itemName);
+					Identifier resourceLocation = Identifier.tryParse(itemName);
 					ItemLike item = BuiltInRegistries.ITEM.get(resourceLocation);
 					list.add(new BigItemStack(new ItemStack(item), 1));
 				} else if (arg instanceof Map<?, ?> itemData) {
@@ -138,7 +138,7 @@ public class RedstoneRequesterPeripheral extends SyncedPeripheral<RedstoneReques
 						if (count > 256)
 							throw new LuaException("Count for item " + itemName + " exceeds 256");
 					}
-					ResourceLocation resourceLocation = ResourceLocation.tryParse(itemName);
+					Identifier resourceLocation = Identifier.tryParse(itemName);
 					ItemLike item = BuiltInRegistries.ITEM.get(resourceLocation);
 					list.add(new BigItemStack(new ItemStack(item), count));
 				}

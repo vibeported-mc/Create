@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.content.kinetics.fan.processing.FanProcessingType;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -26,7 +26,7 @@ public class AirFlowParticle extends SimpleAnimatedParticle {
 
 	protected AirFlowParticle(ClientLevel world, IAirCurrentSource source, double x, double y, double z,
 							  SpriteSet sprite) {
-		super(world, x, y, z, sprite, world.random.nextFloat() * .5f);
+		super(world, x, y, z, sprite, world.getRandom().nextFloat() * .5f);
 		this.source = source;
 		this.quadSize *= 0.75F;
 		this.lifetime = 40;
@@ -64,7 +64,7 @@ public class AirFlowParticle extends SimpleAnimatedParticle {
 				return;
 			}
 
-			Vec3 directionVec = Vec3.atLowerCornerOf(airCurrent.direction.getNormal());
+			Vec3 directionVec = Vec3.atLowerCornerOf(airCurrent.direction.getUnitVec3i());
 			Vec3 motion = directionVec.scale(1 / 8f);
 			if (!source.getAirCurrent().pushing)
 				motion = motion.scale(-1);

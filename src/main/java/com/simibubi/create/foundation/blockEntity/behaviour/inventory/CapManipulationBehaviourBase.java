@@ -9,7 +9,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.item.ItemHelper.ExtractionCountMode;
 
-import net.createmod.catnip.math.BlockFace;
+import net.createmod.catnip.api.math.BlockFace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -47,9 +47,10 @@ public abstract class CapManipulationBehaviourBase<T, S extends CapManipulationB
 	}
 
 	@Override
-	public void onNeighborChanged(BlockPos neighborPos) {
-		if (this.getTarget().getConnectedPos().equals(neighborPos))
-			onHandlerInvalidated();
+	public void onNeighborChanged() {
+		// Without the changed neighbour's position the target may or may not be the one that moved,
+		// so the handler is dropped either way and re-resolved on next use.
+		onHandlerInvalidated();
 	}
 
 	@SuppressWarnings("unchecked")

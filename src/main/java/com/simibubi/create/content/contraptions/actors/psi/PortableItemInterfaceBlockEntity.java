@@ -1,5 +1,8 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.foundation.item.ItemHandlerWrapper;
@@ -10,12 +13,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBlockEntity {
 
-	protected IItemHandlerModifiable capability;
+	protected ModifiableItemHandler capability;
 
 	public PortableItemInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -24,7 +24,7 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.PORTABLE_STORAGE_INTERFACE.get(),
 				(be, context) -> be.capability
 		);
@@ -34,7 +34,7 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 	public void startTransferringTo(Contraption contraption, float distance) {
 		capability = new InterfaceItemHandler(contraption.getStorage().getAllItems());
 		invalidateCapability();
-        if (level != null && !level.isClientSide)
+        if (level != null && !level.isClientSide())
             level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
 		super.startTransferringTo(contraption, distance);
 	}
@@ -43,13 +43,13 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 	protected void stopTransferring() {
 		capability = createEmptyHandler();
 		invalidateCapability();
-        if (level != null && !level.isClientSide)
+        if (level != null && !level.isClientSide())
             level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
 		super.stopTransferring();
 	}
 
-	private IItemHandlerModifiable createEmptyHandler() {
-		return new InterfaceItemHandler(new ItemStackHandler(0));
+	private ModifiableItemHandler createEmptyHandler() {
+		return new InterfaceItemHandler(new ItemStacksResourceHandler(0));
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 
 	class InterfaceItemHandler extends ItemHandlerWrapper {
 
-		public InterfaceItemHandler(IItemHandlerModifiable wrapped) {
+		public InterfaceItemHandler(ModifiableItemHandler wrapped) {
 			super(wrapped);
 		}
 

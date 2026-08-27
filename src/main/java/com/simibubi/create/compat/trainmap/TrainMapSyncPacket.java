@@ -1,17 +1,16 @@
 package com.simibubi.create.compat.trainmap;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.compat.trainmap.TrainMapSync.TrainMapSyncEntry;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.UUIDUtil;
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.network.FriendlyByteBuf;
 
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -20,7 +19,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public class TrainMapSyncPacket implements ClientboundPacketPayload {
+public class TrainMapSyncPacket implements CustomPacketPayload {
 	public static final StreamCodec<FriendlyByteBuf, TrainMapSyncPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.BOOL, packet -> packet.light,
 			CatnipStreamCodecBuilders.list(Pair.streamCodec(UUIDUtil.STREAM_CODEC, TrainMapSyncEntry.STREAM_CODEC)), packet -> packet.entries,
@@ -43,14 +42,13 @@ public class TrainMapSyncPacket implements ClientboundPacketPayload {
 		entries.add(Pair.of(trainId, data));
 	}
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		TrainMapSyncClient.receive(this);
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.TRAIN_MAP_SYNC;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.TRAIN_MAP_SYNC.getType();
 	}
 }

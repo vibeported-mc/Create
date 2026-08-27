@@ -1,11 +1,11 @@
 package com.simibubi.create.api.contraption.storage.fluid;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.google.common.collect.ImmutableMap;
 import com.simibubi.create.foundation.fluid.CombinedTankWrapper;
 
 import net.minecraft.core.BlockPos;
-
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 /**
  * Wrapper around many MountedFluidStorages, providing access to all of them as one storage.
@@ -15,7 +15,7 @@ public class MountedFluidStorageWrapper extends CombinedTankWrapper {
 	public final ImmutableMap<BlockPos, MountedFluidStorage> storages;
 
 	public MountedFluidStorageWrapper(ImmutableMap<BlockPos, MountedFluidStorage> storages) {
-		super(storages.values().toArray(IFluidHandler[]::new));
+		super(storages.values().toArray(ResourceHandler<FluidResource>[]::new));
 		this.storages = storages;
 	}
 }

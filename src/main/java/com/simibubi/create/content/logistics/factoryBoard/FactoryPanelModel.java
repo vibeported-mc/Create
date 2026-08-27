@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,21 +15,21 @@ import com.simibubi.create.foundation.model.BakedModelWrapperWithData;
 import com.simibubi.create.foundation.model.BakedQuadHelper;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.ponder.api.level.PonderLevel;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.ponder.api.client.level.PonderLevel;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
+import net.neoforged.neoforge.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelProperty;
 
 public class FactoryPanelModel extends BakedModelWrapperWithData {
 
@@ -75,7 +76,7 @@ public class FactoryPanelModel extends BakedModelWrapperWithData {
 				: AllPartialModels.FACTORY_PANEL_RESTOCKER_WITH_BULB;
 
 		List<BakedQuad> quadsToAdd = factoryPanel.get()
-			.getQuads(state, null, rand, data, RenderType.solid());
+			.getQuads(state, null, rand, data, RenderTypes.solidMovingBlock());
 
 		float xRot = Mth.RAD_TO_DEG * FactoryPanelBlock.getXRot(state);
 		float yRot = Mth.RAD_TO_DEG * FactoryPanelBlock.getYRot(state);
@@ -85,7 +86,7 @@ public class FactoryPanelModel extends BakedModelWrapperWithData {
 			int[] transformedVertices = Arrays.copyOf(vertices, vertices.length);
 
 			Vec3 quadNormal = Vec3.atLowerCornerOf(bakedQuad.getDirection()
-				.getNormal());
+				.getUnitVec3i());
 			quadNormal = VecHelper.rotate(quadNormal, 180, Axis.Y);
 			quadNormal = VecHelper.rotate(quadNormal, xRot + 90, Axis.X);
 			quadNormal = VecHelper.rotate(quadNormal, yRot, Axis.Y);

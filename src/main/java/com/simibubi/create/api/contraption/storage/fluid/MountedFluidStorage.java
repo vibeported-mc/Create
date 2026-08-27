@@ -1,5 +1,7 @@
 package com.simibubi.create.api.contraption.storage.fluid;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
@@ -15,9 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
-public abstract class MountedFluidStorage implements IFluidHandler {
+public abstract class MountedFluidStorage implements ResourceHandler<FluidResource> {
 	public static final Codec<MountedFluidStorage> CODEC = MountedFluidStorageType.CODEC.dispatch(
 		storage -> storage.type, type -> type.codec
 	);

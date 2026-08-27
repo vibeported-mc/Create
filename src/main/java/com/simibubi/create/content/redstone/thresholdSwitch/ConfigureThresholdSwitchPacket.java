@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.thresholdSwitch;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
@@ -42,7 +43,7 @@ public class ConfigureThresholdSwitchPacket extends BlockEntityConfigurationPack
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_STOCKSWITCH;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_STOCKSWITCH.getType();
 	}
 }

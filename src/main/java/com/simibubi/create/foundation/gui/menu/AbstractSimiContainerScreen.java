@@ -1,20 +1,20 @@
 package com.simibubi.create.foundation.gui.menu;
 
+import org.jspecify.annotations.NullMarked;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.lwjgl.glfw.GLFW;
 
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.gui.TickableGuiEventListener;
-import net.createmod.catnip.gui.widget.AbstractSimiWidget;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.gui.TickableGuiEventListener;
+import net.createmod.catnip.api.client.gui.widget.AbstractSimiWidget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
@@ -32,8 +32,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+@NullMarked
 @OnlyIn(Dist.CLIENT)
-@ParametersAreNonnullByDefault
 public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
 
 	protected int windowXOffset, windowYOffset;
@@ -100,13 +100,13 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 	}
 
 	/*@Override
-	public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void renderBackground(GuiGraphicsExtractor pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Background(this, pGuiGraphics, pMouseX, pMouseY));
 		renderBg(pGuiGraphics, pPartialTick, pMouseX, pMouseY);
 	}*/
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		partialTicks = AnimationTickHolder.getPartialTicksUI();
 
 		super.render(graphics, mouseX, mouseY, partialTicks);
@@ -115,14 +115,14 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+	protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		// no-op to prevent screen- and inventory-title from being rendered at incorrect
 		// location
 		// could also set this.titleX/Y and this.playerInventoryTitleX/Y to the proper
 		// values instead
 	}
 
-	protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		renderTooltip(graphics, mouseX, mouseY);
 		for (Renderable widget : renderables) {
 			if (widget instanceof AbstractSimiWidget simiWidget && simiWidget.isMouseOver(mouseX, mouseY)) {
@@ -131,7 +131,7 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 					continue;
 				int ttx = simiWidget.lockedTooltipX == -1 ? mouseX : simiWidget.lockedTooltipX + simiWidget.getX();
 				int tty = simiWidget.lockedTooltipY == -1 ? mouseY : simiWidget.lockedTooltipY + simiWidget.getY();
-				graphics.renderComponentTooltip(font, tooltip, ttx, tty);
+				graphics.setComponentTooltipForNextFrame(font, tooltip, ttx, tty);
 			}
 		}
 	}
@@ -140,9 +140,9 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 		return leftPos - windowXOffset + (imageWidth - textureWidth) / 2;
 	}
 
-	public void renderPlayerInventory(GuiGraphics graphics, int x, int y) {
+	public void renderPlayerInventory(GuiGraphicsExtractor graphics, int x, int y) {
 		AllGuiTextures.PLAYER_INVENTORY.render(graphics, x, y);
-		graphics.drawString(font, playerInventoryTitle, x + 8, y + 6, 0x404040, false);
+		graphics.text(font, playerInventoryTitle, x + 8, y + 6, 0x404040, false);
 	}
 
 	@Override
@@ -179,12 +179,12 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 	}
 
 	@Deprecated
-	protected void debugWindowArea(GuiGraphics graphics) {
+	protected void debugWindowArea(GuiGraphicsExtractor graphics) {
 		graphics.fill(leftPos + imageWidth, topPos + imageHeight, leftPos, topPos, 0xD3D3D3D3);
 	}
 
 	@Deprecated
-	protected void debugExtraAreas(GuiGraphics graphics) {
+	protected void debugExtraAreas(GuiGraphicsExtractor graphics) {
 		for (Rect2i area : getExtraAreas()) {
 			graphics.fill(area.getX() + area.getWidth(), area.getY() + area.getHeight(), area.getX(), area.getY(),
 				0xD3D3D3D3);

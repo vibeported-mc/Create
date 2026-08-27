@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.simibubi.create.Create;
 
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -32,7 +32,7 @@ public class LogisticsNetworkSavedData extends SavedData {
 	private static LogisticsNetworkSavedData load(CompoundTag nbt, HolderLookup.Provider registries) {
 		LogisticsNetworkSavedData sd = new LogisticsNetworkSavedData();
 		sd.logisticsNetworks = new HashMap<>();
-		NBTHelper.iterateCompoundList(nbt.getList("LogisticsNetworks", Tag.TAG_COMPOUND), c -> {
+		NBTHelper.iterateCompoundList(nbt.getListOrEmpty("LogisticsNetworks"), c -> {
 			LogisticsNetwork network = LogisticsNetwork.read(c, registries);
 			sd.logisticsNetworks.put(network.id, network);
 		});

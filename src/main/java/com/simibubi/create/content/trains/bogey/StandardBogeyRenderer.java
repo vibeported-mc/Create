@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.bogey;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllBlocks;
@@ -7,12 +8,12 @@ import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
 
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -21,7 +22,7 @@ import net.minecraft.world.level.block.Blocks;
 public class StandardBogeyRenderer implements BogeyRenderer {
 	@Override
 	public void render(CompoundTag bogeyData, float wheelAngle, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay, boolean inContraption) {
-		VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
+		VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.cutoutMovingBlock());
 
 		SuperByteBuffer shaft = CachedBuffers.block(AllBlocks.SHAFT.getDefaultState()
 				.setValue(ShaftBlock.AXIS, Direction.Axis.Z));
@@ -41,7 +42,7 @@ public class StandardBogeyRenderer implements BogeyRenderer {
 		public void render(CompoundTag bogeyData, float wheelAngle, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay, boolean inContraption) {
 			super.render(bogeyData, wheelAngle, partialTick, poseStack, bufferSource, light, overlay, inContraption);
 
-			VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
+			VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.cutoutMovingBlock());
 
 			CachedBuffers.partial(AllPartialModels.BOGEY_FRAME, Blocks.AIR.defaultBlockState())
 					.scale(1 - 1 / 512f)
@@ -68,7 +69,7 @@ public class StandardBogeyRenderer implements BogeyRenderer {
 		public void render(CompoundTag bogeyData, float wheelAngle, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay, boolean inContraption) {
 			super.render(bogeyData, wheelAngle, partialTick, poseStack, bufferSource, light, overlay, inContraption);
 
-			VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutoutMipped());
+			VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.cutoutMovingBlock());
 
 			SuperByteBuffer secondaryShaft = CachedBuffers.block(AllBlocks.SHAFT.getDefaultState()
 					.setValue(ShaftBlock.AXIS, Direction.Axis.X));

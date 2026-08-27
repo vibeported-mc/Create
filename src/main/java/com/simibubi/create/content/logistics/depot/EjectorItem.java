@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.depot;
 
-import net.createmod.catnip.platform.CatnipServices;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -37,8 +37,8 @@ public class EjectorItem extends BlockItem {
 	@Override
 	protected boolean updateCustomBlockEntityTag(BlockPos pos, Level world, Player player, ItemStack p_195943_4_,
 		BlockState p_195943_5_) {
-		if (!world.isClientSide && player instanceof ServerPlayer sp)
-			CatnipServices.NETWORK.sendToClient(sp, new EjectorPlacementPacket.ClientBoundRequest(pos));
+		if (!world.isClientSide() && player instanceof ServerPlayer sp)
+			NetworkHelper.INSTANCE.sendToClient(sp, new EjectorPlacementPacket.ClientBoundRequest(pos));
 		return super.updateCustomBlockEntityTag(pos, world, player, p_195943_4_, p_195943_5_);
 	}
 

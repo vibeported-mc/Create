@@ -1,9 +1,9 @@
 package com.simibubi.create.compat.jei.category;
 
+import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.compat.jei.category.animations.AnimatedCrushingWheels;
 import com.simibubi.create.content.kinetics.crusher.AbstractCrushingRecipe;
@@ -15,10 +15,10 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.createmod.catnip.layout.LayoutHelper;
-import net.minecraft.client.gui.GuiGraphics;
+import net.createmod.catnip.api.client.gui.layout.LayoutHelper;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class CrushingCategory extends CreateRecipeCategory<AbstractCrushingRecipe> {
 
 	private final AnimatedCrushingWheels crushingWheels = new AnimatedCrushingWheels();
@@ -65,7 +65,7 @@ public class CrushingCategory extends CreateRecipeCategory<AbstractCrushingRecip
 	) {}
 
 	@Override
-	public void draw(AbstractCrushingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+	public void draw(AbstractCrushingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 72, 7);
 
 		crushingWheels.draw(graphics, 62, 59);

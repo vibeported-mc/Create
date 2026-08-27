@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.sync;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -8,8 +9,7 @@ import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public record ContraptionSeatMappingPacket(int entityId, Map<UUID, Integer> mapping, int dismountedId) implements ClientboundPacketPayload {
+public record ContraptionSeatMappingPacket(int entityId, Map<UUID, Integer> mapping, int dismountedId) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, ContraptionSeatMappingPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, ContraptionSeatMappingPacket::entityId,
 			ByteBufCodecs.map(HashMap::new, UUIDUtil.STREAM_CODEC, ByteBufCodecs.INT), ContraptionSeatMappingPacket::mapping,
@@ -36,7 +36,6 @@ public record ContraptionSeatMappingPacket(int entityId, Map<UUID, Integer> mapp
 		this(entityID, mapping, -1);
 	}
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		Entity entityByID = player.clientLevel.getEntity(entityId);
@@ -54,7 +53,7 @@ public record ContraptionSeatMappingPacket(int entityId, Map<UUID, Integer> mapp
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONTRAPTION_SEAT_MAPPING;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONTRAPTION_SEAT_MAPPING.getType();
 	}
 }

@@ -21,7 +21,7 @@ import com.simibubi.create.foundation.item.SmartInventory;
 import com.simibubi.create.foundation.recipe.RecipeApplier;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -87,7 +87,7 @@ public class MechanicalPressBlockEntity extends BasinOperatingBlockEntity implem
 		if (basin.isPresent()) {
 			SmartInventory inputs = basin.get()
 				.getInputInventory();
-			for (int slot = 0; slot < inputs.getSlots(); slot++) {
+			for (int slot = 0; slot < inputs.size(); slot++) {
 				ItemStack stackInSlot = inputs.getItem(slot);
 				if (stackInSlot.isEmpty())
 					continue;
@@ -108,7 +108,7 @@ public class MechanicalPressBlockEntity extends BasinOperatingBlockEntity implem
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
-		tracksCreated = compound.getInt("TracksCreated");
+		tracksCreated = compound.getIntOr("TracksCreated", 0);
 	}
 
 	@Override
@@ -134,7 +134,7 @@ public class MechanicalPressBlockEntity extends BasinOperatingBlockEntity implem
 				ItemEntity created =
 					new ItemEntity(level, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), result);
 				created.setDefaultPickUpDelay();
-				created.setDeltaMovement(VecHelper.offsetRandomly(Vec3.ZERO, level.random, .05f));
+				created.setDeltaMovement(VecHelper.offsetRandomly(Vec3.ZERO, level.getRandom(), .05f));
 				level.addFreshEntity(created);
 			}
 			item.shrink(1);

@@ -1,12 +1,12 @@
 package com.simibubi.create.content.logistics.itemHatch;
 
+import net.minecraft.util.TriState;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 
 

@@ -1,5 +1,9 @@
 package com.simibubi.create.content.logistics.tunnel;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.createmod.catnip.api.platform.services.PlatformHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -16,10 +20,9 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
 import dev.engine_room.flywheel.lib.visualization.VisualizationHelper;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -37,14 +40,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class BeltTunnelBlockEntity extends SmartBlockEntity {
 
 	public Map<Direction, LerpedFloat> flaps;
 	public Set<Direction> sides;
 
-	protected IItemHandler cap = null;
+	protected ResourceHandler<ItemResource> cap = null;
 	protected List<Pair<Direction, Boolean>> flapsToSend;
 
 	public BeltTunnelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -56,14 +57,14 @@ public class BeltTunnelBlockEntity extends SmartBlockEntity {
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.ANDESITE_TUNNEL.get(),
 				(be, context) ->  {
 					if (be.cap == null) {
 						if (AllBlocks.BELT.has(be.level.getBlockState(be.worldPosition.below()))) {
 							BlockEntity beBelow = be.level.getBlockEntity(be.worldPosition.below());
 							if (beBelow != null) {
-								IItemHandler capBelow = be.level.getCapability(Capabilities.ItemHandler.BLOCK, be.worldPosition.below(), Direction.UP);
+								ResourceHandler<ItemResource> capBelow = be.level.getCapability(Capabilities.Item.BLOCK, be.worldPosition.below(), Direction.UP);
 								if (capBelow != null) {
 									be.cap = capBelow;
 								}
@@ -108,13 +109,13 @@ public class BeltTunnelBlockEntity extends SmartBlockEntity {
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		Set<Direction> newFlaps = new HashSet<>(6);
-		ListTag flapsNBT = compound.getList("Flaps", Tag.TAG_INT);
+		ListTag flapsNBT = compound.getListOrEmpty("Flaps");
 		for (Tag inbt : flapsNBT)
 			if (inbt instanceof IntTag)
 				newFlaps.add(Direction.from3DDataValue(((IntTag) inbt).getAsInt()));
 
 		sides.clear();
-		ListTag sidesNBT = compound.getList("Sides", Tag.TAG_INT);
+		ListTag sidesNBT = compound.getListOrEmpty("Sides");
 		for (Tag inbt : sidesNBT)
 			if (inbt instanceof IntTag)
 				sides.add(Direction.from3DDataValue(((IntTag) inbt).getAsInt()));
@@ -130,7 +131,7 @@ public class BeltTunnelBlockEntity extends SmartBlockEntity {
 			sides.addAll(flaps.keySet());
 		super.read(compound, registries, clientPacket);
 		if (clientPacket)
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> VisualizationHelper.queueUpdate(this));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> VisualizationHelper.queueUpdate(this));
 	}
 
 	private LerpedFloat createChasingFlap() {
@@ -175,7 +176,7 @@ public class BeltTunnelBlockEntity extends SmartBlockEntity {
 	}
 
 	public void flap(Direction side, boolean inward) {
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			if (flaps.containsKey(side))
 				flaps.get(side)
 					.setValue(inward ? -1 : 1);
@@ -194,7 +195,7 @@ public class BeltTunnelBlockEntity extends SmartBlockEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			if (!flapsToSend.isEmpty())
 				sendFlaps();
 			return;
@@ -204,7 +205,7 @@ public class BeltTunnelBlockEntity extends SmartBlockEntity {
 
 	private void sendFlaps() {
 		if (level instanceof ServerLevel serverLevel)
-			CatnipServices.NETWORK.sendToClientsTrackingChunk(serverLevel, new ChunkPos(worldPosition), new TunnelFlapPacket(this, flapsToSend));
+			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, new ChunkPos(worldPosition), new TunnelFlapPacket(this, flapsToSend));
 
 		flapsToSend.clear();
 	}

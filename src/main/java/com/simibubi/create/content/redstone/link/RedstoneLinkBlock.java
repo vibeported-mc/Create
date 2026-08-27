@@ -1,11 +1,13 @@
 package com.simibubi.create.content.redstone.link;
 
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -40,17 +42,14 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation,
 		boolean isMoving) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 
-		Direction blockFacing = state.getValue(FACING);
-		if (fromPos.equals(pos.relative(blockFacing.getOpposite()))) {
-			if (!canSurvive(state, level, pos)) {
-				level.destroyBlock(pos, true);
-				return;
-			}
+		if (!canSurvive(state, level, pos)) {
+			level.destroyBlock(pos, true);
+			return;
 		}
 
 		if (!level.getBlockTicks()
@@ -80,13 +79,8 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 		updateTransmittedSignal(state, worldIn, pos);
 	}
 
-	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
-		IBE.onRemove(pState, pLevel, pPos, pNewState);
-	}
-
 	public void updateTransmittedSignal(BlockState state, Level level, BlockPos pos) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		if (state.getValue(RECEIVER))
 			return;
@@ -163,7 +157,7 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	}
 
 	public InteractionResult toggleMode(BlockState state, Level level, BlockPos pos) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return InteractionResult.SUCCESS;
 
 		return onBlockEntityUse(level, pos, be -> {

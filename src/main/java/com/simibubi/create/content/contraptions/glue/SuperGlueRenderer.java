@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.glue;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -15,7 +15,7 @@ public class SuperGlueRenderer extends EntityRenderer<SuperGlueEntity> {
 	}
 
 	@Override
-	public ResourceLocation getTextureLocation(SuperGlueEntity entity) {
+	public Identifier getTextureLocation(SuperGlueEntity entity) {
 		return null;
 	}
 

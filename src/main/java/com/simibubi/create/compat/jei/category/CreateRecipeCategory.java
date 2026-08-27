@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import org.jspecify.annotations.NullMarked;
 import static mezz.jei.api.recipe.RecipeType.createRecipeHolderType;
 
 import java.util.ArrayList;
@@ -12,8 +13,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -43,14 +42,13 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.createmod.catnip.config.ConfigBase.ConfigBool;
+import net.createmod.catnip.api.config.ConfigBase.ConfigBool;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -60,8 +58,7 @@ import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NullMarked
 public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IRecipeCategory<RecipeHolder<T>> {
 	private static final IDrawable BASIC_SLOT = asDrawable(AllGuiTextures.JEI_SLOT);
 	private static final IDrawable CHANCE_SLOT = asDrawable(AllGuiTextures.JEI_CHANCE_SLOT);
@@ -110,7 +107,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 	}
 
 	@Override
-	public void draw(RecipeHolder<T> holder, IRecipeSlotsView recipeSlotsView, GuiGraphics gui, double mouseX, double mouseY) {
+	public void draw(RecipeHolder<T> holder, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor gui, double mouseX, double mouseY) {
 		draw(holder.value(), recipeSlotsView, gui, mouseX, mouseY);
 	}
 
@@ -121,7 +118,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 
 	protected abstract void setRecipe(IRecipeLayoutBuilder builder, T recipe, IFocusGroup focuses);
 
-	protected abstract void draw(T recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics gui, double mouseX, double mouseY);
+	protected abstract void draw(T recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor gui, double mouseX, double mouseY);
 
 	protected List<Component> getTooltipStrings(T recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
 		return List.of();
@@ -216,7 +213,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 			}
 
 			@Override
-			public void draw(GuiGraphics graphics, int xOffset, int yOffset) {
+			public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
 				texture.render(graphics, xOffset, yOffset);
 			}
 		};
@@ -374,7 +371,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 			return build(Create.asResource(name), factory);
 		}
 
-		public CreateRecipeCategory<T> build(ResourceLocation id, Factory<T> factory) {
+		public CreateRecipeCategory<T> build(Identifier id, Factory<T> factory) {
 			Supplier<List<RecipeHolder<T>>> recipesSupplier;
 			if (config.get()) {
 				recipesSupplier = () -> {

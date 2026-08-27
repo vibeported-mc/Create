@@ -15,8 +15,8 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.render.SuperByteBufferCache;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.client.render.SuperByteBufferCache;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -104,7 +104,7 @@ public class ClientContraption {
 		for (StructureBlockInfo info : contraption.getBlocks().values()) {
 			renderLevel.setBlock(info.pos(), info.state(), 0);
 
-			BlockEntity blockEntity = readBlockEntity(renderLevel, info, contraption.getIsLegacy().getBoolean(info.pos()));
+			BlockEntity blockEntity = readBlockEntity(renderLevel, info, contraption.getIsLegacy().getBooleanOr(info.pos(), false));
 
 			if (blockEntity != null) {
 				renderLevel.setBlockEntity(blockEntity);

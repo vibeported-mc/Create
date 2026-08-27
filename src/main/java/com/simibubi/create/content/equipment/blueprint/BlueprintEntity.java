@@ -1,5 +1,9 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,8 +21,8 @@ import com.simibubi.create.content.schematics.requirement.ItemRequirement.ItemUs
 import com.simibubi.create.foundation.networking.ISyncPersistentData;
 import com.simibubi.create.foundation.utility.IInteractionChecker;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -50,7 +54,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DiodeBlock;
@@ -65,10 +69,6 @@ import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-
 public class BlueprintEntity extends HangingEntity
 	implements IEntityWithComplexSpawn, SpecialEntityItemRequirement, ISyncPersistentData, IInteractionChecker {
 
@@ -112,9 +112,9 @@ public class BlueprintEntity extends HangingEntity
 	@Override
 	public void readAdditionalSaveData(CompoundTag p_70037_1_) {
 		if (p_70037_1_.contains("Facing", Tag.TAG_ANY_NUMERIC)) {
-			this.direction = Direction.from3DDataValue(p_70037_1_.getByte("Facing"));
-			this.verticalOrientation = Direction.from3DDataValue(p_70037_1_.getByte("Orientation"));
-			this.size = p_70037_1_.getInt("Size");
+			this.direction = Direction.from3DDataValue(p_70037_1_.getByteOr("Facing", (byte) 0));
+			this.verticalOrientation = Direction.from3DDataValue(p_70037_1_.getByteOr("Orientation", (byte) 0));
+			this.size = p_70037_1_.getIntOr("Size", 0);
 		} else {
 			this.direction = Direction.SOUTH;
 			this.verticalOrientation = Direction.DOWN;
@@ -153,7 +153,7 @@ public class BlueprintEntity extends HangingEntity
 	protected AABB calculateBoundingBox(BlockPos blockPos, Direction direction) {
 		Vec3 pos = Vec3.atLowerCornerOf(getPos())
 				.add(.5, .5, .5)
-				.subtract(Vec3.atLowerCornerOf(direction.getNormal())
+				.subtract(Vec3.atLowerCornerOf(direction.getUnitVec3i())
 						.scale(0.46875));
 		double d1 = pos.x;
 		double d2 = pos.y;
@@ -163,15 +163,15 @@ public class BlueprintEntity extends HangingEntity
 		Axis axis = direction.getAxis();
 		if (size == 2)
 			pos = pos.add(Vec3.atLowerCornerOf(axis.isHorizontal() ? direction.getCounterClockWise()
-									.getNormal()
+									.getUnitVec3i()
 									: verticalOrientation.getClockWise()
-									.getNormal())
+									.getUnitVec3i())
 							.scale(0.5))
 					.add(Vec3
-							.atLowerCornerOf(axis.isHorizontal() ? Direction.UP.getNormal()
-									: direction == Direction.UP ? verticalOrientation.getNormal()
+							.atLowerCornerOf(axis.isHorizontal() ? Direction.UP.getUnitVec3i()
+									: direction == Direction.UP ? verticalOrientation.getUnitVec3i()
 									: verticalOrientation.getOpposite()
-									.getNormal())
+									.getUnitVec3i())
 							.scale(0.5));
 
 		d1 = pos.x;
@@ -257,7 +257,7 @@ public class BlueprintEntity extends HangingEntity
 
 	@Override
 	public boolean skipAttackInteraction(Entity source) {
-		if (!(source instanceof Player player) || level().isClientSide)
+		if (!(source instanceof Player player) || level().isClientSide())
 			return super.skipAttackInteraction(source);
 
 		double attrib = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + (player.isCreative() ? 0 : -0.5F);
@@ -272,12 +272,12 @@ public class BlueprintEntity extends HangingEntity
 
 		Vec3 hitVec = rayTrace.get();
 		BlueprintSection sectionAt = getSectionAt(hitVec.subtract(position()));
-		ItemStackHandler items = sectionAt.getItems();
+		ItemStacksResourceHandler items = sectionAt.getItems();
 
-		if (items.getStackInSlot(9)
+		if (ItemHandlerHelpers.getStackInSlot(items, 9)
 			.isEmpty())
 			return super.skipAttackInteraction(source);
-		for (int i = 0; i < items.getSlots(); i++)
+		for (int i = 0; i < items.size(); i++)
 			items.setStackInSlot(i, ItemStack.EMPTY);
 		sectionAt.save(items);
 		return true;
@@ -286,7 +286,7 @@ public class BlueprintEntity extends HangingEntity
 	@Override
 	public void dropItem(@Nullable Entity p_110128_1_) {
 		if (!level().getGameRules()
-			.getBoolean(GameRules.RULE_DOENTITYDROPS))
+			.getBooleanOr(GameRules.RULE_DOENTITYDROPS, false))
 			return;
 
 		playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F);
@@ -347,12 +347,12 @@ public class BlueprintEntity extends HangingEntity
 
 		boolean holdingWrench = AllItems.WRENCH.isIn(player.getItemInHand(hand));
 		BlueprintSection section = getSectionAt(vec);
-		ItemStackHandler items = section.getItems();
+		ItemStacksResourceHandler items = section.getItems();
 
-		if (!holdingWrench && !level().isClientSide && !items.getStackInSlot(9)
+		if (!holdingWrench && !level().isClientSide() && !ItemHandlerHelpers.getStackInSlot(items, 9)
 			.isEmpty()) {
 
-			IItemHandlerModifiable playerInv = new InvWrapper(player.getInventory());
+			ModifiableItemHandler playerInv = VanillaContainerWrapper.of(player.getInventory());
 			boolean firstPass = true;
 			int amountCrafted = 0;
 			CommonHooks.setCraftingPlayer(player);
@@ -365,16 +365,16 @@ public class BlueprintEntity extends HangingEntity
 
 				Search:
 				for (int i = 0; i < 9; i++) {
-					FilterItemStack requestedItem = FilterItemStack.of(items.getStackInSlot(i));
+					FilterItemStack requestedItem = FilterItemStack.of(ItemHandlerHelpers.getStackInSlot(items, i));
 					if (requestedItem.isEmpty()) {
 						craftingGrid.put(i, ItemStack.EMPTY);
 						continue;
 					}
 
-					for (int slot = 0; slot < playerInv.getSlots(); slot++) {
-						if (!requestedItem.test(level(), playerInv.getStackInSlot(slot)))
+					for (int slot = 0; slot < playerInv.size(); slot++) {
+						if (!requestedItem.test(level(), ItemHandlerHelpers.getStackInSlot(playerInv, slot)))
 							continue;
-						ItemStack currentItem = playerInv.extractItem(slot, 1, false);
+						ItemStack currentItem = ItemHandlerHelpers.extractItem(playerInv, slot, 1, false);
 						if (stacksTaken.containsKey(slot))
 							stacksTaken.get(slot)
 								.grow(1);
@@ -433,7 +433,7 @@ public class BlueprintEntity extends HangingEntity
 		}
 
 		int i = section.index;
-		if (!level().isClientSide && player instanceof ServerPlayer) {
+		if (!level().isClientSide() && player instanceof ServerPlayer) {
 			player.openMenu(section, buf -> {
 				buf.writeVarInt(getId());
 				buf.writeVarInt(i);
@@ -489,7 +489,7 @@ public class BlueprintEntity extends HangingEntity
 		CompoundTag persistentData = getPersistentData();
 		if (!persistentData.contains("Recipes"))
 			persistentData.put("Recipes", new CompoundTag());
-		return persistentData.getCompound("Recipes");
+		return persistentData.getCompoundOrEmpty("Recipes");
 	}
 
 	private Map<Integer, BlueprintSection> sectionCache = new HashMap<>();
@@ -510,26 +510,26 @@ public class BlueprintEntity extends HangingEntity
 		public Couple<ItemStack> getDisplayItems() {
 			if (cachedDisplayItems != null)
 				return cachedDisplayItems;
-			ItemStackHandler items = getItems();
-			return cachedDisplayItems = Couple.create(items.getStackInSlot(9), items.getStackInSlot(10));
+			ItemStacksResourceHandler items = getItems();
+			return cachedDisplayItems = Couple.create(ItemHandlerHelpers.getStackInSlot(items, 9), ItemHandlerHelpers.getStackInSlot(items, 10));
 		}
 
-		public ItemStackHandler getItems() {
-			ItemStackHandler newInv = new ItemStackHandler(11);
+		public ItemStacksResourceHandler getItems() {
+			ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(11);
 			CompoundTag list = getOrCreateRecipeCompound();
-			CompoundTag invNBT = list.getCompound(index + "");
-			inferredIcon = list.getBoolean("InferredIcon");
+			CompoundTag invNBT = list.getCompoundOrEmpty(index + "");
+			inferredIcon = list.getBooleanOr("InferredIcon", false);
 			if (!invNBT.isEmpty())
 				newInv.deserializeNBT(registryAccess(), invNBT);
 			return newInv;
 		}
 
-		public void save(ItemStackHandler inventory) {
+		public void save(ItemStacksResourceHandler inventory) {
 			CompoundTag list = getOrCreateRecipeCompound();
 			list.put(index + "", inventory.serializeNBT(registryAccess()));
 			list.putBoolean("InferredIcon", inferredIcon);
 			cachedDisplayItems = null;
-			if (!level().isClientSide)
+			if (!level().isClientSide())
 				syncPersistentDataWithTracking(BlueprintEntity.this);
 		}
 

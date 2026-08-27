@@ -6,7 +6,6 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import dev.engine_room.flywheel.api.instance.Instance;
 import dev.engine_room.flywheel.api.instance.InstancerProvider;
@@ -15,9 +14,11 @@ import dev.engine_room.flywheel.lib.instance.InstanceTypes;
 import dev.engine_room.flywheel.lib.instance.TransformedInstance;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import dev.engine_room.flywheel.lib.transform.Translate;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -30,7 +31,13 @@ public class FlapStuffs {
 	public static final Vec3 TUNNEL_PIVOT = VecHelper.voxelSpace(0, 10, 1f);
 	public static final Vec3 FUNNEL_PIVOT = VecHelper.voxelSpace(0, 10, 9.5f);
 
-	public static void renderFlaps(PoseStack ms, VertexConsumer vb, SuperByteBuffer flapBuffer, Vec3 pivot, Direction funnelFacing, float flapness, float zOffset, int light) {
+	/**
+	 * Draws one flap set. The buffer is extracted once by the caller and submitted repeatedly here:
+	 * every segment shares the same geometry and differs only in the PoseStack it is drawn with, which
+	 * submission still varies freely.
+	 */
+	public static void submitFlaps(PoseStack ms, SubmitNodeCollector queue, SuperByteBufferRenderState flapBuffer,
+		Vec3 pivot, Direction funnelFacing, float flapness, float zOffset) {
 		float horizontalAngle = AngleHelper.horizontalAngle(funnelFacing.getOpposite());
 
 		var msr = TransformStack.of(ms);
@@ -47,8 +54,7 @@ public class FlapStuffs {
 				.rotateXDegrees(flapAngle(flapness, segment))
 				.translateBack(pivot);
 
-			flapBuffer.light(light)
-				.renderInto(ms, vb);
+			flapBuffer.submit(ms, RenderTypes.solidMovingBlock(), queue);
 
 			ms.popPose();
 			ms.translate(SEGMENT_STEP, 0, 0);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.depot;
 
+import net.createmod.catnip.api.math.AngleHelper;
 import java.util.function.Consumer;
 
 import com.simibubi.create.AllPartialModels;
@@ -58,7 +59,10 @@ public class EjectorVisual extends ShaftVisual<EjectorBlockEntity> implements Si
 	private void pivotPlate(float lidProgress) {
 		float angle = lidProgress * 70;
 
-		EjectorRenderer.applyLidAngle(blockEntity, angle, plate.setIdentityTransform().translate(getVisualPosition()));
+		EjectorRenderer.applyLidAngle(
+			AngleHelper.horizontalAngle(blockEntity.getBlockState()
+				.getValue(EjectorBlock.HORIZONTAL_FACING)),
+			angle, plate.setIdentityTransform().translate(getVisualPosition()));
 		plate.setChanged();
 	}
 

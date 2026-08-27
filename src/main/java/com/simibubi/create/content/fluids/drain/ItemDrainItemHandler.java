@@ -1,15 +1,14 @@
 package com.simibubi.create.content.fluids.drain;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
-public class ItemDrainItemHandler implements IItemHandler {
+public class ItemDrainItemHandler implements ResourceHandler<ItemResource> {
 
 	private ItemDrainBlockEntity blockEntity;
 	private Direction side;

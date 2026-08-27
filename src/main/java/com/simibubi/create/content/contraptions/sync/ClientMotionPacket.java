@@ -1,16 +1,17 @@
 package com.simibubi.create.content.contraptions.sync;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
-public record ClientMotionPacket(Vec3 motion, boolean onGround, float limbSwing) implements ServerboundPacketPayload {
+public record ClientMotionPacket(Vec3 motion, boolean onGround, float limbSwing) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, ClientMotionPacket> STREAM_CODEC = StreamCodec.composite(
 			CatnipStreamCodecs.VEC3, ClientMotionPacket::motion,
 			ByteBufCodecs.BOOL, ClientMotionPacket::onGround,
@@ -19,8 +20,8 @@ public record ClientMotionPacket(Vec3 motion, boolean onGround, float limbSwing)
 	);
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CLIENT_MOTION;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CLIENT_MOTION.getType();
 	}
 
 	@Override
@@ -35,7 +36,7 @@ public record ClientMotionPacket(Vec3 motion, boolean onGround, float limbSwing)
 			sender.connection.aboveGroundTickCount = 0;
 			sender.connection.aboveGroundVehicleTickCount = 0;
 		}
-		CatnipServices.NETWORK.sendToClientsTrackingEntity(sender,
+		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(sender,
 				new LimbSwingUpdatePacket(sender.getId(), sender.position(), limbSwing));
 	}
 }

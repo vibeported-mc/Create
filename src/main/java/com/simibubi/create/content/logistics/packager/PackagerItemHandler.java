@@ -1,11 +1,10 @@
 package com.simibubi.create.content.logistics.packager;
 
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.simibubi.create.content.logistics.box.PackageItem;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-
-public class PackagerItemHandler implements IItemHandlerModifiable {
+public class PackagerItemHandler implements ModifiableItemHandler {
 
 	private PackagerBlockEntity blockEntity;
 

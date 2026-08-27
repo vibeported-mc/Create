@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.transmission.sequencer;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.Vector;
 
 import com.simibubi.create.AllPackets;
@@ -36,7 +37,7 @@ public class ConfigureSequencedGearshiftPacket extends BlockEntityConfigurationP
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_SEQUENCER;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_SEQUENCER.getType();
 	}
 }

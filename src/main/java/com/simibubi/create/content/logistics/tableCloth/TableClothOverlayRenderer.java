@@ -41,7 +41,7 @@ public class TableClothOverlayRenderer {
 				return;
 
 			int alreadyPurchased = 0;
-			ShoppingList list = ShoppingListItem.getList(heldItem);
+			ShoppingList list = ShoppingListItem.getListOrEmpty(heldItem);
 			if (list != null)
 				alreadyPurchased = list.getPurchases(dcbe.getBlockPos());
 
@@ -53,7 +53,7 @@ public class TableClothOverlayRenderer {
 		if (!AllItems.SHOPPING_LIST.isIn(heldItem))
 			return;
 
-		ShoppingList list = ShoppingListItem.getList(heldItem);
+		ShoppingList list = ShoppingListItem.getListOrEmpty(heldItem);
 		BlockPos stockTickerPosition = StockTickerInteractionHandler.getStockTickerPosition(entityRay.getEntity());
 
 		if (list == null || stockTickerPosition == null)

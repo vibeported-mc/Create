@@ -1,10 +1,11 @@
 package com.simibubi.create.content.equipment.zapper;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.equipment.zapper.ZapperRenderHandler.LaserBeam;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -42,7 +43,7 @@ public class ZapperBeamPacket extends ShootGadgetPacket {
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.BEAM_EFFECT;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.BEAM_EFFECT.getType();
 	}
 }

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.stream.Stream;
 
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
@@ -8,11 +10,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringB
 import com.simibubi.create.foundation.blockEntity.behaviour.inventory.InvManipulationBehaviour;
 import com.simibubi.create.foundation.item.CountedItemStackList;
 
-import net.createmod.catnip.data.IntAttached;
+import net.createmod.catnip.api.data.IntAttached;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class ItemListDisplaySource extends ValueListDisplaySource {
 
 	@Override
@@ -23,7 +23,7 @@ public class ItemListDisplaySource extends ValueListDisplaySource {
 
 		InvManipulationBehaviour invManipulationBehaviour = cobe.getBehaviour(InvManipulationBehaviour.TYPE);
 		FilteringBehaviour filteringBehaviour = cobe.getBehaviour(FilteringBehaviour.TYPE);
-		IItemHandler handler = invManipulationBehaviour.getInventory();
+		ResourceHandler<ItemResource> handler = invManipulationBehaviour.getInventory();
 
 		if (handler == null)
 			return Stream.empty();

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.redstone;
 
+import org.jspecify.annotations.Nullable;
+import net.minecraft.world.level.redstone.Orientation;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.function.BiConsumer;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.redstone.diodes.BrassDiodeBlock;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
@@ -59,9 +61,9 @@ public class RoseQuartzLampBlock extends Block implements IWrenchable {
     }
 
 	@Override
-	public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, BlockPos pFromPos,
+	public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, @Nullable Orientation orientation,
 		boolean pIsMoving) {
-		if (pLevel.isClientSide)
+		if (pLevel.isClientSide())
 			return;
 
 		boolean isPowered = pState.getValue(POWERED);

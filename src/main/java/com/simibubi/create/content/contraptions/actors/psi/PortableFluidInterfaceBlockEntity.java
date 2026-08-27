@@ -1,5 +1,9 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.contraptions.Contraption;
 
@@ -9,12 +13,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-
 public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceBlockEntity {
 
-	protected IFluidHandler capability;
+	protected ResourceHandler<FluidResource> capability;
 
 	public PortableFluidInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -23,7 +24,7 @@ public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceB
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
+				Capabilities.Fluid.BLOCK,
 				AllBlockEntityTypes.PORTABLE_FLUID_INTERFACE.get(),
 				(be, context) -> be.capability
 		);
@@ -48,66 +49,61 @@ public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceB
 		super.stopTransferring();
 	}
 
-	private IFluidHandler createEmptyHandler() {
-		return new InterfaceFluidHandler(new FluidTank(0));
+	private ResourceHandler<FluidResource> createEmptyHandler() {
+		return new InterfaceFluidHandler(new FluidStacksResourceHandler(0));
 	}
 
-	public class InterfaceFluidHandler implements IFluidHandler {
+	public class InterfaceFluidHandler implements ResourceHandler<FluidResource> {
 
-		private IFluidHandler wrapped;
+		private ResourceHandler<FluidResource> wrapped;
 
-		public InterfaceFluidHandler(IFluidHandler wrapped) {
+		public InterfaceFluidHandler(ResourceHandler<FluidResource> wrapped) {
 			this.wrapped = wrapped;
 		}
 
 		@Override
-		public int getTanks() {
-			return wrapped.getTanks();
+		public int size() {
+			return wrapped.size();
 		}
 
 		@Override
-		public FluidStack getFluidInTank(int tank) {
-			return wrapped.getFluidInTank(tank);
+		public FluidResource getResource(int tank) {
+			return wrapped.getResource(tank);
 		}
 
 		@Override
-		public int getTankCapacity(int tank) {
-			return wrapped.getTankCapacity(tank);
+		public long getAmountAsLong(int tank) {
+			return wrapped.getAmountAsLong(tank);
 		}
 
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
-			return wrapped.isFluidValid(tank, stack);
+		public long getCapacityAsLong(int tank, FluidResource resource) {
+			return wrapped.getCapacityAsLong(tank, resource);
 		}
 
 		@Override
-		public int fill(FluidStack resource, FluidAction action) {
+		public boolean isValid(int tank, FluidResource resource) {
+			return wrapped.isValid(tank, resource);
+		}
+
+		@Override
+		public int insert(int tank, FluidResource resource, int amount, TransactionContext transaction) {
 			if (!isConnected())
 				return 0;
-			int fill = wrapped.fill(resource, action);
-			if (fill > 0 && action.execute())
+			int filled = wrapped.insert(tank, resource, amount, transaction);
+			if (filled > 0)
 				keepAlive();
-			return fill;
+			return filled;
 		}
 
 		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
+		public int extract(int tank, FluidResource resource, int amount, TransactionContext transaction) {
 			if (!canTransfer())
-				return FluidStack.EMPTY;
-			FluidStack drain = wrapped.drain(resource, action);
-			if (!drain.isEmpty() && action.execute())
+				return 0;
+			int drained = wrapped.extract(tank, resource, amount, transaction);
+			if (drained > 0)
 				keepAlive();
-			return drain;
-		}
-
-		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
-			if (!canTransfer())
-				return FluidStack.EMPTY;
-			FluidStack drain = wrapped.drain(maxDrain, action);
-			if (!drain.isEmpty() && action.execute())
-				keepAlive();
-			return drain;
+			return drained;
 		}
 
 		public void keepAlive() {

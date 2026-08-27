@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.roller;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,18 +36,17 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -84,7 +84,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 
 	@Override
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffers) {
+		ContraptionMatrices matrices, SubmitNodeCollector buffers) {
 		if (!VisualizationManager.supportsVisualization(context.world))
 			RollerRenderer.renderInContraption(context, renderWorld, matrices, buffers);
 	}
@@ -92,7 +92,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
 		return Vec3.atLowerCornerOf(context.state.getValue(RollerBlock.FACING)
-			.getNormal())
+			.getUnitVec3i())
 			.scale(.45)
 			.subtract(0, 2, 0);
 	}
@@ -124,7 +124,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 		BlockState stateVisited = world.getBlockState(pos);
 		if (!stateVisited.isRedstoneConductor(world, pos))
 			damageEntities(context, pos, world);
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return;
 
 		List<BlockPos> positionsToBreak = getPositionsToBreak(context, pos);
@@ -149,8 +149,8 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 			return;
 		}
 
-		context.data.put("ReferencePos", NbtUtils.writeBlockPos(pos));
-		context.data.put("BreakingPos", NbtUtils.writeBlockPos(argMax));
+		context.data.store("ReferencePos", BlockPos.CODEC, pos);
+		context.data.store("BreakingPos", BlockPos.CODEC, argMax);
 		context.stall = true;
 	}
 
@@ -176,7 +176,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 			|| blockState.is(BlockTags.NEEDS_DIAMOND_TOOL);
 
 		BlockHelper.destroyBlock(context.world, breakingPos, 1f, stack -> {
-			if (noHarvest || context.world.random.nextBoolean())
+			if (noHarvest || context.world.getRandom().nextBoolean())
 				return;
 			this.collectOrDropItem(context, stack);
 		});
@@ -313,7 +313,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 
 		Vec3 directionVec = Vec3.atLowerCornerOf(context.state.getValue(RollerBlock.FACING)
 			.getClockWise()
-			.getNormal());
+			.getUnitVec3i());
 		directionVec = context.rotation.apply(directionVec);
 		PaveResult paveResult = PaveResult.PASS;
 		int yOffset = 0;
@@ -385,7 +385,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 
 		if (paveResult == PaveResult.SUCCESS) {
 			context.data.putInt("WaitingTicks", 2);
-			context.data.put("LastPos", NbtUtils.writeBlockPos(pos));
+			context.data.store("LastPos", BlockPos.CODEC, pos);
 			context.stall = true;
 		}
 	}
@@ -402,7 +402,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 	}
 
 	protected BlockState getStateToPaveWith(MovementContext context) {
-		return getStateToPaveWith(ItemStack.parseOptional(context.world.registryAccess(), context.blockEntityData.getCompound("Filter")));
+		return getStateToPaveWith(context.blockEntityData.read("Filter", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
 	}
 
 	protected BlockState getStateToPaveWithAsSlab(MovementContext context) {
@@ -414,7 +414,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 		if (block == null)
 			return null;
 
-		ResourceLocation rl = BuiltInRegistries.BLOCK.getKey(block);
+		Identifier rl = BuiltInRegistries.BLOCK.getKey(block);
 		String namespace = rl.getNamespace();
 		String blockName = rl.getPath();
 		int nameLength = blockName.length();
@@ -428,7 +428,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 			possibleSlabLocations.add(blockName.substring(0, nameLength - 7) + "_slab");
 
 		for (String locationAttempt : possibleSlabLocations) {
-			Optional<Block> result = BuiltInRegistries.BLOCK.getOptional(ResourceLocation.fromNamespaceAndPath(namespace, locationAttempt));
+			Optional<Block> result = BuiltInRegistries.BLOCK.getOptional(Identifier.fromNamespaceAndPath(namespace, locationAttempt));
 			if (result.isEmpty())
 				continue;
 			return result.get()
@@ -439,7 +439,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 	}
 
 	protected RollingMode getMode(MovementContext context) {
-		return RollingMode.values()[context.blockEntityData.getInt("ScrollValue")];
+		return RollingMode.values()[context.blockEntityData.getIntOr("ScrollValue", 0)];
 	}
 
 	private final class RollerTravellingPoint extends TravellingPoint {

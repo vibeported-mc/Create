@@ -17,7 +17,7 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
@@ -60,9 +60,9 @@ public class TableClothShopPeripheral extends SyncedPeripheral<TableClothBlockEn
 	@LuaFunction(mainThread = true)
 	public final void setPriceTagItem(Optional<String> itemName) throws LuaException {
 		assertShop();
-		ResourceLocation resourceLocation = ResourceLocation.tryParse("minecraft:air");
+		Identifier resourceLocation = Identifier.tryParse("minecraft:air");
 		if (itemName.isPresent())
-			resourceLocation = ResourceLocation.tryParse(itemName.get());
+			resourceLocation = Identifier.tryParse(itemName.get());
 		ItemLike item = BuiltInRegistries.ITEM.get(resourceLocation);
 		blockEntity.priceTag.setFilter(new ItemStack(item));
 	}
@@ -129,7 +129,7 @@ public class TableClothShopPeripheral extends SyncedPeripheral<TableClothBlockEn
 					if (count > 256)
 						throw new LuaException("Count for item " + itemName + " exceeds 256");
 				}
-				ResourceLocation resourceLocation = ResourceLocation.tryParse(itemName);
+				Identifier resourceLocation = Identifier.tryParse(itemName);
 				ItemLike item = BuiltInRegistries.ITEM.get(resourceLocation);
 				ItemStack itemStack = new ItemStack(item);
 				if (itemStack.isEmpty())

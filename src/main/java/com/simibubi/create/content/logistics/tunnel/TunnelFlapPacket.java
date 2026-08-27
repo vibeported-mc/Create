@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.tunnel;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityDataPacket;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -40,7 +41,7 @@ public class TunnelFlapPacket extends BlockEntityDataPacket<BeltTunnelBlockEntit
     }
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.TUNNEL_FLAP;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.TUNNEL_FLAP.getType();
 	}
 }

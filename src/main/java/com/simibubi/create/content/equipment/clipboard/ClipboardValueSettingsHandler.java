@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.clipboard;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -75,7 +76,7 @@ public class ClipboardValueSettingsHandler {
 			return;
 
 		VertexConsumer vb = event.getMultiBufferSource()
-			.getBuffer(RenderType.lines());
+			.getBuffer(RenderTypes.lines());
 		Vec3 camPos = event.getCamera()
 			.getPosition();
 
@@ -125,9 +126,9 @@ public class ClipboardValueSettingsHandler {
 		boolean canPaste = tagElement != null && (smartBE.getAllBehaviours()
 			.stream()
 			.anyMatch(b -> b instanceof ClipboardCloneable cc && cc.readFromClipboard(mc.level.registryAccess(),
-				tagElement.getCompound(cc.getClipboardKey()), mc.player, target.getDirection(), true))
+				tagElement.getCompoundOrEmpty(cc.getClipboardKey()), mc.player, target.getDirection(), true))
 			|| smartBE instanceof ClipboardCloneable ccbe && ccbe.readFromClipboard(mc.level.registryAccess(),
-				tagElement.getCompound(ccbe.getClipboardKey()), mc.player, target.getDirection(), true));
+				tagElement.getCompoundOrEmpty(ccbe.getClipboardKey()), mc.player, target.getDirection(), true));
 
 		if (!canCopy && !canPaste)
 			return;
@@ -220,12 +221,12 @@ public class ClipboardValueSettingsHandler {
 				itemStack.set(AllDataComponents.CLIPBOARD_CONTENT, clipboardContent);
 			}
 
-			player.displayClientMessage(CreateLang.translate("clipboard.copied_from_clipboard", world.getBlockState(pos)
+			player.sendOverlayMessage(CreateLang.translate("clipboard.copied_from_clipboard", world.getBlockState(pos)
 				.getBlock()
 				.getName()
 				.withStyle(ChatFormatting.WHITE))
 				.style(ChatFormatting.GREEN)
-				.component(), true);
+				.component());
 			return;
 		}
 
@@ -244,7 +245,7 @@ public class ClipboardValueSettingsHandler {
 			String clipboardKey = cc.getClipboardKey();
 			if (paste) {
 				anySuccess |=
-					cc.readFromClipboard(world.registryAccess(), tag.getCompound(clipboardKey), player, event.getFace(), world.isClientSide());
+					cc.readFromClipboard(world.registryAccess(), tag.getCompoundOrEmpty(clipboardKey), player, event.getFace(), world.isClientSide());
 				continue;
 			}
 			CompoundTag compoundTag = new CompoundTag();
@@ -258,7 +259,7 @@ public class ClipboardValueSettingsHandler {
 			anyValid = true;
 			String clipboardKey = ccbe.getClipboardKey();
 			if (paste) {
-				anySuccess |= ccbe.readFromClipboard(world.registryAccess(), tag.getCompound(clipboardKey), player, event.getFace(),
+				anySuccess |= ccbe.readFromClipboard(world.registryAccess(), tag.getCompoundOrEmpty(clipboardKey), player, event.getFace(),
 					world.isClientSide());
 			} else {
 				CompoundTag compoundTag = new CompoundTag();
@@ -281,13 +282,13 @@ public class ClipboardValueSettingsHandler {
 		if (!anySuccess)
 			return;
 
-		player.displayClientMessage(CreateLang
+		player.sendOverlayMessage(CreateLang
 			.translate(paste ? "clipboard.pasted_to" : "clipboard.copied_from", world.getBlockState(pos)
 				.getBlock()
 				.getName()
 				.withStyle(ChatFormatting.WHITE))
 			.style(ChatFormatting.GREEN)
-			.component(), true);
+			.component());
 
 		if (!paste) {
 			clipboardContent = clipboardContent.setType(ClipboardType.WRITTEN);

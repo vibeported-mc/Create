@@ -1,5 +1,10 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import net.minecraft.world.level.block.Block;
+import com.simibubi.create.AllItems;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import static com.simibubi.create.content.kinetics.base.HorizontalKineticBlock.HORIZONTAL_FACING;
 
 import java.util.ArrayList;
@@ -25,9 +30,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.edgeInteraction.Edge
 import com.simibubi.create.foundation.blockEntity.behaviour.inventory.InvManipulationBehaviour;
 import com.simibubi.create.foundation.item.SmartInventory;
 
-import net.createmod.catnip.math.BlockFace;
-import net.createmod.catnip.math.Pointing;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.BlockFace;
+import net.createmod.catnip.api.math.Pointing;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -48,8 +53,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.Tags.Items;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements TransformableBlockEntity {
 
 	enum Phase {
@@ -91,7 +94,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 	protected GroupedItems groupedItems = new GroupedItems();
 	protected ConnectedInput input = new ConnectedInput();
 	@Nullable
-	protected IItemHandler invCap;
+	protected ResourceHandler<ItemResource> invCap;
 	protected boolean reRender;
 	protected Phase phase;
 	protected int countDown;
@@ -117,13 +120,13 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.MECHANICAL_CRAFTER.get(),
 				(be, context) -> be.getInvCapability()
 		);
 	}
 
-	protected IItemHandler getInvCapability() {
+	protected ResourceHandler<ItemResource> getInvCapability() {
 		if (invCap == null) {
 			invCap = input.getItemHandler(getLevel(), getBlockPos());
 		}
@@ -207,17 +210,17 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 		Phase phaseBefore = phase;
 		GroupedItems before = this.groupedItems;
 
-		inventory.deserializeNBT(registries, compound.getCompound("Inventory"));
-		input.read(compound.getCompound("ConnectedInput"));
-		groupedItems = GroupedItems.read(compound.getCompound("GroupedItems"), registries);
+		inventory.deserializeNBT(registries, compound.getCompoundOrEmpty("Inventory"));
+		input.read(compound.getCompoundOrEmpty("ConnectedInput"));
+		groupedItems = GroupedItems.read(compound.getCompoundOrEmpty("GroupedItems"), registries);
 		phase = Phase.IDLE;
-		String name = compound.getString("Phase");
+		String name = compound.getStringOr("Phase", "");
 		for (Phase phase : Phase.values())
 			if (phase.name()
 				.equals(name))
 				this.phase = phase;
-		countDown = compound.getInt("CountDown");
-		covered = compound.getBoolean("Cover");
+		countDown = compound.getIntOr("CountDown", 0);
+		covered = compound.getBooleanOr("Cover", false);
 		super.read(compound, registries, clientPacket);
 		if (!clientPacket)
 			return;
@@ -229,11 +232,11 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 			if (before.onlyEmptyItems())
 				return;
 			Direction facing = getBlockState().getValue(MechanicalCrafterBlock.HORIZONTAL_FACING);
-			Vec3 vec = Vec3.atLowerCornerOf(facing.getNormal())
+			Vec3 vec = Vec3.atLowerCornerOf(facing.getUnitVec3i())
 				.scale(.75)
 				.add(VecHelper.getCenterOf(worldPosition));
 			Direction targetDirection = MechanicalCrafterBlock.getTargetDirection(getBlockState());
-			vec = vec.add(Vec3.atLowerCornerOf(targetDirection.getNormal())
+			vec = vec.add(Vec3.atLowerCornerOf(targetDirection.getUnitVec3i())
 				.scale(1));
 			level.addParticle(ParticleTypes.CRIT, vec.x, vec.y, vec.z, 0, 0, 0);
 		}
@@ -258,7 +261,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 		if (phase == Phase.ACCEPTING)
 			return;
 
-		boolean onClient = level.isClientSide;
+		boolean onClient = level.isClientSide();
 		boolean runLogic = !onClient || isVirtual();
 
 		if (wasPoweredBefore != level.hasNeighborSignal(worldPosition)) {
@@ -354,10 +357,10 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 			if (onClient) {
 				Direction facing = getBlockState().getValue(MechanicalCrafterBlock.HORIZONTAL_FACING);
 				float progress = countDown / 2000f;
-				Vec3 facingVec = Vec3.atLowerCornerOf(facing.getNormal());
+				Vec3 facingVec = Vec3.atLowerCornerOf(facing.getUnitVec3i());
 				Vec3 vec = facingVec.scale(.65)
 					.add(VecHelper.getCenterOf(worldPosition));
-				Vec3 offset = VecHelper.offsetRandomly(Vec3.ZERO, level.random, .125f)
+				Vec3 offset = VecHelper.offsetRandomly(Vec3.ZERO, level.getRandom(), .125f)
 					.multiply(VecHelper.axisAlingedPlaneOf(facingVec))
 					.normalize()
 					.scale(progress * .5f)
@@ -371,7 +374,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 						groupedItemsBeforeCraft = new GroupedItems();
 
 						for (int i = 0; i < 10; i++) {
-							Vec3 randVec = VecHelper.offsetRandomly(Vec3.ZERO, level.random, .125f)
+							Vec3 randVec = VecHelper.offsetRandomly(Vec3.ZERO, level.getRandom(), .125f)
 								.multiply(VecHelper.axisAlingedPlaneOf(facingVec))
 								.normalize()
 								.scale(.25f);
@@ -463,7 +466,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 		BlockState blockState = getBlockState();
 		boolean present = AllBlocks.MECHANICAL_CRAFTER.has(blockState);
 		Vec3 vec = present ? Vec3.atLowerCornerOf(blockState.getValue(HORIZONTAL_FACING)
-			.getNormal())
+			.getUnitVec3i())
 			.scale(.75f) : Vec3.ZERO;
 		Vec3 ejectPos = VecHelper.getCenterOf(worldPosition)
 			.add(vec);
@@ -473,7 +476,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 			dropItem(ejectPos, inventory.getItem(0));
 		phase = Phase.IDLE;
 		groupedItems = new GroupedItems();
-		inventory.setStackInSlot(0, ItemStack.EMPTY);
+		ItemHandlerHelpers.setStackInSlot(inventory, 0, ItemStack.EMPTY);
 		sendData();
 	}
 
@@ -486,7 +489,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 	@Override
 	public void lazyTick() {
 		super.lazyTick();
-		if (level.isClientSide && !isVirtual())
+		if (level.isClientSide() && !isVirtual())
 			return;
 		if (phase == Phase.IDLE && craftingItemPresent())
 			checkCompletedRecipe(false);
@@ -507,7 +510,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 	public void checkCompletedRecipe(boolean poweredStart) {
 		if (getSpeed() == 0)
 			return;
-		if (level.isClientSide && !isVirtual())
+		if (level.isClientSide() && !isVirtual())
 			return;
 		List<MechanicalCrafterBlockEntity> chain = RecipeGridHandler.getAllCraftersOfChainIf(this,
 			poweredStart ? MechanicalCrafterBlockEntity::craftingItemPresent
@@ -521,7 +524,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 	protected void begin() {
 		phase = Phase.ACCEPTING;
 		groupedItems = new GroupedItems(inventory.getItem(0));
-		inventory.setStackInSlot(0, ItemStack.EMPTY);
+		ItemHandlerHelpers.setStackInSlot(inventory, 0, ItemStack.EMPTY);
 		if (RecipeGridHandler.getPrecedingCrafters(this)
 			.isEmpty()) {
 			phase = Phase.ASSEMBLING;
@@ -568,5 +571,15 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 	public void transform(BlockEntity be, StructureTransform transform) {
 		input.data.replaceAll(transform::applyWithoutOffset);
 		notifyUpdate();
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		if (level == null)
+			return;
+		if (covered)
+			Block.popResource(level, worldPosition, AllItems.CRAFTER_SLOT_COVER.asStack());
+		ejectWholeGrid();
 	}
 }

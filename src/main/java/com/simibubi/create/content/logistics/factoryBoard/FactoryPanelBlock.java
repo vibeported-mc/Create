@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
 import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,10 +22,10 @@ import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.lang.Lang;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.lang.Lang;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -34,7 +36,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -149,7 +151,7 @@ public class FactoryPanelBlock extends FaceAttachedHorizontalDirectionalBlock
 				Player pPlayer = pContext.getPlayer();
 
 				if (fpbe.addPanel(targetedSlot, networkFromStack) && pPlayer != null) {
-					pPlayer.displayClientMessage(CreateLang.translateDirect("logistically_linked.connected"), true);
+					pPlayer.sendOverlayMessage(CreateLang.translateDirect("logistically_linked.connected"));
 
 					if (!pPlayer.isCreative()) {
 						panelItem.shrink(1);
@@ -216,29 +218,29 @@ public class FactoryPanelBlock extends FaceAttachedHorizontalDirectionalBlock
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (player == null)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		if (level.isClientSide)
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
+		if (level.isClientSide())
+			return InteractionResult.SUCCESS;
 		if (!AllBlocks.FACTORY_GAUGE.isIn(stack))
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		Vec3 location = hitResult.getLocation();
 		if (location == null)
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 
 		if (!FactoryPanelBlockItem.isTuned(stack)) {
 			AllSoundEvents.DENY.playOnServer(level, pos);
-			player.displayClientMessage(CreateLang.translate("factory_panel.tune_before_placing")
-				.component(), true);
-			return ItemInteractionResult.FAIL;
+			player.sendOverlayMessage(CreateLang.translate("factory_panel.tune_before_placing")
+				.component());
+			return InteractionResult.FAIL;
 		}
 
 		PanelSlot newSlot = getTargetedSlot(pos, state, location);
 		withBlockEntityDo(level, pos, fpbe -> {
 			if (!fpbe.addPanel(newSlot, LogisticallyLinkedBlockItem.networkFromStack(FactoryPanelBlockItem.fixCtrlCopiedStack(stack))))
 				return;
-			player.displayClientMessage(CreateLang.translateDirect("logistically_linked.connected"), true);
+			player.sendOverlayMessage(CreateLang.translateDirect("logistically_linked.connected"));
 			level.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS);
 			if (player.isCreative())
 				return;
@@ -246,7 +248,7 @@ public class FactoryPanelBlock extends FaceAttachedHorizontalDirectionalBlock
 			if (stack.isEmpty())
 				player.setItemInHand(hand, ItemStack.EMPTY);
 		});
-		return ItemInteractionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
@@ -322,10 +324,10 @@ public class FactoryPanelBlock extends FaceAttachedHorizontalDirectionalBlock
 	}
 
 	@Override
-	public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel,
-								  BlockPos pCurrentPos, BlockPos pFacingPos) {
-		updateWater(pLevel, pState, pCurrentPos);
-		return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+	public BlockState updateShape(BlockState pState, LevelReader pLevel, ScheduledTickAccess ticks,
+		BlockPos pCurrentPos, Direction pFacing, BlockPos pFacingPos, BlockState pFacingState, RandomSource random) {
+		updateWater(pLevel, ticks, pState, pCurrentPos);
+		return super.updateShape(pState, pLevel, ticks, pCurrentPos, pFacing, pFacingPos, pFacingState, random);
 	}
 
 	@Override
@@ -335,11 +337,6 @@ public class FactoryPanelBlock extends FaceAttachedHorizontalDirectionalBlock
 
 	public static Direction connectedDirection(BlockState state) {
 		return getConnectedDirection(state);
-	}
-
-	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-		IBE.onRemove(pState, pLevel, pPos, pNewState);
 	}
 
 	public static PanelSlot getTargetedSlot(BlockPos pos, BlockState blockState, Vec3 clickLocation) {

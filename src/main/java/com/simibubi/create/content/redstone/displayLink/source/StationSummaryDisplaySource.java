@@ -56,7 +56,7 @@ public class StationSummaryDisplaySource extends DisplaySource {
 	@Override
 	public List<List<MutableComponent>> provideFlapDisplayText(DisplayLinkContext context, DisplayTargetStats stats) {
 		String filter = context.sourceConfig()
-			.getString("Filter");
+			.getStringOr("Filter", "");
 		boolean hasPlatform = filter.contains("*");
 
 		List<List<MutableComponent>> list = new ArrayList<>();
@@ -118,9 +118,9 @@ public class StationSummaryDisplaySource extends DisplaySource {
 	public void loadFlapDisplayLayout(DisplayLinkContext context, FlapDisplayBlockEntity flapDisplay,
 		FlapDisplayLayout layout) {
 		CompoundTag conf = context.sourceConfig();
-		int columnWidth = conf.getInt("NameColumn");
-		int columnWidth2 = conf.getInt("PlatformColumn");
-		boolean hasPlatform = conf.getString("Filter")
+		int columnWidth = conf.getIntOr("NameColumn", 0);
+		int columnWidth2 = conf.getIntOr("PlatformColumn", 0);
+		boolean hasPlatform = conf.getStringOr("Filter", "")
 			.contains("*");
 
 		String layoutName = "StationSummary" + columnWidth + hasPlatform + columnWidth2;

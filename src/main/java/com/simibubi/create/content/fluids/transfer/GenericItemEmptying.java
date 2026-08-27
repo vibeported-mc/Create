@@ -1,12 +1,15 @@
 package com.simibubi.create.content.fluids.transfer;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.List;
 import java.util.Optional;
 
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.fluids.potion.PotionFluidHandler;
 
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -15,9 +18,6 @@ import net.minecraft.world.level.Level;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-
 public class GenericItemEmptying {
 
 	public static boolean canItemBeEmptied(Level world, ItemStack stack) {
@@ -28,11 +28,11 @@ public class GenericItemEmptying {
 			.isPresent())
 			return true;
 
-		IFluidHandlerItem capability = stack.getCapability(Capabilities.FluidHandler.ITEM);
+		ResourceHandler<FluidResource> capability = stack.getCapability(Capabilities.Fluid.ITEM);
 		if (capability == null)
 			return false;
-		for (int i = 0; i < capability.getTanks(); i++) {
-			if (capability.getFluidInTank(i)
+		for (int i = 0; i < capability.size(); i++) {
+			if (FluidHandlerHelpers.getFluidInTank(capability, i)
 				.getAmount() > 0)
 				return true;
 		}
@@ -49,7 +49,7 @@ public class GenericItemEmptying {
 		Optional<RecipeHolder<Recipe<SingleRecipeInput>>> recipe = AllRecipeTypes.EMPTYING.find(new SingleRecipeInput(stack), level);
 		if (recipe.isPresent()) {
 			EmptyingRecipe emptyingRecipe = (EmptyingRecipe) recipe.get().value();
-			List<ItemStack> results = emptyingRecipe.rollResults(level.random);
+			List<ItemStack> results = emptyingRecipe.rollResults(level.getRandom());
 			if (!simulate)
 				stack.shrink(1);
 			resultingItem = results.isEmpty() ? ItemStack.EMPTY : results.get(0);
@@ -59,10 +59,10 @@ public class GenericItemEmptying {
 
 		ItemStack split = stack.copy();
 		split.setCount(1);
-		IFluidHandlerItem capability = split.getCapability(Capabilities.FluidHandler.ITEM);
+		ResourceHandler<FluidResource> capability = split.getCapability(Capabilities.Fluid.ITEM);
 		if (capability == null)
 			return Pair.of(resultingFluid, resultingItem);
-		resultingFluid = capability.drain(1000, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE);
+		resultingFluid = FluidHandlerHelpers.drain(capability, 1000, simulate);
 		resultingItem = capability.getContainer()
 			.copy();
 		if (!simulate)

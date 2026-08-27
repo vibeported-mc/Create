@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.gui.widget;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * A set of widgets that are offset on the Z axis, allowing them to render above/below other "layers".
@@ -13,7 +13,7 @@ public class ScreenOverlay extends CompositeWidget {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		graphics.pose().pushPose();
 		graphics.pose().translate(0, 0, this.zOffset);
 		super.render(graphics, mouseX, mouseY, partialTicks);

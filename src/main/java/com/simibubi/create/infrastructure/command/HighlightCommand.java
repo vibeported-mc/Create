@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.command;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Collection;
 
 import com.mojang.brigadier.Command;
@@ -7,7 +8,6 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.simibubi.create.content.contraptions.AssemblyException;
 import com.simibubi.create.content.contraptions.IDisplayAssemblyExceptions;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -32,7 +32,7 @@ public class HighlightCommand {
 						Collection<ServerPlayer> players = EntityArgument.getPlayers(ctx, "players");
 						BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
 
-						CatnipServices.NETWORK.sendToClients(players, new HighlightPacket(pos));
+						NetworkHelper.INSTANCE.sendToClients(players, new HighlightPacket(pos));
 
 						return players.size();
 					}))
@@ -40,7 +40,7 @@ public class HighlightCommand {
 				.executes(ctx -> {
 					BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
 
-					CatnipServices.NETWORK.sendToClient((ServerPlayer) ctx.getSource().getEntity(), new HighlightPacket(pos));
+					NetworkHelper.INSTANCE.sendToClient((ServerPlayer) ctx.getSource().getEntity(), new HighlightPacket(pos));
 
 					return Command.SINGLE_SUCCESS;
 				}))

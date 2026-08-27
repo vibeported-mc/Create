@@ -1,11 +1,11 @@
 package com.simibubi.create.api.contraption.storage.item;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.core.BlockPos;
-
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 
 /**
  * Wrapper around many MountedItemStorages, providing access to all of them as one storage.
@@ -13,7 +13,7 @@ import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
  * 
  * Uses O(1) lookup arrays instead of O(n) linear scan.
  */
-public class MountedItemStorageWrapper extends CombinedInvWrapper {
+public class MountedItemStorageWrapper extends CombinedResourceHandler<ItemResource> {
 	public final ImmutableMap<BlockPos, MountedItemStorage> storages;
 	
 	// Lookup arrays
@@ -21,7 +21,7 @@ public class MountedItemStorageWrapper extends CombinedInvWrapper {
 	private final int[] slotOffsets;     // Starting slot for each storage
 
 	public MountedItemStorageWrapper(ImmutableMap<BlockPos, MountedItemStorage> storages) {
-		super(storages.values().toArray(IItemHandlerModifiable[]::new));
+		super(storages.values().toArray(ModifiableItemHandler[]::new));
 		this.storages = storages;
 		
 		// Build lookup arrays
@@ -32,7 +32,7 @@ public class MountedItemStorageWrapper extends CombinedInvWrapper {
 		int currentSlot = 0;
 		for (int storageIdx = 0; storageIdx < itemHandler.length; storageIdx++) {
 			slotOffsets[storageIdx] = currentSlot;
-			int slotsInStorage = itemHandler[storageIdx].getSlots();
+			int slotsInStorage = itemHandler[storageIdx].size();
 			
 			for (int i = 0; i < slotsInStorage; i++) {
 				slotToStorage[currentSlot + i] = storageIdx;

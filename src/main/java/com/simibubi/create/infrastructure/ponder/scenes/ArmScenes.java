@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.ponder.scenes;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlockEntity;
@@ -7,13 +8,13 @@ import com.simibubi.create.content.kinetics.mechanicalArm.ArmBlockEntity.Phase;
 import com.simibubi.create.content.logistics.funnel.FunnelBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 
-import net.createmod.catnip.math.Pointing;
-import net.createmod.ponder.api.PonderPalette;
-import net.createmod.ponder.api.element.ElementLink;
-import net.createmod.ponder.api.element.WorldSectionElement;
-import net.createmod.ponder.api.scene.SceneBuilder;
-import net.createmod.ponder.api.scene.SceneBuildingUtil;
-import net.createmod.ponder.api.scene.Selection;
+import net.createmod.catnip.api.math.Pointing;
+import net.createmod.ponder.api.client.PonderPalette;
+import net.createmod.ponder.api.client.element.ElementLink;
+import net.createmod.ponder.api.client.element.WorldSectionElement;
+import net.createmod.ponder.api.client.scene.SceneBuilder;
+import net.createmod.ponder.api.client.scene.SceneBuildingUtil;
+import net.createmod.ponder.api.client.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -350,8 +351,7 @@ public class ArmScenes {
 			BlockPos funnelPos = util.grid().at(5 - index % 3, 1 + index / 3, 2);
 			scene.world().flapFunnel(funnelPos, false);
 			scene.world().instructArm(armPos, Phase.SEARCH_INPUTS, i == 3 ? ItemStack.EMPTY : sand, -1);
-			scene.world().modifyBlockEntity(funnelPos.north(), MechanicalCrafterBlockEntity.class, mct -> mct.getInventory()
-				.insertItem(0, sand.copy(), false));
+			scene.world().modifyBlockEntity(funnelPos.north(), MechanicalCrafterBlockEntity.class, mct -> ItemHandlerHelpers.insertItem(mct.getInventory(), 0, sand.copy(), false));
 			scene.idle(10);
 		}
 
@@ -370,8 +370,7 @@ public class ArmScenes {
 			BlockPos funnelPos = util.grid().at(3 + index % 3, 1 + index / 3, 2);
 			scene.world().flapFunnel(funnelPos, false);
 			scene.world().instructArm(armPos, Phase.SEARCH_INPUTS, i == 4 ? ItemStack.EMPTY : sulphur, -1);
-			scene.world().modifyBlockEntity(funnelPos.north(), MechanicalCrafterBlockEntity.class, mct -> mct.getInventory()
-				.insertItem(0, sulphur.copy(), false));
+			scene.world().modifyBlockEntity(funnelPos.north(), MechanicalCrafterBlockEntity.class, mct -> ItemHandlerHelpers.insertItem(mct.getInventory(), 0, sulphur.copy(), false));
 			scene.idle(10);
 		}
 

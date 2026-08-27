@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.fluid;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.content.fluids.tank.CreativeFluidTankBlockEntity;
@@ -7,7 +10,7 @@ import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
@@ -25,10 +28,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-
 public class FluidHelper {
 
 	public static enum FluidExchange {
@@ -126,17 +125,17 @@ public class FluidHelper {
 			return false;
 
 		Pair<FluidStack, ItemStack> emptyingResult = GenericItemEmptying.emptyItem(worldIn, heldItem, true);
-		IFluidHandler capability = worldIn.getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+		ResourceHandler<FluidResource> capability = worldIn.getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 		FluidStack fluidStack = emptyingResult.getFirst();
 
-		if (capability == null || fluidStack.getAmount() != capability.fill(fluidStack, FluidAction.SIMULATE))
+		if (capability == null || fluidStack.getAmount() != FluidHandlerHelpers.fill(capability, fluidStack, true))
 			return false;
-		if (worldIn.isClientSide)
+		if (worldIn.isClientSide())
 			return true;
 
 		ItemStack copyOfHeld = heldItem.copy();
 		emptyingResult = GenericItemEmptying.emptyItem(worldIn, copyOfHeld, false);
-		capability.fill(fluidStack, FluidAction.EXECUTE);
+		FluidHandlerHelpers.fill(capability, fluidStack, false);
 
 		if (!player.isCreative() && !(be instanceof CreativeFluidTankBlockEntity)) {
 			if (copyOfHeld.isEmpty())
@@ -155,13 +154,13 @@ public class FluidHelper {
 		if (!GenericItemFilling.canItemBeFilled(world, heldItem))
 			return false;
 
-		IFluidHandler capability = world.getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+		ResourceHandler<FluidResource> capability = world.getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 
 		if (capability == null)
 			return false;
 
-		for (int i = 0; i < capability.getTanks(); i++) {
-			FluidStack fluid = capability.getFluidInTank(i);
+		for (int i = 0; i < capability.size(); i++) {
+			FluidStack fluid = FluidHandlerHelpers.getFluidInTank(capability, i);
 			if (fluid.isEmpty())
 				continue;
 			int requiredAmountForItem = GenericItemFilling.getRequiredAmountForItem(world, heldItem, fluid.copy());
@@ -170,7 +169,7 @@ public class FluidHelper {
 			if (requiredAmountForItem > fluid.getAmount())
 				continue;
 
-			if (world.isClientSide)
+			if (world.isClientSide())
 				return true;
 
 			if (player.isCreative() || be instanceof CreativeFluidTankBlockEntity)
@@ -179,7 +178,7 @@ public class FluidHelper {
 
 			FluidStack copy = fluid.copy();
 			copy.setAmount(requiredAmountForItem);
-			capability.drain(copy, FluidAction.EXECUTE);
+			FluidHandlerHelpers.drain(capability, copy, false);
 
 			if (!player.isCreative())
 				player.getInventory()
@@ -192,33 +191,33 @@ public class FluidHelper {
 	}
 
 	@Nullable
-	public static FluidExchange exchange(IFluidHandler fluidTank, IFluidHandlerItem fluidItem, FluidExchange preferred,
+	public static FluidExchange exchange(ResourceHandler<FluidResource> fluidTank, ResourceHandler<FluidResource> fluidItem, FluidExchange preferred,
 		int maxAmount) {
 		return exchange(fluidTank, fluidItem, preferred, true, maxAmount);
 	}
 
 	@Nullable
-	public static FluidExchange exchangeAll(IFluidHandler fluidTank, IFluidHandlerItem fluidItem,
+	public static FluidExchange exchangeAll(ResourceHandler<FluidResource> fluidTank, ResourceHandler<FluidResource> fluidItem,
 		FluidExchange preferred) {
 		return exchange(fluidTank, fluidItem, preferred, false, Integer.MAX_VALUE);
 	}
 
 	@Nullable
-	private static FluidExchange exchange(IFluidHandler fluidTank, IFluidHandlerItem fluidItem, FluidExchange preferred,
+	private static FluidExchange exchange(ResourceHandler<FluidResource> fluidTank, ResourceHandler<FluidResource> fluidItem, FluidExchange preferred,
 		boolean singleOp, int maxTransferAmountPerTank) {
 
 		// Locks in the transfer direction of this operation
 		FluidExchange lockedExchange = null;
 
-		for (int tankSlot = 0; tankSlot < fluidTank.getTanks(); tankSlot++) {
-			for (int slot = 0; slot < fluidItem.getTanks(); slot++) {
+		for (int tankSlot = 0; tankSlot < fluidTank.size(); tankSlot++) {
+			for (int slot = 0; slot < fluidItem.size(); slot++) {
 
-				FluidStack fluidInTank = fluidTank.getFluidInTank(tankSlot);
-				int tankCapacity = fluidTank.getTankCapacity(tankSlot) - fluidInTank.getAmount();
+				FluidStack fluidInTank = FluidHandlerHelpers.getFluidInTank(fluidTank, tankSlot);
+				int tankCapacity = FluidHandlerHelpers.getTankCapacity(fluidTank, tankSlot) - fluidInTank.getAmount();
 				boolean tankEmpty = fluidInTank.isEmpty();
 
-				FluidStack fluidInItem = fluidItem.getFluidInTank(tankSlot);
-				int itemCapacity = fluidItem.getTankCapacity(tankSlot) - fluidInItem.getAmount();
+				FluidStack fluidInItem = FluidHandlerHelpers.getFluidInTank(fluidItem, tankSlot);
+				int itemCapacity = FluidHandlerHelpers.getTankCapacity(fluidItem, tankSlot) - fluidInItem.getAmount();
 				boolean itemEmpty = fluidInItem.isEmpty();
 
 				boolean undecided = lockedExchange == null;
@@ -233,9 +232,7 @@ public class FluidHelper {
 				if (((tankEmpty || itemCapacity <= 0) && canMoveToTank)
 					|| undecided && preferred == FluidExchange.ITEM_TO_TANK) {
 
-					int amount = fluidTank.fill(
-						fluidItem.drain(Math.min(maxTransferAmountPerTank, tankCapacity), FluidAction.EXECUTE),
-						FluidAction.EXECUTE);
+					int amount = FluidHandlerHelpers.fill(fluidTank, FluidHandlerHelpers.drain(fluidItem, Math.min(maxTransferAmountPerTank, tankCapacity), false), false);
 					if (amount > 0) {
 						lockedExchange = FluidExchange.ITEM_TO_TANK;
 						if (singleOp)
@@ -248,9 +245,7 @@ public class FluidHelper {
 				if (((itemEmpty || tankCapacity <= 0) && canMoveToItem)
 					|| undecided && preferred == FluidExchange.TANK_TO_ITEM) {
 
-					int amount = fluidItem.fill(
-						fluidTank.drain(Math.min(maxTransferAmountPerTank, itemCapacity), FluidAction.EXECUTE),
-						FluidAction.EXECUTE);
+					int amount = FluidHandlerHelpers.fill(fluidItem, FluidHandlerHelpers.drain(fluidTank, Math.min(maxTransferAmountPerTank, itemCapacity), false), false);
 					if (amount > 0) {
 						lockedExchange = FluidExchange.TANK_TO_ITEM;
 						if (singleOp)

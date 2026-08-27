@@ -11,7 +11,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownEgg;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg;
 import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
@@ -58,7 +58,7 @@ public class BlazeBurnerHandler {
 		projectile.discard();
 
 		Level world = projectile.level();
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return;
 
 		if (!heater.isCreative()) {
@@ -76,7 +76,7 @@ public class BlazeBurnerHandler {
 
 	public static void splashExtinguishesBurner(ProjectileImpactEvent event) {
 		Projectile projectile = event.getProjectile();
-		if (projectile.level().isClientSide)
+		if (projectile.level().isClientSide())
 			return;
 		if (!(projectile instanceof ThrownPotion entity))
 			return;
@@ -107,7 +107,7 @@ public class BlazeBurnerHandler {
 		BlockState state = world.getBlockState(pos);
 		if (AllBlocks.LIT_BLAZE_BURNER.has(state)) {
 			world.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-				2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
+				2.6F + (world.getRandom().nextFloat() - world.getRandom().nextFloat()) * 0.8F);
 			world.setBlockAndUpdate(pos, AllBlocks.BLAZE_BURNER.getDefaultState());
 		}
 	}

@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.inventory;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
@@ -17,10 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
-public class InvManipulationBehaviour extends CapManipulationBehaviourBase<IItemHandler, InvManipulationBehaviour> {
+public class InvManipulationBehaviour extends CapManipulationBehaviourBase<ResourceHandler<ItemResource>, InvManipulationBehaviour> {
 
 	// Extra types available for multibehaviour
 	public static final BehaviourType<InvManipulationBehaviour>
@@ -49,7 +49,7 @@ public class InvManipulationBehaviour extends CapManipulationBehaviourBase<IItem
 
 	@Nullable
 	public IdentifiedInventory getIdentifiedInventory() {
-		IItemHandler inventory = this.getInventory();
+		ResourceHandler<ItemResource> inventory = this.getInventory();
 		if (inventory == null)
 			return null;
 
@@ -58,8 +58,8 @@ public class InvManipulationBehaviour extends CapManipulationBehaviourBase<IItem
 	}
 
 	@Override
-	protected BlockCapability<IItemHandler, Direction> capability() {
-		return Capabilities.ItemHandler.BLOCK;
+	protected BlockCapability<ResourceHandler<ItemResource>, Direction> capability() {
+		return Capabilities.Item.BLOCK;
 	}
 
 	public ItemStack extract() {
@@ -74,9 +74,9 @@ public class InvManipulationBehaviour extends CapManipulationBehaviourBase<IItem
 		boolean shouldSimulate = simulateNext;
 		simulateNext = false;
 
-		if (getWorld().isClientSide)
+		if (getWorld().isClientSide())
 			return ItemStack.EMPTY;
-		IItemHandler inventory = targetCapability;
+		ResourceHandler<ItemResource> inventory = targetCapability;
 		if (inventory == null)
 			return ItemStack.EMPTY;
 
@@ -87,10 +87,10 @@ public class InvManipulationBehaviour extends CapManipulationBehaviourBase<IItem
 	public ItemStack insert(ItemStack stack) {
 		boolean shouldSimulate = simulateNext;
 		simulateNext = false;
-		IItemHandler inventory = targetCapability;
+		ResourceHandler<ItemResource> inventory = targetCapability;
 		if (inventory == null)
 			return stack;
-		return ItemHandlerHelper.insertItemStacked(inventory, stack, shouldSimulate);
+		return ItemHandlerHelpers.insertItemStacked(inventory, stack, shouldSimulate);
 	}
 
 	protected Predicate<ItemStack> getFilterTest(Predicate<ItemStack> customFilter) {

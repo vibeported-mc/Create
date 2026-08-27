@@ -1,10 +1,11 @@
 package com.simibubi.create.content.trains.station;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.decoration.slidingDoor.DoorControl;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import io.netty.buffer.ByteBuf;
 
 import net.minecraft.core.BlockPos;
@@ -103,7 +104,7 @@ public class StationEditPacket extends BlockEntityConfigurationPacket<StationBlo
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_STATION;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_STATION.getType();
 	}
 }

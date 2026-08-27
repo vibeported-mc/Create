@@ -1,26 +1,51 @@
 package com.simibubi.create.content.logistics.chute;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.content.logistics.chute.ChuteRenderer.ItemRenderState;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.world.phys.Vec3;
 
-public class SmartChuteRenderer extends SmartBlockEntityRenderer<SmartChuteBlockEntity> {
+public class SmartChuteRenderer
+	extends SmartBlockEntityRenderer<SmartChuteBlockEntity, SmartChuteRenderer.SmartChuteRenderState> {
+
+	public static class SmartChuteRenderState extends SmartRenderState {
+		public @Nullable ItemRenderState item;
+	}
 
 	public SmartChuteRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);
 	}
 
 	@Override
-	protected void renderSafe(SmartChuteBlockEntity blockEntity, float partialTicks, PoseStack ms,
-		MultiBufferSource buffer, int light, int overlay) {
-		super.renderSafe(blockEntity, partialTicks, ms, buffer, light, overlay);
-		if (blockEntity.item.isEmpty())
+	public SmartChuteRenderState createRenderState() {
+		return new SmartChuteRenderState();
+	}
+
+	@Override
+	protected void extractSafe(SmartChuteBlockEntity be, SmartChuteRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		super.extractSafe(be, state, partialTicks, cameraPosition);
+		state.item = null;
+		if (be.item.isEmpty())
 			return;
-		if (blockEntity.itemPosition.getValue(partialTicks) > 0)
+		if (be.itemPosition.getValue(partialTicks) > 0)
 			return;
-		ChuteRenderer.renderItem(blockEntity, partialTicks, ms, buffer, light, overlay);
+		state.item = ItemHandlerHelpers.extractItem(ChuteRenderer, be, partialTicks, itemModelResolver);
+	}
+
+	@Override
+	protected void submitSafe(SmartChuteRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		super.submitSafe(state, ms, queue, camera);
+		if (state.item != null)
+			state.item.submit(ms, queue, state.lightCoords);
 	}
 
 }

@@ -18,7 +18,7 @@ import com.simibubi.create.content.kinetics.speedController.SpeedControllerBlock
 import com.simibubi.create.content.kinetics.transmission.SplitShaftBlockEntity;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -204,7 +204,7 @@ public class RotationPropagator {
 	 * @param pos
 	 */
 	public static void handleAdded(Level worldIn, BlockPos pos, KineticBlockEntity addedTE) {
-		if (worldIn.isClientSide)
+		if (worldIn.isClientSide())
 			return;
 		if (!worldIn.isLoaded(pos))
 			return;
@@ -307,7 +307,7 @@ public class RotationPropagator {
 	 * @param removedBE
 	 */
 	public static void handleRemoved(Level worldIn, BlockPos pos, KineticBlockEntity removedBE) {
-		if (worldIn.isClientSide)
+		if (worldIn.isClientSide())
 			return;
 		if (removedBE == null)
 			return;

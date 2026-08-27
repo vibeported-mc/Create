@@ -1,87 +1,92 @@
 package com.simibubi.create.content.kinetics.base;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.kinetics.KineticDebugger;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.createmod.catnip.render.SuperByteBufferCache;
-import net.createmod.catnip.theme.Color;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import dev.engine_room.flywheel.lib.transform.TransformStack;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.client.render.SuperByteBufferCache;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.createmod.catnip.api.theme.Color;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.neoforge.client.ChunkRenderTypeSet;
-import net.neoforged.neoforge.client.model.data.ModelData;
-
-public class KineticBlockEntityRenderer<T extends KineticBlockEntity> extends SafeBlockEntityRenderer<T> {
+public class KineticBlockEntityRenderer<T extends KineticBlockEntity, S extends KineticBlockEntityRenderer.KineticRenderState>
+	extends SafeBlockEntityRenderer<T, S> {
 
 	public static final SuperByteBufferCache.Compartment<BlockState> KINETIC_BLOCK = new SuperByteBufferCache.Compartment<>();
 	public static boolean rainbowMode = false;
 
-	protected static final RenderType[] REVERSED_CHUNK_BUFFER_LAYERS = RenderType.chunkBufferLayers().toArray(RenderType[]::new);
-
-	static {
-		ArrayUtils.reverse(REVERSED_CHUNK_BUFFER_LAYERS);
+	public static class KineticRenderState extends SafeRenderState {
+		public @Nullable SuperByteBufferRenderState model;
+		public RenderType renderType = RenderTypes.cutoutMovingBlock();
 	}
 
 	public KineticBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
 	}
 
 	@Override
-	protected void renderSafe(T be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-							  int light, int overlay) {
-		if (VisualizationManager.supportsVisualization(be.getLevel())) return;
+	@SuppressWarnings("unchecked")
+	public S createRenderState() {
+		return (S) new KineticRenderState();
+	}
 
-		BlockState state = getRenderedBlockState(be);
-		RenderType type = getRenderType(be, state);
-		renderRotatingBuffer(be, getRotatedModel(be, state), ms, buffer.getBuffer(type), light);
+	@Override
+	protected void extractSafe(T be, S state, float partialTicks, Vec3 cameraPosition) {
+		if (VisualizationManager.supportsVisualization(be.getLevel())) {
+			state.skip = true;
+			return;
+		}
+
+		BlockState renderedState = getRenderedBlockState(be);
+		state.renderType = getRenderType(be, renderedState);
+		state.model = standardKineticRotationTransform(getRotatedModel(be, renderedState), be, state.lightCoords)
+			.extractRenderState();
+	}
+
+	@Override
+	protected void submitSafe(S state, PoseStack ms, SubmitNodeCollector queue, CameraRenderState camera) {
+		if (state.model != null)
+			state.model.submit(ms, state.renderType, queue);
 	}
 
 	protected BlockState getRenderedBlockState(T be) {
 		return be.getBlockState();
 	}
 
+	/**
+	 * Minecraft 26.2 derives a block's chunk layer from its texture's alpha channel rather than
+	 * exposing it on the model, so the old scan over the model's render types has nothing to read.
+	 * Cutout is the safe default - it draws opaque geometry correctly, just with an alpha test that
+	 * always passes - and matches what the old scan fell back to. Override for translucent blocks.
+	 */
 	protected RenderType getRenderType(T be, BlockState state) {
-		// TODO: this is not very clean
-		BakedModel model = Minecraft.getInstance()
-			.getBlockRenderer().getBlockModel(state);
-		ChunkRenderTypeSet typeSet = model.getRenderTypes(state, RandomSource.create(42L), ModelData.EMPTY);
-		for (RenderType type : REVERSED_CHUNK_BUFFER_LAYERS)
-			if (typeSet.contains(type))
-				return type;
-		return RenderType.cutoutMipped();
+		return RenderTypes.cutoutMovingBlock();
 	}
 
 	protected SuperByteBuffer getRotatedModel(T be, BlockState state) {
 		return CachedBuffers.block(KINETIC_BLOCK, state);
 	}
 
-	public static void renderRotatingKineticBlock(KineticBlockEntity be, BlockState renderedState, PoseStack ms,
-												  VertexConsumer buffer, int light) {
+	public static SuperByteBufferRenderState extractRotatingKineticBlock(KineticBlockEntity be,
+		BlockState renderedState, int light) {
 		SuperByteBuffer superByteBuffer = CachedBuffers.block(KINETIC_BLOCK, renderedState);
-		renderRotatingBuffer(be, superByteBuffer, ms, buffer, light);
-	}
-
-	public static void renderRotatingBuffer(KineticBlockEntity be, SuperByteBuffer superBuffer, PoseStack ms,
-											VertexConsumer buffer, int light) {
-		standardKineticRotationTransform(superBuffer, be, light).renderInto(ms, buffer);
+		return standardKineticRotationTransform(superByteBuffer, be, light).extractRenderState();
 	}
 
 	public static float getAngleForBe(KineticBlockEntity be, final BlockPos pos, Axis axis) {
@@ -92,7 +97,7 @@ public class KineticBlockEntityRenderer<T extends KineticBlockEntity> extends Sa
 	}
 
 	public static SuperByteBuffer standardKineticRotationTransform(SuperByteBuffer buffer, KineticBlockEntity be,
-																   int light) {
+		int light) {
 		final BlockPos pos = be.getBlockPos();
 		Axis axis = ((IRotate) be.getBlockState()
 			.getBlock()).getRotationAxis(be.getBlockState());
@@ -100,9 +105,12 @@ public class KineticBlockEntityRenderer<T extends KineticBlockEntity> extends Sa
 	}
 
 	public static SuperByteBuffer kineticRotationTransform(SuperByteBuffer buffer, KineticBlockEntity be, Axis axis,
-														   float angle, int light) {
+		float angle, int light) {
 		buffer.light(light);
-		buffer.rotateCentered(angle, Direction.get(AxisDirection.POSITIVE, axis));
+		// Catnip's 26.x SuperByteBuffer is a minimal interface and no longer implements Flywheel's
+		// transform API itself; transforms go through the PoseStack it exposes.
+		TransformStack.of(buffer.getTransforms())
+			.rotateCentered(angle, axis);
 
 		if (KineticDebugger.isActive()) {
 			rainbowMode = true;

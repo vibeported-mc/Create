@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.packagePort;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.animatedContainer.AnimatedContainerBehaviour;
@@ -54,13 +56,13 @@ public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 		}
 
 		// we need to copy the stack here since it may be modified by moveItemStackTo, but the
-		// stack may be taken directly from a SlotItemHandler, which just defers to an IItemHandler.
+		// stack may be taken directly from a SlotItemHandler, which just defers to an ResourceHandler<ItemResource>.
 		// modifying the original stack would violate the class's contract and cause problems.
 		ItemStack stack = slot.getItem().copy();
 		// we return the stack that was moved out of the slot, so make a copy of that now too.
 		ItemStack moved = stack.copy();
 
-		int size = contentHolder.inventory.getSlots();
+		int size = contentHolder.inventory.size();
 		if (index < size) {
 			// move into player inventory
 			if (!this.moveItemStackTo(stack, size, this.slots.size(), true)) {
@@ -106,7 +108,7 @@ public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 	@Override
 	public void removed(Player playerIn) {
 		super.removed(playerIn);
-		if (!playerIn.level().isClientSide)
+		if (!playerIn.level().isClientSide())
 			BlockEntityBehaviour.get(contentHolder, AnimatedContainerBehaviour.TYPE)
 				.stopOpen(playerIn);
 	}
@@ -114,7 +116,7 @@ public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 	@Override
 	protected boolean moveItemStackTo(ItemStack stack, int startIndex, int endIndex, boolean reverseDirection) {
 		// unfortunately, we kinda need to copy this entire method to make two tiny changes. I'm surprised
-		// there's no forge patch for this considering it violates the contract of IItemHandler.getStackInSlot.
+		// there's no forge patch for this considering it violates the contract of ResourceHandler<ItemResource>.getStackInSlot.
 
 		boolean success = false;
 		int i = startIndex;

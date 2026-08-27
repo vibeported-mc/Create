@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.filter;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class AttributeFilterMenu extends AbstractFilterMenu {
@@ -48,7 +49,7 @@ public class AttributeFilterMenu extends AbstractFilterMenu {
 		super.init(inv, contentHolder);
 		ItemStack stack = new ItemStack(Items.NAME_TAG);
 		stack.set(DataComponents.CUSTOM_NAME, Component.literal("Selected Tags").withStyle(ChatFormatting.RESET, ChatFormatting.BLUE));
-		ghostInventory.setStackInSlot(1, stack);
+		ItemHandlerHelpers.setStackInSlot(ghostInventory, 1, stack);
 	}
 
 	@Override
@@ -73,8 +74,8 @@ public class AttributeFilterMenu extends AbstractFilterMenu {
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
-		return new ItemStackHandler(2);
+	protected ItemStacksResourceHandler createGhostInventory() {
+		return new ItemStacksResourceHandler(2);
 	}
 
 	@Override
@@ -108,7 +109,7 @@ public class AttributeFilterMenu extends AbstractFilterMenu {
 		if (index == 37)
 			return ItemStack.EMPTY;
 		if (index == 36) {
-			ghostInventory.setStackInSlot(37, ItemStack.EMPTY);
+			ItemHandlerHelpers.setStackInSlot(ghostInventory, 37, ItemStack.EMPTY);
 			return ItemStack.EMPTY;
 		}
 		if (index < 36) {
@@ -116,7 +117,7 @@ public class AttributeFilterMenu extends AbstractFilterMenu {
 			ItemStack stackToInsert = slot.getItem();
 			ItemStack copy = stackToInsert.copy();
 			copy.setCount(1);
-			ghostInventory.setStackInSlot(0, copy);
+			ItemHandlerHelpers.setStackInSlot(ghostInventory, 0, copy);
 		}
 		return ItemStack.EMPTY;
 	}

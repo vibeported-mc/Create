@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.simpleRelays;
 
+import net.minecraft.server.level.ServerLevel;
 import java.util.Optional;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -36,13 +37,12 @@ public abstract class AbstractSimpleShaftBlock extends AbstractShaftBlock implem
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-		boolean wasWaterLogged = state.hasProperty(WATERLOGGED) &&
-				newState.hasProperty(WATERLOGGED) &&
-				(state.getValue(WATERLOGGED) != newState.getValue(WATERLOGGED));
-		if (state != newState && !isMoving && !wasWaterLogged)
+	public void affectNeighborsAfterRemoval(BlockState state, ServerLevel world, BlockPos pos,
+		boolean isMoving) {
+		// Only reached when the shaft itself was replaced, so the old waterlogging-only check is moot.
+		if (!isMoving)
 			removeBracket(world, pos, true).ifPresent(stack -> Block.popResource(world, pos, stack));
-		super.onRemove(state, world, pos, newState, isMoving);
+		super.affectNeighborsAfterRemoval(state, world, pos, isMoving);
 	}
 
 	@Override

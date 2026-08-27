@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.potatoCannon;
 
+import net.minecraft.world.entity.EntityTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,7 @@ import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.damageTypes.CreateDamageSources;
 import com.simibubi.create.foundation.particle.AirParticleData;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -33,7 +34,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -91,16 +92,16 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 	@Override
 	public void readAdditionalSaveData(CompoundTag nbt) {
-		setItem(ItemStack.parseOptional(this.registryAccess(), nbt.getCompound("Item")));
-		additionalDamageMult = nbt.getFloat("AdditionalDamage");
-		additionalKnockback = nbt.getFloat("AdditionalKnockback");
-		recoveryChance = nbt.getFloat("Recovery");
+		setItem(nbt.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
+		additionalDamageMult = nbt.getFloatOr("AdditionalDamage", 0);
+		additionalKnockback = nbt.getFloatOr("AdditionalKnockback", 0);
+		recoveryChance = nbt.getFloatOr("Recovery", 0);
 		super.readAdditionalSaveData(nbt);
 	}
 
 	@Override
 	public void addAdditionalSaveData(CompoundTag nbt) {
-		nbt.put("Item", stack.saveOptional(this.registryAccess()));
+		nbt.store("Item", ItemStack.OPTIONAL_CODEC, stack);
 		nbt.putFloat("AdditionalDamage", additionalDamageMult);
 		nbt.putFloat("AdditionalKnockback", additionalKnockback);
 		nbt.putFloat("Recovery", recoveryChance);
@@ -204,12 +205,12 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (type.preEntityHit(stack, ray))
 			return;
 
-		boolean targetIsEnderman = target.getType() == EntityType.ENDERMAN;
+		boolean targetIsEnderman = target.getType() == EntityTypes.ENDERMAN;
 		int k = target.getRemainingFireTicks();
 		if (this.isOnFire() && !targetIsEnderman)
 			target.igniteForSeconds(5);
 
-		boolean onServer = !level().isClientSide;
+		boolean onServer = !level().isClientSide();
 		DamageSource damageSource = causePotatoDamage();
 		if (onServer && !target.hurt(damageSource, damage)) {
 			target.setRemainingFireTicks(k);
@@ -286,7 +287,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	protected void onHitBlock(BlockHitResult ray) {
 		Vec3 hit = ray.getLocation();
 		pop(hit);
-		if (!type.onBlockHit(level(), stack, ray) && !level().isClientSide) {
+		if (!type.onBlockHit(level(), stack, ray) && !level().isClientSide()) {
 			if (random.nextDouble() <= recoveryChance) {
 				recoverItem();
 			} else {
@@ -317,7 +318,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 					m.z);
 			}
 		}
-		if (!level().isClientSide)
+		if (!level().isClientSide())
 			playHitSound(level(), position());
 	}
 

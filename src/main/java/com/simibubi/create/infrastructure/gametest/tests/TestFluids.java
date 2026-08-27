@@ -1,5 +1,11 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.minecraft.world.entity.EntityTypes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +29,7 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -40,11 +46,6 @@ import net.minecraft.world.level.material.Fluids;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 @GameTestGroup(path = "fluids")
 public class TestFluids {
 	@GameTest(template = "hose_pulley_transfer", timeoutTicks = CreateGameTestHelper.TWENTY_SECONDS)
@@ -65,10 +66,10 @@ public class TestFluids {
 					.forEach(pos -> helper.assertBlockPresent(Blocks.AIR, pos));
 			// check nothing left in pulley
 			BlockPos pulleyPos = new BlockPos(4, 7, 3);
-			IFluidHandler storage = helper.fluidStorageAt(pulleyPos);
+			ResourceHandler<FluidResource> storage = helper.fluidStorageAt(pulleyPos);
 			if (storage instanceof HosePulleyFluidHandler hose) {
-				IFluidHandler internalTank = hose.getInternalTank();
-				if (!internalTank.drain(1, FluidAction.SIMULATE).isEmpty())
+				ResourceHandler<FluidResource> internalTank = hose.getInternalTank();
+				if (!FluidHandlerHelpers.drain(internalTank, 1, true).isEmpty())
 					helper.fail("Pulley not empty");
 			} else {
 				helper.fail("Not a pulley");
@@ -222,7 +223,7 @@ public class TestFluids {
 		List<BlockPos> chests = List.of(new BlockPos(6, 4, 2), new BlockPos(6, 4, 3));
 		List<BlockPos> deployers = chests.stream().map(pos -> pos.below(2)).toList();
 		helper.runAfterDelay(3, () -> chests.forEach(chest ->
-				planks.forEach(plank -> ItemHandlerHelper.insertItem(helper.itemStorageAt(chest), new ItemStack(plank), false))
+				planks.forEach(plank -> ItemHandlerHelpers.insertItem(helper.itemStorageAt(chest), new ItemStack(plank), false))
 		));
 
 		BlockPos smallWheel = new BlockPos(4, 2, 2);
@@ -247,9 +248,9 @@ public class TestFluids {
 			// next item
 			planks.remove(0);
 			deployers.forEach(pos -> {
-				IItemHandler handler = helper.itemStorageAt(pos);
-				for (int i = 0; i < handler.getSlots(); i++) {
-					handler.extractItem(i, Integer.MAX_VALUE, false);
+				ResourceHandler<ItemResource> handler = helper.itemStorageAt(pos);
+				for (int i = 0; i < handler.size(); i++) {
+					ItemHandlerHelpers.extractItem(handler, i, Integer.MAX_VALUE, false);
 				}
 			});
 			if (!planks.isEmpty())
@@ -318,8 +319,8 @@ public class TestFluids {
 		BlockPos firstSeat = new BlockPos(4, 2, 1);
 		BlockPos secondSeat = firstSeat.south(2);
 
-		Zombie firstZombie = helper.spawn(EntityType.ZOMBIE, firstSeat);
-		Zombie secondZombie = helper.spawn(EntityType.ZOMBIE, secondSeat);
+		Zombie firstZombie = helper.spawn(EntityTypes.ZOMBIE, firstSeat);
+		Zombie secondZombie = helper.spawn(EntityTypes.ZOMBIE, secondSeat);
 
 		helper.pullLever(effects);
 

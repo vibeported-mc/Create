@@ -43,11 +43,6 @@ public abstract class KineticBlock extends Block implements IRotate {
 	}
 
 	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-		IBE.onRemove(pState, pLevel, pPos, pNewState);
-	}
-
-	@Override
 	public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
 		return false;
 	}
@@ -80,7 +75,7 @@ public abstract class KineticBlock extends Block implements IRotate {
 	@Override
 	public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 		AdvancementBehaviour.setPlacedBy(worldIn, pos, placer);
-		if (worldIn.isClientSide)
+		if (worldIn.isClientSide())
 			return;
 
 		BlockEntity blockEntity = worldIn.getBlockEntity(pos);

@@ -1,9 +1,10 @@
 package com.simibubi.create.foundation.data;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
+import org.jspecify.annotations.NullMarked;
 import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -14,14 +15,13 @@ import com.tterrag.registrate.util.OneTimeEventReceiver;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import dev.engine_room.flywheel.lib.visualization.SimpleEntityVisualizer;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class CreateEntityBuilder<T extends Entity, P> extends EntityBuilder<T, P> {
 
 	@Nullable
@@ -46,7 +46,7 @@ public class CreateEntityBuilder<T extends Entity, P> extends EntityBuilder<T, P
 
 	public CreateEntityBuilder<T, P> visual(NonNullSupplier<SimpleEntityVisualizer.Factory<T>> visualFactory, Predicate<@NotNull T> renderNormally) {
 		if (this.visualFactory == null) {
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> this::registerVisualizer);
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> this::registerVisualizer);
 		}
 
 		this.visualFactory = visualFactory;

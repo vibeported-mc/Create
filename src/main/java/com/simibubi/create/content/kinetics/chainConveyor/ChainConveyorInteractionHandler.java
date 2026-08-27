@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -14,13 +16,12 @@ import com.simibubi.create.content.logistics.packagePort.PackagePortTargetSelect
 import com.simibubi.create.foundation.utility.RaycastHelper;
 import com.simibubi.create.foundation.utility.TickBasedCache;
 
-import net.createmod.catnip.data.WorldAttached;
-import net.createmod.catnip.outliner.Outliner;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.data.WorldAttached;
+import net.createmod.catnip.api.client.outliner.Outliner;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -134,7 +135,7 @@ public class ChainConveyorInteractionHandler {
 				return true;
 			}
 
-			CatnipServices.NETWORK.sendToServer(new ChainConveyorConnectionPacket(selectedLift, selectedLift.offset(selectedConnection),
+			NetworkHelper.INSTANCE.sendToServer(new ChainConveyorConnectionPacket(selectedLift, selectedLift.offset(selectedConnection),
 				usedItem, false));
 			return true;
 		}
@@ -147,7 +148,7 @@ public class ChainConveyorInteractionHandler {
 		}
 
 		if (PackageItem.isPackage(mainHandItem)) {
-			CatnipServices.NETWORK.sendToServer(new ChainPackageInteractionPacket(selectedLift, selectedConnection, selectedChainPosition,
+			NetworkHelper.INSTANCE.sendToServer(new ChainPackageInteractionPacket(selectedLift, selectedConnection, selectedChainPosition,
 				false));
 			return true;
 		}
@@ -159,7 +160,7 @@ public class ChainConveyorInteractionHandler {
 		if (selectedLift == null || selectedShape == null)
 			return;
 
-		VertexConsumer vb = buffer.getBuffer(RenderType.lines());
+		VertexConsumer vb = buffer.getBuffer(RenderTypes.lines());
 		ms.pushPose();
 		ms.translate(selectedLift.getX() - camera.x, selectedLift.getY() - camera.y, selectedLift.getZ() - camera.z);
 		selectedShape.drawOutline(selectedLift, ms, vb);

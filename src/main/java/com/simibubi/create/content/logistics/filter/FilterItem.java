@@ -18,7 +18,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -54,7 +53,7 @@ public abstract class FilterItem extends Item implements MenuProvider, SupportsI
 	public InteractionResult useOn(UseOnContext context) {
 		if (context.getPlayer() == null)
 			return InteractionResult.PASS;
-		return use(context.getLevel(), context.getPlayer(), context.getHand()).getResult();
+		return use(context.getLevel(), context.getPlayer(), context.getHand());
 	}
 
 	@Override
@@ -72,17 +71,17 @@ public abstract class FilterItem extends Item implements MenuProvider, SupportsI
 	public abstract List<Component> makeSummary(ItemStack filter);
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+	public InteractionResult use(Level world, Player player, InteractionHand hand) {
 		ItemStack heldItem = player.getItemInHand(hand);
 
 		if (!player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
-			if (!world.isClientSide && player instanceof ServerPlayer)
+			if (!world.isClientSide() && player instanceof ServerPlayer)
 				player.openMenu(this, buf -> {
 					ItemStack.STREAM_CODEC.encode(buf, heldItem);
 				});
-			return InteractionResultHolder.success(heldItem);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(heldItem);
 		}
-		return InteractionResultHolder.pass(heldItem);
+		return InteractionResult.PASS;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.recipe.ItemCopyingRecipe.SupportsItemCopying;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.api.data.Couple;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -24,7 +24,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -50,21 +49,21 @@ public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopy
 	public InteractionResult useOn(UseOnContext context) {
 		if (context.getPlayer() == null)
 			return InteractionResult.PASS;
-		return use(context.getLevel(), context.getPlayer(), context.getHand()).getResult();
+		return use(context.getLevel(), context.getPlayer(), context.getHand());
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+	public InteractionResult use(Level world, Player player, InteractionHand hand) {
 		ItemStack heldItem = player.getItemInHand(hand);
 
 		if (!player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
-			if (!world.isClientSide && player instanceof ServerPlayer)
+			if (!world.isClientSide() && player instanceof ServerPlayer)
 				player.openMenu(this, buf -> {
 					ItemStack.STREAM_CODEC.encode(buf, heldItem);
 				});
-			return InteractionResultHolder.success(heldItem);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(heldItem);
 		}
-		return InteractionResultHolder.pass(heldItem);
+		return InteractionResult.PASS;
 	}
 
 	public InteractionResult handScheduleTo(ItemStack pStack, Player pPlayer, LivingEntity pInteractionTarget,
@@ -79,7 +78,7 @@ public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopy
 		Entity rootVehicle = pInteractionTarget.getRootVehicle();
 		if (!(rootVehicle instanceof CarriageContraptionEntity entity))
 			return pass;
-		if (pPlayer.level().isClientSide)
+		if (pPlayer.level().isClientSide())
 			return InteractionResult.SUCCESS;
 
 		Contraption contraption = entity.getContraption();
@@ -97,28 +96,28 @@ public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopy
 				.get(seatIndex);
 			Couple<Boolean> directions = cc.conductorSeats.get(seatPos);
 			if (directions == null) {
-				pPlayer.displayClientMessage(CreateLang.translateDirect("schedule.non_controlling_seat"), true);
+				pPlayer.sendOverlayMessage(CreateLang.translateDirect("schedule.non_controlling_seat"));
 				AllSoundEvents.DENY.playOnServer(pPlayer.level(), pPlayer.blockPosition(), 1, 1);
 				return InteractionResult.SUCCESS;
 			}
 
 			if (train.runtime.getSchedule() != null) {
 				AllSoundEvents.DENY.playOnServer(pPlayer.level(), pPlayer.blockPosition(), 1, 1);
-				pPlayer.displayClientMessage(CreateLang.translateDirect("schedule.remove_with_empty_hand"), true);
+				pPlayer.sendOverlayMessage(CreateLang.translateDirect("schedule.remove_with_empty_hand"));
 				return InteractionResult.SUCCESS;
 			}
 
 			if (schedule.entries.isEmpty()) {
 				AllSoundEvents.DENY.playOnServer(pPlayer.level(), pPlayer.blockPosition(), 1, 1);
-				pPlayer.displayClientMessage(CreateLang.translateDirect("schedule.no_stops"), true);
+				pPlayer.sendOverlayMessage(CreateLang.translateDirect("schedule.no_stops"));
 				return InteractionResult.SUCCESS;
 			}
 
 			train.runtime.setSchedule(schedule, false);
 			AllAdvancements.CONDUCTOR.awardTo(pPlayer);
 			AllSoundEvents.CONFIRM.playOnServer(pPlayer.level(), pPlayer.blockPosition(), 1, 1);
-			pPlayer.displayClientMessage(CreateLang.translateDirect("schedule.applied_to_train")
-				.withStyle(ChatFormatting.GREEN), true);
+			pPlayer.sendOverlayMessage(CreateLang.translateDirect("schedule.applied_to_train")
+				.withStyle(ChatFormatting.GREEN));
 			pStack.shrink(1);
 			pPlayer.setItemInHand(pUsedHand, pStack.isEmpty() ? ItemStack.EMPTY : pStack);
 		}

@@ -8,7 +8,7 @@ import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -56,16 +56,16 @@ public abstract class AbstractDiodeGenerator extends SpecialBlockStateGen {
 		return prov.getExistingFile(existing(name));
 	}
 
-	protected ResourceLocation existing(String name) {
+	protected Identifier existing(String name) {
 		return Create.asResource("block/diodes/" + name);
 	}
 
-	protected <T extends Block> ResourceLocation texture(DataGenContext<Block, T> ctx, String name) {
+	protected <T extends Block> Identifier texture(DataGenContext<Block, T> ctx, String name) {
 		return Create.asResource("block/diodes/" + ctx.getName() + "/" + name);
 	}
 
-	protected ResourceLocation poweredTorch() {
-		return ResourceLocation.withDefaultNamespace("block/redstone_torch");
+	protected Identifier poweredTorch() {
+		return Identifier.withDefaultNamespace("block/redstone_torch");
 	}
 
 }

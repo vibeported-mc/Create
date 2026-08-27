@@ -1,6 +1,5 @@
-@ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
+@NullMarked
 package com.simibubi.create.content.contraptions.render;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

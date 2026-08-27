@@ -1,5 +1,8 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
@@ -17,13 +20,13 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 
-import net.createmod.catnip.math.Pointing;
-import net.createmod.ponder.api.PonderPalette;
-import net.createmod.ponder.api.element.ElementLink;
-import net.createmod.ponder.api.element.WorldSectionElement;
-import net.createmod.ponder.api.scene.SceneBuilder;
-import net.createmod.ponder.api.scene.SceneBuildingUtil;
-import net.createmod.ponder.api.scene.Selection;
+import net.createmod.catnip.api.math.Pointing;
+import net.createmod.ponder.api.client.PonderPalette;
+import net.createmod.ponder.api.client.element.ElementLink;
+import net.createmod.ponder.api.client.element.WorldSectionElement;
+import net.createmod.ponder.api.client.scene.SceneBuilder;
+import net.createmod.ponder.api.client.scene.SceneBuildingUtil;
+import net.createmod.ponder.api.client.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -39,9 +42,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-
 public class PipeScenes {
 
 	public static void flow(SceneBuilder builder, SceneBuildingUtil util) {
@@ -72,8 +72,7 @@ public class PipeScenes {
 		scene.idle(5);
 		scene.world().showSection(tank2, Direction.DOWN);
 		FluidStack content = new FluidStack(Fluids.LAVA, 10000);
-		scene.world().modifyBlockEntity(util.grid().at(4, 1, 2), FluidTankBlockEntity.class, be -> be.getTankInventory()
-			.fill(content, FluidAction.EXECUTE));
+		scene.world().modifyBlockEntity(util.grid().at(4, 1, 2), FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), content, false));
 		scene.idle(10);
 
 		for (int i = 4; i >= 1; i--) {
@@ -225,10 +224,9 @@ public class PipeScenes {
 		scene.world().setKineticSpeed(util.select().position(pumpPos), 32);
 		BlockPos drainPos = util.grid().at(1, 1, 2);
 		scene.world().modifyBlockEntity(drainPos, ItemDrainBlockEntity.class,
-			be -> be.getBehaviour(SmartFluidTankBehaviour.TYPE)
+			be -> FluidHandlerHelpers.fill(be.getBehaviour(SmartFluidTankBehaviour.TYPE)
 				.allowInsertion()
-				.getPrimaryHandler()
-				.fill(new FluidStack(Fluids.WATER, 1500), FluidAction.EXECUTE));
+				.getPrimaryHandler(), new FluidStack(Fluids.WATER, 1500), false));
 
 		scene.idle(50);
 		scene.overlay().showOutline(PonderPalette.MEDIUM, new Object(), drain, 40);
@@ -495,9 +493,9 @@ public class PipeScenes {
 		BlockPos smartPos = util.grid().at(3, 1, 1);
 
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
-			IFluidHandler ifh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(new FluidStack(NeoForgeMod.MILK.get(), 1000), FluidAction.EXECUTE);
+				ifh.fill(new FluidStack(NeoForgeMod.MILK.get(), 1000), false);
 		});
 
 		scene.world().setBlock(util.grid().at(3, 1, 3), AllBlocks.FLUID_PIPE.get()
@@ -579,9 +577,9 @@ public class PipeScenes {
 		}
 		scene.idle(15);
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
-			IFluidHandler ifh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(chocolate, FluidAction.EXECUTE);
+				ifh.fill(chocolate, false);
 		});
 		scene.idle(10);
 

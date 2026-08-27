@@ -12,7 +12,7 @@ import com.simibubi.create.content.trains.graph.TrackGraph;
 import com.simibubi.create.content.trains.signal.SignalBoundary;
 import com.simibubi.create.content.trains.signal.SignalEdgeGroup;
 
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -53,15 +53,15 @@ public class RailwaySavedData extends SavedData {
 //		Create.LOGGER.info("Loading Railway Information...");
 
 		DimensionPalette dimensions = DimensionPalette.read(nbt);
-		NBTHelper.iterateCompoundList(nbt.getList("RailGraphs", Tag.TAG_COMPOUND), c -> {
+		NBTHelper.iterateCompoundList(nbt.getListOrEmpty("RailGraphs"), c -> {
 			TrackGraph graph = TrackGraph.read(c, registries, dimensions);
 			sd.trackNetworks.put(graph.id, graph);
 		});
-		NBTHelper.iterateCompoundList(nbt.getList("SignalBlocks", Tag.TAG_COMPOUND), c -> {
+		NBTHelper.iterateCompoundList(nbt.getListOrEmpty("SignalBlocks"), c -> {
 			SignalEdgeGroup group = SignalEdgeGroup.read(c);
 			sd.signalEdgeGroups.put(group.id, group);
 		});
-		NBTHelper.iterateCompoundList(nbt.getList("Trains", Tag.TAG_COMPOUND), c -> {
+		NBTHelper.iterateCompoundList(nbt.getListOrEmpty("Trains"), c -> {
 			Train train = Train.read(c, registries, sd.trackNetworks, dimensions);
 			sd.trains.put(train.id, train);
 		});

@@ -1,5 +1,8 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
 import com.simibubi.create.content.redstone.displayLink.target.DisplayTargetStats;
 import com.simibubi.create.content.redstone.smartObserver.SmartObserverBlockEntity;
@@ -10,8 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class ItemCountDisplaySource extends NumericSingleLineDisplaySource {
 
 	@Override
@@ -22,14 +23,14 @@ public class ItemCountDisplaySource extends NumericSingleLineDisplaySource {
 
 		InvManipulationBehaviour invManipulationBehaviour = cobe.getBehaviour(InvManipulationBehaviour.TYPE);
 		FilteringBehaviour filteringBehaviour = cobe.getBehaviour(FilteringBehaviour.TYPE);
-		IItemHandler handler = invManipulationBehaviour.getInventory();
+		ResourceHandler<ItemResource> handler = invManipulationBehaviour.getInventory();
 
 		if (handler == null)
 			return ZERO.copy();
 
 		int collected = 0;
-		for (int i = 0; i < handler.getSlots(); i++) {
-			ItemStack stack = handler.extractItem(i, handler.getSlotLimit(i), true);
+		for (int i = 0; i < handler.size(); i++) {
+			ItemStack stack = ItemHandlerHelpers.extractItem(handler, i, ItemHandlerHelpers.getSlotLimit(handler, i), true);
 			if (stack.isEmpty())
 				continue;
 			if (!filteringBehaviour.test(stack))

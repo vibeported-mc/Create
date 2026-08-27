@@ -1,5 +1,7 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.minecraft.world.entity.EntityTypes;
 import static com.simibubi.create.infrastructure.gametest.CreateGameTestHelper.FIFTEEN_SECONDS;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -19,9 +21,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -48,7 +50,7 @@ public class TestMisc {
 		// setup cannon
 		BlockPos cannonPos = new BlockPos(3, 2, 6);
 		SchematicannonBlockEntity cannon = helper.getBlockEntity(AllBlockEntityTypes.SCHEMATICANNON.get(), cannonPos);
-		cannon.inventory.setStackInSlot(0, schematic);
+		ItemHandlerHelpers.setStackInSlot(cannon.inventory, 0, schematic);
 		// run
 		cannon.state = State.RUNNING;
 		cannon.statusMsg = "running";
@@ -64,7 +66,7 @@ public class TestMisc {
 	@GameTest(template = "shearing")
 	public static void shearing(CreateGameTestHelper helper) {
 		BlockPos sheepPos = new BlockPos(2, 1, 2);
-		Sheep sheep = helper.getFirstEntity(EntityType.SHEEP, sheepPos);
+		Sheep sheep = helper.getFirstEntity(EntityTypes.SHEEP, sheepPos);
 		sheep.shear(SoundSource.NEUTRAL);
 		helper.succeedWhen(() -> {
 			helper.assertItemEntityPresent(Items.WHITE_WOOL, sheepPos, 2);
@@ -104,15 +106,15 @@ public class TestMisc {
 		BlockPos zombieSpawn = lava.above(2);
 		BlockPos armorStandPos = new BlockPos(2, 2, 1);
 		helper.runAtTickTime(5, () -> {
-			Zombie zombie = helper.spawn(EntityType.ZOMBIE, zombieSpawn);
-			ArmorStand armorStand = helper.getFirstEntity(EntityType.ARMOR_STAND, armorStandPos);
+			Zombie zombie = helper.spawn(EntityTypes.ZOMBIE, zombieSpawn);
+			ArmorStand armorStand = helper.getFirstEntity(EntityTypes.ARMOR_STAND, armorStandPos);
 			for (EquipmentSlot slot : EquipmentSlot.values()) {
 				zombie.setItemSlot(slot, armorStand.getItemBySlot(slot).copy());
 			}
 		});
 		helper.succeedWhen(() -> {
 			helper.assertSecondsPassed(9);
-			helper.assertEntityPresent(EntityType.ZOMBIE, lava);
+			helper.assertEntityPresent(EntityTypes.ZOMBIE, lava);
 		});
 	}
 }

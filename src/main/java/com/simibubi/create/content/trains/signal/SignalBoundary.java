@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.signal;
 
+import net.minecraft.core.UUIDUtil;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +17,9 @@ import com.simibubi.create.content.trains.signal.SignalBlock.SignalType;
 import com.simibubi.create.content.trains.signal.SignalBlockEntity.OverlayState;
 import com.simibubi.create.content.trains.signal.SignalBlockEntity.SignalState;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -272,8 +273,8 @@ public class SignalBoundary extends TrackEdgePoint {
 		for (int i = 1; i <= 2; i++)
 			if (nbt.contains("Tiles" + i)) {
 				boolean first = i == 1;
-				NBTHelper.iterateCompoundList(nbt.getList("Tiles" + i, Tag.TAG_COMPOUND), c -> blockEntities.get(first)
-					.put(NBTHelper.readBlockPos(c, "Pos"), c.getBoolean("Power")));
+				NBTHelper.iterateCompoundList(nbt.getListOrEmpty("Tiles" + i), c -> blockEntities.get(first)
+					.put(NBTHelper.readBlockPos(c, "Pos"), c.getBooleanOr("Power", false)));
 			}
 
 		for (int i = 1; i <= 2; i++)
@@ -305,13 +306,13 @@ public class SignalBoundary extends TrackEdgePoint {
 				nbt.put("Tiles" + i, NBTHelper.writeCompoundList(blockEntities.get(i == 1)
 					.entrySet(), e -> {
 						CompoundTag c = new CompoundTag();
-						c.put("Pos", NbtUtils.writeBlockPos(e.getKey()));
+						c.store("Pos", BlockPos.CODEC, e.getKey());
 						c.putBoolean("Power", e.getValue());
 						return c;
 					}));
 		for (int i = 1; i <= 2; i++)
 			if (groups.get(i == 1) != null)
-				nbt.putUUID("Group" + i, groups.get(i == 1));
+				nbt.store("Group" + i, UUIDUtil.CODEC, groups.get(i == 1));
 		for (int i = 1; i <= 2; i++)
 			if (sidesToUpdate.get(i == 1))
 				nbt.putBoolean("Update" + i, true);

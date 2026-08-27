@@ -16,7 +16,7 @@ import com.simibubi.create.compat.framedblocks.FramedBlocksInSchematics;
 import com.simibubi.create.foundation.data.recipe.Mods;
 import com.simibubi.create.foundation.mixin.accessor.ItemFrameAccessor;
 
-import net.createmod.catnip.components.ComponentProcessors;
+import net.createmod.catnip.api.data.component.ComponentProcessors;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;

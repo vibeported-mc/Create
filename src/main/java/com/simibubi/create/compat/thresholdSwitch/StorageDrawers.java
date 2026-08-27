@@ -1,11 +1,11 @@
 package com.simibubi.create.compat.thresholdSwitch;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.compat.Mods;
 
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.IItemHandler;
-
 public class StorageDrawers implements ThresholdSwitchCompat {
 
 	@Override
@@ -16,7 +16,7 @@ public class StorageDrawers implements ThresholdSwitchCompat {
 	}
 
 	@Override
-	public long getSpaceInSlot(IItemHandler inv, int slot) {
+	public long getSpaceInSlot(ResourceHandler<ItemResource> inv, int slot) {
 		if (slot == 0)
 			return 0;
 

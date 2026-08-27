@@ -94,18 +94,6 @@ public class ItemVaultBlock extends Block implements IWrenchable, IBE<ItemVaultB
 		return onWrenched;
 	}
 
-	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean pIsMoving) {
-		if (state.hasBlockEntity() && (state.getBlock() != newState.getBlock() || !newState.hasBlockEntity())) {
-			BlockEntity be = world.getBlockEntity(pos);
-			if (!(be instanceof ItemVaultBlockEntity vaultBE))
-				return;
-			ItemHelper.dropContents(world, pos, vaultBE.inventory);
-			world.removeBlockEntity(pos);
-			ConnectivityHandler.splitMulti(vaultBE);
-		}
-	}
-
 	public static boolean isVault(BlockState state) {
 		return AllBlocks.ITEM_VAULT.has(state);
 	}
@@ -156,7 +144,7 @@ public class ItemVaultBlock extends Block implements IWrenchable, IBE<ItemVaultB
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos) {
+	public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos, Direction direction) {
 		return ItemHelper.calcRedstoneFromBlockEntity(this, pLevel, pPos);
 	}
 

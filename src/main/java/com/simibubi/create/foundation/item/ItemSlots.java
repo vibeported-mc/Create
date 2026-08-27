@@ -1,5 +1,9 @@
 package com.simibubi.create.foundation.item;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntFunction;
@@ -16,9 +20,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
-
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 /**
  * Utility class representing non-empty slots in an item inventory.
@@ -73,17 +74,17 @@ public class ItemSlots {
 		return this.map.keySet().intStream().max().orElse(-1);
 	}
 
-	public <T extends IItemHandlerModifiable> T toHandler(IntFunction<T> factory) {
+	public <T extends ModifiableItemHandler> T toHandler(IntFunction<T> factory) {
 		T handler = factory.apply(this.size);
 		this.forEach(handler::setStackInSlot);
 		return handler;
 	}
 
-	public static ItemSlots fromHandler(IItemHandler handler) {
+	public static ItemSlots fromHandler(ResourceHandler<ItemResource> handler) {
 		ItemSlots slots = new ItemSlots();
-		slots.setSize(handler.getSlots());
-		for (int i = 0; i < handler.getSlots(); i++) {
-			ItemStack stack = handler.getStackInSlot(i);
+		slots.setSize(handler.size());
+		for (int i = 0; i < handler.size(); i++) {
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
 			if (!stack.isEmpty()) {
 				slots.set(i, stack.copy());
 			}

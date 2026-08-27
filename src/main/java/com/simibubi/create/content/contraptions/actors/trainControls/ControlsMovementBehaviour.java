@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.trainControls;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import java.util.Collection;
 
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
@@ -9,10 +10,9 @@ import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
@@ -43,7 +43,7 @@ public class ControlsMovementBehaviour implements MovementBehaviour {
 	@Override
 	public void tick(MovementContext context) {
 		MovementBehaviour.super.tick(context);
-		if (!context.world.isClientSide)
+		if (!context.world.isClientSide())
 			return;
 		if (!(context.temporaryData instanceof LeverAngles))
 			context.temporaryData = new LeverAngles();
@@ -56,7 +56,7 @@ public class ControlsMovementBehaviour implements MovementBehaviour {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffer) {
+		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
 		if (!(context.temporaryData instanceof LeverAngles angles))
 			return;
 

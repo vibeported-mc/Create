@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.wrench;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,22 +32,21 @@ import com.simibubi.create.content.redstone.DirectedDirectionalBlock;
 import com.simibubi.create.foundation.gui.AllIcons;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.gui.AbstractSimiScreen;
-import net.createmod.catnip.gui.UIRenderHelper;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.gui.element.RenderElement;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
-import net.createmod.catnip.theme.Color;
-import net.createmod.ponder.enums.PonderGuiTextures;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.gui.AbstractSimiScreen;
+import net.createmod.catnip.api.client.gui.UIRenderHelper;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.createmod.catnip.api.client.gui.element.RenderElement;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
+import net.createmod.catnip.api.theme.Color;
+import net.createmod.ponder.impl.client.gui.element.PonderGuiTextures;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HopperBlock;
@@ -69,7 +69,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 		registerRotationProperty(SequencedGearshiftBlock.VERTICAL, "Vertical");
 	}
 
-	public static final Set<ResourceLocation> BLOCK_BLACKLIST = new HashSet<>();
+	public static final Set<Identifier> BLOCK_BLACKLIST = new HashSet<>();
 
 	static {
 		registerBlacklistedBlock(AllBlocks.LARGE_WATER_WHEEL.getId());
@@ -83,7 +83,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 		VALID_PROPERTIES.put(property, label);
 	}
 
-	public static void registerBlacklistedBlock(ResourceLocation location) {
+	public static void registerBlacklistedBlock(Identifier location) {
 		if (BLOCK_BLACKLIST.contains(location))
 			return;
 
@@ -182,7 +182,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		int x = this.width / 2;
 		int y = this.height / 2;
 
@@ -218,24 +218,24 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 		if (selectedPropertyIndex > 0) {
 			iconScroll.at(-14, -46).render(graphics);
 			iconUp.at(-1, -46).render(graphics);
-			graphics.drawCenteredString(font, propertiesForState.get(selectedPropertyIndex - 1).getValue(), 0, -30, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
+			graphics.centeredText(font, propertiesForState.get(selectedPropertyIndex - 1).getValue(), 0, -30, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
 		}
 
 		if (selectedPropertyIndex < propertiesForState.size() - 1) {
 			iconScroll.at(-14, 30).render(graphics);
 			iconDown.at(-1, 30).render(graphics);
-			graphics.drawCenteredString(font, propertiesForState.get(selectedPropertyIndex + 1).getValue(), 0, 22, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
+			graphics.centeredText(font, propertiesForState.get(selectedPropertyIndex + 1).getValue(), 0, 22, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
 		}
 
-		graphics.drawCenteredString(font, "Currently", 0, -13, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
-		graphics.drawCenteredString(font, "Changing:", 0, -3, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
-		graphics.drawCenteredString(font, propertyLabel, 0, 7, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
+		graphics.centeredText(font, "Currently", 0, -13, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
+		graphics.centeredText(font, "Changing:", 0, -3, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
+		graphics.centeredText(font, propertyLabel, 0, 7, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
 
 		ms.popPose();
 
 	}
 
-	private void renderRadialSectors(GuiGraphics graphics) {
+	private void renderRadialSectors(GuiGraphicsExtractor graphics) {
 		int sectors = allStates.size();
 		if (sectors < 2)
 			return;
@@ -293,7 +293,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 			poseStack.translate(0, 0, 50);
 
 			if (i == selectedStateIndex) {
-				graphics.drawCenteredString(font, blockState.getValue(property).toString(), 0, 15, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
+				graphics.centeredText(font, blockState.getValue(property).toString(), 0, 15, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
 			}
 
 			poseStack.popPose();
@@ -317,7 +317,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 
 	}
 
-	private void renderDirectionIndicator(GuiGraphics graphics, double theta) {
+	private void renderDirectionIndicator(GuiGraphicsExtractor graphics, double theta) {
 		PoseStack poseStack = graphics.pose();
 
 		float r = 0.8f;
@@ -353,7 +353,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 	private void submitChange() {
 		BlockState selectedState = allStates.get(selectedStateIndex);
 		if (selectedState != state) {
-			CatnipServices.NETWORK.sendToServer(new RadialWrenchMenuSubmitPacket(pos, selectedState));
+			NetworkHelper.INSTANCE.sendToServer(new RadialWrenchMenuSubmitPacket(pos, selectedState));
 		}
 
 		onClose();
@@ -379,7 +379,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+	public void renderBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 		Color color = BACKGROUND_COLOR
 			.scaleAlpha(Math.min(1, (ticksOpen + AnimationTickHolder.getPartialTicks()) / 20f));
 

@@ -1,5 +1,10 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import net.minecraft.core.UUIDUtil;
 import static com.simibubi.create.content.kinetics.base.DirectionalKineticBlock.FACING;
 
 import java.util.ArrayList;
@@ -27,9 +32,9 @@ import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -67,10 +72,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-
 public class DeployerBlockEntity extends KineticBlockEntity implements Clearable {
 	protected State state;
 	protected Mode mode;
@@ -83,7 +84,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 	protected FilteringBehaviour filtering;
 	protected boolean redstoneLocked;
 	protected UUID owner;
-	private IItemHandlerModifiable invHandler;
+	private ModifiableItemHandler invHandler;
 	private ListTag deferredInventoryList;
 
 	private LerpedFloat animatedOffset;
@@ -110,7 +111,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.DEPLOYER.get(),
 				(be, context) ->  {
 					if (be.invHandler == null)
@@ -175,7 +176,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 
 		if (getSpeed() == 0)
 			return;
-		if (!level.isClientSide && player != null && player.blockBreakingProgress != null) {
+		if (!level.isClientSide() && player != null && player.blockBreakingProgress != null) {
 			if (level.isEmptyBlock(player.blockBreakingProgress.getKey())) {
 				level.destroyBlockProgress(player.getId(), player.blockBreakingProgress.getKey(), -1);
 				player.blockBreakingProgress = null;
@@ -185,7 +186,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 			timer -= getTimerSpeed();
 			return;
 		}
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		if (player == null)
 			return;
@@ -367,31 +368,31 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		if (!AllBlocks.DEPLOYER.has(getBlockState()))
 			return Vec3.ZERO;
 		return Vec3.atLowerCornerOf(getBlockState().getValue(FACING)
-			.getNormal());
+			.getUnitVec3i());
 	}
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		state = NBTHelper.readEnum(compound, "State", State.class);
 		mode = NBTHelper.readEnum(compound, "Mode", Mode.class);
-		timer = compound.getInt("Timer");
-		redstoneLocked = compound.getBoolean("Powered");
+		timer = compound.getIntOr("Timer", 0);
+		redstoneLocked = compound.getBooleanOr("Powered", false);
 		if (compound.contains("Owner"))
-			owner = compound.getUUID("Owner");
+			owner = compound.read("Owner", UUIDUtil.CODEC).orElse(null);
 
-		deferredInventoryList = compound.getList("Inventory", Tag.TAG_COMPOUND);
-		overflowItems = NBTHelper.readItemList(compound.getList("Overflow", Tag.TAG_COMPOUND), registries);
+		deferredInventoryList = compound.getListOrEmpty("Inventory");
+		overflowItems = NBTHelper.readItemList(compound.getListOrEmpty("Overflow"), registries);
 		if (compound.contains("HeldItem")) {
-			heldItem = ItemStack.parseOptional(registries, compound.getCompound("HeldItem"));
+			heldItem = compound.read("HeldItem", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
 		}
 		super.read(compound, registries, clientPacket);
 
 		if (!clientPacket)
 			return;
-		fistBump = compound.getBoolean("Fistbump");
-		reach = compound.getFloat("Reach");
+		fistBump = compound.getBooleanOr("Fistbump", false);
+		reach = compound.getFloatOr("Reach", 0);
 		if (compound.contains("Particle")) {
-			ItemStack particleStack = ItemStack.parseOptional(registries, compound.getCompound("Particle"));
+			ItemStack particleStack = compound.read("Particle", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
 			SandPaperItem.spawnParticles(VecHelper.getCenterOf(worldPosition)
 				.add(getMovementVector().scale(reach + 1)), particleStack, this.level);
 		}
@@ -404,14 +405,14 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		compound.putInt("Timer", timer);
 		compound.putBoolean("Powered", redstoneLocked);
 		if (owner != null)
-			compound.putUUID("Owner", owner);
+			compound.store("Owner", UUIDUtil.CODEC, owner);
 
 		if (player != null) {
 			ListTag invNBT = new ListTag();
 			player.getInventory()
 				.save(invNBT);
 			compound.put("Inventory", invNBT);
-			compound.put("HeldItem", player.getMainHandItem().saveOptional(registries));
+			compound.store("HeldItem", ItemStack.OPTIONAL_CODEC, player.getMainHandItem());
 			compound.put("Overflow", NBTHelper.writeItemList(overflowItems, registries));
 		} else if (deferredInventoryList != null) {
 			compound.put("Inventory", deferredInventoryList);
@@ -425,9 +426,9 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		compound.putFloat("Reach", reach);
 		if (player == null)
 			return;
-		compound.put("HeldItem", player.getMainHandItem().saveOptional(registries));
+		compound.store("HeldItem", ItemStack.OPTIONAL_CODEC, player.getMainHandItem());
 		if (player.spawnedItemEffects != null) {
-			compound.put("Particle", player.spawnedItemEffects.saveOptional(registries));
+			compound.store("Particle", ItemStack.OPTIONAL_CODEC, player.spawnedItemEffects);
 			player.spawnedItemEffects = null;
 		}
 	}
@@ -438,12 +439,12 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		super.writeSafe(tag, registries);
 	}
 
-	private IItemHandlerModifiable createHandler() {
+	private ModifiableItemHandler createHandler() {
 		return new DeployerItemHandler(this);
 	}
 
 	public void redstoneUpdate() {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		boolean blockPowered = level.hasNeighborSignal(worldPosition);
 		if (blockPowered == redstoneLocked)
@@ -554,7 +555,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		animatedOffset.setValue(offset);
 	}
 
-	ItemStackHandler recipeInv = new ItemStackHandler(2);
+	ItemStacksResourceHandler recipeInv = new ItemStacksResourceHandler(2);
 
 	@Nullable
 	public RecipeHolder<? extends Recipe<? extends RecipeInput>> getRecipe(ItemStack stack) {
@@ -570,7 +571,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		}
 
 		recipeInv.setStackInSlot(0, stack);
-		recipeInv.setStackInSlot(1, heldItemMainhand);
+		ItemHandlerHelpers.setStackInSlot(recipeInv, 1, heldItemMainhand);
 
 		DeployerRecipeSearchEvent event = new DeployerRecipeSearchEvent(this, new RecipeWrapper(recipeInv));
 
@@ -589,5 +590,11 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 
 	public DeployerFakePlayer getPlayer() {
 		return player;
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		discardPlayer();
 	}
 }

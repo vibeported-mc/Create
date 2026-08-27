@@ -1,5 +1,8 @@
 package com.simibubi.create.content.fluids;
 
+import java.util.function.BiPredicate;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,10 +25,8 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -134,31 +135,36 @@ public class FluidPropagator {
 		}
 	}
 
-	public static Direction validateNeighbourChange(BlockState state, Level world, BlockPos pos, Block otherBlock,
-		BlockPos neighborPos, boolean isMoving) {
-		if (world.isClientSide)
-			return null;
-		// calling getblockstate() as otherBlock param seems to contain the block which
-		// was replaced
-		otherBlock = world.getBlockState(neighborPos)
-			.getBlock();
-		if (otherBlock instanceof FluidPipeBlock)
-			return null;
-		if (otherBlock instanceof AxisPipeBlock)
-			return null;
-		if (otherBlock instanceof PumpBlock)
-			return null;
-		if (otherBlock instanceof LiquidBlock)
-			return null;
+	/**
+	 * Whether a neighbour update is worth re-propagating from.
+	 * <p>
+	 * 26.2 dropped the changed neighbour's position from {@code neighborChanged}, so this can no
+	 * longer name the side that changed. Every neighbour is checked instead, and the answer is
+	 * whether any of them is both a side this pipe is open towards - which only the calling block
+	 * knows, hence {@code openAt} - and not itself part of a pipe network.
+	 */
+	public static boolean validateNeighbourChange(BlockState state, Level world, BlockPos pos, Block otherBlock,
+		boolean isMoving, BiPredicate<BlockState, Direction> openAt) {
+		if (world.isClientSide())
+			return false;
 		if (getStraightPipeAxis(state) == null && !(state.getBlock() instanceof EncasedPipeBlock))
-			return null;
+			return false;
 		for (Direction d : Iterate.directions) {
-			if (!pos.relative(d)
-				.equals(neighborPos))
+			if (!openAt.test(state, d))
 				continue;
-			return d;
+			Block neighbour = world.getBlockState(pos.relative(d))
+				.getBlock();
+			if (neighbour instanceof FluidPipeBlock)
+				continue;
+			if (neighbour instanceof AxisPipeBlock)
+				continue;
+			if (neighbour instanceof PumpBlock)
+				continue;
+			if (neighbour instanceof LiquidBlock)
+				continue;
+			return true;
 		}
-		return null;
+		return false;
 	}
 
 	public static FluidTransportBehaviour getPipe(BlockGetter reader, BlockPos pos) {
@@ -203,8 +209,8 @@ public class FluidPropagator {
 		BlockEntity blockEntity = world.getBlockEntity(pos);
 		if (blockEntity == null || blockEntity.getLevel() == null)
 			return false;
-		IFluidHandler capability =
-			blockEntity.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), side);
+		ResourceHandler<FluidResource> capability =
+			blockEntity.getLevel().getCapability(Capabilities.Fluid.BLOCK, blockEntity.getBlockPos(), side);
 		return capability != null;
 	}
 

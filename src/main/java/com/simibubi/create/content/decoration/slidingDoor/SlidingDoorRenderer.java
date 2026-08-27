@@ -1,19 +1,24 @@
 package com.simibubi.create.content.decoration.slidingDoor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import dev.engine_room.flywheel.lib.transform.TransformStack;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Mth;
@@ -23,13 +28,26 @@ import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.Vec3;
 
-public class SlidingDoorRenderer extends SafeBlockEntityRenderer<SlidingDoorBlockEntity> {
+public class SlidingDoorRenderer
+	extends SafeBlockEntityRenderer<SlidingDoorBlockEntity, SlidingDoorRenderer.SlidingDoorRenderState> {
 
-	public SlidingDoorRenderer(Context context) {}
+	public static class SlidingDoorRenderState extends SafeRenderState {
+		public final List<SuperByteBufferRenderState> parts = new ArrayList<>(2);
+	}
+
+	public SlidingDoorRenderer(Context context) {
+	}
 
 	@Override
-	protected void renderSafe(SlidingDoorBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-		int light, int overlay) {
+	public SlidingDoorRenderState createRenderState() {
+		return new SlidingDoorRenderState();
+	}
+
+	@Override
+	protected void extractSafe(SlidingDoorBlockEntity be, SlidingDoorRenderState state, float partialTicks,
+		Vec3 cameraPosition) {
+		state.parts.clear();
+
 		BlockState blockState = be.getBlockState();
 		if (!be.shouldRenderSpecial(blockState))
 			return;
@@ -43,10 +61,9 @@ public class SlidingDoorRenderer extends SafeBlockEntityRenderer<SlidingDoorBloc
 		float value = be.animation.getValue(partialTicks);
 		float value2 = Mth.clamp(value * 10, 0, 1);
 
-		VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
-		Vec3 offset = Vec3.atLowerCornerOf(movementDirection.getNormal())
+		Vec3 offset = Vec3.atLowerCornerOf(movementDirection.getUnitVec3i())
 			.scale(value * value * 13 / 16f)
-			.add(Vec3.atLowerCornerOf(facing.getNormal())
+			.add(Vec3.atLowerCornerOf(facing.getUnitVec3i())
 				.scale(value2 * 1 / 32f));
 
 		if (((SlidingDoorBlock) blockState.getBlock()).isFoldingDoor()) {
@@ -58,39 +75,46 @@ public class SlidingDoorRenderer extends SafeBlockEntityRenderer<SlidingDoorBloc
 				SuperByteBuffer partial = CachedBuffers.partial(partials.get(left ^ flip), blockState);
 				float f = flip ? -1 : 1;
 
-				partial.translate(0, -1 / 512f, 0)
-					.translate(Vec3.atLowerCornerOf(facing.getNormal())
+				var msr = TransformStack.of(partial.getTransforms());
+				msr.translate(0, -1 / 512f, 0)
+					.translate(Vec3.atLowerCornerOf(facing.getUnitVec3i())
 						.scale(value2 * 1 / 32f));
-				partial.rotateCentered(
-					Mth.DEG_TO_RAD * AngleHelper.horizontalAngle(facing.getClockWise()), Direction.UP);
+				msr.rotateCentered(Mth.DEG_TO_RAD * AngleHelper.horizontalAngle(facing.getClockWise()), Direction.UP);
 
 				if (flip)
-					partial.translate(0, 0, 1);
-				partial.rotateYDegrees(91 * f * value * value);
+					msr.translate(0, 0, 1);
+				msr.rotateYDegrees(91 * f * value * value);
 
 				if (!left)
-					partial.translate(0, 0, f / 2f)
+					msr.translate(0, 0, f / 2f)
 						.rotateYDegrees(-181 * f * value * value);
 
 				if (flip)
-					partial.translate(0, 0, -1 / 2f);
+					msr.translate(0, 0, -1 / 2f);
 
-				partial.light(light)
-					.renderInto(ms, vb);
+				state.parts.add(partial.light(state.lightCoords)
+					.extractRenderState());
 			}
 
 			return;
 		}
 
 		for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
-			CachedBuffers.block(blockState.setValue(DoorBlock.OPEN, false)
-				.setValue(DoorBlock.HALF, half))
+			SuperByteBuffer partial = CachedBuffers.block(blockState.setValue(DoorBlock.OPEN, false)
+				.setValue(DoorBlock.HALF, half));
+			TransformStack.of(partial.getTransforms())
 				.translate(0, half == DoubleBlockHalf.UPPER ? 1 - 1 / 512f : 0, 0)
-				.translate(offset)
-				.light(light)
-				.renderInto(ms, vb);
+				.translate(offset);
+			state.parts.add(partial.light(state.lightCoords)
+				.extractRenderState());
 		}
+	}
 
+	@Override
+	protected void submitSafe(SlidingDoorRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		for (SuperByteBufferRenderState part : state.parts)
+			part.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
 	}
 
 }

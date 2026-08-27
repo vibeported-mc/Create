@@ -32,7 +32,7 @@ public class CreativeCrateBlockEntity extends CrateBlockEntity implements Cleara
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.CREATIVE_CRATE.get(),
 				(be, context) -> be.inv
 		);

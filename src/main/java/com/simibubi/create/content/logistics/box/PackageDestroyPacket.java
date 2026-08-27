@@ -1,10 +1,10 @@
 package com.simibubi.create.content.logistics.box;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public record PackageDestroyPacket(Vec3 location, ItemStack box) implements ClientboundPacketPayload {
+public record PackageDestroyPacket(Vec3 location, ItemStack box) implements CustomPacketPayload {
 	public static final StreamCodec<RegistryFriendlyByteBuf, PackageDestroyPacket> STREAM_CODEC = StreamCodec.composite(
 		CatnipStreamCodecs.VEC3, PackageDestroyPacket::location,
 		ItemStack.STREAM_CODEC, PackageDestroyPacket::box,
@@ -26,11 +26,10 @@ public record PackageDestroyPacket(Vec3 location, ItemStack box) implements Clie
 	);
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.PACKAGE_DESTROYED;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.PACKAGE_DESTROYED.getType();
 	}
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		ClientLevel level = Minecraft.getInstance().level;

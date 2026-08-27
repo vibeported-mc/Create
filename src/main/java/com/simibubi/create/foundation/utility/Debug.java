@@ -17,22 +17,22 @@ public class Debug {
 	@Deprecated
 	public static void debugChat(String message) {
 		if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal(message), false);
+            Minecraft.getInstance().player.sendOverlayMessage(Component.literal(message), false);
         }
 	}
 
 	@Deprecated
 	public static void debugChatAndShowStack(String message, int depth) {
 		if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal(message).append("@")
-                .append(debugStack(depth)), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal(message).append("@")
+                .append(debugStack(depth)));
         }
 	}
 
 	@Deprecated
 	public static void debugMessage(String message) {
 		if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal(message), true);
+            Minecraft.getInstance().player.displayClientMessage(Component.literal(message));
         }
 	}
 

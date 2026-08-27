@@ -1,8 +1,8 @@
 package com.simibubi.create.content.equipment.sandPaper;
 
+import org.jspecify.annotations.NullMarked;
 import java.util.List;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class SandPaperPolishingRecipe extends StandardProcessingRecipe<SingleRecipeInput> {
 
 	public SandPaperPolishingRecipe(ProcessingRecipeParams params) {

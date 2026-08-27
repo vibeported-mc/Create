@@ -9,7 +9,7 @@ import com.simibubi.create.api.equipment.potatoCannon.PotatoProjectileRenderMode
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.util.Mth;

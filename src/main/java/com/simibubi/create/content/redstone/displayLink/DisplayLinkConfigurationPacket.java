@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
@@ -10,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 public class DisplayLinkConfigurationPacket extends BlockEntityConfigurationPacket<DisplayLinkBlockEntity> {
@@ -39,7 +40,7 @@ public class DisplayLinkConfigurationPacket extends BlockEntityConfigurationPack
 			return;
 		}
 
-		ResourceLocation id = ResourceLocation.tryParse(configData.getString("Id"));
+		Identifier id = Identifier.tryParse(configData.getStringOr("Id", ""));
 		DisplaySource source = DisplaySource.get(id);
 		if (source == null) {
 			be.notifyUpdate();
@@ -59,7 +60,7 @@ public class DisplayLinkConfigurationPacket extends BlockEntityConfigurationPack
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_DATA_GATHERER;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_DATA_GATHERER.getType();
 	}
 }

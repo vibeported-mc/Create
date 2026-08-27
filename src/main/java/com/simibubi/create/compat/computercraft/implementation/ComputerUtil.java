@@ -1,5 +1,8 @@
 package com.simibubi.create.compat.computercraft.implementation;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,9 +17,7 @@ import com.simibubi.create.content.logistics.packager.InventorySummary;
 
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
-import net.createmod.catnip.data.Glob;
-
-import net.neoforged.neoforge.items.IItemHandler;
+import net.createmod.catnip.api.data.Glob;
 
 public class ComputerUtil {
 
@@ -287,23 +288,23 @@ public class ComputerUtil {
 		return out;
 	}
 
-	public static Map<Integer, Map<String, ?>> list(IItemHandler inventory) {
+	public static Map<Integer, Map<String, ?>> list(ResourceHandler<ItemResource> inventory) {
 		Map<Integer, Map<String, ?>> result = new HashMap<>();
-		var size = inventory.getSlots();
+		var size = inventory.size();
 		for (var i = 0; i < size; i++) {
-			var stack = inventory.getStackInSlot(i);
+			var stack = ItemHandlerHelpers.getStackInSlot(inventory, i);
 			if (!stack.isEmpty()) result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(stack));
 		}
 
 		return result;
 	}
 
-	public static Map<String, ?> getItemDetail(IItemHandler inventory, int slot) throws LuaException {
+	public static Map<String, ?> getItemDetail(ResourceHandler<ItemResource> inventory, int slot) throws LuaException {
 
-		int maxSlots = inventory.getSlots();
+		int maxSlots = inventory.size();
 		if (slot < 1 || slot > maxSlots)
 			throw new LuaException(String.format("Slot " + slot + " out of range, available slots between " + 1 + " and " + maxSlots));
-		var stack = inventory.getStackInSlot(slot - 1);
+		var stack = ItemHandlerHelpers.getStackInSlot(inventory, slot - 1);
 		return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(stack);
 	}
 

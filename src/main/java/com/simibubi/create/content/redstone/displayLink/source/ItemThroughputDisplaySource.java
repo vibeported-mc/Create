@@ -25,18 +25,18 @@ public class ItemThroughputDisplaySource extends AccumulatedItemCountDisplaySour
 		if (conf.contains("Inactive"))
 			return ZERO.copy();
 
-		double interval = 20 * Math.pow(60, conf.getInt("Interval"));
-		double rate = conf.getFloat("Rate") * interval;
+		double interval = 20 * Math.pow(60, conf.getIntOr("Interval", 0));
+		double rate = conf.getFloatOr("Rate", 0) * interval;
 
 		if (rate > 0) {
-			long previousTime = conf.getLong("LastReceived");
+			long previousTime = conf.getLongOr("LastReceived", 0);
 			long gameTime = context.blockEntity()
 				.getLevel()
 				.getGameTime();
 			int diff = (int) (gameTime - previousTime);
 			if (diff > 0) {
 				// Too long since last item
-				int lastAmount = conf.getInt("LastReceivedAmount");
+				int lastAmount = conf.getIntOr("LastReceivedAmount", 0);
 				double timeBetweenStacks = lastAmount / rate;
 				if (diff > timeBetweenStacks * 2)
 					conf.putBoolean("Inactive", true);
@@ -62,8 +62,8 @@ public class ItemThroughputDisplaySource extends AccumulatedItemCountDisplaySour
 			return;
 		}
 
-		long previousTime = conf.getLong("LastReceived");
-		ListTag rates = conf.getList("PrevRates", Tag.TAG_FLOAT);
+		long previousTime = conf.getLongOr("LastReceived", 0);
+		ListTag rates = conf.getListOrEmpty("PrevRates");
 
 		if (rates.size() != POOL_SIZE) {
 			rates = new ListTag();
@@ -71,13 +71,13 @@ public class ItemThroughputDisplaySource extends AccumulatedItemCountDisplaySour
 				rates.add(FloatTag.valueOf(-1));
 		}
 
-		int poolIndex = conf.getInt("Index") % POOL_SIZE;
+		int poolIndex = conf.getIntOr("Index", 0) % POOL_SIZE;
 		rates.set(poolIndex, FloatTag.valueOf((float) (amount / (double) (gameTime - previousTime))));
 
 		float rate = 0;
 		int validIntervals = 0;
 		for (int i = 0; i < POOL_SIZE; i++) {
-			float pooledRate = rates.getFloat(i);
+			float pooledRate = rates.getFloatOr(i, 0);
 			if (pooledRate >= 0) {
 				rate += pooledRate;
 				validIntervals++;

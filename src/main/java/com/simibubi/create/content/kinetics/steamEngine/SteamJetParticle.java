@@ -24,7 +24,7 @@ public class SteamJetParticle extends SimpleAnimatedParticle {
 
 	protected SteamJetParticle(ClientLevel world, SteamJetParticleData data, double x, double y, double z, double dx,
 		double dy, double dz, SpriteSet sprite) {
-		super(world, x, y, z, sprite, world.random.nextFloat() * .5f);
+		super(world, x, y, z, sprite, world.getRandom().nextFloat() * .5f);
 		xd = 0;
 		yd = 0;
 		zd = 0;
@@ -32,7 +32,7 @@ public class SteamJetParticle extends SimpleAnimatedParticle {
 		quadSize = .375f;
 		setLifetime(21);
 		setPos(x, y, z);
-		roll = oRoll = world.random.nextFloat() * Mth.PI;
+		roll = oRoll = world.getRandom().nextFloat() * Mth.PI;
 		yaw = (float) Mth.atan2(dx, dz) - Mth.PI;
 		pitch = (float) Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz)) - Mth.PI / 2;
 		this.setSpriteFromAge(sprite);

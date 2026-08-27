@@ -16,7 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -43,38 +43,39 @@ public class ItemDrainBlock extends Block implements IWrenchable, IBE<ItemDrainB
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-								 if (stack.getItem() instanceof BlockItem && stack.getCapability(Capabilities.FluidHandler.ITEM) == null)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+								 if (stack.getItem() instanceof BlockItem && stack.getCapability(Capabilities.Fluid.ITEM) == null)
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
 		return onBlockEntityUseItemOn(level, pos, be -> {
 			if (!stack.isEmpty()) {
 				be.internalTank.allowInsertion();
-				ItemInteractionResult tryExchange = tryExchange(level, player, hand, stack, be);
+				InteractionResult tryExchange = tryExchange(level, player, hand, stack, be);
 				be.internalTank.forbidInsertion();
 				if (tryExchange.consumesAction())
 					return tryExchange;
 			}
 
 			ItemStack heldItemStack = be.getHeldItemStack();
-			if (!level.isClientSide && !heldItemStack.isEmpty()) {
+			if (!level.isClientSide() && !heldItemStack.isEmpty()) {
 				player.getInventory()
 					.placeItemBackInInventory(heldItemStack);
 				be.heldItem = null;
 				be.notifyUpdate();
 			}
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		});
 	}
 
 	@Override
-	public void updateEntityAfterFallOn(BlockGetter worldIn, Entity entityIn) {
-		super.updateEntityAfterFallOn(worldIn, entityIn);
+	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
+		double fallDistance) {
+		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
 		if (!(entityIn instanceof ItemEntity itemEntity))
 			return;
 		if (!entityIn.isAlive())
 			return;
-		if (entityIn.level().isClientSide)
+		if (entityIn.level().isClientSide())
 			return;
 
 		DirectBeltInputBehaviour inputBehaviour =
@@ -91,31 +92,19 @@ public class ItemDrainBlock extends Block implements IWrenchable, IBE<ItemDrainB
 			itemEntity.discard();
 	}
 
-	protected ItemInteractionResult tryExchange(Level worldIn, Player player, InteractionHand handIn, ItemStack heldItem,
+	protected InteractionResult tryExchange(Level worldIn, Player player, InteractionHand handIn, ItemStack heldItem,
 											ItemDrainBlockEntity be) {
 		if (FluidHelper.tryEmptyItemIntoBE(worldIn, player, handIn, heldItem, be))
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		if (GenericItemEmptying.canItemBeEmptied(worldIn, heldItem))
-			return ItemInteractionResult.SUCCESS;
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+			return InteractionResult.SUCCESS;
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	@Override
 	public VoxelShape getShape(BlockState p_220053_1_, BlockGetter p_220053_2_, BlockPos p_220053_3_,
 							   CollisionContext p_220053_4_) {
 		return AllShapes.CASING_13PX.get(Direction.UP);
-	}
-
-	@Override
-	public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!state.hasBlockEntity() || state.getBlock() == newState.getBlock())
-			return;
-		withBlockEntityDo(worldIn, pos, be -> {
-			ItemStack heldItemStack = be.getHeldItemStack();
-			if (!heldItemStack.isEmpty())
-				Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), heldItemStack);
-		});
-		worldIn.removeBlockEntity(pos);
 	}
 
 	@Override
@@ -140,7 +129,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, IBE<ItemDrainB
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level worldIn, BlockPos pos, Direction direction) {
 		return ComparatorUtil.levelOfSmartFluidTank(worldIn, pos);
 	}
 

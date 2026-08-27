@@ -10,7 +10,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.FormattedText;
@@ -34,21 +34,21 @@ public class RemovedGuiUtils {
 		cachedTooltipStack = ItemStack.EMPTY;
 	}
 
-	public static void drawHoveringText(GuiGraphics graphics, List<? extends FormattedText> textLines, int mouseX,
+	public static void drawHoveringText(GuiGraphicsExtractor graphics, List<? extends FormattedText> textLines, int mouseX,
 		int mouseY, int screenWidth, int screenHeight, int maxTextWidth, Font font) {
 		drawHoveringText(graphics, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth,
 			IGuiGraphicsExtension.DEFAULT_BACKGROUND_COLOR, IGuiGraphicsExtension.DEFAULT_BORDER_COLOR_START, IGuiGraphicsExtension.DEFAULT_BORDER_COLOR_END,
 			font);
 	}
 
-	public static void drawHoveringText(GuiGraphics graphics, List<? extends FormattedText> textLines, int mouseX,
+	public static void drawHoveringText(GuiGraphicsExtractor graphics, List<? extends FormattedText> textLines, int mouseX,
 		int mouseY, int screenWidth, int screenHeight, int maxTextWidth, int backgroundColor, int borderColorStart,
 		int borderColorEnd, Font font) {
 		drawHoveringText(cachedTooltipStack, graphics, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth,
 			backgroundColor, borderColorStart, borderColorEnd, font);
 	}
 
-	public static void drawHoveringText(@NotNull final ItemStack stack, GuiGraphics graphics,
+	public static void drawHoveringText(@NotNull final ItemStack stack, GuiGraphicsExtractor graphics,
 		List<? extends FormattedText> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight,
 		int maxTextWidth, Font font) {
 		drawHoveringText(stack, graphics, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth,
@@ -56,7 +56,7 @@ public class RemovedGuiUtils {
 			font);
 	}
 
-	public static void drawHoveringText(@NotNull final ItemStack stack, GuiGraphics graphics,
+	public static void drawHoveringText(@NotNull final ItemStack stack, GuiGraphicsExtractor graphics,
 		List<? extends FormattedText> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight,
 		int maxTextWidth, int backgroundColor, int borderColorStart, int borderColorEnd, Font font) {
 		if (textLines.isEmpty())

@@ -1,9 +1,9 @@
 package com.simibubi.create.content.equipment.tool;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,7 +11,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public record KnockbackPacket(float yRot, float strength) implements ClientboundPacketPayload {
+public record KnockbackPacket(float yRot, float strength) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, KnockbackPacket> STREAM_CODEC = StreamCodec.composite(
 		ByteBufCodecs.FLOAT, KnockbackPacket::yRot,
 	    ByteBufCodecs.FLOAT, KnockbackPacket::strength,
@@ -19,11 +19,10 @@ public record KnockbackPacket(float yRot, float strength) implements Clientbound
 	);
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.KNOCKBACK;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.KNOCKBACK.getType();
 	}
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		if (player != null)

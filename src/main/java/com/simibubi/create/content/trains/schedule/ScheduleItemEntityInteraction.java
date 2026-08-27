@@ -8,7 +8,7 @@ import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.api.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -77,13 +77,13 @@ public class ScheduleItemEntityInteraction {
 		if (directions == null)
 			return;
 
-		boolean onServer = !event.getLevel().isClientSide;
+		boolean onServer = !event.getLevel().isClientSide();
 
 		if (train.runtime.paused && !train.runtime.completed) {
 			if (onServer) {
 				train.runtime.paused = false;
 				AllSoundEvents.CONFIRM.playOnServer(player.level(), player.blockPosition(), 1, 1);
-				player.displayClientMessage(CreateLang.translateDirect("schedule.continued"), true);
+				player.sendOverlayMessage(CreateLang.translateDirect("schedule.continued"));
 			}
 
 			player.getCooldowns()
@@ -97,7 +97,7 @@ public class ScheduleItemEntityInteraction {
 		if (!itemInHand.isEmpty()) {
 			if (onServer) {
 				AllSoundEvents.DENY.playOnServer(player.level(), player.blockPosition(), 1, 1);
-				player.displayClientMessage(CreateLang.translateDirect("schedule.remove_with_empty_hand"), true);
+				player.sendOverlayMessage(CreateLang.translateDirect("schedule.remove_with_empty_hand"));
 			}
 			event.setCancellationResult(InteractionResult.SUCCESS);
 			event.setCanceled(true);
@@ -106,10 +106,9 @@ public class ScheduleItemEntityInteraction {
 
 		if (onServer) {
 			AllSoundEvents.playItemPickup(player);
-			player.displayClientMessage(
+			player.sendOverlayMessage(
 				CreateLang.translateDirect(
-					train.runtime.isAutoSchedule ? "schedule.auto_removed_from_train" : "schedule.removed_from_train"),
-				true);
+					train.runtime.isAutoSchedule ? "schedule.auto_removed_from_train" : "schedule.removed_from_train"));
 
 			player.getInventory()
 				.placeItemBackInInventory(train.runtime.returnSchedule(player.registryAccess()));

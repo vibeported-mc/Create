@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 
@@ -13,10 +14,9 @@ import com.simibubi.create.content.trains.entity.TrainRelocator;
 import com.simibubi.create.foundation.utility.RaycastHelper;
 import com.simibubi.create.foundation.utility.RaycastHelper.PredicateTraceResult;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
@@ -52,7 +52,7 @@ public class ContraptionHandlerClient {
 		if (!data.contains("LastOverrideLimbSwingUpdate"))
 			return;
 
-		int lastOverride = data.getInt("LastOverrideLimbSwingUpdate");
+		int lastOverride = data.getIntOr("LastOverrideLimbSwingUpdate", 0);
 		data.putInt("LastOverrideLimbSwingUpdate", lastOverride + 1);
 		if (lastOverride > 5) {
 			data.remove("LastOverrideLimbSwingUpdate");
@@ -60,7 +60,7 @@ public class ContraptionHandlerClient {
 			return;
 		}
 
-		float limbSwing = data.getFloat("OverrideLimbSwing");
+		float limbSwing = data.getFloatOr("OverrideLimbSwing", 0);
 		remotePlayer.xo = remotePlayer.getX() - (limbSwing / 4);
 		remotePlayer.zo = remotePlayer.getZ();
 	}
@@ -122,7 +122,7 @@ public class ContraptionHandlerClient {
 		BlockPos pos = bestResult.getBlockPos();
 
 		if (bestEntity.handlePlayerInteraction(player, pos, face, hand)) {
-			CatnipServices.NETWORK.sendToServer(new ContraptionInteractionPacket(bestEntity, hand, pos, face));
+			NetworkHelper.INSTANCE.sendToServer(new ContraptionInteractionPacket(bestEntity, hand, pos, face));
 		} else
 			handleSpecialInteractions(bestEntity, player, pos, face, hand);
 

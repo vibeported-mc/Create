@@ -1,7 +1,6 @@
 package com.simibubi.create.content.equipment.zapper;
 
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -11,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public abstract class ShootGadgetPacket implements ClientboundPacketPayload {
+public abstract class ShootGadgetPacket implements CustomPacketPayload {
 	protected final Vec3 location;
 	protected final InteractionHand hand;
 	protected final boolean self;
@@ -28,7 +27,6 @@ public abstract class ShootGadgetPacket implements ClientboundPacketPayload {
 	@OnlyIn(Dist.CLIENT)
 	protected abstract ShootableGadgetRenderHandler getHandler();
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		Entity renderViewEntity = Minecraft.getInstance()

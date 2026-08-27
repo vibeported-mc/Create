@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -12,15 +13,15 @@ import com.simibubi.create.AllTags;
 import com.simibubi.create.foundation.utility.RaycastHelper;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.data.WorldAttached;
-import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.data.WorldAttached;
+import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -149,7 +150,7 @@ public class TrackBlockOutline {
 		if (result == null)
 			return;
 
-		VertexConsumer vb = buffer.getBuffer(RenderType.lines());
+		VertexConsumer vb = buffer.getBuffer(RenderTypes.lines());
 		Vec3 vec = result.vec()
 			.subtract(camera);
 		Vec3 angles = result.angles();
@@ -179,7 +180,7 @@ public class TrackBlockOutline {
 			return;
 
 		VertexConsumer vb = event.getMultiBufferSource()
-			.getBuffer(RenderType.lines());
+			.getBuffer(RenderTypes.lines());
 		Vec3 camPos = event.getCamera()
 			.getPosition();
 

@@ -1,5 +1,9 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import static com.simibubi.create.content.kinetics.base.HorizontalKineticBlock.HORIZONTAL_FACING;
 
 import java.util.ArrayList;
@@ -16,8 +20,8 @@ import java.util.stream.Collectors;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlockEntity.Inventory;
 
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -29,10 +33,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 
 public class ConnectedInputHandler {
 
@@ -175,9 +175,9 @@ public class ConnectedInputHandler {
 			data.add(controllerPos.subtract(myPos));
 		}
 
-		public IItemHandler getItemHandler(Level world, BlockPos pos) {
+		public ResourceHandler<ItemResource> getItemHandler(Level world, BlockPos pos) {
 			List<Inventory> inventories = this.getInventories(world, pos);
-			return new CombinedInvWrapper(inventories.toArray(IItemHandlerModifiable[]::new));
+			return new CombinedResourceHandler<>(inventories.toArray(ModifiableItemHandler[]::new));
 		}
 
 		public List<Inventory> getInventories(Level world, BlockPos pos) {
@@ -227,9 +227,9 @@ public class ConnectedInputHandler {
 		}
 
 		public void read(CompoundTag nbt) {
-			isController = nbt.getBoolean("Controller");
-			data = NBTHelper.readCompoundList(nbt.getList("Data", Tag.TAG_COMPOUND),
-				c -> new BlockPos(c.getInt("X"), c.getInt("Y"), c.getInt("Z")));
+			isController = nbt.getBooleanOr("Controller", false);
+			data = NBTHelper.readCompoundList(nbt.getListOrEmpty("Data"),
+				c -> new BlockPos(c.getIntOr("X", 0), c.getIntOr("Y", 0), c.getIntOr("Z", 0)));
 
 			// nbt got wiped -> reset
 			if (data.isEmpty()) {

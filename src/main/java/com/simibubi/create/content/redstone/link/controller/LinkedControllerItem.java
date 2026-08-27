@@ -1,5 +1,8 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import net.createmod.catnip.api.platform.services.PlatformHelper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.function.Consumer;
 
 import com.simibubi.create.AllBlocks;
@@ -10,14 +13,12 @@ import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Freq
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -34,8 +35,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 public class LinkedControllerItem extends Item implements MenuProvider {
 
 	public LinkedControllerItem(Properties properties) {
@@ -54,22 +53,22 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 		if (player.mayBuild()) {
 			if (player.isShiftKeyDown()) {
 				if (AllBlocks.LECTERN_CONTROLLER.has(hitState)) {
-					if (!world.isClientSide)
+					if (!world.isClientSide())
 						AllBlocks.LECTERN_CONTROLLER.get().withBlockEntityDo(world, pos, be ->
 							be.swapControllers(stack, player, ctx.getHand(), hitState));
 					return InteractionResult.SUCCESS;
 				}
 			} else {
 				if (AllBlocks.REDSTONE_LINK.has(hitState)) {
-					if (world.isClientSide)
-						CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> this.toggleBindMode(ctx.getClickedPos()));
+					if (world.isClientSide())
+						PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> this.toggleBindMode(ctx.getClickedPos()));
 					player.getCooldowns()
 						.addCooldown(this, 2);
 					return InteractionResult.SUCCESS;
 				}
 
 				if (hitState.is(Blocks.LECTERN) && !hitState.getValue(LecternBlock.HAS_BOOK)) {
-					if (!world.isClientSide) {
+					if (!world.isClientSide()) {
 						ItemStack lecternStack = player.isCreative() ? stack.copy() : stack.split(1);
 						AllBlocks.LECTERN_CONTROLLER.get().replaceLectern(hitState, world, pos, lecternStack);
 					}
@@ -81,29 +80,29 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 			}
 		}
 
-		return use(world, player, ctx.getHand()).getResult();
+		return use(world, player, ctx.getHand());
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+	public InteractionResult use(Level world, Player player, InteractionHand hand) {
 		ItemStack heldItem = player.getItemInHand(hand);
 
 		if (player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
-			if (!world.isClientSide && player instanceof ServerPlayer && player.mayBuild())
+			if (!world.isClientSide() && player instanceof ServerPlayer && player.mayBuild())
 				player.openMenu(this, buf -> {
 					ItemStack.STREAM_CODEC.encode(buf, heldItem);
 				});
-			return InteractionResultHolder.success(heldItem);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(heldItem);
 		}
 
 		if (!player.isShiftKeyDown()) {
-			if (world.isClientSide)
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> this::toggleActive);
+			if (world.isClientSide())
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> this::toggleActive);
 			player.getCooldowns()
 				.addCooldown(this, 2);
 		}
 
-		return InteractionResultHolder.pass(heldItem);
+		return InteractionResult.PASS;
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -116,8 +115,8 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 		LinkedControllerClientHandler.toggle();
 	}
 
-	public static ItemStackHandler getFrequencyItems(ItemStack stack) {
-		ItemStackHandler newInv = new ItemStackHandler(12);
+	public static ItemStacksResourceHandler getFrequencyItems(ItemStack stack) {
+		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(12);
 		if (AllItems.LINKED_CONTROLLER.get() != stack.getItem())
 			throw new IllegalArgumentException("Cannot get frequency items from non-controller: " + stack);
 		if (!stack.has(AllDataComponents.LINKED_CONTROLLER_ITEMS))
@@ -127,9 +126,9 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 	}
 
 	public static Couple<RedstoneLinkNetworkHandler.Frequency> toFrequency(ItemStack controller, int slot) {
-		ItemStackHandler frequencyItems = getFrequencyItems(controller);
-		return Couple.create(Frequency.of(frequencyItems.getStackInSlot(slot * 2)),
-			Frequency.of(frequencyItems.getStackInSlot(slot * 2 + 1)));
+		ItemStacksResourceHandler frequencyItems = getFrequencyItems(controller);
+		return Couple.create(Frequency.of(ItemHandlerHelpers.getStackInSlot(frequencyItems, slot * 2)),
+			Frequency.of(ItemHandlerHelpers.getStackInSlot(frequencyItems, slot * 2 + 1)));
 	}
 
 	@Override

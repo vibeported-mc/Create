@@ -9,10 +9,10 @@ import com.simibubi.create.foundation.mixin.accessor.ItemModelGeneratorsAccessor
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 
-import net.minecraft.data.models.ItemModelGenerators;
-import net.minecraft.data.models.model.ModelLocationUtils;
-import net.minecraft.data.models.model.TextureMapping;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 
@@ -35,12 +35,12 @@ public class TrimmableArmorModelGenerator {
 		T item = c.get();
 		ItemModelBuilder builder = p.generated(c);
 		for (ItemModelGenerators.TrimModelData data : ItemModelGeneratorsAccessor.create$getGENERATED_TRIM_MODELS()) {
-			ResourceLocation modelLoc = ModelLocationUtils.getModelLocation(item);
-			ResourceLocation textureLoc = TextureMapping.getItemTexture(item);
+			Identifier modelLoc = ModelLocationUtils.getModelLocation(item);
+			Identifier textureLoc = TextureMapping.getItemTexture(item);
 			String trimId = data.name(item.getMaterial());
-			ResourceLocation trimModelLoc = modelLoc.withSuffix("_" + trimId + "_trim");
-			ResourceLocation trimLoc =
-				ResourceLocation.withDefaultNamespace("trims/items/" + item.getType().getName() + "_trim_" + trimId);
+			Identifier trimModelLoc = modelLoc.withSuffix("_" + trimId + "_trim");
+			Identifier trimLoc =
+				Identifier.withDefaultNamespace("trims/items/" + item.getType().getName() + "_trim_" + trimId);
 			String parent = "item/generated";
 			if (item.getMaterial() == AllArmorMaterials.CARDBOARD) {
 				trimLoc = Create.asResource("trims/items/card_" + item.getType().getName() + "_trim_" + trimId);

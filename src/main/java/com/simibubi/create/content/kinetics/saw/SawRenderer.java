@@ -1,5 +1,17 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringRenderer.FilterRenderState;
+import org.jspecify.annotations.Nullable;
+import java.util.List;
+import java.util.ArrayList;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,17 +29,14 @@ import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.math.AngleHelper;
+import net.createmod.catnip.api.client.render.CachedBuffers;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -37,24 +46,65 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity> {
+public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity, SawRenderer.SawRenderState> {
 
-	public SawRenderer(BlockEntityRendererProvider.Context context) {}
+	public static class SawRenderState extends SafeRenderState {
+		public @Nullable SuperByteBufferRenderState blade;
+		public @Nullable SuperByteBufferRenderState shaft;
+		public @Nullable FilterRenderState filter;
+		public final List<SawItem> items = new ArrayList<>();
+		public boolean alongZ;
+		public float offset;
+		public int outputs;
+	}
+
+	/** One item on the saw; `renderedIndex` is its position among the non-empty slots. */
+	public record SawItem(ItemStackRenderState item, int slot, int renderedIndex, boolean blockItem, boolean box) {
+	}
+
+	protected final ItemModelResolver itemModelResolver;
+
+	public SawRenderer(BlockEntityRendererProvider.Context context) {
+		itemModelResolver = context.itemModelResolver();
+	}
 
 	@Override
-	protected void renderSafe(SawBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light,
-		int overlay) {
-		renderBlade(be, ms, buffer, light);
-		renderItems(be, partialTicks, ms, buffer, light, overlay);
-		FilteringRenderer.renderOnBlockEntity(be, partialTicks, ms, buffer, light, overlay);
+	public SawRenderState createRenderState() {
+		return new SawRenderState();
+	}
+
+	@Override
+	protected void extractSafe(SawBlockEntity be, SawRenderState state, float partialTicks, Vec3 cameraPosition) {
+		state.blade = null;
+		state.shaft = null;
+		state.items.clear();
+
+		extractBlade(be, state);
+		extractItems(be, state, partialTicks);
+		state.filter = FilteringRenderer.getFilterRenderState(be, itemModelResolver, cameraPosition);
 
 		if (VisualizationManager.supportsVisualization(be.getLevel()))
 			return;
 
-		renderShaft(be, ms, buffer, light, overlay);
+		state.shaft = KineticBlockEntityRenderer
+			.standardKineticRotationTransform(getRotatedModel(be), be, state.lightCoords)
+			.extractRenderState();
 	}
 
-	protected void renderBlade(SawBlockEntity be, PoseStack ms, MultiBufferSource buffer, int light) {
+	@Override
+	protected void submitSafe(SawRenderState state, PoseStack ms, SubmitNodeCollector queue,
+		CameraRenderState camera) {
+		if (state.blade != null)
+			state.blade.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
+		if (state.shaft != null)
+			state.shaft.submit(ms, RenderTypes.solidMovingBlock(), queue);
+		if (state.filter != null)
+			state.filter.submit(state.blockState, queue, ms, state.lightCoords);
+
+		submitItems(state, ms, queue);
+	}
+
+	protected void extractBlade(SawBlockEntity be, SawRenderState state) {
 		BlockState blockState = be.getBlockState();
 		PartialModel partial;
 		float speed = be.getSpeed();
@@ -82,21 +132,16 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity> {
 		}
 
 		SuperByteBuffer superBuffer = CachedBuffers.partialFacing(partial, blockState);
-		if (rotate) {
-			superBuffer.rotateCentered(AngleHelper.rad(90), Direction.UP);
-		}
-		superBuffer.color(0xFFFFFF)
-			.light(light)
-			.renderInto(ms, buffer.getBuffer(RenderType.cutoutMipped()));
+		if (rotate)
+			TransformStack.of(superBuffer.getTransforms())
+				.rotateCentered(AngleHelper.rad(90), Direction.UP);
+
+		state.blade = superBuffer.color(0xFFFFFF)
+			.light(state.lightCoords)
+			.extractRenderState();
 	}
 
-	protected void renderShaft(SawBlockEntity be, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		KineticBlockEntityRenderer.renderRotatingBuffer(be, getRotatedModel(be), ms,
-			buffer.getBuffer(RenderType.solid()), light);
-	}
-
-	protected void renderItems(SawBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light,
-		int overlay) {
+	protected void extractItems(SawBlockEntity be, SawRenderState state, float partialTicks) {
 		if (be.getBlockState()
 			.getValue(SawBlock.FACING) != Direction.UP)
 			return;
@@ -123,50 +168,59 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity> {
 			offset = 1 - offset;
 
 		int outputs = 0;
-		for (int i = 1; i < be.inventory.getSlots(); i++)
-			if (!be.inventory.getStackInSlot(i)
+		for (int i = 1; i < be.inventory.size(); i++)
+			if (!be.inventory.getResource(i)
 				.isEmpty())
 				outputs++;
 
-		ms.pushPose();
-		if (alongZ)
-			ms.mulPose(Axis.YP.rotationDegrees(90));
-		ms.translate(outputs <= 1 ? .5 : .25, 0, offset);
-		ms.translate(alongZ ? -1 : 0, 0, 0);
+		state.alongZ = alongZ;
+		state.offset = offset;
+		state.outputs = outputs;
 
 		int renderedI = 0;
-		for (int i = 0; i < be.inventory.getSlots(); i++) {
-			ItemStack stack = be.inventory.getStackInSlot(i);
+		for (int i = 0; i < be.inventory.size(); i++) {
+			ItemStack stack = ItemHandlerHelpers.getStackInSlot(be.inventory, i);
 			if (stack.isEmpty())
 				continue;
 
-			ItemRenderer itemRenderer = Minecraft.getInstance()
-				.getItemRenderer();
-			BakedModel modelWithOverrides = itemRenderer.getModel(stack, be.getLevel(), null, 0);
-			boolean blockItem = modelWithOverrides.isGui3d();
+			ItemStackRenderState item = new ItemStackRenderState();
+			item.displayContext = ItemDisplayContext.FIXED;
+			itemModelResolver.appendItemLayers(item, stack, ItemDisplayContext.FIXED, be.getLevel(), null, 0);
+			state.items.add(new SawItem(item, i, renderedI, item.usesBlockLight(), PackageItem.isPackage(stack)));
+			renderedI++;
+		}
+	}
 
+	protected void submitItems(SawRenderState state, PoseStack ms, SubmitNodeCollector queue) {
+		if (state.items.isEmpty())
+			return;
+
+		ms.pushPose();
+		if (state.alongZ)
+			ms.mulPose(Axis.YP.rotationDegrees(90));
+		ms.translate(state.outputs <= 1 ? .5 : .25, 0, state.offset);
+		ms.translate(state.alongZ ? -1 : 0, 0, 0);
+
+		for (SawItem sawItem : state.items) {
 			ms.pushPose();
-			ms.translate(0, blockItem ? .925f : 13f / 16f, 0);
+			ms.translate(0, sawItem.blockItem() ? .925f : 13f / 16f, 0);
 
-			if (i > 0 && outputs > 1) {
-				ms.translate((0.5 / (outputs - 1)) * renderedI, 0, 0);
+			if (sawItem.slot() > 0 && state.outputs > 1) {
+				ms.translate((0.5 / (state.outputs - 1)) * sawItem.renderedIndex(), 0, 0);
 				TransformStack.of(ms)
-					.nudge(i * 133);
+					.nudge(sawItem.slot() * 133);
 			}
 
-			boolean box = PackageItem.isPackage(stack);
-			if (box) {
+			if (sawItem.box()) {
 				ms.translate(0, 4 / 16f, 0);
 				ms.scale(1.5f, 1.5f, 1.5f);
-			} else
+			} else {
 				ms.scale(.5f, .5f, .5f);
-
-			if (!box)
 				ms.mulPose(Axis.XP.rotationDegrees(90));
+			}
 
-			itemRenderer.render(stack, ItemDisplayContext.FIXED, false, ms, buffer, light, overlay, modelWithOverrides);
-			renderedI++;
-
+			sawItem.item()
+				.submit(ms, queue, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 			ms.popPose();
 		}
 
@@ -188,12 +242,12 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity> {
 	}
 
 	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffer) {
+		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
 		BlockState state = context.state;
 		Direction facing = state.getValue(SawBlock.FACING);
 
 		Vec3 facingVec = Vec3.atLowerCornerOf(context.state.getValue(SawBlock.FACING)
-			.getNormal());
+			.getUnitVec3i());
 		facingVec = context.rotation.apply(facingVec);
 
 		Direction closestToFacing = Direction.getNearest(facingVec.x, facingVec.y, facingVec.z);
@@ -230,7 +284,7 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity> {
 		superBuffer.uncenter()
 			.light(LevelRenderer.getLightColor(renderWorld, context.localPos))
 			.useLevelLight(context.world, matrices.getWorld())
-			.renderInto(matrices.getViewProjection(), buffer.getBuffer(RenderType.cutoutMipped()));
+			.submit(matrices.getViewProjection(), RenderTypes.cutoutMovingBlock(), buffer);
 	}
 
 }

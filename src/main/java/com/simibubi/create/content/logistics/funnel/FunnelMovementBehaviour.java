@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.funnel;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.List;
 
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
@@ -18,8 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 public class FunnelMovementBehaviour implements MovementBehaviour {
 
@@ -40,7 +39,7 @@ public class FunnelMovementBehaviour implements MovementBehaviour {
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
 		Direction facing = FunnelBlock.getFunnelFacing(context.state);
-		Vec3 vec = Vec3.atLowerCornerOf(facing.getNormal());
+		Vec3 vec = Vec3.atLowerCornerOf(facing.getUnitVec3i());
 		if (facing != Direction.UP)
 			return vec.scale(context.state.getValue(FunnelBlock.EXTRACTING) ? .15 : .65);
 
@@ -75,8 +74,8 @@ public class FunnelMovementBehaviour implements MovementBehaviour {
 			return;
 
 		FilterItemStack filter = context.getFilterFromBE();
-		int filterAmount = context.blockEntityData.getInt("FilterAmount");
-		boolean upTo = context.blockEntityData.getBoolean("UpTo");
+		int filterAmount = context.blockEntityData.getIntOr("FilterAmount", 0);
+		boolean upTo = context.blockEntityData.getBooleanOr("UpTo", false);
 		filterAmount = hasFilter ? filterAmount : 1;
 
 		ItemStack extract = ItemHelper.extract(context.contraption.getStorage().getAllItems(),
@@ -86,7 +85,7 @@ public class FunnelMovementBehaviour implements MovementBehaviour {
 		if (extract.isEmpty())
 			return;
 
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return;
 
 		ItemEntity entity = new ItemEntity(world, entityPos.x, entityPos.y, entityPos.z, extract);
@@ -109,7 +108,7 @@ public class FunnelMovementBehaviour implements MovementBehaviour {
 			if (!filter.test(context.world, toInsert))
 				continue;
 			ItemStack remainder =
-				ItemHandlerHelper.insertItemStacked(context.contraption.getStorage().getAllItems(), toInsert, false);
+				ItemHandlerHelpers.insertItemStacked(context.contraption.getStorage().getAllItems(), toInsert, false);
 			if (remainder.getCount() == toInsert.getCount())
 				continue;
 			if (remainder.isEmpty()) {

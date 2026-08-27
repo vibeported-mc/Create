@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity;
 
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -22,7 +23,7 @@ public interface IMultiBlockEntityContainer {
 	void preventConnectivityUpdate();
 	void notifyMultiUpdated();
 
-	// only used for FluidTank windows at present. Might be useful for similar properties on other things?
+	// only used for FluidStacksResourceHandler windows at present. Might be useful for similar properties on other things?
 	default void setExtraData(@Nullable Object data) {}
 	@Nullable
 	default Object getExtraData() { return null; }

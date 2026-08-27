@@ -6,13 +6,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.math.AngleHelper;
-import net.createmod.catnip.render.FluidRenderHelper;
+import net.createmod.catnip.api.math.AngleHelper;
+import net.createmod.catnip.api.client.render.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
@@ -25,9 +26,20 @@ import net.neoforged.neoforge.fluids.FluidType;
 
 @OnlyIn(Dist.CLIENT)
 public class FluidRenderer {
-	public static void renderFluidStream(FluidStack fluidStack, Direction direction, float radius, float progress,
-		boolean inbound, MultiBufferSource buffer, PoseStack ms, int light) {
-		renderFluidStream(fluidStack, direction, radius, progress, inbound, FluidRenderHelper.getFluidBuilder(buffer), ms, light);
+	/**
+	 * Queue a fluid stream for drawing. The vertex work still happens in
+	 * {@link #renderFluidStream(FluidStack, Direction, float, float, boolean, VertexConsumer, PoseStack, int)},
+	 * just later, once the queue hands back a consumer.
+	 */
+	public static void submitFluidStream(FluidStack fluidStack, Direction direction, float radius, float progress,
+		boolean inbound, OrderedSubmitNodeCollector queue, PoseStack ms, int light) {
+		queue.submitCustomGeometry(ms, RenderTypes.translucentMovingBlock(), (pose, consumer) -> {
+			// The callback hands back a resolved Pose, while the vertex code walks a stack of its own.
+			PoseStack local = new PoseStack();
+			local.last()
+				.set(pose);
+			renderFluidStream(fluidStack, direction, radius, progress, inbound, consumer, local, light);
+		});
 	}
 
 	public static void renderFluidStream(FluidStack fluidStack, Direction direction, float radius, float progress,
@@ -35,7 +47,7 @@ public class FluidRenderer {
 		Fluid fluid = fluidStack.getFluid();
 		IClientFluidTypeExtensions clientFluid = IClientFluidTypeExtensions.of(fluid);
 		FluidType fluidAttributes = fluid.getFluidType();
-		Function<ResourceLocation, TextureAtlasSprite> spriteAtlas = Minecraft.getInstance()
+		Function<Identifier, TextureAtlasSprite> spriteAtlas = Minecraft.getInstance()
 			.getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
 		TextureAtlasSprite flowTexture = spriteAtlas.apply(clientFluid.getFlowingTexture(fluidStack));
 		TextureAtlasSprite stillTexture = spriteAtlas.apply(clientFluid.getStillTexture(fluidStack));

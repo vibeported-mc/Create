@@ -7,10 +7,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 @Mixin(Font.class)
 public interface FontAccessor {
 	@Accessor("fonts")
-	Function<ResourceLocation, FontSet> create$getFonts();
+	Function<Identifier, FontSet> create$getFonts();
 }

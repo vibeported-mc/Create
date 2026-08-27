@@ -1,5 +1,6 @@
 package com.simibubi.create.impl.unpacking;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -47,14 +48,14 @@ public enum CrafterUnpackingHandler implements UnpackingHandler {
 
 			Inventory inventory = inventories.get(i);
 			// if there's already an item here, no point in trying
-			if (!inventory.getStackInSlot(0).isEmpty())
+			if (!ItemHandlerHelpers.getStackInSlot(inventory, 0).isEmpty())
 				continue;
 
 			// go through each item in the box and try insert if it matches the target
 			for (ItemStack stack : items) {
 				if (ItemStack.isSameItemSameComponents(stack, targetStack.stack)) {
 					ItemStack toInsert = stack.copyWithCount(1);
-					if (inventory.insertItem(0, toInsert, simulate).isEmpty()) {
+					if (ItemHandlerHelpers.insertItem(inventory, 0, toInsert, simulate).isEmpty()) {
 						stack.shrink(1);
 						// one item per crafter, move to next once successful
 						continue outer;

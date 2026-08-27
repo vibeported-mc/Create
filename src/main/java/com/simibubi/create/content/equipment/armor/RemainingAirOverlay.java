@@ -5,11 +5,11 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllItems;
 
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.theme.Color;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -25,7 +25,7 @@ public class RemainingAirOverlay implements LayeredDraw.Layer {
 	public static final RemainingAirOverlay INSTANCE = new RemainingAirOverlay();
 
 	@Override
-	public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+	public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.options.hideGui || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
 			return;
@@ -44,7 +44,7 @@ public class RemainingAirOverlay implements LayeredDraw.Layer {
 			return;
 
 		int timeLeft = player.getPersistentData()
-			.getInt("VisualBacktankAir");
+			.getIntOr("VisualBacktankAir", 0);
 
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
@@ -61,7 +61,7 @@ public class RemainingAirOverlay implements LayeredDraw.Layer {
 		if (timeLeft < 60 && timeLeft % 2 == 0) {
 			color = Color.mixColors(0xFF_FF0000, color, Math.max(timeLeft / 60f, .25f));
 		}
-		guiGraphics.drawString(mc.font, text, 16, 5, color);
+		guiGraphics.text(mc.font, text, 16, 5, color);
 
 		poseStack.popPose();
 	}

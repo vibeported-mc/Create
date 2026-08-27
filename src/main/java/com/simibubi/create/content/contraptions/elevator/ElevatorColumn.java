@@ -11,10 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.utility.BlockHelper;
 
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.IntAttached;
-import net.createmod.catnip.data.WorldAttached;
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.IntAttached;
+import net.createmod.catnip.api.data.WorldAttached;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -220,8 +220,8 @@ public class ElevatorColumn {
 		}
 
 		public static ColumnCoords read(CompoundTag tag) {
-			int x = tag.getInt("X");
-			int z = tag.getInt("Z");
+			int x = tag.getIntOr("X", 0);
+			int z = tag.getIntOr("Z", 0);
 			Direction side = NBTHelper.readEnum(tag, "Side", Direction.class);
 			return new ColumnCoords(x, z, side);
 		}

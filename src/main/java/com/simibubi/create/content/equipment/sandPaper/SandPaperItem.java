@@ -1,8 +1,8 @@
 package com.simibubi.create.content.equipment.sandPaper;
 
+import net.minecraft.util.TriState;
+import org.jspecify.annotations.NullMarked;
 import java.util.function.Consumer;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllSoundEvents;
@@ -11,8 +11,7 @@ import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import com.simibubi.create.foundation.mixin.accessor.LivingEntityAccessor;
 
 import net.createmod.catnip.data.TriState;
-import net.createmod.catnip.math.VecHelper;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,7 +19,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -43,8 +41,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+@NullMarked
 public class SandPaperItem extends Item implements CustomUseEffectsItem {
 
 	public SandPaperItem(Properties properties) {
@@ -52,13 +49,13 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+	public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn) {
 		ItemStack itemstack = playerIn.getItemInHand(handIn);
-		InteractionResultHolder<ItemStack> FAIL = new InteractionResultHolder<>(InteractionResult.FAIL, itemstack);
+		InteractionResult FAIL = InteractionResult.FAIL;
 
 		if (itemstack.has(AllDataComponents.SAND_PAPER_POLISHING)) {
 			playerIn.startUsingItem(handIn);
-			return new InteractionResultHolder<>(InteractionResult.PASS, itemstack);
+			return InteractionResult.PASS;
 		}
 
 		InteractionHand otherHand =
@@ -70,7 +67,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 			playerIn.startUsingItem(handIn);
 			itemstack.set(AllDataComponents.SAND_PAPER_POLISHING, new SandPaperItemComponent(toPolish));
 			playerIn.setItemInHand(otherHand, item);
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemstack);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(itemstack);
 		}
 
 		BlockHitResult raytraceresult = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.NONE);
@@ -100,7 +97,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 
 		playerIn.startUsingItem(handIn);
 
-		if (!worldIn.isClientSide) {
+		if (!worldIn.isClientSide()) {
 			itemstack.set(AllDataComponents.SAND_PAPER_POLISHING, new SandPaperItemComponent(toPolish));
 			if (item.isEmpty())
 				pickUp.discard();
@@ -108,7 +105,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 				pickUp.setItem(item);
 		}
 
-		return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemstack);
+		return InteractionResult.SUCCESS.heldItemTransformedTo(itemstack);
 	}
 
 	@Override
@@ -121,7 +118,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 			ItemStack polished =
 				SandPaperPolishingRecipe.applyPolish(level, entityLiving.position(), toPolish, stack);
 
-			if (level.isClientSide) {
+			if (level.isClientSide()) {
 				spawnParticles(entityLiving.getEyePosition(1)
 					.add(entityLiving.getLookAngle().scale(.5f)), toPolish, level);
 				return stack;
@@ -145,7 +142,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 
 	public static void spawnParticles(Vec3 location, ItemStack polishedStack, Level world) {
 		for (int i = 0; i < 20; i++) {
-			Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, world.random, 1 / 8f);
+			Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, world.getRandom(), 1 / 8f);
 			world.addParticle(new ItemParticleOption(ParticleTypes.ITEM, polishedStack), location.x, location.y,
 				location.z, motion.x, motion.y, motion.z);
 		}
@@ -174,13 +171,13 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 
 		BlockState newState = state.getToolModifiedState(context, ItemAbilities.AXE_SCRAPE, false);
 		if (newState != null) {
-			AllSoundEvents.SANDING_LONG.play(level, player, pos, 1, 1 + (level.random.nextFloat() * 0.5f - 1f) / 5f);
+			AllSoundEvents.SANDING_LONG.play(level, player, pos, 1, 1 + (level.getRandom().nextFloat() * 0.5f - 1f) / 5f);
 			level.levelEvent(player, LevelEvent.PARTICLES_SCRAPE, pos, 0); // Spawn particles
 		} else {
 			newState = state.getToolModifiedState(context, ItemAbilities.AXE_WAX_OFF, false);
 			if (newState != null) {
 				AllSoundEvents.SANDING_LONG.play(level, player, pos, 1,
-					1 + (level.random.nextFloat() * 0.5f - 1f) / 5f);
+					1 + (level.getRandom().nextFloat() * 0.5f - 1f) / 5f);
 				level.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0); // Spawn particles
 			}
 		}
@@ -189,7 +186,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 			level.setBlockAndUpdate(pos, newState);
 			if (player != null)
 				stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
-			return InteractionResult.sidedSuccess(level.isClientSide);
+			return InteractionResult.sidedSuccess(level.isClientSide());
 		}
 
 		return InteractionResult.PASS;

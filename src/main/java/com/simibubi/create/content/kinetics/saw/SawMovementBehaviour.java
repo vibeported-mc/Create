@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
@@ -13,8 +15,7 @@ import com.simibubi.create.foundation.utility.AbstractBlockBreakQueue;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
-import net.createmod.catnip.math.VecHelper;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -27,8 +28,6 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 
 	@Override
@@ -41,7 +40,7 @@ public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
 		return Vec3.atLowerCornerOf(context.state.getValue(SawBlock.FACING)
-			.getNormal())
+			.getUnitVec3i())
 			.scale(.65f);
 	}
 
@@ -49,7 +48,7 @@ public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
 		super.visitNewPosition(context, pos);
 		Vec3 facingVec = Vec3.atLowerCornerOf(context.state.getValue(SawBlock.FACING)
-			.getNormal());
+			.getUnitVec3i());
 		facingVec = context.rotation.apply(facingVec);
 
 		Direction closestToFacing = Direction.getNearest(facingVec.x, facingVec.y, facingVec.z);
@@ -82,7 +81,7 @@ public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 	}
 
 	public void dropItemFromCutTree(MovementContext context, BlockPos pos, ItemStack stack) {
-		ItemStack remainder = ItemHandlerHelper.insertItem(context.contraption.getStorage().getAllItems(), stack, false);
+		ItemStack remainder = ItemHandlerHelpers.insertItem(context.contraption.getStorage().getAllItems(), stack, false);
 		if (remainder.isEmpty())
 			return;
 
@@ -107,7 +106,7 @@ public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 	@Override
 	@OnlyIn(value = Dist.CLIENT)
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffer) {
+		ContraptionMatrices matrices, SubmitNodeCollector buffer) {
 		SawRenderer.renderInContraption(context, renderWorld, matrices, buffer);
 	}
 

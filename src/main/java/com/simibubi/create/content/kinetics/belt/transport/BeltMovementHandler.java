@@ -109,8 +109,8 @@ public class BeltMovementHandler {
 
 		Vec3i centeringDirection = Direction.get(POSITIVE, beltFacing.getClockWise()
 				.getAxis())
-			.getNormal();
-		Vec3 movement = Vec3.atLowerCornerOf(movementDirection.getNormal())
+			.getUnitVec3i();
+		Vec3 movement = Vec3.atLowerCornerOf(movementDirection.getUnitVec3i())
 			.scale(movementSpeed);
 
 		double diffCenter =

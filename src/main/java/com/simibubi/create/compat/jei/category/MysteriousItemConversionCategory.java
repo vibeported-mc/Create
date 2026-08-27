@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.compat.jei.ConversionRecipe;
@@ -8,14 +9,13 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 public class MysteriousItemConversionCategory extends CreateRecipeCategory<ConversionRecipe> {
 
 	public static final List<RecipeHolder<ConversionRecipe>> RECIPES = new ArrayList<>();
@@ -44,7 +44,7 @@ public class MysteriousItemConversionCategory extends CreateRecipeCategory<Conve
 	}
 
 	@Override
-	public void draw(ConversionRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+	public void draw(ConversionRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		AllGuiTextures.JEI_LONG_ARROW.render(graphics, 52, 20);
 		AllGuiTextures.JEI_QUESTION_MARK.render(graphics, 77, 5);
 	}

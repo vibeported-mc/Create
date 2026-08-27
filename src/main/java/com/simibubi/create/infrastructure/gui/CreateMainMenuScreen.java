@@ -1,6 +1,6 @@
 package com.simibubi.create.infrastructure.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
@@ -11,18 +11,18 @@ import com.simibubi.create.foundation.utility.CreateLang;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.config.ui.BaseConfigScreen;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.gui.AbstractSimiScreen;
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.gui.element.BoxElement;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.lang.FontHelper;
-import net.createmod.catnip.lang.FontHelper.Palette;
-import net.createmod.catnip.theme.Color;
-import net.createmod.ponder.foundation.ui.PonderTagIndexScreen;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.client.gui.AbstractSimiScreen;
+import net.createmod.catnip.api.client.gui.ScreenOpener;
+import net.createmod.catnip.api.client.gui.element.BoxElement;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
+import net.createmod.catnip.api.client.lang.FontHelper;
+import net.createmod.catnip.api.client.lang.FontHelper.Palette;
+import net.createmod.catnip.api.theme.Color;
+import net.createmod.ponder.impl.client.gui.PonderTagIndexScreen;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Util;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -32,15 +32,15 @@ import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 public class CreateMainMenuScreen extends AbstractSimiScreen {
 
 	public static final CubeMap PANORAMA_RESOURCES =
 		new CubeMap(Create.asResource("textures/gui/title/background/panorama"));
-	public static final ResourceLocation PANORAMA_OVERLAY_TEXTURES =
-		ResourceLocation.withDefaultNamespace("textures/gui/title/background/panorama_overlay.png");
+	public static final Identifier PANORAMA_OVERLAY_TEXTURES =
+		Identifier.withDefaultNamespace("textures/gui/title/background/panorama_overlay.png");
 	public static final PanoramaRenderer PANORAMA = new PanoramaRenderer(PANORAMA_RESOURCES);
 
 	private static final Component CURSEFORGE_TOOLTIP;
@@ -77,14 +77,14 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		if (firstRenderTime == 0L)
 			this.firstRenderTime = Util.getMillis();
 		super.render(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
-	protected void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindow(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		float f = (float) (Util.getMillis() - this.firstRenderTime) / 1000.0F;
 		float alpha = Mth.clamp(f, 0.0F, 1.0F);
 		float elapsedPartials = minecraft.getTimer().getGameTimeDeltaPartialTick(false);
@@ -138,7 +138,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 
 		ms.pushPose();
 		ms.translate(0, 0, 200);
-		graphics.drawCenteredString(font, Component.literal(Create.NAME).withStyle(ChatFormatting.BOLD)
+		graphics.centeredText(font, Component.literal(Create.NAME).withStyle(ChatFormatting.BOLD)
 				.append(
 					Component.literal(" v" + CreateBuildInfo.VERSION).withStyle(ChatFormatting.BOLD, ChatFormatting.WHITE)),
 			width / 2, 89, 0xFF_E4BB67);
@@ -191,7 +191,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	protected void renderWindowForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWindowForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderWindowForeground(graphics, mouseX, mouseY, partialTicks);
 		renderables.forEach(w -> w.render(graphics, mouseX, mouseY, partialTicks));
 
@@ -200,7 +200,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 				return;
 			if (mouseY < gettingStarted.getY() || mouseY > gettingStarted.getY() + 20)
 				return;
-			graphics.renderComponentTooltip(font,
+			graphics.setComponentTooltipForNextFrame(font,
 				FontHelper.cutTextComponent(CreateLang.translateDirect("menu.only_ingame"), Palette.ALL_GRAY), mouseX,
 				mouseY);
 		}
@@ -238,7 +238,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphics graphics, int pMouseX, int pMouseY, float pt) {
+		protected void renderWidget(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pt) {
 			super.renderWidget(graphics, pMouseX, pMouseY, pt);
 			PoseStack pPoseStack = graphics.pose();
 			pPoseStack.pushPose();

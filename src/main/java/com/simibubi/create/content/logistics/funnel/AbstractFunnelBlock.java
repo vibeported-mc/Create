@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.funnel;
 
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -52,9 +54,9 @@ public abstract class AbstractFunnelBlock extends Block
 	}
 
 	@Override
-	public BlockState updateShape(BlockState pState, Direction pDirection, BlockState pNeighborState,
-								  LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pNeighborPos) {
-		updateWater(pLevel, pState, pCurrentPos);
+	public BlockState updateShape(BlockState pState, LevelReader pLevel, ScheduledTickAccess ticks,
+		BlockPos pCurrentPos, Direction pDirection, BlockPos pNeighborPos, BlockState pNeighborState, RandomSource random) {
+		updateWater(pLevel, ticks, pState, pCurrentPos);
 		return pState;
 	}
 
@@ -69,13 +71,13 @@ public abstract class AbstractFunnelBlock extends Block
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation,
 								boolean isMoving) {
-		if (level.isClientSide)
+		if (level.isClientSide())
 			return;
 		InvManipulationBehaviour behaviour = BlockEntityBehaviour.get(level, pos, InvManipulationBehaviour.TYPE);
 		if (behaviour != null)
-			behaviour.onNeighborChanged(fromPos);
+			behaviour.onNeighborChanged();
 		if (!level.getBlockTicks()
 			.willTickThisTick(pos, this))
 			level.scheduleTick(pos, this, 1);
@@ -130,12 +132,6 @@ public abstract class AbstractFunnelBlock extends Block
 	}
 
 	protected abstract Direction getFacing(BlockState state);
-
-	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.getBlock() != newState.getBlock() && !isFunnel(newState) || !newState.hasBlockEntity())
-			IBE.onRemove(state, world, pos, newState);
-	}
 
 	@Override
 	public Class<FunnelBlockEntity> getBlockEntityClass() {

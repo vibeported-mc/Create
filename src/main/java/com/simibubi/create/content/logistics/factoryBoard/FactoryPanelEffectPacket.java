@@ -1,11 +1,11 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllBlocks;
 
 import com.simibubi.create.AllPackets;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public record FactoryPanelEffectPacket(FactoryPanelPosition fromPos, FactoryPanelPosition toPos, boolean success) implements ClientboundPacketPayload {
+public record FactoryPanelEffectPacket(FactoryPanelPosition fromPos, FactoryPanelPosition toPos, boolean success) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, FactoryPanelEffectPacket> STREAM_CODEC = StreamCodec.composite(
 		FactoryPanelPosition.STREAM_CODEC, FactoryPanelEffectPacket::fromPos,
 		FactoryPanelPosition.STREAM_CODEC, FactoryPanelEffectPacket::toPos,
@@ -25,11 +25,10 @@ public record FactoryPanelEffectPacket(FactoryPanelPosition fromPos, FactoryPane
 	);
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.FACTORY_PANEL_EFFECT;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.FACTORY_PANEL_EFFECT.getType();
 	}
 
-	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		ClientLevel level = Minecraft.getInstance().level;

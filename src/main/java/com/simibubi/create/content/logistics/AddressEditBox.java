@@ -14,7 +14,7 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -101,7 +101,7 @@ public class AddressEditBox extends EditBox {
 	}
 
 	@Override
-	public void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void renderWidget(GuiGraphicsExtractor pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		super.renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		PoseStack matrixStack = pGuiGraphics.pose();
 		matrixStack.pushPose();
@@ -114,7 +114,7 @@ public class AddressEditBox extends EditBox {
 
 		int itemX = getX() + width + 4;
 		int itemY = getY() - 4;
-		pGuiGraphics.renderItem(AllBlocks.CLIPBOARD.asStack(), itemX, itemY);
+		pGuiGraphics.item(AllBlocks.CLIPBOARD.asStack(), itemX, itemY);
 		if (pMouseX >= itemX && pMouseX < itemX + 16 && pMouseY >= itemY && pMouseY < itemY + 16) {
 			List<Component> promiseTip = List.of();
 			promiseTip = List.of(CreateLang.translate("gui.address_box.clipboard_tip")
@@ -132,7 +132,7 @@ public class AddressEditBox extends EditBox {
 				CreateLang.translate("gui.address_box.clipboard_tip_4")
 					.style(ChatFormatting.DARK_GRAY)
 					.component());
-			pGuiGraphics.renderComponentTooltip(Minecraft.getInstance().font, promiseTip, pMouseX, pMouseY);
+			pGuiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, promiseTip, pMouseX, pMouseY);
 		}
 	}
 

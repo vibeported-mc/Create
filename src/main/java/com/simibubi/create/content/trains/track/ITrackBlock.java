@@ -15,8 +15,8 @@ import com.simibubi.create.content.trains.track.TrackTargetingBehaviour.Rendered
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.Affine;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.AxisDirection;
@@ -85,7 +85,7 @@ public interface ITrackBlock {
 				b -> world instanceof Level l ? l.dimension() : Level.OVERWORLD;
 			Function<Vec3, Integer> yOffsetFactory = v -> getYOffsetAt(world, pos, state, v);
 
-			addToListIfConnected(connectedTo, list, offsetFactory, b -> shape.getNormal(), dimensionFactory,
+			addToListIfConnected(connectedTo, list, offsetFactory, b -> shape.getUnitVec3i(), dimensionFactory,
 				yOffsetFactory, axis, null, (b, v) -> getMaterialSimple(world, v));
 		});
 

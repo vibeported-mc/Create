@@ -1,5 +1,11 @@
 package com.simibubi.create.content.trains.entity;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,14 +52,13 @@ import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.codecs.stream.CatnipLargerStreamCodecs;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.math.VecHelper;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.data.codec.stream.CatnipLargerStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.Couple;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.data.Pair;
+import net.createmod.catnip.api.math.VecHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -67,7 +72,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -78,11 +83,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 public class Train {
 	public static final StreamCodec<RegistryFriendlyByteBuf, Train> STREAM_CODEC = CatnipLargerStreamCodecs.composite(
 			UUIDUtil.STREAM_CODEC, train -> train.id,
@@ -243,24 +243,24 @@ public class Train {
 				if (shouldActivate)
 					break;
 
-				IItemHandlerModifiable inv = carriage.storage.getAllItems();
+				ModifiableItemHandler inv = carriage.storage.getAllItems();
 				if (inv != null) {
-					for (int slot = 0; slot < inv.getSlots(); slot++) {
+					for (int slot = 0; slot < inv.size(); slot++) {
 						if (shouldActivate)
 							break;
-						ItemStack extractItem = inv.extractItem(slot, 1, true);
+						ItemStack extractItem = ItemHandlerHelpers.extractItem(inv, slot, 1, true);
 						if (extractItem.isEmpty())
 							continue;
 						shouldActivate |= filter.test(level, extractItem);
 					}
 				}
 
-				IFluidHandler tank = carriage.storage.getFluids();
+				ResourceHandler<FluidResource> tank = carriage.storage.getFluids();
 				if (tank != null) {
-					for (int slot = 0; slot < tank.getTanks(); slot++) {
+					for (int slot = 0; slot < tank.size(); slot++) {
 						if (shouldActivate)
 							break;
-						FluidStack drain = tank.drain(1, FluidAction.SIMULATE);
+						FluidStack drain = FluidHandlerHelpers.drain(tank, 1, true);
 						if (drain.isEmpty())
 							continue;
 						shouldActivate |= filter.test(level, drain);
@@ -804,7 +804,7 @@ public class Train {
 		}
 
 		Create.RAILWAYS.removeTrain(id);
-		CatnipServices.NETWORK.sendToAllClients(new RemoveTrainPacket(this));
+		NetworkHelper.INSTANCE.sendToAllClients(new RemoveTrainPacket(this));
 		return true;
 	}
 
@@ -1120,21 +1120,21 @@ public class Train {
 		for (int index = 0; index < carriageCount; index++) {
 			int i = iterateFromBack ? carriageCount - 1 - index : index;
 			Carriage carriage = carriages.get(i);
-			IItemHandlerModifiable fuelItems = carriage.storage.getFuelItems();
+			ModifiableItemHandler fuelItems = carriage.storage.getFuelItems();
 			if (fuelItems == null)
 				continue;
 
-			for (int slot = 0; slot < fuelItems.getSlots(); slot++) {
-				ItemStack stack = fuelItems.extractItem(slot, 1, true);
+			for (int slot = 0; slot < fuelItems.size(); slot++) {
+				ItemStack stack = ItemHandlerHelpers.extractItem(fuelItems, slot, 1, true);
 				int burnTime = stack.getBurnTime(null);
 				if (burnTime <= 0)
 					continue;
 
-				stack = fuelItems.extractItem(slot, 1, false);
+				stack = ItemHandlerHelpers.extractItem(fuelItems, slot, 1, false);
 				fuelTicks += burnTime * stack.getCount();
 				ItemStack containerItem = stack.getCraftingRemainingItem();
 				if (!containerItem.isEmpty())
-					ItemHandlerHelper.insertItemStacked(fuelItems, containerItem, false);
+					ItemHandlerHelpers.insertItemStacked(fuelItems, containerItem, false);
 				return;
 			}
 		}
@@ -1157,11 +1157,11 @@ public class Train {
 
 	public CompoundTag write(DimensionPalette dimensions, HolderLookup.Provider registries) {
 		CompoundTag tag = new CompoundTag();
-		tag.putUUID("Id", id);
+		tag.store("Id", UUIDUtil.CODEC, id);
 		if (owner != null)
-			tag.putUUID("Owner", owner);
+			tag.store("Owner", UUIDUtil.CODEC, owner);
 		if (graph != null)
-			tag.putUUID("Graph", graph.id);
+			tag.store("Graph", UUIDUtil.CODEC, graph.id);
 		tag.put("Carriages", NBTHelper.writeCompoundList(carriages, c -> c.write(dimensions, registries)));
 		tag.putIntArray("CarriageSpacing", carriageSpacing);
 		tag.putBoolean("DoubleEnded", doubleEnded);
@@ -1175,25 +1175,25 @@ public class Train {
 		tag.putInt("MapColorIndex", mapColorIndex);
 		tag.putString("Name", Component.Serializer.toJson(name, registries));
 		if (currentStation != null)
-			tag.putUUID("Station", currentStation);
+			tag.store("Station", UUIDUtil.CODEC, currentStation);
 		tag.putBoolean("Backwards", currentlyBackwards);
 		tag.putBoolean("Derailed", derailed);
 		tag.putBoolean("UpdateSignals", updateSignalBlocks);
 		tag.put("SignalBlocks", NBTHelper.writeCompoundList(occupiedSignalBlocks.entrySet(), e -> {
 			CompoundTag compoundTag = new CompoundTag();
-			compoundTag.putUUID("Id", e.getKey());
+			compoundTag.store("Id", UUIDUtil.CODEC, e.getKey());
 			if (e.getValue() != null)
-				compoundTag.putUUID("Boundary", e.getValue());
+				compoundTag.store("Boundary", UUIDUtil.CODEC, e.getValue());
 			return compoundTag;
 		}));
 		tag.put("ReservedSignalBlocks", NBTHelper.writeCompoundList(reservedSignalBlocks, uid -> {
 			CompoundTag compoundTag = new CompoundTag();
-			compoundTag.putUUID("Id", uid);
+			compoundTag.store("Id", UUIDUtil.CODEC, uid);
 			return compoundTag;
 		}));
 		tag.put("OccupiedObservers", NBTHelper.writeCompoundList(occupiedObservers, uid -> {
 			CompoundTag compoundTag = new CompoundTag();
-			compoundTag.putUUID("Id", uid);
+			compoundTag.store("Id", UUIDUtil.CODEC, uid);
 			return compoundTag;
 		}));
 		tag.put("MigratingPoints", NBTHelper.writeCompoundList(migratingPoints, tm -> tm.write(dimensions)));
@@ -1205,45 +1205,45 @@ public class Train {
 	}
 
 	public static Train read(CompoundTag tag, HolderLookup.Provider registries, Map<UUID, TrackGraph> trackNetworks, DimensionPalette dimensions) {
-		UUID id = tag.getUUID("Id");
-		UUID owner = tag.contains("Owner") ? tag.getUUID("Owner") : null;
-		UUID graphId = tag.contains("Graph") ? tag.getUUID("Graph") : null;
+		UUID id = tag.read("Id", UUIDUtil.CODEC).orElse(null);
+		UUID owner = tag.contains("Owner") ? tag.read("Owner", UUIDUtil.CODEC).orElse(null) : null;
+		UUID graphId = tag.contains("Graph") ? tag.read("Graph", UUIDUtil.CODEC).orElse(null) : null;
 		TrackGraph graph = graphId == null ? null : trackNetworks.get(graphId);
 		List<Carriage> carriages = new ArrayList<>();
-		NBTHelper.iterateCompoundList(tag.getList("Carriages", Tag.TAG_COMPOUND),
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("Carriages"),
 			c -> carriages.add(Carriage.read(c, registries, graph, dimensions)));
 		List<Integer> carriageSpacing = new ArrayList<>();
 		for (int i : tag.getIntArray("CarriageSpacing"))
 			carriageSpacing.add(i);
-		boolean doubleEnded = tag.getBoolean("DoubleEnded");
-		int mapColorIndex = tag.getInt("MapColorIndex");
+		boolean doubleEnded = tag.getBooleanOr("DoubleEnded", false);
+		int mapColorIndex = tag.getIntOr("MapColorIndex", 0);
 
 		Train train = new Train(id, owner, graph, carriages, carriageSpacing, doubleEnded, mapColorIndex);
 
-		train.speed = tag.getDouble("Speed");
-		train.throttle = tag.getDouble("Throttle");
+		train.speed = tag.getDoubleOr("Speed", 0);
+		train.throttle = tag.getDoubleOr("Throttle", 0);
 		if (tag.contains("SpeedBeforeStall"))
-			train.speedBeforeStall = tag.getDouble("SpeedBeforeStall");
-		train.targetSpeed = tag.getDouble("TargetSpeed");
-		train.icon = TrainIconType.byId(ResourceLocation.parse(tag.getString("IconType")));
-		train.name = Component.Serializer.fromJson(tag.getString("Name"), registries);
-		train.currentStation = tag.contains("Station") ? tag.getUUID("Station") : null;
-		train.currentlyBackwards = tag.getBoolean("Backwards");
-		train.derailed = tag.getBoolean("Derailed");
-		train.updateSignalBlocks = tag.getBoolean("UpdateSignals");
-		train.fuelTicks = tag.getInt("Fuel");
+			train.speedBeforeStall = tag.getDoubleOr("SpeedBeforeStall", 0);
+		train.targetSpeed = tag.getDoubleOr("TargetSpeed", 0);
+		train.icon = TrainIconType.byId(Identifier.parse(tag.getStringOr("IconType", "")));
+		train.name = Component.Serializer.fromJson(tag.getStringOr("Name", ""), registries);
+		train.currentStation = tag.contains("Station") ? tag.read("Station", UUIDUtil.CODEC).orElse(null) : null;
+		train.currentlyBackwards = tag.getBooleanOr("Backwards", false);
+		train.derailed = tag.getBooleanOr("Derailed", false);
+		train.updateSignalBlocks = tag.getBooleanOr("UpdateSignals", false);
+		train.fuelTicks = tag.getIntOr("Fuel", 0);
 
-		NBTHelper.iterateCompoundList(tag.getList("SignalBlocks", Tag.TAG_COMPOUND), c -> train.occupiedSignalBlocks
-			.put(c.getUUID("Id"), c.contains("Boundary") ? c.getUUID("Boundary") : null));
-		NBTHelper.iterateCompoundList(tag.getList("ReservedSignalBlocks", Tag.TAG_COMPOUND),
-			c -> train.reservedSignalBlocks.add(c.getUUID("Id")));
-		NBTHelper.iterateCompoundList(tag.getList("OccupiedObservers", Tag.TAG_COMPOUND),
-			c -> train.occupiedObservers.add(c.getUUID("Id")));
-		NBTHelper.iterateCompoundList(tag.getList("MigratingPoints", Tag.TAG_COMPOUND),
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("SignalBlocks"), c -> train.occupiedSignalBlocks
+			.put(c.read("Id", UUIDUtil.CODEC).orElse(null), c.contains("Boundary") ? c.read("Boundary", UUIDUtil.CODEC).orElse(null) : null));
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("ReservedSignalBlocks"),
+			c -> train.reservedSignalBlocks.add(c.read("Id", UUIDUtil.CODEC).orElse(null)));
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("OccupiedObservers"),
+			c -> train.occupiedObservers.add(c.read("Id", UUIDUtil.CODEC).orElse(null)));
+		NBTHelper.iterateCompoundList(tag.getListOrEmpty("MigratingPoints"),
 			c -> train.migratingPoints.add(TrainMigration.read(c, dimensions)));
 
-		train.runtime.read(registries, tag.getCompound("Runtime"));
-		train.navigation.read(tag.getCompound("Navigation"), graph, dimensions);
+		train.runtime.read(registries, tag.getCompoundOrEmpty("Runtime"));
+		train.navigation.read(tag.getCompoundOrEmpty("Navigation"), graph, dimensions);
 
 		if (train.getCurrentStation() != null)
 			train.getCurrentStation()

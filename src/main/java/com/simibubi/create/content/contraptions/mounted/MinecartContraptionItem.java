@@ -21,7 +21,7 @@ import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.nbt.NBTHelper;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,8 +36,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
-import net.minecraft.world.entity.vehicle.AbstractMinecart.Type;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart.Type;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -232,12 +232,12 @@ public class MinecartContraptionItem extends Item {
 
 		if (ContraptionMovementSetting.isNoPickup(contraption.getBlocks()
 			.values())) {
-			player.displayClientMessage(CreateLang.translateDirect("contraption.minecart_contraption_illegal_pickup")
-				.withStyle(ChatFormatting.RED), true);
+			player.sendOverlayMessage(CreateLang.translateDirect("contraption.minecart_contraption_illegal_pickup")
+				.withStyle(ChatFormatting.RED));
 			return;
 		}
 
-		if (event.getLevel().isClientSide) {
+		if (event.getLevel().isClientSide()) {
 			event.setCancellationResult(InteractionResult.SUCCESS);
 			event.setCanceled(true);
 			return;
@@ -255,7 +255,7 @@ public class MinecartContraptionItem extends Item {
 		if (ContraptionPickupLimiting.isTooLargeForPickup(generatedStack.saveOptional(event.getLevel().registryAccess()))) {
 			MutableComponent message = CreateLang.translateDirect("contraption.minecart_contraption_too_big")
 				.withStyle(ChatFormatting.RED);
-			player.displayClientMessage(message, true);
+			player.sendOverlayMessage(message);
 			return;
 		}
 

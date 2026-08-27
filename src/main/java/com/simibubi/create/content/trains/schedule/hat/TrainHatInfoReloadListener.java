@@ -10,13 +10,13 @@ import com.simibubi.create.Create;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
 import net.minecraft.world.phys.Vec3;
 
 public class TrainHatInfoReloadListener {
@@ -32,7 +32,7 @@ public class TrainHatInfoReloadListener {
 		FileToIdConverter converter = FileToIdConverter.json(HAT_INFO_DIRECTORY);
 		converter.listMatchingResources(manager).forEach((location, resource) -> {
 			String[] splitPath = location.getPath().split("/");
-			ResourceLocation entityName = ResourceLocation.fromNamespaceAndPath(location.getNamespace(), splitPath[splitPath.length - 1].replace(".json", ""));
+			Identifier entityName = Identifier.fromNamespaceAndPath(location.getNamespace(), splitPath[splitPath.length - 1].replace(".json", ""));
 			if (!BuiltInRegistries.ENTITY_TYPE.containsKey(entityName)) {
 				Create.LOGGER.error("Failed to load train hat info for entity {} as it does not exist.", entityName);
 				return;

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.createmod.catnip.api.network.NetworkHelper;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,14 +22,13 @@ import com.simibubi.create.foundation.gui.widget.IconButton;
 import com.simibubi.create.foundation.gui.widget.ScrollInput;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.animation.LerpedFloat.Chaser;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.animation.LerpedFloat;
+import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
+import net.createmod.catnip.api.client.gui.element.GuiGameElement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.renderer.Rect2i;
@@ -104,8 +105,8 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 
 		editingIndex = index;
 		editingItem = index == -1 ? ItemStack.EMPTY : schedule.get(index);
-		menu.proxyInventory.setStackInSlot(0, editingItem);
-		CatnipServices.NETWORK.sendToServer(new GhostItemSubmitPacket(editingItem, 0));
+		ItemHandlerHelpers.setStackInSlot(menu.proxyInventory, 0, editingItem);
+		NetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(editingItem, 0));
 
 		addRenderableWidget(editorConfirm);
 		addRenderableWidget(editorEditBox);
@@ -120,7 +121,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		removeWidget(editorConfirm);
 		removeWidget(editorEditBox);
 
-		ItemStack stackInSlot = menu.proxyInventory.getStackInSlot(0)
+		ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(menu.proxyInventory, 0)
 			.copy();
 		boolean empty = stackInSlot.isEmpty();
 
@@ -136,7 +137,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 				schedule.set(editingIndex, stackInSlot);
 		}
 
-		CatnipServices.NETWORK.sendToServer(new GhostItemSubmitPacket(ItemStack.EMPTY, 0));
+		NetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(ItemStack.EMPTY, 0));
 
 		editingItem = null;
 		editorConfirm = null;
@@ -155,14 +156,14 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 			.equals(CreateLang.translate("gui.stock_ticker.new_category")
 				.string()))
 			return;
-		if (menu.proxyInventory.getStackInSlot(0).has(DataComponents.CUSTOM_NAME))
-			editorEditBox.setValue(menu.proxyInventory.getStackInSlot(0)
+		if (ItemHandlerHelpers.getStackInSlot(menu.proxyInventory, 0).has(DataComponents.CUSTOM_NAME))
+			editorEditBox.setValue(ItemHandlerHelpers.getStackInSlot(menu.proxyInventory, 0)
 				.getHoverName()
 				.getString());
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		partialTicks = AnimationTickHolder.getPartialTicksUI();
 
 		if (menu.slotsActive)
@@ -176,7 +177,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		}
 	}
 
-	protected void renderCategories(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderCategories(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		PoseStack matrixStack = graphics.pose();
 
 		int yOffset = 25;
@@ -209,7 +210,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		graphics.disableScissor();
 	}
 
-	public int renderScheduleEntry(GuiGraphics graphics, int i, ItemStack entry, int yOffset, int mouseX, int mouseY,
+	public int renderScheduleEntry(GuiGraphicsExtractor graphics, int i, ItemStack entry, int yOffset, int mouseX, int mouseY,
 								   float partialTicks) {
 		int cardWidth = CARD_WIDTH;
 		int cardHeader = CARD_HEADER;
@@ -226,12 +227,12 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		if (i < schedule.size() - 1)
 			AllGuiTextures.STOCK_KEEPER_CATEGORY_DOWN.render(graphics, cardWidth + 12, cardHeader - 9);
 
-		graphics.renderItem(entry, 14, 1);
-		graphics.drawString(font,
+		graphics.item(entry, 14, 1);
+		graphics.text(font,
 			entry.isEmpty() ? CreateLang.translate("gui.stock_ticker.empty_category_name_placeholder")
 				.string()
 				: entry.getHoverName()
-				.getString(20)
+				.getStringOr(20, "")
 				.stripTrailing()
 				+ (entry.getHoverName()
 				.getString()
@@ -245,7 +246,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	private final Component clickToEdit = CreateLang.translateDirect("gui.schedule.lmb_edit")
 		.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC);
 
-	public boolean action(@Nullable GuiGraphics graphics, double mouseX, double mouseY, int click) {
+	public boolean action(@Nullable GuiGraphicsExtractor graphics, double mouseX, double mouseY, int click) {
 		// Prevent actions outside the window for them
 		if (mouseX < leftPos || mouseX >= leftPos + imageWidth || mouseY < topPos + 15 || mouseY >= topPos + 99)
 			return false;
@@ -293,7 +294,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 					.component()), mx, my);
 				if (click == 0) {
 					if (!entry.isEmpty())
-						CatnipServices.NETWORK.sendToServer(new StockKeeperCategoryRefundPacket(menu.contentHolder.getBlockPos(), entry));
+						NetworkHelper.INSTANCE.sendToServer(new StockKeeperCategoryRefundPacket(menu.contentHolder.getBlockPos(), entry));
 					entries.remove(entry);
 					init();
 				}
@@ -352,9 +353,9 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		return false;
 	}
 
-	private void renderActionTooltip(@Nullable GuiGraphics graphics, List<Component> tooltip, int mx, int my) {
+	private void renderActionTooltip(@Nullable GuiGraphicsExtractor graphics, List<Component> tooltip, int mx, int my) {
 		if (graphics != null)
-			graphics.renderTooltip(font, tooltip, Optional.empty(), mx, my);
+			graphics.setTooltipForNextFrame(font, tooltip, Optional.empty(), mx, my);
 	}
 
 	@Override
@@ -415,7 +416,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	}
 
 	@Override
-	protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void renderForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderForeground(graphics, mouseX, mouseY, partialTicks);
 
 		GuiGameElement.of(AllBlocks.STOCK_TICKER.asStack()).<GuiGameElement
@@ -431,7 +432,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 
 		if (hoveredSlot instanceof SlotItemHandler && hoveredSlot.getItem()
 			.isEmpty()) {
-			graphics.renderComponentTooltip(font, List.of(CreateLang.translate("gui.stock_ticker.category_filter")
+			graphics.setComponentTooltipForNextFrame(font, List.of(CreateLang.translate("gui.stock_ticker.category_filter")
 						.color(ScrollInput.HEADER_RGB)
 						.component(),
 					CreateLang.translate("gui.stock_ticker.category_filter_tip")
@@ -444,7 +445,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		}
 
 		if (editorEditBox != null && editorEditBox.isHovered() && !editorEditBox.isFocused()) {
-			graphics.renderComponentTooltip(font, List.of(CreateLang.translate("gui.stock_ticker.category_name")
+			graphics.setComponentTooltipForNextFrame(font, List.of(CreateLang.translate("gui.stock_ticker.category_name")
 				.color(ScrollInput.HEADER_RGB)
 				.component(), clickToEdit), mouseX, mouseY);
 		}
@@ -452,7 +453,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics graphics, float pPartialTick, int pMouseX, int pMouseY) {
+	protected void renderBg(GuiGraphicsExtractor graphics, float pPartialTick, int pMouseX, int pMouseY) {
 		int y = topPos;
 		AllGuiTextures.STOCK_KEEPER_CATEGORY_HEADER.render(graphics, leftPos, y);
 		y += AllGuiTextures.STOCK_KEEPER_CATEGORY_HEADER.getHeight();
@@ -469,7 +470,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 			.getVisualOrderText();
 
 		int center = leftPos + (AllGuiTextures.STOCK_KEEPER_CATEGORY.getWidth()) / 2;
-		graphics.drawString(font, formattedcharsequence, (float) (center - font.width(formattedcharsequence) / 2),
+		graphics.text(font, formattedcharsequence, (float) (center - font.width(formattedcharsequence) / 2),
 			(float) topPos + 4, 0x3D3C48, false);
 
 		if (editingItem == null) {
@@ -491,14 +492,14 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		formattedcharsequence = CreateLang.translate("gui.stock_ticker.category_editor")
 			.component()
 			.getVisualOrderText();
-		graphics.drawString(font, formattedcharsequence, (float) (center - font.width(formattedcharsequence) / 2),
+		graphics.text(font, formattedcharsequence, (float) (center - font.width(formattedcharsequence) / 2),
 			(float) topPos - 1, 0x3D3C48, false);
 	}
 
 	@Override
 	public void removed() {
 		super.removed();
-		CatnipServices.NETWORK.sendToServer(new StockKeeperCategoryEditPacket(menu.contentHolder.getBlockPos(), schedule));
+		NetworkHelper.INSTANCE.sendToServer(new StockKeeperCategoryEditPacket(menu.contentHolder.getBlockPos(), schedule));
 	}
 
 	@Override

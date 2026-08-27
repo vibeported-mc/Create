@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.advancement;
 
+import net.minecraft.core.UUIDUtil;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -99,14 +100,14 @@ public class AdvancementBehaviour extends BlockEntityBehaviour {
 	public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
 		super.write(nbt, registries, clientPacket);
 		if (playerId != null)
-			nbt.putUUID("Owner", playerId);
+			nbt.store("Owner", UUIDUtil.CODEC, playerId);
 	}
 
 	@Override
 	public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(nbt, registries, clientPacket);
 		if (nbt.contains("Owner"))
-			playerId = nbt.getUUID("Owner");
+			playerId = nbt.read("Owner", UUIDUtil.CODEC).orElse(null);
 	}
 
 	@Override

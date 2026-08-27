@@ -13,7 +13,7 @@ import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -34,7 +34,7 @@ public class DeployerApplicationRecipe extends ItemApplicationRecipe implements 
 	}
 
 	public static RecipeHolder<DeployerApplicationRecipe> convert(RecipeHolder<?> sandpaperRecipe) {
-		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(
+		Identifier id = Identifier.fromNamespaceAndPath(
 				sandpaperRecipe.id().getNamespace(),
 				sandpaperRecipe.id().getPath() + "_using_deployer"
 		);

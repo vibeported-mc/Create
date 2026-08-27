@@ -25,7 +25,7 @@ public class DepotBlockEntity extends SmartBlockEntity implements Clearable {
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
+				Capabilities.Item.BLOCK,
 				AllBlockEntityTypes.DEPOT.get(),
 				(be, context) -> be.depotBehaviour.itemHandler
 		);

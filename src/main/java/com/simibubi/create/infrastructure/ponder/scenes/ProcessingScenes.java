@@ -1,5 +1,7 @@
 package com.simibubi.create.infrastructure.ponder.scenes;
 
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.minecraft.world.entity.EntityTypes;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -16,18 +18,18 @@ import com.simibubi.create.content.processing.burner.LitBlazeBurnerBlock;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.simibubi.create.foundation.ponder.element.BeltItemElement;
 
-import net.createmod.catnip.data.IntAttached;
-import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.nbt.NBTHelper;
-import net.createmod.catnip.math.Pointing;
-import net.createmod.ponder.api.ParticleEmitter;
-import net.createmod.ponder.api.PonderPalette;
-import net.createmod.ponder.api.element.ElementLink;
-import net.createmod.ponder.api.element.EntityElement;
-import net.createmod.ponder.api.element.WorldSectionElement;
-import net.createmod.ponder.api.scene.SceneBuilder;
-import net.createmod.ponder.api.scene.SceneBuildingUtil;
-import net.createmod.ponder.api.scene.Selection;
+import net.createmod.catnip.api.data.IntAttached;
+import net.createmod.catnip.api.data.Iterate;
+import net.createmod.catnip.api.nbt.NBTHelper;
+import net.createmod.catnip.api.math.Pointing;
+import net.createmod.ponder.api.client.scene.ParticleEmitter;
+import net.createmod.ponder.api.client.PonderPalette;
+import net.createmod.ponder.api.client.element.ElementLink;
+import net.createmod.ponder.api.client.element.EntityElement;
+import net.createmod.ponder.api.client.element.WorldSectionElement;
+import net.createmod.ponder.api.client.scene.SceneBuilder;
+import net.createmod.ponder.api.client.scene.SceneBuildingUtil;
+import net.createmod.ponder.api.client.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -97,7 +99,7 @@ public class ProcessingScenes {
 		scene.idle(18);
 		scene.world().modifyEntity(entity1, Entity::discard);
 		scene.world().modifyBlockEntity(millstone, MillstoneBlockEntity.class,
-			ms -> ms.inputInv.setStackInSlot(0, itemStack));
+			ms -> ItemHandlerHelpers.setStackInSlot(ms.inputInv, 0, itemStack));
 		scene.idle(10);
 		scene.overlay().showControls(millstoneTop, Pointing.DOWN, 30).withItem(itemStack);
 		scene.idle(7);
@@ -110,7 +112,7 @@ public class ProcessingScenes {
 		scene.idle(60);
 
 		scene.world().modifyBlockEntity(millstone, MillstoneBlockEntity.class,
-			ms -> ms.inputInv.setStackInSlot(0, ItemStack.EMPTY));
+			ms -> ItemHandlerHelpers.setStackInSlot(ms.inputInv, 0, ItemStack.EMPTY));
 
 		scene.overlay().showText(50)
 			.text("After some time, the result can be obtained via Right-click")
@@ -568,7 +570,7 @@ public class ProcessingScenes {
 		BlockPos center = util.grid().at(2, 0, 2);
 
 		scene.world().createEntity(w -> {
-			Blaze blazeEntity = EntityType.BLAZE.create(w);
+			Blaze blazeEntity = EntityTypes.BLAZE.create(w);
 			Vec3 v = util.vector().topOf(center);
 			blazeEntity.setPosRaw(v.x, v.y, v.z);
 			blazeEntity.setYRot(blazeEntity.yRotO = 180);

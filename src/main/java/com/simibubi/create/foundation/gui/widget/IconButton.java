@@ -4,9 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 
-import net.createmod.catnip.gui.element.ScreenElement;
-import net.createmod.catnip.gui.widget.AbstractSimiWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.createmod.catnip.api.client.gui.element.ScreenElement;
+import net.createmod.catnip.api.client.gui.widget.AbstractSimiWidget;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public class IconButton extends AbstractSimiWidget {
@@ -25,7 +25,7 @@ public class IconButton extends AbstractSimiWidget {
 	}
 
 	@Override
-	public void doRender(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void doRender(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		if (visible) {
 			isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
 
@@ -40,7 +40,7 @@ public class IconButton extends AbstractSimiWidget {
 		}
 	}
 
-	protected void drawBg(GuiGraphics graphics, AllGuiTextures button) {
+	protected void drawBg(GuiGraphicsExtractor graphics, AllGuiTextures button) {
 		graphics.blit(button.location, getX(), getY(), button.getStartX(), button.getStartY(), button.getWidth(),
 			button.getHeight());
 	}

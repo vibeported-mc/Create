@@ -1,9 +1,10 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.AllPackets;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -15,9 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
-public record ToolboxEquipPacket(BlockPos toolboxPos, int slot, int hotbarSlot) implements ServerboundPacketPayload {
+public record ToolboxEquipPacket(BlockPos toolboxPos, int slot, int hotbarSlot) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, ToolboxEquipPacket> STREAM_CODEC = StreamCodec.composite(
 			CatnipStreamCodecBuilders.nullable(BlockPos.STREAM_CODEC), ToolboxEquipPacket::toolboxPos,
 			ByteBufCodecs.VAR_INT, ToolboxEquipPacket::slot,
@@ -26,8 +25,8 @@ public record ToolboxEquipPacket(BlockPos toolboxPos, int slot, int hotbarSlot) 
 	);
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.TOOLBOX_EQUIP;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.TOOLBOX_EQUIP.getType();
 	}
 
 	@Override
@@ -60,9 +59,9 @@ public record ToolboxEquipPacket(BlockPos toolboxPos, int slot, int hotbarSlot) 
 		if (!playerStack.isEmpty() && !ToolboxInventory.canItemsShareCompartment(playerStack,
 				toolboxBlockEntity.inventory.filters.get(slot))) {
 			toolboxBlockEntity.inventory.inLimitedMode(inventory -> {
-				ItemStack remainder = ItemHandlerHelper.insertItemStacked(inventory, playerStack, false);
+				ItemStack remainder = ItemHandlerHelpers.insertItemStacked(inventory, playerStack, false);
 				if (!remainder.isEmpty())
-					remainder = ItemHandlerHelper.insertItemStacked(new ItemReturnInvWrapper(player.getInventory()),
+					remainder = ItemHandlerHelpers.insertItemStacked(new ItemReturnInvWrapper(player.getInventory()),
 							remainder, false);
 				if (remainder.getCount() != playerStack.getCount())
 					player.getInventory().setItem(hotbarSlot, remainder);
@@ -70,12 +69,12 @@ public record ToolboxEquipPacket(BlockPos toolboxPos, int slot, int hotbarSlot) 
 		}
 
 		CompoundTag compound = player.getPersistentData()
-				.getCompound("CreateToolboxData");
+				.getCompoundOrEmpty("CreateToolboxData");
 		String key = String.valueOf(hotbarSlot);
 
 		CompoundTag data = new CompoundTag();
 		data.putInt("Slot", slot);
-		data.put("Pos", NbtUtils.writeBlockPos(toolboxPos));
+		data.store("Pos", BlockPos.CODEC, toolboxPos);
 		compound.put(key, data);
 
 		player.getPersistentData()

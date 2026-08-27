@@ -14,15 +14,13 @@ import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock;
 import com.simibubi.create.content.redstone.displayLink.source.AccumulatedItemCountDisplaySource;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 public class BeltTunnelInteractionHandler {
 
@@ -44,7 +42,7 @@ public class BeltTunnelInteractionHandler {
 		}
 
 		Level world = beltInventory.belt.getLevel();
-		boolean onServer = !world.isClientSide || beltInventory.belt.isVirtual();
+		boolean onServer = !world.isClientSide() || beltInventory.belt.isVirtual();
 		boolean removed = false;
 		BeltTunnelBlockEntity nextTunnel = getTunnelOnSegment(beltInventory, upcomingSegment);
 		int transferred = current.stack.getCount();

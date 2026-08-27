@@ -1,16 +1,17 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlockEntity.State;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 
-public record ConfigureSchematicannonPacket(Option option, boolean set) implements ServerboundPacketPayload {
+public record ConfigureSchematicannonPacket(Option option, boolean set) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, ConfigureSchematicannonPacket> STREAM_CODEC = StreamCodec.composite(
 			Option.STREAM_CODEC, ConfigureSchematicannonPacket::option,
 			ByteBufCodecs.BOOL, ConfigureSchematicannonPacket::set,
@@ -18,8 +19,8 @@ public record ConfigureSchematicannonPacket(Option option, boolean set) implemen
 	);
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.CONFIGURE_SCHEMATICANNON;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.CONFIGURE_SCHEMATICANNON.getType();
 	}
 
 	@Override

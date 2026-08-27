@@ -1,12 +1,12 @@
 package com.simibubi.create.content.equipment.tool;
 
+import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.function.Consumer;
 
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -105,7 +105,7 @@ public class CardboardSwordItem extends SwordItem {
 		MobCategory targetType = target.getClassification(false);
 
 		if (target instanceof ServerPlayer sp)
-			CatnipServices.NETWORK.sendToClient(sp, new KnockbackPacket(yRot, (float) knockbackStrength));
+			NetworkHelper.INSTANCE.sendToClient(sp, new KnockbackPacket(yRot, (float) knockbackStrength));
 
 		if ((targetType == MobCategory.MISC || targetType == MobCategory.CREATURE) && !targetIsPlayer)
 			target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 9, true, false, false));

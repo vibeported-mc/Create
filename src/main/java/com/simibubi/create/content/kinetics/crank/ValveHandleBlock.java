@@ -1,7 +1,7 @@
 package com.simibubi.create.content.kinetics.crank;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
+import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -11,7 +11,7 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +28,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
-@ParametersAreNonnullByDefault
+@NullMarked
 @EventBusSubscriber
 public class ValveHandleBlock extends HandCrankBlock {
 
@@ -72,18 +72,12 @@ public class ValveHandleBlock extends HandCrankBlock {
 		}
 	}
 
-	@Override
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-		if (!(pNewState.getBlock() instanceof ValveHandleBlock))
-			super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
-	}
-
 	public boolean clicked(Level level, BlockPos pos, BlockState blockState, Player player, InteractionHand hand) {
 		ItemStack heldItem = player.getItemInHand(hand);
 		DyeColor color = DyeColor.getColor(heldItem);
 
 		if (color != null && color != this.color) {
-			if (!level.isClientSide)
+			if (!level.isClientSide())
 				level.setBlockAndUpdate(pos,
 					BlockHelper.copyProperties(blockState, AllBlocks.DYED_VALVE_HANDLES.get(color)
 						.getDefaultState()));
@@ -98,8 +92,8 @@ public class ValveHandleBlock extends HandCrankBlock {
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	@Override

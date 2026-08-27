@@ -1,5 +1,8 @@
 package com.simibubi.create.content.processing.basin;
 
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,11 +26,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
-import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 public abstract class BasinOperatingBlockEntity extends KineticBlockEntity {
 
 	public DeferralBehaviour basinChecker;
@@ -73,7 +73,7 @@ public abstract class BasinOperatingBlockEntity extends KineticBlockEntity {
 			return true;
 		if (isRunning())
 			return true;
-		if (level == null || level.isClientSide)
+		if (level == null || level.isClientSide())
 			return true;
 		Optional<BasinBlockEntity> basin = getBasin();
 		if (!basin.filter(BasinBlockEntity::canContinueProcessing)
@@ -139,8 +139,8 @@ public abstract class BasinOperatingBlockEntity extends KineticBlockEntity {
 		List<Recipe<?>> list = new ArrayList<>();
 		try {
 
-			IItemHandler availableItems = level.getCapability(ItemHandler.BLOCK, basin.getBlockPos(), null);
-			IFluidHandler availableFluids = level.getCapability(FluidHandler.BLOCK, basin.getBlockPos(), null);
+			ResourceHandler<ItemResource> availableItems = level.getCapability(ItemHandler.BLOCK, basin.getBlockPos(), null);
+			ResourceHandler<FluidResource> availableFluids = level.getCapability(FluidHandler.BLOCK, basin.getBlockPos(), null);
 
 			// no point even searching, since no recipe will ever match
 			if (availableItems == null && availableFluids == null) {

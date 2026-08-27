@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.depot;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 
@@ -24,7 +25,7 @@ public class EjectorTriggerPacket extends BlockEntityConfigurationPacket<Ejector
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.TRIGGER_EJECTOR;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.TRIGGER_EJECTOR.getType();
 	}
 }

@@ -1,8 +1,8 @@
 package com.simibubi.create.foundation.networking;
 
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.foundation.blockEntity.SyncedBlockEntity;
 
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import com.simibubi.create.foundation.utility.AdventureUtil;
 
 import net.minecraft.core.BlockPos;
@@ -11,7 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 
-public abstract class BlockEntityConfigurationPacket<BE extends SyncedBlockEntity> implements ServerboundPacketPayload {
+public abstract class BlockEntityConfigurationPacket<BE extends SyncedBlockEntity> implements SelfHandlingPayload {
 	protected final BlockPos pos;
 
 	public BlockEntityConfigurationPacket(BlockPos pos) {

@@ -1,9 +1,10 @@
 package com.simibubi.create.content.equipment.extendoGrip;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
+import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,7 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
-public record ExtendoGripInteractionPacket(InteractionHand hand, int target, Vec3 point) implements ServerboundPacketPayload {
+public record ExtendoGripInteractionPacket(InteractionHand hand, int target, Vec3 point) implements SelfHandlingPayload {
 	public static final StreamCodec<ByteBuf, ExtendoGripInteractionPacket> STREAM_CODEC = StreamCodec.composite(
 			CatnipStreamCodecBuilders.nullable(CatnipStreamCodecs.HAND), ExtendoGripInteractionPacket::hand,
 			ByteBufCodecs.INT, ExtendoGripInteractionPacket::target,
@@ -34,8 +35,8 @@ public record ExtendoGripInteractionPacket(InteractionHand hand, int target, Vec
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.EXTENDO_INTERACT;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.EXTENDO_INTERACT.getType();
 	}
 
 	@Override

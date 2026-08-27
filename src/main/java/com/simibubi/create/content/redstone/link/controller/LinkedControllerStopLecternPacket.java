@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.Objects;
 
 import com.simibubi.create.AllPackets;
@@ -29,7 +30,7 @@ public class LinkedControllerStopLecternPacket extends LinkedControllerPacketBas
 	protected void handleItem(ServerPlayer player, ItemStack heldItem) { }
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.LINKED_CONTROLLER_USE_LECTERN;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.LINKED_CONTROLLER_USE_LECTERN.getType();
 	}
 }

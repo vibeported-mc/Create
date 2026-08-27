@@ -8,7 +8,7 @@ import com.simibubi.create.content.trains.track.FakeTrackBlock;
 import com.simibubi.create.content.trains.track.ITrackBlock;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 
-import net.createmod.catnip.math.VecHelper;
+import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -50,7 +50,7 @@ public class PloughMovementBehaviour extends BlockBreakingMovementBehaviour {
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
 		super.visitNewPosition(context, pos);
 		Level world = context.world;
-		if (world.isClientSide)
+		if (world.isClientSide())
 			return;
 		BlockPos below = pos.below();
 		if (!world.isLoaded(below))
@@ -88,7 +88,7 @@ public class PloughMovementBehaviour extends BlockBreakingMovementBehaviour {
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
 		return Vec3.atLowerCornerOf(context.state.getValue(PloughBlock.FACING)
-				.getNormal())
+				.getUnitVec3i())
 			.scale(.45);
 	}
 

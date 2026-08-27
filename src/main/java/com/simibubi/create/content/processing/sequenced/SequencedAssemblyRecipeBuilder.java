@@ -15,7 +15,7 @@ import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe.Builder;
 
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,11 +27,11 @@ import net.neoforged.neoforge.common.conditions.ICondition;
 
 public class SequencedAssemblyRecipeBuilder {
 
-	private ResourceLocation id;
+	private Identifier id;
 	private SequencedAssemblyRecipe recipe;
 	protected List<ICondition> recipeConditions;
 
-	public SequencedAssemblyRecipeBuilder(ResourceLocation id) {
+	public SequencedAssemblyRecipeBuilder(Identifier id) {
 		this.id = id;
 		recipeConditions = new ArrayList<>();
 		this.recipe = new SequencedAssemblyRecipe(AllRecipeTypes.SEQUENCED_ASSEMBLY.getSerializer());
@@ -40,21 +40,21 @@ public class SequencedAssemblyRecipeBuilder {
 	public <R extends StandardProcessingRecipe<?>> SequencedAssemblyRecipeBuilder addStep(
 		StandardProcessingRecipe.Factory<R> factory,
 		UnaryOperator<Builder<R>> builder) {
-		return addStep((Function<ResourceLocation, Builder<R>>)
+		return addStep((Function<Identifier, Builder<R>>)
 			id -> new Builder<>(factory, id), builder);
 	}
 
 	public <R extends ItemApplicationRecipe> SequencedAssemblyRecipeBuilder addStep(
 		ItemApplicationRecipe.Factory<R> factory,
 		UnaryOperator<ItemApplicationRecipe.Builder<R>> builder) {
-		return addStep((Function<ResourceLocation, ItemApplicationRecipe.Builder<R>>)
+		return addStep((Function<Identifier, ItemApplicationRecipe.Builder<R>>)
 			id -> new ItemApplicationRecipe.Builder<>(factory, id), builder);
 	}
 
 	public <B extends ProcessingRecipeBuilder<?, ?, B>> SequencedAssemblyRecipeBuilder addStep(
-		Function<ResourceLocation, B> factory,
+		Function<Identifier, B> factory,
 		UnaryOperator<B> builder) {
-		B recipeBuilder = factory.apply(ResourceLocation.withDefaultNamespace("dummy"));
+		B recipeBuilder = factory.apply(Identifier.withDefaultNamespace("dummy"));
 		Item placeHolder = recipe.getTransitionalItem().getItem();
 		recipe.getSequence()
 			.add(new SequencedRecipe<>(builder.apply(recipeBuilder.require(placeHolder)
@@ -102,7 +102,7 @@ public class SequencedAssemblyRecipeBuilder {
 	public void build(RecipeOutput consumer) {
 		RecipeHolder<SequencedAssemblyRecipe> holder = build();
 
-		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(holder.id().getNamespace(),
+		Identifier id = Identifier.fromNamespaceAndPath(holder.id().getNamespace(),
 				AllRecipeTypes.SEQUENCED_ASSEMBLY.getId().getPath() + "/" + holder.id().getPath());
 
 		consumer.accept(id, holder.value(), null, recipeConditions.toArray(new ICondition[0]));

@@ -1,15 +1,16 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import io.netty.buffer.ByteBuf;
 
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
-public record BlueprintAssignCompleteRecipePacket(ResourceLocation recipeId) implements ServerboundPacketPayload {
-	public static final StreamCodec<ByteBuf, com.simibubi.create.content.equipment.blueprint.BlueprintAssignCompleteRecipePacket> STREAM_CODEC = ResourceLocation.STREAM_CODEC.map(
+public record BlueprintAssignCompleteRecipePacket(Identifier recipeId) implements SelfHandlingPayload {
+	public static final StreamCodec<ByteBuf, com.simibubi.create.content.equipment.blueprint.BlueprintAssignCompleteRecipePacket> STREAM_CODEC = Identifier.STREAM_CODEC.map(
 			com.simibubi.create.content.equipment.blueprint.BlueprintAssignCompleteRecipePacket::new, com.simibubi.create.content.equipment.blueprint.BlueprintAssignCompleteRecipePacket::recipeId
 	);
 
@@ -24,7 +25,7 @@ public record BlueprintAssignCompleteRecipePacket(ResourceLocation recipeId) imp
 	}
 
 	@Override
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.BLUEPRINT_COMPLETE_RECIPE;
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.BLUEPRINT_COMPLETE_RECIPE.getType();
 	}
 }

@@ -1,27 +1,50 @@
 package com.simibubi.create.foundation.blockEntity.renderer;
 
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 
-public abstract class ColoredOverlayBlockEntityRenderer<T extends BlockEntity> extends SafeBlockEntityRenderer<T> {
+public abstract class ColoredOverlayBlockEntityRenderer<T extends BlockEntity, S extends ColoredOverlayBlockEntityRenderer.ColoredOverlayRenderState>
+	extends SafeBlockEntityRenderer<T, S> {
+
+	public static class ColoredOverlayRenderState extends SafeRenderState {
+		public @Nullable SuperByteBufferRenderState overlay;
+	}
 
 	public ColoredOverlayBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
 	}
 
 	@Override
-	protected void renderSafe(T be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-			int light, int overlay) {
+	@SuppressWarnings("unchecked")
+	public S createRenderState() {
+		return (S) new ColoredOverlayRenderState();
+	}
 
-		if (VisualizationManager.supportsVisualization(be.getLevel())) return;
+	@Override
+	protected void extractSafe(T be, S state, float partialTicks, Vec3 cameraPosition) {
+		if (VisualizationManager.supportsVisualization(be.getLevel())) {
+			state.skip = true;
+			return;
+		}
 
-		SuperByteBuffer render = render(getOverlayBuffer(be), getColor(be, partialTicks), light);
-		render.renderInto(ms, buffer.getBuffer(RenderType.solid()));
+		state.overlay = render(getOverlayBuffer(be), getColor(be, partialTicks), state.lightCoords)
+			.extractRenderState();
+	}
+
+	@Override
+	protected void submitSafe(S state, PoseStack ms, SubmitNodeCollector queue, CameraRenderState camera) {
+		if (state.overlay != null)
+			state.overlay.submit(ms, RenderTypes.solidMovingBlock(), queue);
 	}
 
 	protected abstract int getColor(T be, float partialTicks);

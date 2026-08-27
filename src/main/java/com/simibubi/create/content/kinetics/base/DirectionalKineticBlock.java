@@ -1,6 +1,7 @@
 package com.simibubi.create.content.kinetics.base;
 
-import net.createmod.catnip.data.Iterate;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
@@ -9,11 +10,9 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-
 public abstract class DirectionalKineticBlock extends KineticBlock {
 
-	public static final DirectionProperty FACING = BlockStateProperties.FACING;
+	public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 
 	public DirectionalKineticBlock(Properties properties) {
 		super(properties);
