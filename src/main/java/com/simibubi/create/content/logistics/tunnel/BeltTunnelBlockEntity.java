@@ -205,7 +205,7 @@ public class BeltTunnelBlockEntity extends SmartBlockEntity {
 
 	private void sendFlaps() {
 		if (level instanceof ServerLevel serverLevel)
-			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, new ChunkPos(worldPosition), new TunnelFlapPacket(this, flapsToSend));
+			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, ChunkPos.containing(worldPosition), new TunnelFlapPacket(this, flapsToSend));
 
 		flapsToSend.clear();
 	}

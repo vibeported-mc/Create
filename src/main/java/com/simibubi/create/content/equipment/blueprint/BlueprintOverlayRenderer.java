@@ -261,7 +261,7 @@ public class BlueprintOverlayRenderer {
 				if (!recipe.isPresent())
 					recipe = RecipeFinder.find(RecipeType.CRAFTING, craftingInventory.asCraftInput(), mc.level);
 				ItemStack resultFromRecipe = recipe.filter(r -> r.value().matches(craftingInventory.asCraftInput(), mc.level))
-					.map(r -> r.value().assemble(craftingInventory.asCraftInput(), mc.level.registryAccess()))
+					.map(r -> r.value().assemble(craftingInventory.asCraftInput()))
 					.orElse(ItemStack.EMPTY);
 
 				if (resultFromRecipe.isEmpty()) {

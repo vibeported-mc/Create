@@ -317,7 +317,7 @@ public class FunnelBlockEntity extends SmartBlockEntity implements IHaveHovering
 
 	public void flap(boolean inward) {
 		if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
-			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, new ChunkPos(worldPosition), new FunnelFlapPacket(this, inward));
+			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, ChunkPos.containing(worldPosition), new FunnelFlapPacket(this, inward));
 		} else {
 			flap.setValue(inward ? -1 : 1);
 			AllSoundEvents.FUNNEL_FLAP.playAt(level, worldPosition, 1, 1, true);

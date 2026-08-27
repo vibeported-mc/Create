@@ -99,7 +99,7 @@ public class StockTickerInteractionHandler {
 		if (!(level.getBlockEntity(targetPos) instanceof StockTickerBlockEntity tickerBE))
 			return;
 
-		ShoppingList list = ShoppingListItem.getListOrEmpty(mainHandItem);
+		ShoppingList list = ShoppingListItem.getList(mainHandItem);
 		if (list == null)
 			return;
 

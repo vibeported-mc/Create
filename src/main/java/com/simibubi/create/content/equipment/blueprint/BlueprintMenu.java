@@ -90,7 +90,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 		}
 
 		CraftingRecipe icraftingrecipe = optional.get().value();
-		ItemStack itemstack = icraftingrecipe.assemble(craftingInventory.asCraftInput(), level.registryAccess());
+		ItemStack itemstack = icraftingrecipe.assemble(craftingInventory.asCraftInput());
 		ItemHandlerHelpers.setStackInSlot(ghostInventory, 9, itemstack);
 		contentHolder.inferredIcon = true;
 		ItemStack toSend = itemstack.copy();

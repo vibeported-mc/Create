@@ -117,7 +117,7 @@ public class TableClothBlockEntity extends SmartBlockEntity implements Transform
 
 	public void notifyShopUpdate() {
 		if (level instanceof ServerLevel serverLevel)
-			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, new ChunkPos(worldPosition), new ShopUpdatePacket(worldPosition));
+			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, ChunkPos.containing(worldPosition), new ShopUpdatePacket(worldPosition));
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class TableClothBlockEntity extends SmartBlockEntity implements Transform
 		BlockPos relativePos = worldPosition.relative(facing);
 		sideOccluded = AllBlockTags.TABLE_CLOTHS.matches(level.getBlockState(relativePos))
 			|| Block.isFaceFull(level.getBlockState(relativePos.below())
-			.getOcclusionShape(level, relativePos.below()), facing.getOpposite());
+				.getOcclusionShape(), facing.getOpposite());
 	}
 
 	@Override
@@ -153,7 +153,7 @@ public class TableClothBlockEntity extends SmartBlockEntity implements Transform
 			if (manuallyAddedItems.isEmpty() && !computerBehaviour.hasAttachedComputer()) {
 				level.setBlock(worldPosition, getBlockState().setValue(TableClothBlock.HAS_BE, false), Block.UPDATE_ALL);
 				if (level instanceof ServerLevel serverLevel)
-					NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, new ChunkPos(worldPosition), new RemoveBlockEntityPacket(worldPosition));
+					NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, ChunkPos.containing(worldPosition), new RemoveBlockEntityPacket(worldPosition));
 			} else
 				notifyUpdate();
 
@@ -222,7 +222,7 @@ public class TableClothBlockEntity extends SmartBlockEntity implements Transform
 		if (level.getBlockEntity(tickerPos) instanceof StockTickerBlockEntity stbe && stbe.isKeeperPresent())
 			tickerID = stbe.behaviour.freqId;
 
-		int stockLevel = getStockLevelForTrade(ShoppingListItem.getListOrEmpty(prevListItem));
+		int stockLevel = getStockLevelForTrade(ShoppingListItem.getList(prevListItem));
 
 		if (tickerID == null) {
 			CreateLang.translate("stock_keeper.keeper_missing")
@@ -252,7 +252,7 @@ public class TableClothBlockEntity extends SmartBlockEntity implements Transform
 		ShoppingList list = new ShoppingList(new ArrayList<>(), owner, tickerID);
 
 		if (addOntoList) {
-			ShoppingList prevList = ShoppingListItem.getListOrEmpty(prevListItem).duplicate();
+			ShoppingList prevList = ShoppingListItem.getList(prevListItem).duplicate();
 			if (owner.equals(prevList.shopOwner()) && tickerID.equals(prevList.shopNetwork()))
 				list = prevList;
 			else
