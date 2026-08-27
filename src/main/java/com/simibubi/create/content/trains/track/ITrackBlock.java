@@ -85,7 +85,7 @@ public interface ITrackBlock {
 				b -> world instanceof Level l ? l.dimension() : Level.OVERWORLD;
 			Function<Vec3, Integer> yOffsetFactory = v -> getYOffsetAt(world, pos, state, v);
 
-			addToListIfConnected(connectedTo, list, offsetFactory, b -> shape.getUnitVec3i(), dimensionFactory,
+			addToListIfConnected(connectedTo, list, offsetFactory, b -> shape.getNormal(), dimensionFactory,
 				yOffsetFactory, axis, null, (b, v) -> getMaterialSimple(world, v));
 		});
 

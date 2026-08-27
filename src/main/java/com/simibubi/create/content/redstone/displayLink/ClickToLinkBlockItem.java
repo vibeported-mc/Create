@@ -80,7 +80,7 @@ public abstract class ClickToLinkBlockItem extends BlockItem {
 		}
 
 		Identifier placedDim = level.dimension()
-			.location();
+			.identifier();
 
 		if (!stack.has(AllDataComponents.CLICK_TO_LINK_DATA)) {
 			if (!isValidTarget(level, pos)) {

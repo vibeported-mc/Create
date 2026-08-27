@@ -175,12 +175,12 @@ public class TagLangGenerator {
 	}
 
 	protected static String keyFor(TagKey<?> tag) {
-		Identifier registryId = tag.registry().location();
+		Identifier registryId = tag.registry().identifier();
 		String registry = sanitize(
 			registryId.getNamespace().equals("minecraft") ? registryId.getPath() : registryId.toLanguageKey()
 		);
 
-		return "tag." + registry + '.' + sanitize(tag.location().toLanguageKey());
+		return "tag." + registry + '.' + sanitize(tag.identifier().toLanguageKey());
 	}
 
 	private static String sanitize(String string) {

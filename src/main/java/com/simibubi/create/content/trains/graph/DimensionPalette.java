@@ -46,7 +46,7 @@ public class DimensionPalette {
 
 	public void send(FriendlyByteBuf buffer) {
 		buffer.writeInt(gatheredDims.size());
-		gatheredDims.forEach(rk -> buffer.writeResourceLocation(rk.location()));
+		gatheredDims.forEach(rk -> buffer.writeResourceLocation(rk.identifier()));
 	}
 
 	public static DimensionPalette receive(FriendlyByteBuf buffer) {
@@ -60,7 +60,7 @@ public class DimensionPalette {
 	public void write(CompoundTag tag) {
 		tag.put("DimensionPalette", NBTHelper.writeCompoundList(gatheredDims, rk -> {
 			CompoundTag c = new CompoundTag();
-			c.putString("Id", rk.location()
+			c.putString("Id", rk.identifier()
 				.toString());
 			return c;
 		}));

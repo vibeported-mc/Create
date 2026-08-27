@@ -48,7 +48,7 @@ public class LogisticallyLinkedBlockItem extends BlockItem {
 	@Nullable
 	public static UUID networkFromStack(ItemStack pStack) {
 		CompoundTag tag = pStack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
-		if (!tag.hasUUID("Freq"))
+		if (!tag.read("Freq", UUIDUtil.CODEC).isPresent())
 			return null;
 		return tag.read("Freq", UUIDUtil.CODEC).orElse(null);
 	}
@@ -59,7 +59,7 @@ public class LogisticallyLinkedBlockItem extends BlockItem {
 		super.appendHoverText(stack, tooltipContext, tooltipComponents, tooltipFlag);
 
 		CompoundTag tag = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
-		if (!tag.hasUUID("Freq"))
+		if (!tag.read("Freq", UUIDUtil.CODEC).isPresent())
 			return;
 
 		CreateLang.translate("logistically_linked.tooltip")

@@ -102,7 +102,7 @@ public class RedstoneRequesterBlock extends Block implements IBE<RedstoneRequest
 
 		String targetDim = player.level()
 			.dimension()
-			.location()
+			.identifier()
 			.toString();
 		AutoRequestData autoRequestData = new AutoRequestData(order, address, be.getBlockPos(), targetDim, false);
 

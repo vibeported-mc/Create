@@ -200,7 +200,7 @@ public class TrackBlockEntity extends SmartBlockEntity implements TransformableB
 			return;
 		tag.store("BoundLocation", BlockPos.CODEC, boundLocation.getSecond());
 		tag.putString("BoundDimension", boundLocation.getFirst()
-			.location()
+			.identifier()
 			.toString());
 	}
 

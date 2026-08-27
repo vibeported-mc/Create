@@ -279,7 +279,7 @@ public class SignalBoundary extends TrackEdgePoint {
 
 		for (int i = 1; i <= 2; i++)
 			if (nbt.contains("Group" + i))
-				groups.set(i == 1, nbt.getUUID("Group" + i));
+				groups.set(i == 1, nbt.read("Group" + i, UUIDUtil.CODEC).orElse(null));
 		for (int i = 1; i <= 2; i++)
 			sidesToUpdate.set(i == 1, nbt.contains("Update" + i));
 		for (int i = 1; i <= 2; i++)

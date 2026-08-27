@@ -119,7 +119,7 @@ public class BlueprintItem extends Item {
 			ItemStack filterItem = AllItems.ATTRIBUTE_FILTER.asStack();
 			filterItem.set(AllDataComponents.ATTRIBUTE_FILTER_WHITELIST_MODE, AttributeFilterWhitelistMode.WHITELIST_DISJ);
 			List<ItemAttributeEntry> attributes = new ArrayList<>();
-			ItemAttribute at = new InTagAttribute(ItemTags.create(tagValue.tag().location()));
+			ItemAttribute at = new InTagAttribute(ItemTags.create(tagValue.tag().identifier()));
 			attributes.add(new ItemAttribute.ItemAttributeEntry(at, false));
 			filterItem.set(AllDataComponents.ATTRIBUTE_FILTER_MATCHED_ATTRIBUTES, attributes);
 			return filterItem;

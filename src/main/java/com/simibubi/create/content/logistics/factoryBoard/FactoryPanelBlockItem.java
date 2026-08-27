@@ -58,7 +58,7 @@ public class FactoryPanelBlockItem extends LogisticallyLinkedBlockItem {
 
 			for (PanelSlot slot : PanelSlot.values()) {
 				CompoundTag panelTag = bet.getCompoundOrEmpty(CreateLang.asId(slot.name()));
-				if (panelTag.hasUUID("Freq"))
+				if (panelTag.read("Freq", UUIDUtil.CODEC).isPresent())
 					frequency = panelTag.read("Freq", UUIDUtil.CODEC).orElse(null);
 			}
 

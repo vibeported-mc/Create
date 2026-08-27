@@ -41,7 +41,7 @@ public record InTagAttribute(TagKey<Item> tag) implements ItemAttribute {
 
 	@Override
 	public Object[] getTranslationParameters() {
-		return new Object[]{"#" + tag.location()};
+		return new Object[]{"#" + tag.identifier()};
 	}
 
 	@Override

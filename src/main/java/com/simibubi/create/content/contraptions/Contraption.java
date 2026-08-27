@@ -810,7 +810,7 @@ public abstract class Contraption {
 
 	public CompoundTag writeNBT(HolderLookup.Provider registries, boolean spawnPacket) {
 		CompoundTag nbt = new CompoundTag();
-		Identifier typeId = this.getType().holder.key().location();
+		Identifier typeId = this.getType().holder.key().identifier();
 		nbt.putString("Type", typeId.toString());
 
 		CompoundTag blocksNBT = writeBlocksCompound(spawnPacket);

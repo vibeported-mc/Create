@@ -877,7 +877,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 		waitingForNetwork = panelTag.getBooleanOr("Waiting", false);
 		redstonePowered = panelTag.getBooleanOr("RedstonePowered", false);
 		promiseClearingInterval = panelTag.getIntOr("PromiseClearingInterval", 0);
-		if (panelTag.hasUUID("Freq"))
+		if (panelTag.read("Freq", UUIDUtil.CODEC).isPresent())
 			network = panelTag.read("Freq", UUIDUtil.CODEC).orElse(null);
 
 		targeting.clear();

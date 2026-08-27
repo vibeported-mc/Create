@@ -75,7 +75,7 @@ public abstract class CrushingRecipeGen extends StandardProcessingRecipeGen<Crus
 		TagKey<Item> tag = metal.ores.items();
 		return create(metal + "_ore", b -> {
 			return b.duration(400)
-				.withCondition(new NotCondition(new TagEmptyCondition(tag.location())))
+				.withCondition(new NotCondition(new TagEmptyCondition(tag.identifier())))
 				.require(tag)
 				.output(result.get(), 1)
 				.output(.75f, result.get(), 1)
@@ -114,7 +114,7 @@ public abstract class CrushingRecipeGen extends StandardProcessingRecipeGen<Crus
 			int amount = block ? 9 : 1;
 			TagKey<Item> material = block ? metal.rawStorageBlocks.items() : metal.rawOres;
 			return b.duration(400)
-				.withCondition(new NotCondition(new TagEmptyCondition(material.location())))
+				.withCondition(new NotCondition(new TagEmptyCondition(material.identifier())))
 				.require(material)
 				.output(result.get(), amount)
 				.output(.75f, AllItems.EXP_NUGGET.get(), amount);

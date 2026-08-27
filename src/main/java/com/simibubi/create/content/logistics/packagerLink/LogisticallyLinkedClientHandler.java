@@ -36,7 +36,7 @@ public class LogisticallyLinkedClientHandler {
 			return;
 
 		CompoundTag tag = mainHandItem.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
-		if (!tag.hasUUID("Freq"))
+		if (!tag.read("Freq", UUIDUtil.CODEC).isPresent())
 			return;
 
 		UUID uuid = tag.read("Freq", UUIDUtil.CODEC).orElse(null);

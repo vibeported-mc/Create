@@ -53,7 +53,7 @@ public class TrackGraphSync {
 
 	public void nodeAdded(TrackGraph graph, TrackNode node) {
 		flushGraphPacket(graph);
-		currentGraphSyncPacket.addedNodes.put(node.getNetId(), Pair.of(node.getLocation(), node.getUnitVec3i()));
+		currentGraphSyncPacket.addedNodes.put(node.getNetId(), Pair.of(node.getLocation(), node.getNormal()));
 		currentPayload++;
 	}
 
@@ -142,7 +142,7 @@ public class TrackGraphSync {
 
 		for (TrackNode node : graph.nodes.values()) {
 			TrackGraphSyncPacket currentPacket = packet;
-			currentPacket.addedNodes.put(node.getNetId(), Pair.of(node.getLocation(), node.getUnitVec3i()));
+			currentPacket.addedNodes.put(node.getNetId(), Pair.of(node.getLocation(), node.getNormal()));
 			if (sent++ < 1000)
 				continue;
 

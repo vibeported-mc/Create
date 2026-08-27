@@ -533,7 +533,7 @@ public class TrackGraph {
 			CompoundTag nodeTag = new CompoundTag();
 			nodeTag.put("Location", railNode.getLocation()
 				.write(dimensions));
-			nodeTag.put("Normal", VecHelper.writeNBT(railNode.getUnitVec3i()));
+			nodeTag.put("Normal", VecHelper.writeNBT(railNode.getNormal()));
 			nodesList.add(nodeTag);
 			i++;
 		}

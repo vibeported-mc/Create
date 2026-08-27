@@ -354,7 +354,7 @@ public class TrackBlock extends Block
 					ITrackBlock.addToListIfConnected(connectedTo, list,
 						(d, b) -> axis.scale(b ? 0 : fromCenter ? -d : d)
 							.add(center),
-						b -> shape.getUnitVec3i(), b -> world instanceof Level l ? l.dimension() : Level.OVERWORLD, v -> 0,
+						b -> shape.getNormal(), b -> world instanceof Level l ? l.dimension() : Level.OVERWORLD, v -> 0,
 						axis, null, (b, v) -> ITrackBlock.getMaterialSimple(world, v));
 		} else
 			list = ITrackBlock.super.getConnected(world, pos, state, linear, connectedTo);

@@ -145,7 +145,7 @@ public class DumpRailwaysCommand {
 				if (presentDimensions.size() > 1)
 					chat.accept("├─Travelling between Dimensions:", darkerBlue);
 				presentDimensions.forEach(key ->
-					chat.accept("├─In %1$s near [%2$s]".formatted(key.location(), train.getPositionInDimension(key).get().toShortString()), darkerBlue)
+					chat.accept("├─In %1$s near [%2$s]".formatted(key.identifier(), train.getPositionInDimension(key).get().toShortString()), darkerBlue)
 				);
 				chatRaw.accept(createTeleportButton(train));
 

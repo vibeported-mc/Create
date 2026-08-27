@@ -47,7 +47,7 @@ public class LogisticsNetwork {
 			CompoundTag nbt = new CompoundTag();
 			nbt.store("Pos", BlockPos.CODEC, p.pos());
 			if (p.dimension() != Level.OVERWORLD)
-				NBTHelper.writeIdentifier(nbt, "Dim", p.dimension().location());
+				NBTHelper.writeIdentifier(nbt, "Dim", p.dimension().identifier());
 			return nbt;
 		}));
 

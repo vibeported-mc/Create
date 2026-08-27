@@ -111,7 +111,7 @@ public class TrackEdge {
 			if (normalSmoothed != null)
 				return normalSmoothed;
 		}
-		return node1.getUnitVec3i();
+		return node1.getNormal();
 	}
 
 	@Nullable
