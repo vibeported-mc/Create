@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.pipes;
 
+import com.simibubi.create.foundation.fluid.FluidAppearance;
 import java.util.function.Consumer;
 
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -93,13 +94,11 @@ public class GlassPipeVisual extends AbstractBlockEntityVisual<StraightPipeBlock
 			}
 
 			Fluid fluid = fluidStack.getFluid();
-			IClientFluidTypeExtensions clientFluid = IClientFluidTypeExtensions.of(fluid);
-			FluidType fluidAttributes = fluid.getFluidType();
-			var atlas = Minecraft.getInstance()
-				.getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
-			TextureAtlasSprite flowTexture = atlas.apply(clientFluid.getFlowingTexture(fluidStack));
 
-			int color = clientFluid.getTintColor(fluidStack);
+			FluidType fluidAttributes = fluid.getFluidType();
+			TextureAtlasSprite flowTexture = FluidAppearance.flowingTexture(fluidStack);
+
+			int color = FluidAppearance.tintColor(fluidStack);
 			int blockLightIn = (light >> 4) & 0xF;
 			int luminosity = Math.max(blockLightIn, fluidAttributes.getLightLevel(fluidStack));
 			int light = (this.light & 0xF00000) | luminosity << 4;
@@ -129,7 +128,7 @@ public class GlassPipeVisual extends AbstractBlockEntityVisual<StraightPipeBlock
 			fluidInstance.setChanged();
 
 			if (progress != 1) {
-				TextureAtlasSprite stillTexture = atlas.apply(clientFluid.getStillTexture(fluidStack));
+				TextureAtlasSprite stillTexture = FluidAppearance.stillTexture(fluidStack);
 				surface.get(stillTexture)
 					.setIdentityTransform()
 					.translate(getVisualPosition())

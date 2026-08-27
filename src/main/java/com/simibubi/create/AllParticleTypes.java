@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import com.simibubi.create.content.trains.CubeParticleGroup;
 import java.util.function.Supplier;
 
 import com.simibubi.create.content.equipment.bell.SoulBaseParticle;
@@ -20,6 +21,7 @@ import net.minecraft.core.registries.Registries;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.RegisterParticleGroupsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -57,6 +59,15 @@ public enum AllParticleTypes {
 	public static void registerFactories(RegisterParticleProvidersEvent event) {
 		for (AllParticleTypes particle : values())
 			particle.entry.registerFactory(event);
+	}
+
+	/**
+	 * 26.2 batches particles into groups that each extract a render state. Train smoke draws cubes
+	 * rather than the camera-facing quads the default group builds, so it brings its own.
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public static void registerGroups(RegisterParticleGroupsEvent event) {
+		event.register(CubeParticleGroup.TYPE, CubeParticleGroup::new);
 	}
 
 	public ParticleType<?> get() {

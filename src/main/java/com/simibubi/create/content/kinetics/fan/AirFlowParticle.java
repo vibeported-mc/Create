@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.fan;
 
+import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -125,7 +126,7 @@ public class AirFlowParticle extends SimpleAnimatedParticle {
 
 		@Override
 		public Particle createParticle(AirFlowParticleData data, ClientLevel worldIn, double x, double y, double z,
-									   double xSpeed, double ySpeed, double zSpeed) {
+									   double xSpeed, double ySpeed, double zSpeed, RandomSource random) {
 			BlockEntity be = worldIn.getBlockEntity(new BlockPos(data.posX, data.posY, data.posZ));
 			if (!(be instanceof IAirCurrentSource))
 				be = null;

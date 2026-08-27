@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.steamEngine;
 
+import net.minecraft.util.RandomSource;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -107,7 +108,7 @@ public class SteamJetParticle extends SimpleAnimatedParticle {
 		}
 
 		public Particle createParticle(SteamJetParticleData data, ClientLevel worldIn, double x, double y, double z,
-			double xSpeed, double ySpeed, double zSpeed) {
+			double xSpeed, double ySpeed, double zSpeed, RandomSource random) {
 			return new SteamJetParticle(worldIn, data, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
 		}
 	}

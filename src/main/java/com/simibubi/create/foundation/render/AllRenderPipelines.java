@@ -54,6 +54,13 @@ public class AllRenderPipelines {
 		RenderPipeline.builder(GLOWING_SNIPPET)
 			.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT)));
 
+	/**
+	 * Additive blending over the particle snippet, for Create's own particle group.
+	 */
+	public static final RenderPipeline ADDITIVE_PARTICLE = pipeline("additive_particle",
+		RenderPipeline.builder(RenderPipelines.PARTICLE_SNIPPET)
+			.withColorTargetState(new ColorTargetState(BlendFunction.ADDITIVE)));
+
 	private static RenderPipeline pipeline(String id, RenderPipeline.Builder builder) {
 		return builder.withLocation(Create.asResource("pipeline/" + id))
 			.build();
@@ -62,6 +69,7 @@ public class AllRenderPipelines {
 	@SubscribeEvent
 	static void registerPipelines(RegisterRenderPipelinesEvent event) {
 		event.registerPipeline(ADDITIVE);
+		event.registerPipeline(ADDITIVE_PARTICLE);
 		event.registerPipeline(GLOWING);
 		event.registerPipeline(GLOWING_TRANSLUCENT);
 	}

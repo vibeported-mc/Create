@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.base;
 
+import net.minecraft.util.RandomSource;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
 
@@ -85,7 +86,7 @@ public class RotationIndicatorParticle extends SimpleAnimatedParticle {
 		}
 
 		public Particle createParticle(RotationIndicatorParticleData data, ClientLevel worldIn, double x, double y, double z,
-				double xSpeed, double ySpeed, double zSpeed) {
+				double xSpeed, double ySpeed, double zSpeed, RandomSource random) {
 			Minecraft mc = Minecraft.getInstance();
 			LocalPlayer player = mc.player;
 			boolean visible = worldIn != mc.level || player != null && GogglesItem.isWearingGoggles(player);

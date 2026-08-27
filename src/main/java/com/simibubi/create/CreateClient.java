@@ -77,6 +77,7 @@ public class CreateClient {
 
 		modEventBus.addListener(CreateClient::clientInit);
 		modEventBus.addListener(AllParticleTypes::registerFactories);
+		modEventBus.addListener(AllParticleTypes::registerGroups);
 
 		AllInstanceTypes.init();
 
