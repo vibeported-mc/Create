@@ -1,5 +1,8 @@
 package com.simibubi.create.content.contraptions.glue;
 
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import com.simibubi.create.foundation.utility.NbtValueIO;
@@ -159,7 +162,12 @@ public class SuperGlueEntity extends Entity implements IEntityWithComplexSpawn, 
 	}
 
 	@Override
-	public boolean hurt(DamageSource source, float amount) {
+	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+		return false;
+	}
+
+	@Override
+	public boolean hurtClient(DamageSource source) {
 		return false;
 	}
 
@@ -167,7 +175,6 @@ public class SuperGlueEntity extends Entity implements IEntityWithComplexSpawn, 
 	public void tick() {
 		xRotO = getXRot();
 		yRotO = getYRot();
-		walkDistO = walkDist;
 		xo = getX();
 		yo = getY();
 		zo = getZ();
@@ -218,7 +225,6 @@ public class SuperGlueEntity extends Entity implements IEntityWithComplexSpawn, 
 
 	@Override
 	public void addAdditionalSaveData(ValueOutput output) {
-		super.addAdditionalSaveData(output);
 		CompoundTag compound = new CompoundTag();
 		Vec3 position = position();
 		writeBoundingBox(compound, getBoundingBox().move(position.scale(-1)));
@@ -227,7 +233,6 @@ public class SuperGlueEntity extends Entity implements IEntityWithComplexSpawn, 
 
 	@Override
 	public void readAdditionalSaveData(ValueInput input) {
-		super.readAdditionalSaveData(input);
 		CompoundTag compound = NbtValueIO.read(input);
 		Vec3 position = position();
 		setBoundingBox(readBoundingBox(compound).move(position));
@@ -276,14 +281,18 @@ public class SuperGlueEntity extends Entity implements IEntityWithComplexSpawn, 
 
 	@Override
 	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
-		CompoundTag compound = new CompoundTag();
-		addAdditionalSaveData(compound);
-		buffer.writeNbt(compound);
+		// 26.2 saves entities through a ValueOutput rather than straight into a tag.
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registryAccess());
+		addAdditionalSaveData(output);
+		buffer.writeNbt(output.buildResult());
 	}
 
 	@Override
 	public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
-		readAdditionalSaveData(additionalData.readNbt());
+		CompoundTag tag = additionalData.readNbt();
+		if (tag == null)
+			return;
+		readAdditionalSaveData(TagValueInput.create(ProblemReporter.DISCARDING, registryAccess(), tag));
 	}
 
 	@Override

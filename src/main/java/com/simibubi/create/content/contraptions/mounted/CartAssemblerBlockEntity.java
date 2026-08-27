@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.mounted;
 
+import net.minecraft.server.level.ServerLevel;
 import java.util.List;
 import java.util.UUID;
 
@@ -93,7 +94,7 @@ public class CartAssemblerBlockEntity extends SmartBlockEntity implements IDispl
 						.isRedstoneConductor(level, worldPosition.relative(d)))
 						facing = d.getOpposite();
 
-				float speed = block.getRailMaxSpeed(state, level, worldPosition, cart);
+				float speed = railMaxSpeed(cart);
 				cart.setDeltaMovement(facing.getStepX() * speed, facing.getStepY() * speed, facing.getStepZ() * speed);
 			}
 		}
@@ -102,7 +103,7 @@ public class CartAssemblerBlockEntity extends SmartBlockEntity implements IDispl
 				ControllerRailBlock.getAccelerationVector(AllBlocks.CONTROLLER_RAIL.getDefaultState()
 					.setValue(ControllerRailBlock.SHAPE, state.getValue(CartAssemblerBlock.RAIL_SHAPE))
 					.setValue(ControllerRailBlock.BACKWARDS, state.getValue(CartAssemblerBlock.BACKWARDS)));
-			float speed = block.getRailMaxSpeed(state, level, worldPosition, cart);
+			float speed = railMaxSpeed(cart);
 			cart.setDeltaMovement(Vec3.atLowerCornerOf(accelerationVector)
 				.scale(speed));
 		}
@@ -163,14 +164,8 @@ public class CartAssemblerBlockEntity extends SmartBlockEntity implements IDispl
 		world.addFreshEntity(entity);
 		entity.startRiding(cart);
 
-		if (cart instanceof MinecartFurnace) {
-			CompoundTag nbt = new CompoundTag();
-			if (cart.save(nbt)) {
-				nbt.putDouble("PushZ", 0);
-				nbt.putDouble("PushX", 0);
-				cart.load(nbt);
-			}
-		}
+		if (cart instanceof MinecartFurnace furnaceCart)
+			furnaceCart.push = Vec3.ZERO;
 
 		if (contraption.containsBlockBreakers())
 			award(AllAdvancements.CONTRAPTION_ACTORS);
@@ -220,12 +215,9 @@ public class CartAssemblerBlockEntity extends SmartBlockEntity implements IDispl
 
 	protected void disassembleCart(AbstractMinecart cart) {
 		cart.ejectPassengers();
-		if (cart instanceof MinecartFurnace) {
-			CompoundTag nbt = new CompoundTag();
-			cart.saveAsPassenger(nbt);
-			nbt.putDouble("PushZ", cart.getDeltaMovement().x);
-			nbt.putDouble("PushX", cart.getDeltaMovement().z);
-			cart.load(nbt);
+		if (cart instanceof MinecartFurnace furnaceCart) {
+			Vec3 movement = cart.getDeltaMovement();
+			furnaceCart.push = new Vec3(movement.z, 0, movement.x);
 		}
 	}
 
@@ -319,4 +311,14 @@ public class CartAssemblerBlockEntity extends SmartBlockEntity implements IDispl
 		return ticksSinceMinecartUpdate >= assemblyCooldown;
 	}
 
+
+	/**
+	 * How fast a cart may leave this rail.
+	 * <p>
+	 * NeoForge's per-rail speed hook is gone in 26.2; a cart's own limit is what remains, and it is
+	 * only defined on the server, so the vanilla ground speed stands in elsewhere.
+	 */
+	private float railMaxSpeed(AbstractMinecart cart) {
+		return level instanceof ServerLevel serverLevel ? (float) cart.getMaxSpeed(serverLevel) : 0.4f;
+	}
 }
