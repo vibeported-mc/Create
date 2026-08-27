@@ -17,7 +17,15 @@ import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
 public class EnchantPowerDisplaySource extends NumericSingleLineDisplaySource {
 
 	protected static final RandomSource random = RandomSource.create();
-	protected static final ItemStack stack = new ItemStack(Items.DIAMOND_PICKAXE);
+	// 26.2 binds an item's default components at registry freeze, so a stack cannot be built while
+	// this class is initialized during registration - the enchantability sample is made on demand.
+	protected static ItemStack stack;
+
+	protected static ItemStack stack() {
+		if (stack == null)
+			stack = new ItemStack(Items.DIAMOND_PICKAXE);
+		return stack;
+	}
 
 	@Override
 	protected MutableComponent provideLine(DisplayLinkContext context, DisplayTargetStats stats) {
@@ -36,7 +44,7 @@ public class EnchantPowerDisplaySource extends NumericSingleLineDisplaySource {
 		}
 
 
-		int cost = EnchantmentHelper.getEnchantmentCost(random, 2, (int) enchantPower, stack);
+		int cost = EnchantmentHelper.getEnchantmentCost(random, 2, (int) enchantPower, stack());
 
 		return Component.literal(String.valueOf(cost));
 	}

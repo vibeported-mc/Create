@@ -3,6 +3,7 @@ package com.simibubi.create.foundation.advancement;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import com.simibubi.create.Create;
@@ -100,7 +101,7 @@ public class CreateAdvancement {
 		if (createBuilder.func != null)
 			createBuilder.icon(createBuilder.func.apply(registries));
 
-		mcBuilder.display(ItemStackTemplate.fromStack(createBuilder.icon), Component.translatable(titleKey()),
+		mcBuilder.display(createBuilder.icon.get(), Component.translatable(titleKey()),
 			Component.translatable(descriptionKey()).withStyle(s -> s.withColor(0xDBA213)),
 			id.equals("root") ? BACKGROUND : null, createBuilder.type.advancementType, createBuilder.type.toast,
 			createBuilder.type.announce, createBuilder.type.hide);
@@ -142,7 +143,11 @@ public class CreateAdvancement {
 		private TaskType type = TaskType.NORMAL;
 		private boolean externalTrigger;
 		private int keyIndex;
-		private ItemStack icon;
+		// 26.2 binds an item's default components only once the item registry freezes, which is after
+		// the registry events this class is built from. An ItemStackTemplate names an item without
+		// touching its components, and the icon is resolved when the advancement is saved.
+		private Supplier<ItemStackTemplate> icon;
+		private Supplier<Item> iconItem;
 		private Function<Provider, ItemStack> func;
 
 		Builder special(TaskType type) {
@@ -156,15 +161,27 @@ public class CreateAdvancement {
 		}
 
 		Builder icon(ItemProviderEntry<?, ?> item) {
-			return icon(item.asStack());
+			icon = item::asStackTemplate;
+			iconItem = item::asItem;
+			return this;
 		}
 
 		Builder icon(ItemLike item) {
-			return icon(new ItemStack(item));
+			icon = () -> new ItemStackTemplate(item.asItem());
+			iconItem = item::asItem;
+			return this;
 		}
 
 		Builder icon(ItemStack stack) {
-			icon = stack;
+			icon = () -> ItemStackTemplate.fromStack(stack);
+			iconItem = stack::getItem;
+			return this;
+		}
+
+		Builder icon(Supplier<ItemStack> stack) {
+			icon = () -> ItemStackTemplate.fromStack(stack.get());
+			iconItem = () -> stack.get()
+				.getItem();
 			return this;
 		}
 
@@ -188,7 +205,7 @@ public class CreateAdvancement {
 		}
 
 		Builder whenIconCollected() {
-			return externalTrigger(InventoryChangeTrigger.TriggerInstance.hasItems(icon.getItem()));
+			return externalTrigger(InventoryChangeTrigger.TriggerInstance.hasItems(iconItem.get()));
 		}
 
 		Builder whenItemCollected(ItemProviderEntry<?, ?> item) {

@@ -282,7 +282,7 @@ public class AllAdvancements implements DataProvider {
 
 	// Logistics - Secret
 
-	PACKAGE_CHUTE_THROW = create("package_chute_throw", b -> b.icon(PackageStyles.getDefaultBox())
+	PACKAGE_CHUTE_THROW = create("package_chute_throw", b -> b.icon(PackageStyles::getDefaultBox)
 		.title("Nothing but net")
 		.description("Land your cardboard package throw in an item chute")
 		.after(CARDBOARD_ARMOR)

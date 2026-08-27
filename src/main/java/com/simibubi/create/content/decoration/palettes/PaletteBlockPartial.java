@@ -55,7 +55,7 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		String blockName = patternName + "_" + this.name;
 
 		BlockBuilder<B, CreateRegistrate> blockBuilder = Create.registrate()
-			.block(blockName, p -> createBlock(block))
+			.block(blockName, p -> createBlock(block, p))
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
@@ -99,7 +99,16 @@ public abstract class PaletteBlockPartial<B extends Block> {
 
 	protected abstract Iterable<TagKey<Item>> getItemTags();
 
-	protected abstract B createBlock(Supplier<? extends Block> block);
+	/**
+	 * @param properties the properties Registrate prepared for this partial - only its registry id is
+	 *                   kept, since the rest of the block's character is copied from the base block.
+	 *                   26.2 refuses to construct a block whose properties carry no id.
+	 */
+	protected abstract B createBlock(Supplier<? extends Block> block, Properties properties);
+
+	protected static Properties copyOf(Block block, Properties properties) {
+		return Properties.ofFullCopy(block).setId(properties.id);
+	}
 
 
 
@@ -110,8 +119,8 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		}
 
 		@Override
-		protected StairBlock createBlock(Supplier<? extends Block> block) {
-			return new StairBlock(block.get().defaultBlockState(), Properties.ofFullCopy(block.get()));
+		protected StairBlock createBlock(Supplier<? extends Block> block, Properties properties) {
+			return new StairBlock(block.get().defaultBlockState(), copyOf(block.get(), properties));
 		}
 
 
@@ -138,8 +147,8 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		}
 
 		@Override
-		protected SlabBlock createBlock(Supplier<? extends Block> block) {
-			return new SlabBlock(Properties.ofFullCopy(block.get()));
+		protected SlabBlock createBlock(Supplier<? extends Block> block, Properties properties) {
+			return new SlabBlock(copyOf(block.get(), properties));
 		}
 
 		@Override
@@ -175,8 +184,8 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		}
 
 		@Override
-		protected WallBlock createBlock(Supplier<? extends Block> block) {
-			return new WallBlock(Properties.ofFullCopy(block.get()).forceSolidOn());
+		protected WallBlock createBlock(Supplier<? extends Block> block, Properties properties) {
+			return new WallBlock(copyOf(block.get(), properties).forceSolidOn());
 		}
 
 		@Override
