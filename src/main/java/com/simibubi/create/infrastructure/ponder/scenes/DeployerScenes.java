@@ -216,7 +216,7 @@ public class DeployerScenes {
 		scene.world().modifyEntity(sheep, e -> ((Sheep) e).setSheared(true));
 		scene.effects().emitParticles(util.vector().topOf(deployerPos.west(2))
 						.add(0, -.25, 0),
-				scene.effects().particleEmitterWithinBlockSpace(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.PINK_WOOL.defaultBlockState()),
+				scene.effects().particleEmitterWithinBlockSpace(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.WOOL.pick(DyeColor.PINK).defaultBlockState()),
 						util.vector().of(0, 0, 0)),
 				25, 1);
 		scene.world().moveDeployer(deployerPos, -1, 25);
@@ -229,7 +229,7 @@ public class DeployerScenes {
 			.text("...and only non-matching items will be extracted");
 		scene.world().flapFunnel(deployerPos.north(), true);
 		scene.world().createItemEntity(util.vector().centerOf(deployerPos.north())
-			.subtract(0, .45, 0), util.vector().of(0, 0, -0.1), new ItemStack(Items.PINK_WOOL));
+			.subtract(0, .45, 0), util.vector().of(0, 0, -0.1), new ItemStack(Items.WOOL.pick(DyeColor.PINK)));
 
 		scene.markAsFinished();
 		for (int i = 0; i < 10; i++) {

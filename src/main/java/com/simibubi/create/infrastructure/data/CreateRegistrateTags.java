@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.data;
 
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.entity.EntityTypes;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +35,10 @@ public class CreateRegistrateTags {
 
 	private static final Block[] SHULKER_BOXES = {
 		Blocks.SHULKER_BOX,
-		Blocks.WHITE_SHULKER_BOX, Blocks.ORANGE_SHULKER_BOX, Blocks.MAGENTA_SHULKER_BOX, Blocks.LIGHT_BLUE_SHULKER_BOX,
-		Blocks.YELLOW_SHULKER_BOX, Blocks.LIME_SHULKER_BOX, Blocks.PINK_SHULKER_BOX, Blocks.GRAY_SHULKER_BOX,
-		Blocks.LIGHT_GRAY_SHULKER_BOX, Blocks.CYAN_SHULKER_BOX, Blocks.PURPLE_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX,
-		Blocks.BROWN_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX, Blocks.RED_SHULKER_BOX, Blocks.BLACK_SHULKER_BOX
+		Blocks.DYED_SHULKER_BOX.pick(DyeColor.WHITE), Blocks.DYED_SHULKER_BOX.pick(DyeColor.ORANGE), Blocks.DYED_SHULKER_BOX.pick(DyeColor.MAGENTA), Blocks.DYED_SHULKER_BOX.pick(DyeColor.LIGHT_BLUE),
+		Blocks.DYED_SHULKER_BOX.pick(DyeColor.YELLOW), Blocks.DYED_SHULKER_BOX.pick(DyeColor.LIME), Blocks.DYED_SHULKER_BOX.pick(DyeColor.PINK), Blocks.DYED_SHULKER_BOX.pick(DyeColor.GRAY),
+		Blocks.DYED_SHULKER_BOX.pick(DyeColor.LIGHT_GRAY), Blocks.DYED_SHULKER_BOX.pick(DyeColor.CYAN), Blocks.DYED_SHULKER_BOX.pick(DyeColor.PURPLE), Blocks.DYED_SHULKER_BOX.pick(DyeColor.BLUE),
+		Blocks.DYED_SHULKER_BOX.pick(DyeColor.BROWN), Blocks.DYED_SHULKER_BOX.pick(DyeColor.GREEN), Blocks.DYED_SHULKER_BOX.pick(DyeColor.RED), Blocks.DYED_SHULKER_BOX.pick(DyeColor.BLACK)
 	};
 
 	public static void addGenerators() {

@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import net.minecraft.world.item.DyeColor;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.world.entity.EntityTypes;
 import static com.simibubi.create.infrastructure.gametest.CreateGameTestHelper.FIFTEEN_SECONDS;
@@ -59,7 +60,7 @@ public class TestMisc {
 				helper.fail("Schematicannon not done");
 			}
 			BlockPos lastBlock = new BlockPos(1, 4, 7);
-			helper.assertBlockPresent(Blocks.RED_WOOL, lastBlock);
+			helper.assertBlockPresent(Blocks.WOOL.pick(DyeColor.RED), lastBlock);
 		});
 	}
 
@@ -69,7 +70,7 @@ public class TestMisc {
 		Sheep sheep = helper.getFirstEntity(EntityTypes.SHEEP, sheepPos);
 		sheep.shear(SoundSource.NEUTRAL);
 		helper.succeedWhen(() -> {
-			helper.assertItemEntityPresent(Items.WHITE_WOOL, sheepPos, 2);
+			helper.assertItemEntityPresent(Items.WOOL.pick(DyeColor.WHITE), sheepPos, 2);
 		});
 	}
 

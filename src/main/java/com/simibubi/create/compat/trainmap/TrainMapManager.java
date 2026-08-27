@@ -52,12 +52,6 @@ public class TrainMapManager {
 	public static void tick() {
 		ResourceKey<Level> playerDimension = Minecraft.getInstance().level.dimension();
 
-		if (Mods.XAEROWORLDMAP.isLoaded() && XaeroTrainMap.isMapOpen(Minecraft.getInstance().screen)) {
-			ResourceKey<Level> renderedDimension = XaeroTrainMap.getRenderedDimension();
-			tick(renderedDimension != null ? renderedDimension : playerDimension);
-		} else {
-			tick(playerDimension);
-		}
 	}
 
 	public static void tick(ResourceKey<Level> dimension) {

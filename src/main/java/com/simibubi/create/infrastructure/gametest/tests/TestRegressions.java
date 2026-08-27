@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import net.minecraft.world.item.DyeColor;
 import static com.simibubi.create.infrastructure.gametest.CreateGameTestHelper.TEN_SECONDS;
 
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
@@ -16,6 +17,6 @@ public class TestRegressions {
 		final BlockPos lever = new BlockPos(2, 5, 0);
 		final BlockPos goal = new BlockPos(1, 3, 4);
 		helper.unpowerLever(lever);
-		helper.succeedWhen(() -> helper.assertBlockPresent(Blocks.LIME_STAINED_GLASS, goal));
+		helper.succeedWhen(() -> helper.assertBlockPresent(Blocks.STAINED_GLASS.pick(DyeColor.LIME), goal));
 	}
 }

@@ -316,7 +316,7 @@ public class AllCreatePonderTags {
 				.add(AllBlocks.SAIL_FRAME);
 
 		itemHelper.addToTag(SAILS)
-				.add(Blocks.WHITE_WOOL);
+				.add(Blocks.WOOL.pick(DyeColor.WHITE));
 
 		HELPER.addToTag(REDSTONE)
 				.add(AllBlocks.SMART_OBSERVER)

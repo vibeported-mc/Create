@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.data.recipe;
 
+import net.minecraft.world.item.DyeColor;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.ALUMINUM;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.LEAD;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.NICKEL;
@@ -42,7 +43,7 @@ public final class CreateWashingRecipeGen extends WashingRecipeGen {
 	GeneratedRecipe
 
 		WOOL = create("wool", b -> b.require(ItemTags.WOOL)
-		.output(Items.WHITE_WOOL)),
+		.output(Items.WOOL.pick(DyeColor.WHITE))),
 
 	STAINED_GLASS = create("stained_glass", b -> b.require(Tags.Items.GLASS_BLOCKS)
 		.output(Items.GLASS)),

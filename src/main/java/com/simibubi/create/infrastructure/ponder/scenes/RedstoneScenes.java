@@ -664,7 +664,7 @@ public class RedstoneScenes {
 		scene.idle(90);
 
 		scene.overlay().showControls(util.vector().blockSurface(util.grid().at(3, 1, 3), Direction.UP), Pointing.DOWN, 30)
-			.withItem(new ItemStack(Items.BLUE_DYE));
+			.withItem(new ItemStack(Items.DYE.pick(DyeColor.BLUE)));
 		scene.idle(7);
 		scene.world().setBlocks(util.select().fromTo(1, 1, 3, 3, 1, 3), AllBlocks.NIXIE_TUBES.get(DyeColor.BLUE)
 			.getDefaultState()

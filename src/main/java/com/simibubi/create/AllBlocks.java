@@ -2392,7 +2392,7 @@ public class AllBlocks {
 	public static final DyedBlockList<TableClothBlock> TABLE_CLOTHS = new DyedBlockList<>(colour -> {
 		String colourName = colour.getSerializedName();
 		return REGISTRATE.block(colourName + "_table_cloth", p -> new TableClothBlock(p, colour))
-			.transform(BuilderTransformers.tableCloth(colourName, () -> Blocks.BLACK_CARPET, true))
+			.transform(BuilderTransformers.tableCloth(colourName, () -> Blocks.CARPET.pick(DyeColor.BLACK), true))
 			.properties(p -> p.mapColor(colour))
 			// TODO 26.2: port datagen to the new recipe/loot builders
 			// .recipe((c, p) -> {

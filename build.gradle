@@ -196,6 +196,15 @@ sourceSets.main {
         exclude("**/*RecipeProvider.java")
         exclude("com/simibubi/create/api/data/recipe/MechanicalCraftingRecipeBuilder.java")
 
+        // FTB Chunks, JourneyMap and Xaero have no 26.2 builds, so their APIs are not on the
+        // classpath and these adapters cannot compile. Create's own train map - the sync, the
+        // manager and the renderer - is unaffected.
+        // TODO: restore these once the minimap mods update.
+        exclude("com/simibubi/create/compat/trainmap/FTBChunksTrainMap.java")
+        exclude("com/simibubi/create/compat/trainmap/JourneyTrainMap.java")
+        exclude("com/simibubi/create/compat/trainmap/XaeroTrainMap.java")
+        exclude("com/simibubi/create/foundation/mixin/compat/xaeros/**")
+
         // Minecraft 1.21.5 replaced the annotation-driven gametest framework (@GameTest,
         // TestFunction, StructureUtils) with data-driven GameTestInstance. Nothing outside the
         // package references it and it never ships in the mod's runtime path.

@@ -1035,7 +1035,7 @@ public class KineticsScenes {
 
 		scene.addKeyframe();
 		scene.overlay().showControls(topOf, Pointing.DOWN, 40).rightClick()
-			.withItem(new ItemStack(Items.BLUE_DYE));
+			.withItem(new ItemStack(Items.DYE.pick(DyeColor.BLUE)));
 		scene.idle(7);
 		scene.world().modifyBlock(valvePos, s -> AllBlocks.DYED_VALVE_HANDLES.get(DyeColor.BLUE)
 			.getDefaultState()

@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.ponder.scenes;
 
+import net.minecraft.world.item.DyeColor;
 import com.simibubi.create.foundation.item.ItemHelper;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -406,9 +407,9 @@ public class ProcessingScenes {
 		BlockPos pressPos = util.grid().at(1, 4, 2);
 		Vec3 basinSide = util.vector().blockSurface(basin, Direction.WEST);
 
-		ItemStack blue = new ItemStack(Items.BLUE_DYE);
-		ItemStack red = new ItemStack(Items.RED_DYE);
-		ItemStack purple = new ItemStack(Items.PURPLE_DYE);
+		ItemStack blue = new ItemStack(Items.DYE.pick(DyeColor.BLUE));
+		ItemStack red = new ItemStack(Items.DYE.pick(DyeColor.RED));
+		ItemStack purple = new ItemStack(Items.DYE.pick(DyeColor.PURPLE));
 
 		scene.overlay().showText(60)
 			.pointAt(basinSide)

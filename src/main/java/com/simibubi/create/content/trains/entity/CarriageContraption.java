@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.entity;
 
+import net.minecraft.world.item.DyeColor;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -341,7 +342,7 @@ public class CarriageContraption extends Contraption {
 				if (withinVisible(pos)) {
 					values.put(pos, info.state());
 				} else if (atSeam(pos)) {
-					values.put(pos, Blocks.PURPLE_STAINED_GLASS.defaultBlockState());
+					values.put(pos, Blocks.STAINED_GLASS.pick(DyeColor.PURPLE).defaultBlockState());
 				}
 			});
 			return new RenderedBlocks(pos -> values.getOrDefault(pos, Blocks.AIR.defaultBlockState()), values.keySet());
