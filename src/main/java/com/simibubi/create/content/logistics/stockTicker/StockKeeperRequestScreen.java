@@ -1,5 +1,10 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.Level;
+import net.createmod.catnip.api.client.gui.render.pip.GuiElementTransform;
+import com.simibubi.create.foundation.gui.render.GuiCustomGeometryRenderState;
+import org.joml.Matrix3x2f;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import org.joml.Matrix3x2fStack;
@@ -7,7 +12,6 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
-import net.createmod.catnip.api.network.NetworkHelper;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -23,12 +27,9 @@ import java.util.function.Function;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.AllSoundEvents;
@@ -366,8 +367,9 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 				}
 
 				if (tagSearch) {
-					if (stack.getTags()
-						.anyMatch(key -> key.identifier()
+					if (stack.typeHolder()
+						.tags()
+						.anyMatch(key -> key.location()
 							.toString()
 							.contains(value)))
 						displayedItemsInCategory.add(entry);
@@ -467,15 +469,6 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 	}
 
 	@Override
-	public void renderBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-		Matrix3x2fStack ms = guiGraphics.pose();
-		ms.pushMatrix();
-		ms.translate((float) (0), (float) (0));
-		super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-		ms.popMatrix();
-	}
-
-	@Override
 	protected void renderBg(GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
 		if (this != minecraft.gui.screen())
 			return; // stencil buffer does not cooperate with ponders gui fade out
@@ -517,20 +510,15 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 				.getYsize() - 1) * 25);
 			int entityX = x - 35 - entitySizeOffset;
 			int entityY = y + windowHeight - 47 - entitySizeOffsetY;
-			InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, entityX - 100, entityY - 100, entityX + 100,
+			InventoryScreen.extractEntityInInventoryFollowsMouse(graphics, entityX - 100, entityY - 100, entityX + 100,
 				entityY + 100, 50, 0, mouseX, Mth.clamp(mouseY, entityY - 50, entityY + 10), keeper);
 			ms.popMatrix();
 		}
 
 		BlazeBurnerBlockEntity keeperBE = blaze.get();
 		if (keeperBE != null && !keeperBE.isRemoved()) {
-			ms.pushMatrix();
 			int entityX = x - 35;
 			int entityY = y + windowHeight - 43;
-			ms.translate((float) (entityX), (float) (entityY));
-			ms.mulPose(Axis.XP.rotationDegrees(-22.5f));
-			ms.mulPose(Axis.YP.rotationDegrees(-45));
-			ms.scale((float) (48), (float) (-48));
 			float animation = keeperBE.headAnimation.getValue(AnimationTickHolder.getPartialTicks()) * .175f;
 			float horizontalAngle = AngleHelper.rad(270);
 			HeatLevel heatLevel = keeperBE.getHeatLevelForRender();
@@ -538,18 +526,23 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			boolean drawGoggles = keeperBE.goggles;
 			PartialModel drawHat = AllPartialModels.LOGISTICS_HAT;
 			int hashCode = keeperBE.hashCode();
-			Lighting.setupForEntityInInventory();
+			BlockState burnerState = keeperBE.getBlockState();
+			Level burnerLevel = minecraft.level;
 
-			VertexConsumer cutout = graphics.bufferSource().getBuffer(RenderTypes.cutoutMovingBlock());
-			CachedBufferer.partial(AllPartialModels.BLAZE_CAGE, keeperBE.getBlockState())
-				.rotateCentered(horizontalAngle + Mth.PI, Direction.UP)
-				.light(LightCoordsUtil.FULL_BRIGHT)
-				.renderInto(ms, cutout);
-
-			BlazeBurnerRenderer.renderShared(ms, null, graphics.bufferSource(), minecraft.level,
-				keeperBE.getBlockState(), heatLevel, animation, horizontalAngle, canDrawFlame, drawGoggles, drawHat,
-				hashCode);
-			Lighting.setupFor3DItems();
+			// A block of world geometry is 16 units wide inside a picture-in-picture texture, so the
+			// 48-pixel burner is drawn at three times that.
+			ms.pushMatrix();
+			ms.translate((float) (entityX), (float) (entityY));
+			ms.scale(3, 3);
+			graphics.guiRenderState.addPicturesInPictureState(new GuiCustomGeometryRenderState((poseStack, queue) -> {
+				CachedBufferer.partial(AllPartialModels.BLAZE_CAGE, burnerState)
+					.rotateCentered(horizontalAngle + Mth.PI, Direction.UP)
+					.light(LightCoordsUtil.FULL_BRIGHT)
+					.submit(poseStack, RenderTypes.cutoutMovingBlock(), queue);
+				BlazeBurnerRenderer.submitShared(poseStack, null, queue, burnerLevel, burnerState, heatLevel,
+					animation, horizontalAngle, canDrawFlame, drawGoggles, drawHat, hashCode);
+			}, new Matrix3x2f(ms), new GuiElementTransform(0, 0, 0, -22.5f, -45, 0, 0, 0, 0, 0, 0), 0, 0, 16, 16, 1,
+				null, null));
 			ms.popMatrix();
 		}
 
@@ -650,7 +643,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 
 		// Search bar
 		AllGuiTextures.STOCK_KEEPER_REQUEST_SEARCH.render(graphics, x + 42, searchBox.getY() - 5);
-		searchBox.render(graphics, mouseX, mouseY, partialTicks);
+		searchBox.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 		if (searchBox.getValue()
 			.isBlank() && !searchBox.isFocused())
 			graphics.text(font, searchBox.getMessage(),
@@ -710,7 +703,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 				BigItemStack entry = category.get(index);
 
 				ms.pushMatrix();
-				ms.translate(itemsX + (index % cols) * colWidth, pY, 0);
+				ms.translate(itemsX + (index % cols) * colWidth, pY);
 				renderItemEntry(graphics, 1, entry, isStackHovered, false);
 				ms.popMatrix();
 			}
@@ -738,10 +731,10 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			int barX = itemsX + cols * colWidth;
 			int barY = y + 15;
 			ms.pushMatrix();
-			ms.translate(0, (currentScroll * rowHeight) / totalH * (windowH - 2), 0);
+			ms.translate(0, (currentScroll * rowHeight) / totalH * (windowH - 2));
 			AllGuiTextures pad = AllGuiTextures.STOCK_KEEPER_REQUEST_SCROLL_PAD;
-			graphics.blit(pad.location, barX, barY, pad.getWidth(), barSize, pad.getStartX(), pad.getStartY(),
-				pad.getWidth(), pad.getHeight(), 256, 256);
+			graphics.blit(RenderPipelines.GUI_TEXTURED, pad.location, barX, barY, pad.getStartX(), pad.getStartY(),
+				pad.getWidth(), barSize, pad.getWidth(), pad.getHeight(), 256, 256);
 			AllGuiTextures.STOCK_KEEPER_REQUEST_SCROLL_TOP.render(graphics, barX, barY);
 			if (barSize > 16)
 				AllGuiTextures.STOCK_KEEPER_REQUEST_SCROLL_MID.render(graphics, barX, barY + barSize / 2 - 4);
@@ -883,7 +876,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		if (isStackHovered)
 			scaleFromHover += .075f;
 
-		ms.translate((colWidth - 18) / 2.0, (rowHeight - 18) / 2.0, 0);
+		ms.translate((colWidth - 18) / 2.0f, (rowHeight - 18) / 2.0f);
 		ms.translate((float) (18 / 2.0), (float) (18 / 2.0));
 		ms.scale((float) (scale), (float) (scale));
 		ms.scale((float) (scaleFromHover), (float) (scaleFromHover));
@@ -1134,7 +1127,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			scrollHandleActive = true;
 			if (minecraft.isWindowActive())
 				GLFW.glfwSetInputMode(minecraft.getWindow()
-					.getWindow(), 208897, GLFW.GLFW_CURSOR_HIDDEN);
+					.handle(), 208897, GLFW.GLFW_CURSOR_HIDDEN);
 			return true;
 		}
 
@@ -1256,7 +1249,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			scrollHandleActive = false;
 			if (minecraft.isWindowActive())
 				GLFW.glfwSetInputMode(minecraft.getWindow()
-					.getWindow(), 208897, GLFW.GLFW_CURSOR_NORMAL);
+					.handle(), 208897, GLFW.GLFW_CURSOR_NORMAL);
 		}
 		return super.mouseReleased(event);
 	}
@@ -1376,7 +1369,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		if (minecraft.isWindowActive()) {
 			double forceX = (barX + 2) / scaleX;
 			double forceY = Mth.clamp(pMouseY, minY, maxY) / scaleY;
-			GLFW.glfwSetCursorPos(window.getWindow(), forceX, forceY);
+			GLFW.glfwSetCursorPos(window.handle(), forceX, forceY);
 		}
 
 		return true;
@@ -1407,7 +1400,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		int pScanCode = event.scancode();
 		int pModifiers = event.modifiers();
 		ignoreTextInput = false;
-		if (!addressBox.isFocused() && !searchBox.isFocused() && minecraft.options.keyChat.matches(pKeyCode, pScanCode)) {
+		if (!addressBox.isFocused() && !searchBox.isFocused() && minecraft.options.keyChat.matches(event)) {
 			ignoreTextInput = true;
 			searchBox.setFocused(true);
 			return true;
@@ -1444,7 +1437,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		BlockPos pos = blockEntity.getBlockPos();
 		ClientNetworkHelper.INSTANCE.sendToServer(
 			new PackageOrderRequestPacket(pos, PackageOrderWithCrafts.empty(), addressBox.getValue(), false));
-		NetworkHelper.INSTANCE
+		ClientNetworkHelper.INSTANCE
 			.sendToServer(new StockKeeperCategoryHidingPacket(pos, new ArrayList<>(hiddenCategories)));
 		super.removed();
 	}

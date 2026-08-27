@@ -376,18 +376,21 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-		partialTicks = minecraft.getTimer().getGameTimeDeltaPartialTick(false);
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+		partialTicks = minecraft.getDeltaTracker()
+			.getGameTimeDeltaPartialTick(false);
 
-		if (menu.slotsActive)
-			super.render(graphics, mouseX, mouseY, partialTicks);
-		else {
-			renderBackground(graphics, mouseX, mouseY, partialTicks);
-			renderBg(graphics, partialTicks, mouseX, mouseY);
-			for (Renderable widget : this.renderables)
-				widget.render(graphics, mouseX, mouseY, partialTicks);
-			renderForeground(graphics, mouseX, mouseY, partialTicks);
+		if (menu.slotsActive) {
+			super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+			return;
 		}
+
+		// Without the menu's slots there is nothing for the container screen's own pass to draw, so
+		// the screen puts its frame together itself.
+		extractBackground(graphics, mouseX, mouseY, partialTicks);
+		for (Renderable widget : this.renderables)
+			widget.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+		renderForeground(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	protected void renderSchedule(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
@@ -481,9 +484,9 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		graphics.disableScissor();
 
 		int zLevel = 200;
-		graphics.fillGradient(leftPos + 16, topPos + 16, leftPos + 16 + 220, topPos + 16 + 10, zLevel, 0x77000000,
+		graphics.fillGradient(leftPos + 16, topPos + 16, leftPos + 16 + 220, topPos + 16 + 10, 0x77000000,
 			0x00000000);
-		graphics.fillGradient(leftPos + 16, topPos + 179, leftPos + 16 + 220, topPos + 179 + 10, zLevel, 0x00000000,
+		graphics.fillGradient(leftPos + 16, topPos + 179, leftPos + 16 + 220, topPos + 179 + 10, 0x00000000,
 			0x77000000);
 	}
 
@@ -570,11 +573,9 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		matrixStack.popMatrix();
 
 		if (xOffset + 16 > cardWidth - 26) {
-			TransformStack.of(matrixStack)
-				.rotateZDegrees(-90);
-			int zLevel = 200;
-			graphics.fillGradient(-cardHeight + 2, 18, -2 - cardHeader, 28, zLevel, 0x44000000, 0x00000000);
-			graphics.fillGradient(-cardHeight + 2, cardWidth - 26, -2 - cardHeader, cardWidth - 16, zLevel, 0x00000000,
+			matrixStack.rotate(Mth.DEG_TO_RAD * -90);
+			graphics.fillGradient(-cardHeight + 2, 18, -2 - cardHeader, 28, 0x44000000, 0x00000000);
+			graphics.fillGradient(-cardHeight + 2, cardWidth - 26, -2 - cardHeader, cardWidth - 16, 0x00000000,
 				0x44000000);
 		}
 
@@ -874,7 +875,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		double pMouseY = event.y();
 		int pButton = event.button();
 		if (destinationSuggestions != null
-			&& destinationSuggestions.mouseClicked((int) pMouseX, (int) pMouseY, pButton))
+			&& destinationSuggestions.mouseClicked(event))
 			return true;
 		if (editorConfirm != null && editorConfirm.isMouseOver(pMouseX, pMouseY) && onEditorClose != null) {
 			onEditorClose.accept(true);
@@ -895,15 +896,12 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		int pKeyCode = event.key();
-		int pScanCode = event.scancode();
-		int pModifiers = event.modifiers();
 		if (destinationSuggestions != null && destinationSuggestions.keyPressed(event))
 			return true;
 		if (editingCondition == null && editingDestination == null)
 			return super.keyPressed(event);
-		InputConstants.Key mouseKey = InputConstants.getKey(pKeyCode, pScanCode);
 		boolean hitEnter = getFocused() instanceof EditBox && (pKeyCode == 257 || pKeyCode == 335);
-		boolean hitE = getFocused() == null || minecraft.options.keyInventory.isActiveAndMatches(mouseKey);
+		boolean hitE = getFocused() == null || minecraft.options.keyInventory.matches(event);
 		if (hitEnter) {
 			onEditorClose.accept(true);
 			stopEditing();
@@ -986,7 +984,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		if (destinationSuggestions != null) {
 			matrixStack.pushMatrix();
 			matrixStack.translate((float) (0), (float) (0));
-			destinationSuggestions.render(graphics, mouseX, mouseY);
+			destinationSuggestions.extractRenderState(graphics, mouseX, mouseY);
 			matrixStack.popMatrix();
 		}
 
@@ -1030,8 +1028,8 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		AllGuiTextures.SCHEDULE.render(graphics, leftPos, topPos);
 		FormattedCharSequence formattedcharsequence = title.getVisualOrderText();
 		int center = leftPos + (AllGuiTextures.SCHEDULE.getWidth() - 8) / 2;
-		graphics.text(font, formattedcharsequence, (float) (center - font.width(formattedcharsequence) / 2),
-			(float) topPos + 4, 0x505050, false);
+		graphics.text(font, formattedcharsequence, center - font.width(formattedcharsequence) / 2, topPos + 4,
+			0x505050, false);
 		renderSchedule(graphics, pMouseX, pMouseY, pPartialTick);
 
 		if (editingCondition == null && editingDestination == null)
@@ -1050,8 +1048,8 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 			.getVisualOrderText()
 			: CreateLang.translateDirect("schedule.condition.editor")
 			.getVisualOrderText();
-		graphics.text(font, formattedcharsequence, (float) (center - font.width(formattedcharsequence) / 2),
-			(float) topPos + 44, 0x505050, false);
+		graphics.text(font, formattedcharsequence, center - font.width(formattedcharsequence) / 2, topPos + 44,
+			0x505050, false);
 
 		IScheduleInput rendered = editingCondition == null ? editingDestination : editingCondition;
 
@@ -1072,7 +1070,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		}
 
 		matrices.pushMatrix();
-		matrices.translate(0, getGuiTop() + 87, 0);
+		matrices.translate(0, getGuiTop() + 87);
 		editorSubWidgets.renderBg(getGuiLeft() + 77, graphics);
 		matrices.popMatrix();
 

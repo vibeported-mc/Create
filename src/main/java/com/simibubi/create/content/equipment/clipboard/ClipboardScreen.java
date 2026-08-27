@@ -16,12 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllSoundEvents;
@@ -335,7 +329,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		for (LineInfo line : cache.lines)
 			graphics.text(font, line.asComponent, line.x, line.y, 0x311A00, false);
 
-		renderHighlight(cache.selection);
+		renderHighlight(graphics, cache.selection);
 		renderCursor(graphics, cache.cursor, cache.cursorAtEnd);
 	}
 
@@ -384,18 +378,16 @@ public class ClipboardScreen extends AbstractSimiScreen {
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		int pKeyCode = event.key();
-		int pScanCode = event.scancode();
-		int pModifiers = event.modifiers();
 		if (pKeyCode == 266) {
-			backward.onPress();
+			backward.onPress(event);
 			return true;
 		}
 		if (pKeyCode == 267) {
-			forward.onPress();
+			forward.onPress(event);
 			return true;
 		}
 		if (editingIndex != -1 && pKeyCode != 256) {
-			keyPressedWhileEditing(pKeyCode, pScanCode, pModifiers);
+			keyPressedWhileEditing(event);
 			clearDisplayCache();
 			return true;
 		}
@@ -418,17 +410,18 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		return true;
 	}
 
-	private boolean keyPressedWhileEditing(int pKeyCode, int pScanCode, int pModifiers) {
-		if (Screen.isSelectAll(pKeyCode)) {
+	private boolean keyPressedWhileEditing(KeyEvent event) {
+		int pKeyCode = event.key();
+		if (event.isSelectAll()) {
 			editContext.selectAll();
 			return true;
-		} else if (Screen.isCopy(pKeyCode)) {
+		} else if (event.isCopy()) {
 			editContext.copy();
 			return true;
-		} else if (Screen.isPaste(pKeyCode)) {
+		} else if (event.isPaste()) {
 			editContext.paste();
 			return true;
-		} else if (Screen.isCut(pKeyCode)) {
+		} else if (event.isCut()) {
 			editContext.cut();
 			return true;
 		} else {
@@ -546,32 +539,16 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		if (!pIsEndOfText) {
 			graphics.fill(pCursorPos.x, pCursorPos.y - 1, pCursorPos.x + 1, pCursorPos.y + 9, -16777216);
 		} else {
-			graphics.text(font, "_", (float) pCursorPos.x, (float) pCursorPos.y, 0, false);
+			graphics.text(font, "_", pCursorPos.x, pCursorPos.y, 0, false);
 		}
 	}
 
-	private void renderHighlight(Rect2i[] pSelected) {
-		Tesselator tesselator = Tesselator.getInstance();
-		BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-		RenderSystem.setShader(GameRenderer::getPositionShader);
-//		RenderSystem.disableTexture();
-		RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-
+	private void renderHighlight(GuiGraphicsExtractor graphics, Rect2i[] pSelected) {
 		for (Rect2i rect2i : pSelected) {
 			int i = rect2i.getX();
 			int j = rect2i.getY();
-			int k = i + rect2i.getWidth();
-			int l = j + rect2i.getHeight();
-			bufferbuilder.addVertex(i, l, 0);
-			bufferbuilder.addVertex(k, l, 0);
-			bufferbuilder.addVertex(k, j, 0);
-			bufferbuilder.addVertex(i, j, 0);
+			graphics.textHighlight(i, j, i + rect2i.getWidth(), j + rect2i.getHeight(), true);
 		}
-
-		@Nullable MeshData meshData = bufferbuilder.build();
-		if (meshData != null)
-			BufferUploader.drawWithShader(meshData);
-//		RenderSystem.enableTexture();
 	}
 
 	private Pos2i convertScreenToLocal(Pos2i pScreenPos) {
