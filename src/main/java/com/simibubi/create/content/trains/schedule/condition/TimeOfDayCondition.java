@@ -37,11 +37,11 @@ public class TimeOfDayCondition extends ScheduleWaitCondition {
 	@Override
 	public boolean tickCompletion(Level level, Train train, CompoundTag context) {
 		int maxTickDiff = 40;
-		// Day time became a per-dimension clock. Level.getDayTime() used to read the same shared
-		// value everywhere, which is the overworld clock, and a schedule set by the in-game clock
-		// should keep following it in the nether and end.
 		int targetHour = intData("Hour");
 		int targetMinute = intData("Minute");
+		// Day time became a per-dimension clock. Level.getDayTime() used to read one shared value
+		// everywhere, which is the overworld clock, and a schedule set by the in-game clock should
+		// keep following it in the nether and the end.
 		int dayTime = (int) (level.getOverworldClockTime() % getRotation());
 		int targetTicks =
 			(int) ((((targetHour + 18) % 24) * 1000 + Math.ceil(targetMinute / 60f * 1000)) % getRotation());
