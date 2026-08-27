@@ -1,6 +1,7 @@
 package com.simibubi.create;
 
 import com.simibubi.create.content.equipment.hats.HatRenderData;
+import com.simibubi.create.foundation.gui.render.GuiCustomGeometryRenderer;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import net.createmod.catnip.api.client.event.LevelRenderCallback;
@@ -82,6 +83,7 @@ public class CreateClient {
 		modEventBus.addListener(AllParticleTypes::registerGroups);
 		modEventBus.addListener(AllFluids::registerFluidModels);
 		modEventBus.addListener(HatRenderData::registerModifier);
+		modEventBus.addListener(GuiCustomGeometryRenderer::register);
 
 		AllInstanceTypes.init();
 

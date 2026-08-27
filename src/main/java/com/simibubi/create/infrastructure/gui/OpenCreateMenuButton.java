@@ -11,7 +11,6 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.client.gui.ScreenOpener;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -20,9 +19,7 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -36,15 +33,9 @@ public class OpenCreateMenuButton extends Button {
 	}
 
 	@Override
-	public void renderString(GuiGraphicsExtractor graphics, Font pFont, int pColor) {
-		ItemStack icon = AllItems.GOGGLES.asStack();
-		BlockStateModel bakedmodel = Minecraft.getInstance()
-			.getItemRenderer()
-			.getModel(icon, Minecraft.getInstance().level, Minecraft.getInstance().player, 0);
-		if (bakedmodel == null)
-			return;
-		
-		graphics.item(icon, getX() + 2, getY() + 2);
+	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		extractDefaultSprite(graphics);
+		graphics.item(AllItems.GOGGLES.asStack(), getX() + 2, getY() + 2);
 	}
 
 	public static void click(Button b) {

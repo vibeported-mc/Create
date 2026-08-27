@@ -1,17 +1,12 @@
 package com.simibubi.create.infrastructure.gui;
 
 import org.joml.Matrix3x2fStack;
-import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 import com.simibubi.create.CreateBuildInfo;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.client.gui.AbstractSimiScreen;
 import net.createmod.catnip.api.client.gui.ScreenOpener;
@@ -29,20 +24,12 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.client.renderer.CubeMap;
-import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 public class CreateMainMenuScreen extends AbstractSimiScreen {
-
-	public static final CubeMap PANORAMA_RESOURCES =
-		new CubeMap(Create.asResource("textures/gui/title/background/panorama"));
-	public static final Identifier PANORAMA_OVERLAY_TEXTURES =
-		Identifier.withDefaultNamespace("textures/gui/title/background/panorama_overlay.png");
-	public static final PanoramaRenderer PANORAMA = new PanoramaRenderer(PANORAMA_RESOURCES);
 
 	private static final Component CURSEFORGE_TOOLTIP;
 
@@ -64,41 +51,28 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	protected final Screen parent;
 	protected boolean returnOnClose;
 
-	private PanoramaRenderer vanillaPanorama;
 	private long firstRenderTime;
 	private Button gettingStarted;
 
 	public CreateMainMenuScreen(Screen parent) {
 		this.parent = parent;
 		returnOnClose = true;
-		if (parent instanceof TitleScreen)
-			vanillaPanorama = Screen.PANORAMA;
-		else
-			vanillaPanorama = new PanoramaRenderer(TitleScreen.CUBE_MAP);
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		if (firstRenderTime == 0L)
 			this.firstRenderTime = Util.getMillis();
-		super.render(graphics, mouseX, mouseY, partialTicks);
+		super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
 	protected void renderWindow(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		float f = (float) (Util.getMillis() - this.firstRenderTime) / 1000.0F;
 		float alpha = Mth.clamp(f, 0.0F, 1.0F);
-		float elapsedPartials = minecraft.getTimer().getGameTimeDeltaPartialTick(false);
 
-		if (parent instanceof TitleScreen) {
-			if (alpha < 1)
-				vanillaPanorama.render(graphics, this.width, this.height, 1, elapsedPartials);
-			PANORAMA.render(graphics, this.width, this.height, 1, elapsedPartials);
-
-			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
-				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			graphics.blit(PANORAMA_OVERLAY_TEXTURES, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
-		}
+		if (parent instanceof TitleScreen)
+			CreatePanorama.extract(graphics, this.width, this.height);
 
 
 		Matrix3x2fStack ms = graphics.pose();
@@ -107,14 +81,14 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 			ms.pushMatrix();
 			ms.translate((float) (width / 2), (float) (60));
 			ms.scale((float) (24 * side), (float) (24 * side));
-			ms.translate(-1.75 * ((alpha * alpha) / 2f + .5f), .25f, 0);
-			TransformStack.of(ms)
-				.rotateXDegrees(45);
+			ms.translate((float) (-1.75 * ((alpha * alpha) / 2f + .5f)), .25f);
 			GuiGameElement.of(AllBlocks.LARGE_COGWHEEL.getDefaultState())
+				.viewRotate(45, 0, 0)
 				.rotateBlock(0, Util.getMillis() / 32f * side, 0)
 				.submit(graphics);
 			ms.translate((float) (-1), (float) (0));
 			GuiGameElement.of(AllBlocks.COGWHEEL.getDefaultState())
+				.viewRotate(45, 0, 0)
 				.rotateBlock(0, Util.getMillis() / -16f * side + 22.5f, 0)
 				.submit(graphics);
 			ms.popMatrix();
@@ -160,9 +134,11 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		addRenderableWidget(Button.builder(CreateLang.translateDirect("menu.return"), $ -> linkTo(parent))
 			.bounds(center - 100, yStart + 92, bLongWidth, bHeight)
 			.build());
-		addRenderableWidget(Button.builder(CreateLang.translateDirect("menu.configure"), $ -> linkTo(new BaseConfigScreen(this, Create.ID)))
-			.bounds(center - 100, yStart + 24 + -16, bLongWidth, bHeight)
-			.build());
+		// TODO 26.2: restore once Catnip's config screens are ported.
+		// addRenderableWidget(Button.builder(CreateLang.translateDirect("menu.configure"),
+		//     $ -> linkTo(new BaseConfigScreen(this, Create.ID)))
+		//     .bounds(center - 100, yStart + 24 + -16, bLongWidth, bHeight)
+		//     .build());
 
 		gettingStarted = Button.builder(CreateLang.translateDirect("menu.ponder_index"), $ -> linkTo(new PonderTagIndexScreen()))
 			.bounds(center + 2, yStart + 48 + -16, bShortWidth, bHeight)
@@ -190,7 +166,6 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	@Override
 	protected void renderWindowForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderWindowForeground(graphics, mouseX, mouseY, partialTicks);
-		renderables.forEach(w -> w.render(graphics, mouseX, mouseY, partialTicks));
 
 		if (parent instanceof TitleScreen) {
 			if (mouseX < gettingStarted.getX() || mouseX > gettingStarted.getX() + 98)
@@ -214,7 +189,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 			if (p_213069_2_)
 				Util.getPlatform()
 					.openUri(url);
-			this.minecraft.setScreen(this);
+			this.minecraft.setScreenAndShow(this);
 		}, url, true));
 	}
 
@@ -235,11 +210,12 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pt) {
-			super.renderWidget(graphics, pMouseX, pMouseY, pt);
+		protected void extractContents(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pt) {
+			extractDefaultSprite(graphics);
 			Matrix3x2fStack pPoseStack = graphics.pose();
 			pPoseStack.pushMatrix();
-			pPoseStack.translate(getX() + width / 2 - (icon.getWidth() * scale) / 2, getY() + height / 2 - (icon.getHeight() * scale) / 2, 0);
+			pPoseStack.translate(getX() + width / 2 - (icon.getWidth() * scale) / 2,
+				getY() + height / 2 - (icon.getHeight() * scale) / 2);
 			pPoseStack.scale((float) (scale), (float) (scale));
 			icon.render(graphics, 0, 0);
 			pPoseStack.popMatrix();

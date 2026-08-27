@@ -63,6 +63,7 @@
     "client.CameraMixin",
     "client.EntityContraptionInteractionMixin",
     "client.GameRendererMixin",
+		"client.GuiRendererMixin",
     "client.HeavyBootsOnPlayerMixin",
     "client.HumanoidModelMixin",
     "client.LevelRendererMixin",
