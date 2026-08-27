@@ -1,5 +1,9 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
@@ -102,15 +106,19 @@ public class BlueprintEntity extends HangingEntity
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag p_213281_1_) {
+	public void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		CompoundTag p_213281_1_ = new CompoundTag();
 		p_213281_1_.putByte("Facing", (byte) this.direction.get3DDataValue());
 		p_213281_1_.putByte("Orientation", (byte) this.verticalOrientation.get3DDataValue());
 		p_213281_1_.putInt("Size", size);
-		super.addAdditionalSaveData(p_213281_1_);
+		NbtValueIO.store(output, p_213281_1_);
 	}
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag p_70037_1_) {
+	public void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		CompoundTag p_70037_1_ = NbtValueIO.read(input);
 		if (p_70037_1_.contains("Facing", Tag.TAG_ANY_NUMERIC)) {
 			this.direction = Direction.from3DDataValue(p_70037_1_.getByteOr("Facing", (byte) 0));
 			this.verticalOrientation = Direction.from3DDataValue(p_70037_1_.getByteOr("Orientation", (byte) 0));
@@ -120,7 +128,6 @@ public class BlueprintEntity extends HangingEntity
 			this.verticalOrientation = Direction.DOWN;
 			this.size = 1;
 		}
-		super.readAdditionalSaveData(p_70037_1_);
 		this.updateFacingWithBoundingBox(this.direction, this.verticalOrientation);
 	}
 
@@ -295,7 +302,8 @@ public class BlueprintEntity extends HangingEntity
 				return;
 		}
 
-		spawnAtLocation(AllItems.CRAFTING_BLUEPRINT.asStack());
+		if (level() instanceof ServerLevel serverLevel)
+			spawnAtLocation(serverLevel, AllItems.CRAFTING_BLUEPRINT.asStack());
 	}
 
 	@Override

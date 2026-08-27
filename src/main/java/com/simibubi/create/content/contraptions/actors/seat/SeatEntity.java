@@ -1,5 +1,8 @@
 package com.simibubi.create.content.contraptions.actors.seat;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.AllEntityTypes;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 
@@ -124,11 +127,16 @@ public class SeatEntity extends Entity implements IEntityWithComplexSpawn {
 	protected void defineSynchedData(SynchedEntityData.Builder builder) {}
 
 	@Override
-	protected void readAdditionalSaveData(CompoundTag tag) {
+	protected void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		CompoundTag tag = NbtValueIO.read(input);
 	}
 
 	@Override
-	protected void addAdditionalSaveData(CompoundTag tag) {
+	protected void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		CompoundTag tag = new CompoundTag();
+		NbtValueIO.store(output, tag);
 	}
 
 	public static class Render extends EntityRenderer<SeatEntity> {

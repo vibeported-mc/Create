@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.fan.processing;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityTypes;
 import java.util.Collections;
 import java.util.List;
@@ -299,7 +300,8 @@ public class AllFanProcessingTypes {
 				serializeNBT.remove("UUID");
 				if (!horse.getBodyArmorItem()
 					.isEmpty())
-					horse.spawnAtLocation(horse.getBodyArmorItem());
+					if (horse.level() instanceof ServerLevel horseLevel)
+						horse.spawnAtLocation(horseLevel, horse.getBodyArmorItem());
 
 				skeletonHorse.deserializeNBT(entity.registryAccess(), serializeNBT);
 				skeletonHorse.setPos(horse.getPosition(0));

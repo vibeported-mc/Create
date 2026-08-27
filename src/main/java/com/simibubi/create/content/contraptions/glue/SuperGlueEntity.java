@@ -1,5 +1,8 @@
 package com.simibubi.create.content.contraptions.glue;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -214,13 +217,18 @@ public class SuperGlueEntity extends Entity implements IEntityWithComplexSpawn, 
 	}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag compound) {
+	public void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		CompoundTag compound = new CompoundTag();
 		Vec3 position = position();
 		writeBoundingBox(compound, getBoundingBox().move(position.scale(-1)));
+		NbtValueIO.store(output, compound);
 	}
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag compound) {
+	public void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		CompoundTag compound = NbtValueIO.read(input);
 		Vec3 position = position();
 		setBoundingBox(readBoundingBox(compound).move(position));
 	}

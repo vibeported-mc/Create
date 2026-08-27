@@ -1,5 +1,8 @@
 package com.simibubi.create.content.equipment.potatoCannon;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.entity.EntityTypes;
 import org.jetbrains.annotations.NotNull;
@@ -68,15 +71,15 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		this.stack = stack;
 		type = PotatoCannonProjectileType.getTypeForItem(level().registryAccess(), stack.getItem())
 			.orElseGet(() -> level().registryAccess()
-				.registryOrThrow(CreateRegistries.POTATO_PROJECTILE_TYPE)
-				.getHolderOrThrow(AllPotatoProjectileTypes.FALLBACK))
+				.lookupOrThrow(CreateRegistries.POTATO_PROJECTILE_TYPE)
+				.getOrThrow(AllPotatoProjectileTypes.FALLBACK))
 			.value();
 	}
 
 	public void setEnchantmentEffectsFromCannon(ItemStack cannon) {
-		Registry<Enchantment> enchantmentRegistry = registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+		Registry<Enchantment> enchantmentRegistry = registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
 
-		int recovery = cannon.getEnchantmentLevel(enchantmentRegistry.getHolderOrThrow(AllEnchantments.POTATO_RECOVERY));
+		int recovery = cannon.getEnchantmentLevel(enchantmentRegistry.getOrThrow(AllEnchantments.POTATO_RECOVERY));
 
 		if (recovery > 0)
 			recoveryChance = .125f + recovery * .125f;
@@ -92,21 +95,24 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	}
 
 	@Override
-	public void readAdditionalSaveData(CompoundTag nbt) {
+	public void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		CompoundTag nbt = NbtValueIO.read(input);
 		setItem(nbt.read("Item", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
 		additionalDamageMult = nbt.getFloatOr("AdditionalDamage", 0);
 		additionalKnockback = nbt.getFloatOr("AdditionalKnockback", 0);
 		recoveryChance = nbt.getFloatOr("Recovery", 0);
-		super.readAdditionalSaveData(nbt);
 	}
 
 	@Override
-	public void addAdditionalSaveData(CompoundTag nbt) {
+	public void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		CompoundTag nbt = new CompoundTag();
 		nbt.store("Item", ItemStack.OPTIONAL_CODEC, stack);
 		nbt.putFloat("AdditionalDamage", additionalDamageMult);
 		nbt.putFloat("AdditionalKnockback", additionalKnockback);
 		nbt.putFloat("Recovery", recoveryChance);
-		super.addAdditionalSaveData(nbt);
+		NbtValueIO.store(output, nbt);
 	}
 
 	@Nullable
@@ -139,7 +145,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (stuckEntity != null) {
 			if (getY() < stuckEntity.getY() - 0.1) {
 				pop(position());
-				kill();
+				killOnServer();
 			} else {
 				stuckFallSpeed += 0.007 * type.gravityMultiplier();
 				stuckOffset = stuckOffset.add(0, -stuckFallSpeed, 0);
@@ -215,7 +221,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		DamageSource damageSource = causePotatoDamage();
 		if (onServer && !target.hurt(damageSource, damage)) {
 			target.setRemainingFireTicks(k);
-			kill();
+			killOnServer();
 			return;
 		}
 
@@ -226,13 +232,13 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 			if (random.nextDouble() <= recoveryChance) {
 				recoverItem();
 			} else {
-				spawnAtLocation(type.dropStack());
+				spawnOnServer(type.dropStack());
 			}
 		}
 
 		if (!(target instanceof LivingEntity livingentity)) {
 			playHitSound(level(), position());
-			kill();
+			killOnServer();
 			return;
 		}
 
@@ -266,14 +272,14 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (type.sticky() && target.isAlive()) {
 			setStuckEntity(target);
 		} else {
-			kill();
+			killOnServer();
 		}
 
 	}
 
 	private void recoverItem() {
 		if (!stack.isEmpty())
-			spawnAtLocation(stack.copyWithCount(1));
+			spawnOnServer(stack.copyWithCount(1));
 	}
 
 	public static void playHitSound(Level world, Vec3 location) {
@@ -292,12 +298,12 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 			if (random.nextDouble() <= recoveryChance) {
 				recoverItem();
 			} else {
-				spawnAtLocation(getProjectileType().dropStack());
+				spawnOnServer(getProjectileType().dropStack());
 			}
 		}
 
 		super.onHitBlock(ray);
-		kill();
+		killOnServer();
 	}
 
 	@Override
@@ -307,7 +313,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (this.isInvulnerableTo(source))
 			return false;
 		pop(position());
-		kill();
+		killOnServer();
 		return true;
 	}
 
@@ -343,6 +349,22 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	@Override
 	public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
 		readAdditionalSaveData(additionalData.readNbt());
+	}
+
+
+	/**
+	 * 26.2 takes the level to act in; every one of these already runs on the server.
+	 */
+	private void killOnServer() {
+		if (level() instanceof ServerLevel serverLevel)
+			kill(serverLevel);
+		else
+			discard();
+	}
+
+	private void spawnOnServer(ItemStack stack) {
+		if (level() instanceof ServerLevel serverLevel)
+			spawnAtLocation(serverLevel, stack);
 	}
 
 }

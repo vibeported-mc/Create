@@ -1,5 +1,9 @@
 package com.simibubi.create.content.contraptions;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Collection;
 import java.util.IdentityHashMap;
@@ -609,8 +613,11 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	}
 
 	@Override
-	protected final void addAdditionalSaveData(CompoundTag compound) {
+	protected final void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		CompoundTag compound = new CompoundTag();
 		writeAdditional(compound, registryAccess(), false);
+		NbtValueIO.store(output, compound);
 	}
 
 	protected void writeAdditional(CompoundTag compound, HolderLookup.Provider registries, boolean spawnPacket) {
@@ -629,7 +636,9 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	}
 
 	@Override
-	protected final void readAdditionalSaveData(CompoundTag compound) {
+	protected final void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		CompoundTag compound = NbtValueIO.read(input);
 		readAdditional(compound, false);
 	}
 
@@ -708,9 +717,9 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	protected abstract StructureTransform makeStructureTransform();
 
 	@Override
-	public void kill() {
+	public void kill(ServerLevel level) {
 		ejectPassengers();
-		super.kill();
+		super.kill(level);
 	}
 
 	@Override

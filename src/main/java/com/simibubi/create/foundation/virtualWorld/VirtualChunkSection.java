@@ -14,7 +14,7 @@ public class VirtualChunkSection extends LevelChunkSection {
 
 	public VirtualChunkSection(VirtualChunk owner, int yBase) {
 		super(owner.world.registryAccess()
-			.registryOrThrow(Registries.BIOME));
+			.lookupOrThrow(Registries.BIOME));
 		this.owner = owner;
 		this.xStart = owner.getPos()
 			.getMinBlockX();
