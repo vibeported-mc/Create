@@ -1,6 +1,5 @@
 package com.simibubi.create.content.equipment.zapper;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
@@ -8,9 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -76,12 +77,12 @@ public abstract class ShootableGadgetRenderHandler {
 
 		Minecraft mc = Minecraft.getInstance();
 		AbstractClientPlayer player = mc.player;
-		PlayerRenderer playerrenderer = (PlayerRenderer) mc.getEntityRenderDispatcher()
-			.getRenderer(player);
+		AvatarRenderer<AbstractClientPlayer> playerrenderer = mc.getEntityRenderDispatcher()
+			.getPlayerRenderer(player);
 		ItemInHandRenderer firstPersonRenderer = mc.getEntityRenderDispatcher().getItemInHandRenderer();
 
 		PoseStack ms = event.getPoseStack();
-		MultiBufferSource buffer = event.getMultiBufferSource();
+		SubmitNodeCollector buffer = event.getSubmitNodeCollector();
 		int light = event.getPackedLight();
 		float pt = event.getPartialTick();
 
@@ -97,7 +98,9 @@ public abstract class ShootableGadgetRenderHandler {
 
 		// Render arm
 		ms.pushPose();
-		RenderSystem.setShaderTexture(0, player.getSkin().texture());
+		Identifier skin = player.getSkin()
+			.body()
+			.texturePath();
 
 		float flip = rightHand ? 1.0F : -1.0F;
 		float f1 = Mth.sqrt(event.getSwingProgress());
@@ -119,9 +122,11 @@ public abstract class ShootableGadgetRenderHandler {
 		ms.mulPose(Axis.YP.rotationDegrees(flip * 40.0F));
 		transformHand(ms, flip, equipProgress, recoil, pt);
 		if (rightHand)
-			playerrenderer.renderRightHand(ms, buffer, light, player);
+			playerrenderer.renderRightHand(ms, buffer, light, skin,
+				player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE));
 		else
-			playerrenderer.renderLeftHand(ms, buffer, light, player);
+			playerrenderer.renderLeftHand(ms, buffer, light, skin,
+				player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
 		ms.popPose();
 
 		// Render gadget
@@ -131,9 +136,8 @@ public abstract class ShootableGadgetRenderHandler {
 		ms.mulPose(Axis.ZP.rotationDegrees(flip * f5 * -20.0F));
 		transformTool(ms, flip, equipProgress, recoil, pt);
 		firstPersonRenderer.renderItem(mc.player, heldItem,
-			rightHand ? ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
-				: ItemDisplayContext.FIRST_PERSON_LEFT_HAND,
-			!rightHand, ms, buffer, light);
+			rightHand ? ItemDisplayContext.FIRST_PERSON_RIGHT_HAND : ItemDisplayContext.FIRST_PERSON_LEFT_HAND, ms,
+			buffer, light);
 		ms.popPose();
 
 		event.setCanceled(true);

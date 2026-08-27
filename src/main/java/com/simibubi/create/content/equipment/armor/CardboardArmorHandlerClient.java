@@ -11,9 +11,11 @@ import com.simibubi.create.foundation.utility.TickBasedCache;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 
@@ -43,22 +45,30 @@ public class CardboardArmorHandlerClient {
 		}
 	}
 
+	/**
+	 * Draws a sneaking player in cardboard armour as a package instead of as themselves.
+	 * <p>
+	 * The event carries the player's render state in 26.2 rather than the player, so everything the
+	 * box needs - the entity to nudge by, its offset, its yaw - comes from there.
+	 */
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	public static void playerRendersAsBoxWhenSneaking(RenderPlayerEvent.Pre event) {
-		Player player = event.getEntity();
-		if (!CardboardArmorHandler.testForStealth(player))
+	public static void playerRendersAsBoxWhenSneaking(RenderPlayerEvent.Pre<?> event) {
+		Minecraft mc = Minecraft.getInstance();
+		AvatarRenderState renderState = event.getRenderState();
+		Player player = mc.level == null ? null : mc.level.getEntity(renderState.id) instanceof Player p ? p : null;
+		if (player == null || !CardboardArmorHandler.testForStealth(player))
 			return;
 
 		event.setCanceled(true);
 
-		if (player == Minecraft.getInstance().player
-			&& Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON)
+		if (player == mc.player && mc.options.getCameraType() == CameraType.FIRST_PERSON)
 			return;
 
 		PoseStack ms = event.getPoseStack();
 		ms.pushPose();
 
-		Vec3 renderOffset = event.getRenderer().getRenderOffset((AbstractClientPlayer)player, event.getPartialTick());
+		Vec3 renderOffset = event.getRenderer()
+			.getRenderOffset(renderState);
 		ms.translate(0, -renderOffset.y, 0);
 
 		float movement = (float) player.position()
@@ -67,7 +77,8 @@ public class CardboardArmorHandlerClient {
 
 		if (player.onGround())
 			ms.translate(0,
-				Math.min(Math.abs(Mth.cos((AnimationTickHolder.getRenderTime() % 256) / 2.0f)) * -renderOffset.y, movement * 5),
+				Math.min(Math.abs(Mth.cos((AnimationTickHolder.getRenderTime() % 256) / 2.0f)) * -renderOffset.y,
+					movement * 5),
 				0);
 
 		float interpolatedYaw = Mth.lerp(event.getPartialTick(), player.yRotO, player.getYRot());
@@ -77,8 +88,10 @@ public class CardboardArmorHandlerClient {
 
 		try {
 			PartialModel model = AllPartialModels.PACKAGES_TO_HIDE_AS.get(getCurrentBoxIndex(player));
-			PackageRenderer.renderBox(player, interpolatedYaw, ms, event.getMultiBufferSource(),
-				event.getPackedLight(), model);
+			SuperByteBufferRenderState box =
+				PackageRenderer.extractBox(player, interpolatedYaw, renderState.lightCoords, model);
+			if (box != null)
+				box.submit(ms, RenderTypes.solidMovingBlock(), event.getSubmitNodeCollector());
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
@@ -88,7 +101,9 @@ public class CardboardArmorHandlerClient {
 
 	private static Integer getCurrentBoxIndex(Player player) throws ExecutionException {
 		return BOXES_PLAYERS_ARE_HIDING_AS.get(player.getUUID(),
-			() -> player.level().random.nextInt(AllPartialModels.PACKAGES_TO_HIDE_AS.size()));
+			() -> player.level()
+				.getRandom()
+				.nextInt(AllPartialModels.PACKAGES_TO_HIDE_AS.size()));
 	}
 
 }

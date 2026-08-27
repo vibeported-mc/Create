@@ -1,64 +1,74 @@
 package com.simibubi.create.foundation.map;
 
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
-
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.MapRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.MapDecorationTextureManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.neoforged.neoforge.client.gui.map.IMapDecorationRenderer;
 
 public class StationMapDecorationRenderer implements IMapDecorationRenderer {
+
 	@Override
-	public boolean render(MapDecoration decoration, PoseStack poseStack, MultiBufferSource bufferSource, @NotNull MapItemSavedData mapData, MapDecorationTextureManager decorationTextures, boolean inItemFrame, int packedLight, int index) {
+	public boolean render(MapRenderState.MapDecorationRenderState decoration, PoseStack poseStack,
+		SubmitNodeCollector submitNodeCollector, MapRenderState mapRenderState, TextureAtlas decorationSprites,
+		boolean inItemFrame, int packedLight, int index) {
 		poseStack.pushPose();
 
-		poseStack.translate(decoration.x() / 2D + 64.0, decoration.y() / 2D + 64.0, -0.02D);
+		poseStack.translate(decoration.x / 2.0F + 64.0F, decoration.y / 2.0F + 64.0F, -0.02F);
 
 		poseStack.pushPose();
 
 		poseStack.translate(0.5f, 0f, 0);
 		poseStack.scale(4.5F, 4.5F, 3.0F);
 
-		TextureAtlasSprite sprite = decorationTextures.get(decoration);
-		float U0 = sprite.getU0();
-		float V0 = sprite.getV0();
-		float U1 = sprite.getU1();
-		float V1 = sprite.getV1();
-		VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.text(sprite.atlasLocation()));
-		Matrix4f mat = poseStack.last().pose();
-		float zOffset = -0.001f;
-		buffer.addVertex(mat, -1.0F, 1.0F, index * zOffset).setColor(-1).setUv(U0, V0).setLight(packedLight);
-		buffer.addVertex(mat, 1.0F, 1.0F, index * zOffset).setColor(-1).setUv(U1, V0).setLight(packedLight);
-		buffer.addVertex(mat, 1.0F, -1.0F, index * zOffset).setColor(-1).setUv(U1, V1).setLight(packedLight);
-		buffer.addVertex(mat, -1.0F, -1.0F, index * zOffset).setColor(-1).setUv(U0, V1).setLight(packedLight);
+		TextureAtlasSprite sprite = decoration.atlasSprite;
+		if (sprite != null) {
+			float u0 = sprite.getU0();
+			float v0 = sprite.getV0();
+			float u1 = sprite.getU1();
+			float v1 = sprite.getV1();
+			float z = index * -0.001f;
+			submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.text(sprite.atlasLocation()),
+				(pose, buffer) -> {
+					buffer.addVertex(pose, -1.0F, 1.0F, z)
+						.setColor(-1)
+						.setUv(u0, v0)
+						.setLight(packedLight);
+					buffer.addVertex(pose, 1.0F, 1.0F, z)
+						.setColor(-1)
+						.setUv(u1, v0)
+						.setLight(packedLight);
+					buffer.addVertex(pose, 1.0F, -1.0F, z)
+						.setColor(-1)
+						.setUv(u1, v1)
+						.setLight(packedLight);
+					buffer.addVertex(pose, -1.0F, -1.0F, z)
+						.setColor(-1)
+						.setUv(u0, v1)
+						.setLight(packedLight);
+				});
+		}
 
 		poseStack.popPose();
 
-		if (decoration.name().isPresent()) {
+		Component name = decoration.name;
+		if (name != null) {
 			Font font = Minecraft.getInstance().font;
-			Component component = decoration.name().get();
-			float f6 = (float)font.width(component);
-//			float f7 = Mth.clamp(25.0F / f6, 0.0F, 6.0F / 9.0F);
+			float width = font.width(name);
 			poseStack.pushPose();
-//			poseStack.translate((double)(0.0F + (float)getX() / 2.0F + 64.0F / 2.0F), (double)(0.0F + (float)getY() / 2.0F + 64.0F + 4.0F), (double)-0.025F);
-			poseStack.translate(0, 6.0D, -0.005F);
+			poseStack.translate(0, 6.0F, -0.005F);
 
 			poseStack.scale(0.8f, 0.8f, 1.0F);
-			poseStack.translate(-f6 / 2f + .5f, 0, 0);
-//			poseStack.scale(f7, f7, 1.0F);
-			font.drawInBatch(component, 0.0F, 0.0F, -1, false, poseStack.last()
-					.pose(), bufferSource, Font.DisplayMode.NORMAL, Integer.MIN_VALUE, packedLight);
+			poseStack.translate(-width / 2f + .5f, 0, 0);
+			submitNodeCollector.order(1)
+				.submitText(poseStack, 0.0F, 0.0F, name.getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+					packedLight, -1, Integer.MIN_VALUE, 0);
 			poseStack.popPose();
 		}
 

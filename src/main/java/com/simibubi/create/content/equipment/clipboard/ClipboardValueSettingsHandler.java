@@ -36,10 +36,9 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent.Block;
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.EntityInteract;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem;
@@ -49,45 +48,44 @@ public class ClipboardValueSettingsHandler {
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public static void drawCustomBlockSelection(Block event) {
+	public static void drawCustomBlockSelection(ExtractBlockOutlineRenderStateEvent event) {
 		Minecraft mc = Minecraft.getInstance();
-		BlockHitResult target = event.getTarget();
-		BlockPos pos = target.getBlockPos();
-		BlockState blockstate = mc.level.getBlockState(pos);
+		if (!(mc.hitResult instanceof BlockHitResult target))
+			return;
+
+		BlockPos pos = event.getBlockPos();
+		BlockState blockstate = event.getBlockState();
+		Level level = event.getLevel();
 
 		if (mc.player == null || mc.player.isSpectator())
 			return;
-		if (!mc.level.getWorldBorder()
+		if (!level.getWorldBorder()
 			.isWithinBounds(pos))
 			return;
 		if (!AllBlocks.CLIPBOARD.isIn(mc.player.getMainHandItem()))
 			return;
-		if (!(mc.level.getBlockEntity(pos) instanceof SmartBlockEntity smartBE))
+		if (!(level.getBlockEntity(pos) instanceof SmartBlockEntity smartBE))
 			return;
 		if (!(smartBE instanceof ClipboardBlockEntity) && smartBE.getAllBehaviours()
 			.stream()
 			.noneMatch(b -> b instanceof ClipboardCloneable cc
-				&& cc.writeToClipboard(mc.level.registryAccess(), new CompoundTag(), target.getDirection()))
+				&& cc.writeToClipboard(level.registryAccess(), new CompoundTag(), target.getDirection()))
 			&& !(smartBE instanceof ClipboardCloneable))
 			return;
 
-		VoxelShape shape = blockstate.getShape(mc.level, pos);
+		VoxelShape shape = blockstate.getShape(level, pos);
 		if (shape.isEmpty())
 			return;
 
-		VertexConsumer vb = event.getMultiBufferSource()
-			.getBuffer(RenderTypes.lines());
-		Vec3 camPos = event.getCamera()
-			.getPosition();
-
-		PoseStack ms = event.getPoseStack();
-
-		ms.pushPose();
-		ms.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
-		TrackBlockOutline.renderShape(shape, ms, vb, true);
-		event.setCanceled(true);
-
-		ms.popPose();
+		event.addCustomRenderer((renderState, queue, ms, levelRenderState) -> {
+			Vec3 camPos = levelRenderState.cameraRenderState.pos;
+			ms.pushPose();
+			ms.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
+			queue.submitCustomGeometry(ms, RenderTypes.lines(),
+				(pose, vb) -> TrackBlockOutline.renderShape(shape, pose, vb, true));
+			ms.popPose();
+			return true;
+		});
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -175,7 +173,6 @@ public class ClipboardValueSettingsHandler {
 				cancellableEvent.setCanceled(true);
 
 				switch (event) {
-					case EntityInteractSpecific e -> e.setCancellationResult(InteractionResult.SUCCESS);
 					case EntityInteract e -> e.setCancellationResult(InteractionResult.SUCCESS);
 					case RightClickBlock e -> e.setCancellationResult(InteractionResult.SUCCESS);
 					case RightClickItem e -> e.setCancellationResult(InteractionResult.SUCCESS);

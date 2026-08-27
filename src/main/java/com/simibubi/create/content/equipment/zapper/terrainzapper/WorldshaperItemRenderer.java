@@ -1,12 +1,12 @@
 package com.simibubi.create.content.equipment.zapper.terrainzapper;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import static java.lang.Math.max;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.equipment.zapper.ZapperItemRenderer;
-import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
@@ -14,7 +14,6 @@ import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.LightCoordsUtil;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -27,14 +26,14 @@ public class WorldshaperItemRenderer extends ZapperItemRenderer {
 	protected static final PartialModel ACCELERATOR = PartialModel.of(Create.asResource("item/handheld_worldshaper/accelerator"));
 
 	@Override
-	protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer, ItemDisplayContext transformType,
-		PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		super.render(stack, model, renderer, transformType, ms, buffer, light, overlay);
+	protected void render(ItemStack stack, PartialItemModelRenderer renderer, ItemDisplayContext transformType,
+		PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
+		super.render(stack, renderer, transformType, ms, buffer, light, overlay);
 
 		float pt = AnimationTickHolder.getPartialTicks();
 		float worldTime = AnimationTickHolder.getRenderTime() / 20;
 
-		renderer.renderSolid(model.getOriginalModel(), light);
+		renderer.renderBase(light);
 
 		LocalPlayer player = Minecraft.getInstance().player;
 		boolean leftHanded = player.getMainArm() == HumanoidArm.LEFT;

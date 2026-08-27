@@ -1,20 +1,17 @@
 package com.simibubi.create.content.equipment.armor;
 
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.util.LightCoordsUtil;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.neoforged.api.distmarker.Dist;
@@ -37,27 +34,33 @@ public class NetheriteBacktankFirstPersonRenderer {
 			mc.player != null && AllItems.NETHERITE_BACKTANK.isIn(mc.player.getItemBySlot(EquipmentSlot.CHEST));
 	}
 
+	/**
+	 * Draws the diving suit's sleeve over the first-person arm.
+	 * <p>
+	 * 26.2 poses models from a render state rather than from the entity, so the sleeve is reset the
+	 * way vanilla's own first-person hand is instead of being animated from the player.
+	 */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onRenderPlayerHand(RenderArmEvent event) {
+	public static void onRenderPlayerHand(RenderArmEvent<?> event) {
 		if (!rendererActive)
 			return;
 
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;
-		MultiBufferSource buffer = event.getMultiBufferSource();
-		if (!(mc.getEntityRenderDispatcher()
-			.getRenderer(player) instanceof PlayerRenderer pr))
+		if (player == null)
 			return;
 
-		PlayerModel<AbstractClientPlayer> model = pr.getModel();
-		model.attackTime = 0.0F;
-		model.crouching = false;
-		model.swimAmount = 0.0F;
-		model.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+		AvatarRenderer<?> renderer = mc.getEntityRenderDispatcher()
+			.getPlayerRenderer(player);
+		PlayerModel model = renderer.getModel();
 		ModelPart armPart = event.getArm() == HumanoidArm.LEFT ? model.leftSleeve : model.rightSleeve;
+		armPart.resetPose();
+		armPart.visible = true;
 		armPart.xRot = 0.0F;
-		armPart.render(event.getPoseStack(), buffer.getBuffer(RenderTypes.entitySolid(BACKTANK_ARMOR_LOCATION)),
-			LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+
+		event.getSubmitNodeCollector()
+			.submitModelPart(armPart, event.getPoseStack(), RenderTypes.entitySolid(BACKTANK_ARMOR_LOCATION),
+				LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, null);
 		event.setCanceled(true);
 	}
 
