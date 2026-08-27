@@ -2,7 +2,6 @@ package com.simibubi.create.compat.jei.category.animations;
 
 import org.joml.Matrix3x2fStack;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Direction;
@@ -16,10 +15,10 @@ public class AnimatedCrushingWheels extends AnimatedKinetics {
 
 	@Override
 	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
+		viewRotation(0, -22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
 		matrixStack.translate(xOffset, yOffset);
-		matrixStack.mulPose(Axis.YP.rotationDegrees(-22.5f));
 		int scale = 22;
 
 		blockElement(wheel)

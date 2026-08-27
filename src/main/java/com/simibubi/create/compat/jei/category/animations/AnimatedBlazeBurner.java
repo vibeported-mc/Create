@@ -4,7 +4,6 @@ import com.simibubi.create.foundation.render.CachedBufferer;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.AllSpriteShifts;
@@ -30,11 +29,10 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 	}
 
 	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
+		viewRotation(-15.5f, 22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
 		matrixStack.translate(xOffset, yOffset);
-		matrixStack.mulPose(Axis.XP.rotationDegrees(-15.5f));
-		matrixStack.mulPose(Axis.YP.rotationDegrees(22.5f));
 		int scale = 23;
 
 		float offset = (Mth.sin(AnimationTickHolder.getRenderTime() / 16f) + 0.5f) / 16f;

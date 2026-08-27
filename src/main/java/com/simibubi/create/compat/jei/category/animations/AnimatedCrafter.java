@@ -5,22 +5,19 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 
-import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class AnimatedCrafter extends AnimatedKinetics {
 
 	@Override
 	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
+		viewRotation(-12.5f, -22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
 		matrixStack.translate(xOffset, yOffset);
 		AllGuiTextures.JEI_SHADOW.render(graphics, -16, 13);
 
 		matrixStack.translate(3, 16);
-		TransformStack.of(matrixStack)
-			.rotateXDegrees(-12.5f)
-			.rotateYDegrees(-22.5f);
 		int scale = 22;
 
 		blockElement(cogwheel())

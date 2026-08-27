@@ -52,12 +52,26 @@ public abstract class AnimatedKinetics implements IDrawable {
 		return AllPartialModels.SHAFTLESS_COGWHEEL;
 	}
 
+	private float viewXRot = -15.5f;
+	private float viewYRot = 22.5f;
+
+	/**
+	 * The orientation this widget's scene is viewed from.
+	 * <p>
+	 * 26.2's GUI transform stack is two-dimensional, so this is handed to each element rather than
+	 * pushed onto the stack once around the whole scene.
+	 */
+	protected void viewRotation(float xRot, float yRot) {
+		viewXRot = xRot;
+		viewYRot = yRot;
+	}
+
 	protected GuiGameElement.GuiRenderBuilder blockElement(BlockState state) {
-		return defaultBlockElement(state);
+		return defaultBlockElement(state).viewRotate(viewXRot, viewYRot, 0);
 	}
 
 	protected GuiGameElement.GuiRenderBuilder blockElement(PartialModel partial) {
-		return defaultBlockElement(partial);
+		return defaultBlockElement(partial).viewRotate(viewXRot, viewYRot, 0);
 	}
 
 	@Override
