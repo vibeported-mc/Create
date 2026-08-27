@@ -183,6 +183,7 @@ sourceSets.main {
         exclude("com/simibubi/create/foundation/data/DirectionalAxisBlockStateGen.java")
         exclude("com/simibubi/create/foundation/data/ModelGen.java")
         exclude("com/simibubi/create/foundation/data/SpecialBlockStateGen.java")
+        exclude("com/simibubi/create/content/decoration/copycat/SpecialCopycatPanelBlockState.java")
         exclude("com/simibubi/create/infrastructure/data/**")
         exclude("**/*Generator.java")
         exclude("**/*BlockStateGen*.java")

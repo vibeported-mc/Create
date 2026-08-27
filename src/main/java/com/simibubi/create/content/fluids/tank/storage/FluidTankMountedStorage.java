@@ -1,7 +1,7 @@
 package com.simibubi.create.content.fluids.tank.storage;
 
 import com.simibubi.create.foundation.fluid.FluidHelper;
-import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
@@ -44,7 +44,7 @@ public class FluidTankMountedStorage extends WrapperMountedFluidStorage<Handler>
 	@Override
 	public void unmount(Level level, BlockState state, BlockPos pos, @Nullable BlockEntity be) {
 		if (be instanceof FluidTankBlockEntity tank && tank.isController()) {
-			FluidStacksResourceHandler inventory = tank.getTankInventory();
+			SmartFluidTank inventory = tank.getTankInventory();
 			// capacity shouldn't change, leave it
 			inventory.setFluid(this.wrapped.getFluid());
 		}
@@ -74,7 +74,7 @@ public class FluidTankMountedStorage extends WrapperMountedFluidStorage<Handler>
 		if (!(be instanceof FluidTankBlockEntity tank))
 			return;
 
-		FluidStacksResourceHandler inv = tank.getTankInventory();
+		SmartFluidTank inv = tank.getTankInventory();
 		inv.setFluid(this.getFluid());
 		float fillLevel = inv.getFluidAmount() / (float) inv.getCapacity();
 		if (tank.getFluidLevel() == null) {
@@ -85,7 +85,7 @@ public class FluidTankMountedStorage extends WrapperMountedFluidStorage<Handler>
 
 	public static FluidTankMountedStorage fromTank(FluidTankBlockEntity tank) {
 		// tank has update callbacks, make an isolated copy
-		FluidStacksResourceHandler inventory = tank.getTankInventory();
+		SmartFluidTank inventory = tank.getTankInventory();
 		return new FluidTankMountedStorage(inventory.getCapacity(), inventory.getFluid().copy());
 	}
 
@@ -95,17 +95,18 @@ public class FluidTankMountedStorage extends WrapperMountedFluidStorage<Handler>
 		return new FluidTankMountedStorage(capacity, fluid);
 	}
 
-	public static final class Handler extends FluidStacksResourceHandler {
+	public static final class Handler extends SmartFluidTank {
 		private Runnable onChange = () -> {
 		};
 
 		public Handler(int capacity, FluidStack stack) {
-			super(capacity);
+			super(capacity, ignored -> {
+			});
 			this.setFluid(stack);
 		}
 
 		@Override
-		protected void onContentsChanged() {
+		protected void onContentsChanged(int index, FluidStack previousContents) {
 			this.onChange.run();
 		}
 	}
