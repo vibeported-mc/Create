@@ -37,6 +37,7 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -252,24 +253,8 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 			typeFactory);
 	}
 
-	public static FluidType defaultFluidType(FluidType.Properties properties, Identifier stillTexture,
-											 Identifier flowingTexture) {
-		return new FluidType(properties) {
-			@Override
-			public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
-				consumer.accept(new IClientFluidTypeExtensions() {
-					@Override
-					public Identifier getStillTexture() {
-						return stillTexture;
-					}
-
-					@Override
-					public Identifier getFlowingTexture() {
-						return flowingTexture;
-					}
-				});
-			}
-		};
+	public static FluidType defaultFluidType(FluidType.Properties properties) {
+		return new FluidType(properties);
 	}
 
 	/* Util */
@@ -285,7 +270,7 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	}
 
 	public static <T extends Item> NonNullConsumer<? super T> itemModel(
-		Supplier<NonNullFunction<BlockStateModel, ? extends BlockStateModel>> func) {
+		Supplier<NonNullFunction<ItemModel, ? extends ItemModel>> func) {
 		return entry -> PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> registerItemModel(entry, func));
 	}
 
@@ -309,7 +294,7 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 
 	@OnlyIn(Dist.CLIENT)
 	private static void registerItemModel(Item entry,
-										  Supplier<NonNullFunction<BlockStateModel, ? extends BlockStateModel>> func) {
+										  Supplier<NonNullFunction<ItemModel, ? extends ItemModel>> func) {
 		CreateClient.MODEL_SWAPPER.getCustomItemModels()
 			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), func.get());
 	}
