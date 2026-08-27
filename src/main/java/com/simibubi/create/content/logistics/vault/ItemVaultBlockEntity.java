@@ -6,7 +6,6 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.List;
 
@@ -335,7 +334,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 		return this.invId;
 	}
 
-	public void applyInventoryToBlock(ItemStacksResourceHandler handler) {
+	public void applyInventoryToBlock(ItemStackHandler handler) {
 		for (int i = 0; i < inventory.size(); i++)
 			ItemHandlerHelpers.setStackInSlot(inventory, i, i < handler.size() ? ItemHandlerHelpers.getStackInSlot(handler, i) : ItemStack.EMPTY);
 	}

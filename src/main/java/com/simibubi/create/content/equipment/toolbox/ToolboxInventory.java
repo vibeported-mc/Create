@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.CommitCallback;
@@ -7,7 +8,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +34,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 
 // TODO - This should use NonNullList<ItemStack>
-public class ToolboxInventory extends ItemStacksResourceHandler implements ModifiableItemHandler {
+public class ToolboxInventory extends ItemStackHandler {
 	public static final int STACKS_PER_COMPARTMENT = 4;
 	public static final Codec<ToolboxInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		ItemSlots.maxSizeCodec(8 * STACKS_PER_COMPARTMENT).fieldOf("items").forGetter(ItemSlots::fromHandler),

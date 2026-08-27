@@ -1,10 +1,10 @@
 package com.simibubi.create.content.logistics.box;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.function.Consumer;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Optional;
@@ -86,12 +86,12 @@ public class PackageItem extends Item {
 	}
 
 	public static ItemStack containing(List<ItemStack> stacks) {
-		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(9);
+		ItemStackHandler newInv = new ItemStackHandler(9);
 		stacks.forEach(s -> ItemHandlerHelpers.insertItemStacked(newInv, s, false));
 		return containing(newInv);
 	}
 
-	public static ItemStack containing(ItemStacksResourceHandler stacks) {
+	public static ItemStack containing(ItemStackHandler stacks) {
 		ItemStack box = PackageStyles.getRandomBox();
 		box.set(AllDataComponents.PACKAGE_CONTENTS, ItemHelper.containerContentsFromHandler(stacks));
 		return box;
@@ -210,8 +210,8 @@ public class PackageItem extends Item {
 		return 1;
 	}
 
-	public static ItemStacksResourceHandler getContents(ItemStack box) {
-		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(9);
+	public static ItemStackHandler getContents(ItemStack box) {
+		ItemStackHandler newInv = new ItemStackHandler(9);
 		ItemContainerContents contents = box.getOrDefault(AllDataComponents.PACKAGE_CONTENTS, ItemContainerContents.EMPTY);
 		ItemHelper.fillItemStackHandler(contents, newInv);
 		return newInv;
@@ -245,7 +245,7 @@ public class PackageItem extends Item {
 
 		int visibleNames = 0;
 		int skippedNames = 0;
-		ItemStacksResourceHandler contents = getContents(stack);
+		ItemStackHandler contents = getContents(stack);
 		for (int i = 0; i < contents.size(); i++) {
 			ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(contents, i);
 			if (itemstack.isEmpty())
@@ -284,7 +284,7 @@ public class PackageItem extends Item {
 
 	public InteractionResult open(Level worldIn, Player playerIn, InteractionHand handIn) {
 		ItemStack box = playerIn.getItemInHand(handIn);
-		ItemStacksResourceHandler contents = getContents(box);
+		ItemStackHandler contents = getContents(box);
 		ItemStack particle = box.copy();
 
 		playerIn.setItemInHand(handIn, box.getCount() <= 1 ? ItemStack.EMPTY : box.copyWithCount(box.getCount() - 1));

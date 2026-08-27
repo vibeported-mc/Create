@@ -1,10 +1,10 @@
 package com.simibubi.create.content.processing.basin;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import com.simibubi.create.AllBlockEntityTypes;
@@ -111,7 +111,7 @@ public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrencha
 
 			ModifiableItemHandler inv = be.itemCapability;
 			if (inv == null)
-				inv = new ItemStacksResourceHandler(1);
+				inv = new ItemStackHandler(1);
 			boolean success = false;
 			for (int slot = 0; slot < inv.size(); slot++) {
 				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inv, slot);

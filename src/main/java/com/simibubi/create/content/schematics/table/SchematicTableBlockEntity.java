@@ -1,9 +1,9 @@
 package com.simibubi.create.content.schematics.table;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.List;
 
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -32,7 +32,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 	public float uploadingProgress;
 	public boolean sendUpdate;
 
-	public class SchematicTableInventory extends ItemStacksResourceHandler implements ModifiableItemHandler {
+	public class SchematicTableInventory extends ItemStackHandler {
 		public SchematicTableInventory() {
 			super(2);
 		}

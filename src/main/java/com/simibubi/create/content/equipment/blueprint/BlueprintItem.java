@@ -1,10 +1,10 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.minecraft.tags.TagKey;
 import java.util.Optional;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -72,7 +72,7 @@ public class BlueprintItem extends Item {
 		return InteractionResult.SUCCESS;
 	}
 
-	public static void assignCompleteRecipe(Level level, ItemStacksResourceHandler inv, Recipe<?> recipe) {
+	public static void assignCompleteRecipe(Level level, ItemStackHandler inv, Recipe<?> recipe) {
 		List<Ingredient> ingredients = RecipeAccessors.ingredients(recipe);
 
 		for (int i = 0; i < 9; i++)
@@ -113,7 +113,7 @@ public class BlueprintItem extends Item {
 			return stacks.get(0);
 
 		ItemStack result = AllItems.FILTER.asStack();
-		ItemStacksResourceHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
+		ItemStackHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
 		for (int i = 0; i < stacks.size(); i++)
 			ItemHandlerHelpers.setStackInSlot(filterItems, i, stacks.get(i));
 		result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));

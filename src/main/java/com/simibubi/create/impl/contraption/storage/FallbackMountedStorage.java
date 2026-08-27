@@ -1,8 +1,8 @@
 package com.simibubi.create.impl.contraption.storage;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.Optional;
 
@@ -13,7 +13,7 @@ import com.simibubi.create.api.contraption.storage.item.simple.SimpleMountedStor
 /**
  * A fallback mounted storage impl that will try to be used when no type is
  * registered for a block. This requires that the mounted block provide an item handler
- * whose class is exactly {@link ItemStacksResourceHandler}.
+ * whose class is exactly {@link ItemStackHandler}.
  */
 public class FallbackMountedStorage extends SimpleMountedStorage {
 	public static final MapCodec<FallbackMountedStorage> CODEC = SimpleMountedStorage.codec(FallbackMountedStorage::new);
@@ -28,6 +28,6 @@ public class FallbackMountedStorage extends SimpleMountedStorage {
 	}
 
 	public static boolean isValid(ResourceHandler<ItemResource> handler) {
-		return handler.getClass() == ItemStacksResourceHandler.class;
+		return handler.getClass() == ItemStackHandler.class;
 	}
 }

@@ -1,9 +1,9 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -194,7 +194,7 @@ public class BlueprintOverlayRenderer {
 
 	public static void rebuild(BlueprintSection sectionAt, boolean sneak) {
 		cachedRenderedFilters.clear();
-		ItemStacksResourceHandler items = sectionAt.getItems();
+		ItemStackHandler items = sectionAt.getItems();
 		boolean empty = true;
 		for (int i = 0; i < 9; i++) {
 			if (!ItemHandlerHelpers.getStackInSlot(items, i)
@@ -213,7 +213,7 @@ public class BlueprintOverlayRenderer {
 		boolean firstPass = true;
 		boolean success = true;
 		Minecraft mc = Minecraft.getInstance();
-		ItemStacksResourceHandler playerInv = new ItemStacksResourceHandler(mc.player.getInventory()
+		ItemStackHandler playerInv = new ItemStackHandler(mc.player.getInventory()
 			.getContainerSize());
 		for (int i = 0; i < playerInv.size(); i++)
 			ItemHandlerHelpers.setStackInSlot(playerInv, i, mc.player.getInventory()
@@ -224,8 +224,8 @@ public class BlueprintOverlayRenderer {
 		Optional<RecipeHolder<CraftingRecipe>> recipe = Optional.empty();
 		Map<Integer, ItemStack> craftingGrid = new HashMap<>();
 		ingredients.clear();
-		ItemStacksResourceHandler missingItems = new ItemStacksResourceHandler(64);
-		ItemStacksResourceHandler availableItems = new ItemStacksResourceHandler(64);
+		ItemStackHandler missingItems = new ItemStackHandler(64);
+		ItemStackHandler availableItems = new ItemStackHandler(64);
 		List<ItemStack> newlyAdded = new ArrayList<>();
 		List<ItemStack> newlyMissing = new ArrayList<>();
 		boolean invalid = false;

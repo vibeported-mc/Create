@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.filter;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,8 +74,8 @@ public class AttributeFilterMenu extends AbstractFilterMenu {
 	}
 
 	@Override
-	protected ItemStacksResourceHandler createGhostInventory() {
-		return new ItemStacksResourceHandler(2);
+	protected ItemStackHandler createGhostInventory() {
+		return new ItemStackHandler(2);
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.packagerLink;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.minecraft.core.UUIDUtil;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
@@ -192,7 +192,7 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 		return InventorySummary.EMPTY;
 	}
 
-	public void deductFromAccurateSummary(ItemStacksResourceHandler packageContents) {
+	public void deductFromAccurateSummary(ItemStackHandler packageContents) {
 		InventorySummary summary = LogisticsManager.ACCURATE_SUMMARIES.getIfPresent(freqId);
 		if (summary == null)
 			return;

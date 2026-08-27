@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.item;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.CompoundTag;
@@ -8,7 +9,6 @@ import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.List;
@@ -320,7 +320,7 @@ public class ItemHelper {
 		return entityIn instanceof ItemEntity itemEntity ? itemEntity.getItem() : ItemStack.EMPTY;
 	}
 
-	public static void fillItemStackHandler(ItemContainerContents contents, ItemStacksResourceHandler inv) {
+	public static void fillItemStackHandler(ItemContainerContents contents, ItemStackHandler inv) {
 		List<ItemStack> itemStacks = contents.allItemsCopyStream()
 			.toList();
 
@@ -329,7 +329,7 @@ public class ItemHelper {
 		}
 	}
 
-	public static ItemContainerContents containerContentsFromHandler(ItemStacksResourceHandler handler) {
+	public static ItemContainerContents containerContentsFromHandler(ItemStackHandler handler) {
 		return ItemContainerContents.fromItems(((ItemStackHandlerAccessor) handler).create$getStacks());
 	}
 
@@ -358,7 +358,7 @@ public class ItemHelper {
 		}
 	}
 
-	public static List<ItemStack> getNonEmptyStacks(ItemStacksResourceHandler handler) {
+	public static List<ItemStack> getNonEmptyStacks(ItemStackHandler handler) {
 		List<ItemStack> stacks = new ArrayList<>();
 		for (int i = 0; i < handler.size(); i++) {
 			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);

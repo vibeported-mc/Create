@@ -1,10 +1,10 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.CommitCallback;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.contraptions.Contraption;
@@ -52,7 +52,7 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 	}
 
 	private ModifiableItemHandler createEmptyHandler() {
-		return new InterfaceItemHandler(new ItemStacksResourceHandler(0));
+		return new InterfaceItemHandler(new ItemStackHandler(0));
 	}
 
 	@Override

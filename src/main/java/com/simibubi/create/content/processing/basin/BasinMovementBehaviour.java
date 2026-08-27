@@ -1,7 +1,7 @@
 package com.simibubi.create.content.processing.basin;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,10 +15,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 public class BasinMovementBehaviour implements MovementBehaviour {
-	public Map<String, ItemStacksResourceHandler> getOrReadInventory(MovementContext context) {
-		Map<String, ItemStacksResourceHandler> map = new HashMap<>();
-		map.put("InputItems", new ItemStacksResourceHandler(9));
-		map.put("OutputItems", new ItemStacksResourceHandler(8));
+	public Map<String, ItemStackHandler> getOrReadInventory(MovementContext context) {
+		Map<String, ItemStackHandler> map = new HashMap<>();
+		map.put("InputItems", new ItemStackHandler(9));
+		map.put("OutputItems", new ItemStackHandler(8));
 		map.forEach((s, h) -> h.deserializeNBT(context.world.registryAccess(), context.blockEntityData.getCompoundOrEmpty(s)));
 		return map;
 	}

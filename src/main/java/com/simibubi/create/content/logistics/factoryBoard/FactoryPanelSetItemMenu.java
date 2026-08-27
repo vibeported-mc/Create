@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
@@ -33,8 +33,8 @@ public class FactoryPanelSetItemMenu extends GhostItemMenu<FactoryPanelBehaviour
 	}
 
 	@Override
-	protected ItemStacksResourceHandler createGhostInventory() {
-		return new ItemStacksResourceHandler(1);
+	protected ItemStackHandler createGhostInventory() {
+		return new ItemStackHandler(1);
 	}
 
 	@Override

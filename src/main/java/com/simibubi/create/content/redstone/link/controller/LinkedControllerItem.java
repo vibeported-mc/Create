@@ -1,8 +1,8 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.function.Consumer;
 
 import com.simibubi.create.AllBlocks;
@@ -114,8 +114,8 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 		LinkedControllerClientHandler.toggle();
 	}
 
-	public static ItemStacksResourceHandler getFrequencyItems(ItemStack stack) {
-		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(12);
+	public static ItemStackHandler getFrequencyItems(ItemStack stack) {
+		ItemStackHandler newInv = new ItemStackHandler(12);
 		if (AllItems.LINKED_CONTROLLER.get() != stack.getItem())
 			throw new IllegalArgumentException("Cannot get frequency items from non-controller: " + stack);
 		if (!stack.has(AllDataComponents.LINKED_CONTROLLER_ITEMS))
@@ -125,7 +125,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 	}
 
 	public static Couple<RedstoneLinkNetworkHandler.Frequency> toFrequency(ItemStack controller, int slot) {
-		ItemStacksResourceHandler frequencyItems = getFrequencyItems(controller);
+		ItemStackHandler frequencyItems = getFrequencyItems(controller);
 		return Couple.create(Frequency.of(ItemHandlerHelpers.getStackInSlot(frequencyItems, slot * 2)),
 			Frequency.of(ItemHandlerHelpers.getStackInSlot(frequencyItems, slot * 2 + 1)));
 	}

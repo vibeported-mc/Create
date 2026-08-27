@@ -1,14 +1,14 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-public class SchematicannonInventory extends ItemStacksResourceHandler implements ModifiableItemHandler {
+public class SchematicannonInventory extends ItemStackHandler {
 	private final SchematicannonBlockEntity blockEntity;
 
 	public SchematicannonInventory(SchematicannonBlockEntity blockEntity) {

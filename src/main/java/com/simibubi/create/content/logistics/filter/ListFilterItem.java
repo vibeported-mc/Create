@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.filter;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +29,7 @@ public class ListFilterItem extends FilterItem {
 	public List<Component> makeSummary(ItemStack filter) {
 		List<Component> list = new ArrayList<>();
 
-		ItemStacksResourceHandler filterItems = getFilterItemHandler(filter);
+		ItemStackHandler filterItems = getFilterItemHandler(filter);
 		boolean blacklist = filter.getOrDefault(AllDataComponents.FILTER_ITEMS_BLACKLIST, false);
 
 		list.add((blacklist ? CreateLang.translateDirect("gui.filter.deny_list")
@@ -72,8 +72,8 @@ public class ListFilterItem extends FilterItem {
 		return new ListFilterItemStack(filter);
 	}
 
-	public ItemStacksResourceHandler getFilterItemHandler(ItemStack stack) {
-		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(18);
+	public ItemStackHandler getFilterItemHandler(ItemStack stack) {
+		ItemStackHandler newInv = new ItemStackHandler(18);
 		ItemContainerContents contents = stack.getOrDefault(AllDataComponents.FILTER_ITEMS, ItemContainerContents.EMPTY);
 		ItemHelper.fillItemStackHandler(contents, newInv);
 		return newInv;

@@ -1,10 +1,10 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import net.minecraft.core.UUIDUtil;
 import static com.simibubi.create.content.kinetics.base.DirectionalKineticBlock.FACING;
@@ -553,7 +553,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		animatedOffset.setValue(offset);
 	}
 
-	ItemStacksResourceHandler recipeInv = new ItemStacksResourceHandler(2);
+	ItemStackHandler recipeInv = new ItemStackHandler(2);
 
 	@Nullable
 	public RecipeHolder<? extends Recipe<? extends RecipeInput>> getRecipe(ItemStack stack) {

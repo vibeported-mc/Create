@@ -1,8 +1,8 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.redstone.link.LinkBehaviour;
@@ -36,7 +36,7 @@ public class LinkedControllerBindPacket extends LinkedControllerPacketBase {
 		if (player.isSpectator())
 			return;
 
-		ItemStacksResourceHandler frequencyItems = LinkedControllerItem.getFrequencyItems(heldItem);
+		ItemStackHandler frequencyItems = LinkedControllerItem.getFrequencyItems(heldItem);
 		LinkBehaviour linkBehaviour = BlockEntityBehaviour.get(player.level(), linkLocation, LinkBehaviour.TYPE);
 		if (linkBehaviour == null)
 			return;

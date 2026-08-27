@@ -1,9 +1,9 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -341,7 +341,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 
 		if (PackageItem.isPackage(input)) {
 			inventory.clear();
-			ItemStacksResourceHandler results = PackageItem.getContents(input);
+			ItemStackHandler results = PackageItem.getContents(input);
 			for (int i = 0; i < results.size(); i++) {
 				ItemStack stack = ItemHandlerHelpers.getStackInSlot(results, i);
 				if (!stack.isEmpty())

@@ -1,10 +1,10 @@
 package com.simibubi.create.content.logistics.depot;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -241,7 +241,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 					transportedItemStack.stack = remainder;
 			}
 
-			ItemStacksResourceHandler outputs = depotBehaviour.processingOutputBuffer;
+			ItemStackHandler outputs = depotBehaviour.processingOutputBuffer;
 			for (int i = 0; i < outputs.size(); i++) {
 				ItemStack remainder =
 					directOutput.tryExportingToBeltFunnel(ItemHandlerHelpers.getStackInSlot(outputs, i), funnelFacing, false);
@@ -271,7 +271,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 			addToLaunchedItems(transportedItemStack.stack);
 		depotBehaviour.incoming.clear();
 
-		ItemStacksResourceHandler outputs = depotBehaviour.processingOutputBuffer;
+		ItemStackHandler outputs = depotBehaviour.processingOutputBuffer;
 		for (int i = 0; i < outputs.size(); i++) {
 			ItemStack extractItem = ItemHandlerHelpers.extractItem(outputs, i, 64, false);
 			if (!extractItem.isEmpty())

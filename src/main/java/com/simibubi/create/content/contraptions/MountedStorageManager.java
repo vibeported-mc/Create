@@ -1,10 +1,10 @@
 package com.simibubi.create.content.contraptions;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.createmod.catnip.api.network.NetworkHelper;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -455,7 +455,7 @@ public class MountedStorageManager {
 				this.addStorage(DepotMountedStorage.fromLegacy(registries, data), pos);
 			} else {
 				// we can create a fallback storage safely, it will be validated before unmounting
-				ItemStacksResourceHandler handler = new ItemStacksResourceHandler();
+				ItemStackHandler handler = new ItemStackHandler(0);
 				ItemHandlerHelpers.deserializeNBT(handler, registries, data);
 				this.addStorage(new FallbackMountedStorage(handler), pos);
 			}

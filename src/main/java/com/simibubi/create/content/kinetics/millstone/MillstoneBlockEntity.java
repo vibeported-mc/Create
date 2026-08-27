@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.millstone;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -8,7 +9,6 @@ import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,16 +43,16 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 public class MillstoneBlockEntity extends KineticBlockEntity implements Clearable {
-	public ItemStacksResourceHandler inputInv;
-	public ItemStacksResourceHandler outputInv;
+	public ItemStackHandler inputInv;
+	public ItemStackHandler outputInv;
 	public ResourceHandler<ItemResource> capability;
 	public int timer;
 	private MillingRecipe lastRecipe;
 
 	public MillstoneBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		inputInv = new ItemStacksResourceHandler(1);
-		outputInv = new ItemStacksResourceHandler(9);
+		inputInv = new ItemStackHandler(1);
+		outputInv = new ItemStackHandler(9);
 		capability = new MillstoneInventoryHandler();
 	}
 
@@ -212,7 +212,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 	}
 
 	private boolean canProcess(ItemStack stack) {
-		ItemStacksResourceHandler tester = new ItemStacksResourceHandler(1);
+		ItemStackHandler tester = new ItemStackHandler(1);
 		ItemHandlerHelpers.setStackInSlot(tester, 0, stack);
 		RecipeWrapper inventoryIn = new RecipeWrapper(IItemHandler.of(tester));
 

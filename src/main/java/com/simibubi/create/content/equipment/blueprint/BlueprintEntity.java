@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -9,7 +10,6 @@ import net.minecraft.world.level.storage.ValueInput;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.HashMap;
 import java.util.Map;
@@ -295,7 +295,7 @@ public class BlueprintEntity extends HangingEntity
 
 		Vec3 hitVec = rayTrace.get();
 		BlueprintSection sectionAt = getSectionAt(hitVec.subtract(position()));
-		ItemStacksResourceHandler items = sectionAt.getItems();
+		ItemStackHandler items = sectionAt.getItems();
 
 		if (ItemHandlerHelpers.getStackInSlot(items, 9)
 			.isEmpty())
@@ -364,7 +364,7 @@ public class BlueprintEntity extends HangingEntity
 
 		boolean holdingWrench = AllItems.WRENCH.isIn(player.getItemInHand(hand));
 		BlueprintSection section = getSectionAt(vec);
-		ItemStacksResourceHandler items = section.getItems();
+		ItemStackHandler items = section.getItems();
 
 		if (!holdingWrench && !level().isClientSide() && !ItemHandlerHelpers.getStackInSlot(items, 9)
 			.isEmpty()) {
@@ -528,12 +528,12 @@ public class BlueprintEntity extends HangingEntity
 		public Couple<ItemStack> getDisplayItems() {
 			if (cachedDisplayItems != null)
 				return cachedDisplayItems;
-			ItemStacksResourceHandler items = getItems();
+			ItemStackHandler items = getItems();
 			return cachedDisplayItems = Couple.create(ItemHandlerHelpers.getStackInSlot(items, 9), ItemHandlerHelpers.getStackInSlot(items, 10));
 		}
 
-		public ItemStacksResourceHandler getItems() {
-			ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(11);
+		public ItemStackHandler getItems() {
+			ItemStackHandler newInv = new ItemStackHandler(11);
 			CompoundTag list = getOrCreateRecipeCompound();
 			CompoundTag invNBT = list.getCompoundOrEmpty(index + "");
 			inferredIcon = list.getBooleanOr("InferredIcon", false);
@@ -542,7 +542,7 @@ public class BlueprintEntity extends HangingEntity
 			return newInv;
 		}
 
-		public void save(ItemStacksResourceHandler inventory) {
+		public void save(ItemStackHandler inventory) {
 			CompoundTag list = getOrCreateRecipeCompound();
 			list.put(index + "", ItemHandlerHelpers.serializeNBT(inventory, registryAccess()));
 			list.putBoolean("InferredIcon", inferredIcon);

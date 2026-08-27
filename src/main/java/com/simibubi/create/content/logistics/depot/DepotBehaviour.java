@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.depot;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,7 +46,7 @@ public class DepotBehaviour extends BlockEntityBehaviour implements Clearable {
 
 	TransportedItemStack heldItem;
 	List<TransportedItemStack> incoming;
-	ItemStacksResourceHandler processingOutputBuffer;
+	ItemStackHandler processingOutputBuffer;
 	public DepotItemHandler itemHandler;
 	TransportedItemStackHandlerBehaviour transportedHandler;
 	Supplier<Integer> maxStackSize;
@@ -66,7 +66,7 @@ public class DepotBehaviour extends BlockEntityBehaviour implements Clearable {
 		};
 		incoming = new ArrayList<>();
 		itemHandler = new DepotItemHandler(this);
-		processingOutputBuffer = new ItemStacksResourceHandler(8) {
+		processingOutputBuffer = new ItemStackHandler(8) {
 			protected void onContentsChanged(int slot, ItemStack previousContents) {
 				be.notifyUpdate();
 			}

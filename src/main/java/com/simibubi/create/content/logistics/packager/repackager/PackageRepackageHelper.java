@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.packager.repackager;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +58,7 @@ public class PackageRepackageHelper {
 					orderContext = context;
 			}
 
-			ItemStacksResourceHandler contents = PackageItem.getContents(box);
+			ItemStackHandler contents = PackageItem.getContents(box);
 			for (int slot = 0; slot < contents.size(); slot++)
 				summary.add(ItemHandlerHelpers.getStackInSlot(contents, slot));
 		}
@@ -115,14 +115,14 @@ public class PackageRepackageHelper {
 		}
 
 		int currentSlot = 0;
-		ItemStacksResourceHandler target = new ItemStacksResourceHandler(PackageItem.SLOTS);
+		ItemStackHandler target = new ItemStackHandler(PackageItem.SLOTS);
 
 		for (ItemStack item : outputSlots) {
 			ItemHandlerHelpers.setStackInSlot(target, currentSlot++, item);
 			if (currentSlot < PackageItem.SLOTS)
 				continue;
 			exportingPackages.add(new BigItemStack(PackageItem.containing(target), 1));
-			target = new ItemStacksResourceHandler(PackageItem.SLOTS);
+			target = new ItemStackHandler(PackageItem.SLOTS);
 			currentSlot = 0;
 		}
 
@@ -190,7 +190,7 @@ public class PackageRepackageHelper {
 				packagesToCreate++;
 			}
 			
-			ItemStacksResourceHandler target = new ItemStacksResourceHandler(PackageItem.SLOTS);
+			ItemStackHandler target = new ItemStackHandler(PackageItem.SLOTS);
 			List<BigItemStack> stacks = craftingEntry.pattern().stacks();
 			for (int currentSlot = 0; currentSlot < Math.min(stacks.size(), target.size()); currentSlot++)
 				ItemHandlerHelpers.setStackInSlot(target, currentSlot, stacks.get(currentSlot).stack.copyWithCount(1));

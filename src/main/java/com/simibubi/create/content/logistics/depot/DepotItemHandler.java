@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.depot;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import org.jspecify.annotations.Nullable;
 
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
@@ -17,7 +18,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
  * The held item lives on the behaviour rather than in a resource handler of its own, so it is made
  * transactional here with a {@link SnapshotJournal}: the held stack is copied before a transfer
  * touches it and restored if the transaction rolls back. The output buffer is already an
- * {@code ItemStacksResourceHandler} and handles its own transactions.
+ * {@code ItemStackHandler} and handles its own transactions.
  */
 public class DepotItemHandler implements ResourceHandler<ItemResource> {
 

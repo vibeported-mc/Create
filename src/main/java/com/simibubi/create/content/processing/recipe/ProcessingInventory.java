@@ -1,5 +1,6 @@
 package com.simibubi.create.content.processing.recipe;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import java.util.function.Consumer;
 
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -10,10 +11,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class ProcessingInventory extends ItemStacksResourceHandler implements ModifiableItemHandler {
+public class ProcessingInventory extends ItemStackHandler {
 	public float remainingTime;
 	public float recipeDuration;
 	public boolean appliedRecipe;

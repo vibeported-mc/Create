@@ -1,8 +1,8 @@
 package com.simibubi.create.content.logistics.depot.storage;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
@@ -85,7 +85,7 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 	}
 
 	public static DepotMountedStorage fromLegacy(HolderLookup.Provider registries, CompoundTag nbt) {
-		ItemStacksResourceHandler handler = new ItemStacksResourceHandler();
+		ItemStackHandler handler = new ItemStackHandler(0);
 		ItemHandlerHelpers.deserializeNBT(handler, registries, nbt);
 		if (handler.size() == 1) {
 			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, 0);
@@ -95,7 +95,7 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 		}
 	}
 
-	public static final class Handler extends ItemStacksResourceHandler implements ModifiableItemHandler {
+	public static final class Handler extends ItemStackHandler {
 		private Runnable onChange = () -> {};
 
 		private Handler(ItemStack stack) {

@@ -1,9 +1,9 @@
 package com.simibubi.create.api.contraption.storage.item.simple;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.Optional;
 import java.util.function.Function;
@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 /**
  * Widely-applicable mounted storage implementation.
- * Gets an item handler from the mounted block, copies it to an ItemStacksResourceHandler,
+ * Gets an item handler from the mounted block, copies it to an ItemStackHandler,
  * and then copies the inventory back to the target when unmounting.
  * All blocks for which this mounted storage is registered must provide an
  * {@link ModifiableItemHandler} to {@link Capabilities.Item#BLOCK}.
@@ -34,7 +34,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
  * manually, or add your block to the {@link AllTags.AllBlockTags#SIMPLE_MOUNTED_STORAGE} tag.
  * It is also possible to extend this class to create your own implementation.
  */
-public class SimpleMountedStorage extends WrapperMountedItemStorage<ItemStacksResourceHandler> {
+public class SimpleMountedStorage extends WrapperMountedItemStorage<ItemStackHandler> {
 	public static final MapCodec<SimpleMountedStorage> CODEC = codec(SimpleMountedStorage::new);
 
 	public SimpleMountedStorage(MountedItemStorageType<?> type, ResourceHandler<ItemResource> handler) {

@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.depot;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
@@ -59,7 +59,7 @@ public class SharedDepotBlockMethods {
 			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f,
 				1f + level.getRandom().nextFloat());
 		}
-		ItemStacksResourceHandler outputs = behaviour.processingOutputBuffer;
+		ItemStackHandler outputs = behaviour.processingOutputBuffer;
 		for (int i = 0; i < outputs.size(); i++)
 			player.getInventory()
 				.placeItemBackInInventory(ItemHandlerHelpers.extractItem(outputs, i, 64, false));

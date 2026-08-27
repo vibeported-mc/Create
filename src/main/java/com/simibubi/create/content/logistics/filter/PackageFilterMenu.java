@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.filter;
 
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllMenuTypes;
 
@@ -41,8 +41,8 @@ public class PackageFilterMenu extends AbstractFilterMenu {
 	protected void addFilterSlots() {}
 
 	@Override
-	protected ItemStacksResourceHandler createGhostInventory() {
-		return new ItemStacksResourceHandler();
+	protected ItemStackHandler createGhostInventory() {
+		return new ItemStackHandler(0);
 	}
 
 	@Override

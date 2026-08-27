@@ -1,9 +1,9 @@
 package com.simibubi.create.content.logistics.packager;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -367,7 +367,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 
 		Objects.requireNonNull(this.level);
 
-		ItemStacksResourceHandler contents = PackageItem.getContents(box);
+		ItemStackHandler contents = PackageItem.getContents(box);
 		List<ItemStack> items = ItemHelper.getNonEmptyStacks(contents);
 		if (items.isEmpty())
 			return true;
@@ -402,7 +402,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 			return;
 
 		boolean anyItemPresent = false;
-		ItemStacksResourceHandler extractedItems = new ItemStacksResourceHandler(PackageItem.SLOTS);
+		ItemStackHandler extractedItems = new ItemStackHandler(PackageItem.SLOTS);
 		ItemStack extractedPackageItem = ItemStack.EMPTY;
 		PackagingRequest nextRequest = null;
 		String fixedAddress = null;

@@ -3,7 +3,6 @@ package com.simibubi.create.foundation.codec;
 import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredientType;
 import com.mojang.serialization.MapCodec;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;

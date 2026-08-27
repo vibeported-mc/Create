@@ -1,10 +1,10 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.content.equipment.blueprint.BlueprintEntity.BlueprintSection;
@@ -108,7 +108,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 	}
 
 	@Override
-	protected ItemStacksResourceHandler createGhostInventory() {
+	protected ItemStackHandler createGhostInventory() {
 		return contentHolder.getItems();
 	}
 
@@ -141,7 +141,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 	static class BlueprintCraftingInventory extends TransientCraftingContainer {
 
-		public BlueprintCraftingInventory(AbstractContainerMenu menu, ItemStacksResourceHandler items) {
+		public BlueprintCraftingInventory(AbstractContainerMenu menu, ItemStackHandler items) {
 			super(menu, 3, 3);
 			for (int y = 0; y < 3; y++) {
 				for (int x = 0; x < 3; x++) {
@@ -157,14 +157,14 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 		private int index;
 
-		public BlueprintCraftSlot(ResourceHandler<ItemResource> itemHandler, int index, int xPosition, int yPosition) {
-			super(itemHandler, index, xPosition, yPosition);
+		public BlueprintCraftSlot(ItemStackHandler itemHandler, int index, int xPosition, int yPosition) {
+			super(itemHandler, itemHandler::set, index, xPosition, yPosition);
 			this.index = index;
 		}
 
 		@Override
-		public void setChanged() {
-			super.setChanged();
+		protected void setStackCopy(ItemStack stack) {
+			super.setStackCopy(stack);
 			if (index == 9 && hasItem() && !contentHolder.getBlueprintWorld().isClientSide()) {
 				contentHolder.inferredIcon = false;
 				ServerPlayer serverplayerentity = (ServerPlayer) player;

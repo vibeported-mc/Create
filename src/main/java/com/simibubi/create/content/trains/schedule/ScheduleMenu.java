@@ -1,8 +1,8 @@
 package com.simibubi.create.content.trains.schedule;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.gui.menu.HeldItemGhostItemMenu;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -31,8 +31,8 @@ public class ScheduleMenu extends HeldItemGhostItemMenu {
 	}
 
 	@Override
-	protected ItemStacksResourceHandler createGhostInventory() {
-		return new ItemStacksResourceHandler(slots);
+	protected ItemStackHandler createGhostInventory() {
+		return new ItemStackHandler(slots);
 	}
 
 	@Override

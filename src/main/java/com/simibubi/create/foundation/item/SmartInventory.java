@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.item;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
@@ -14,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class SmartInventory extends ItemHandlerContainer implements ModifiableItemHandler {
@@ -151,7 +151,7 @@ public class SmartInventory extends ItemHandlerContainer implements ModifiableIt
 		wrapped.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, nbt));
 	}
 
-	protected static class SyncedStackHandler extends ItemStacksResourceHandler implements ModifiableItemHandler {
+	protected static class SyncedStackHandler extends ItemStackHandler {
 
 		private SyncedBlockEntity blockEntity;
 		private boolean stackNonStackables;

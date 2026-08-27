@@ -1,7 +1,7 @@
 package com.simibubi.create.foundation.gui.menu;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 
 public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearableMenu {
 
-	public ItemStacksResourceHandler ghostInventory;
+	public ItemStackHandler ghostInventory;
 
 	protected GhostItemMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {
 		super(type, id, inv, extraData);
@@ -22,7 +22,7 @@ public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearable
 		super(type, id, inv, contentHolder);
 	}
 
-	protected abstract ItemStacksResourceHandler createGhostInventory();
+	protected abstract ItemStackHandler createGhostInventory();
 
 	protected abstract boolean allowRepeats();
 

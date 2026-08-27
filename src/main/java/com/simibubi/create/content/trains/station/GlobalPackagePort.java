@@ -1,13 +1,13 @@
 package com.simibubi.create.content.trains.station;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import com.simibubi.create.Create;
 
 public class GlobalPackagePort {
 	public String address = "";
-	public ItemStacksResourceHandler offlineBuffer = new ItemStacksResourceHandler(18);
+	public ItemStackHandler offlineBuffer = new ItemStackHandler(18);
 	public boolean primed = false;
 	private boolean restoring = false;
 

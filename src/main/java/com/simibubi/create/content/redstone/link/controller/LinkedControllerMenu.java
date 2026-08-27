@@ -1,6 +1,6 @@
 package com.simibubi.create.content.redstone.link.controller;
 
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.foundation.gui.menu.HeldItemGhostItemMenu;
@@ -28,7 +28,7 @@ public class LinkedControllerMenu extends HeldItemGhostItemMenu {
 	}
 
 	@Override
-	protected ItemStacksResourceHandler createGhostInventory() {
+	protected ItemStackHandler createGhostInventory() {
 		return LinkedControllerItem.getFrequencyItems(contentHolder);
 	}
 

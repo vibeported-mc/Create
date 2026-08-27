@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.box;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.mixin.accessor.ItemEntityAccessor;
 import net.minecraft.world.entity.InterpolationHandler;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -8,7 +9,6 @@ import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.item.ItemHelper;
 import net.createmod.catnip.api.network.NetworkHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
@@ -380,7 +380,7 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 	@Override
 	protected void dropAllDeathLoot(ServerLevel level, DamageSource pDamageSource) {
 		super.dropAllDeathLoot(level, pDamageSource);
-		ItemStacksResourceHandler contents = PackageItem.getContents(box);
+		ItemStackHandler contents = PackageItem.getContents(box);
 		for (int i = 0; i < contents.size(); i++) {
 			ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(contents, i);
 

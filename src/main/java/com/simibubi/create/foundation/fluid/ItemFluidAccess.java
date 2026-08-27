@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.fluid;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
 import org.jspecify.annotations.Nullable;
 
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -9,7 +10,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 /**
  * One item, held somewhere a fluid handler is allowed to swap it out.
@@ -21,11 +21,11 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
  */
 public class ItemFluidAccess {
 
-	private final ItemStacksResourceHandler slot;
+	private final ItemStackHandler slot;
 	private final ItemAccess access;
 
 	public ItemFluidAccess(ItemStack stack) {
-		slot = new ItemStacksResourceHandler(1);
+		slot = new ItemStackHandler(1);
 		ItemHandlerHelpers.setStackInSlot(slot, 0, stack);
 		access = ItemAccess.forHandlerIndex(slot, 0);
 	}
