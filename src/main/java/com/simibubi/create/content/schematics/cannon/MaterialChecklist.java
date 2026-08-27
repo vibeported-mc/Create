@@ -26,6 +26,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WrittenBookContent;
 
@@ -62,7 +63,7 @@ public class MaterialChecklist {
 		if (item == Items.AIR)
 			return;
 		if (map.containsKey(item))
-			map.put(item, map.getIntOr(item, 0) + stack.getCount());
+			map.put(item, map.getOrDefault(item, 0) + stack.getCount());
 		else
 			map.put(item, stack.getCount());
 	}
@@ -71,7 +72,7 @@ public class MaterialChecklist {
 		Item item = stack.getItem();
 		if (required.containsKey(item) || damageRequired.containsKey(item))
 			if (gathered.containsKey(item))
-				gathered.put(item, gathered.getIntOr(item, 0) + stack.getCount());
+				gathered.put(item, gathered.getOrDefault(item, 0) + stack.getCount());
 			else
 				gathered.put(item, stack.getCount());
 	}
@@ -93,10 +94,10 @@ public class MaterialChecklist {
 		List<Item> keys = new ArrayList<>(Sets.union(required.keySet(), damageRequired.keySet()));
 		Collections.sort(keys, (item1, item2) -> {
 			Locale locale = Locale.ENGLISH;
-			String name1 = item1.getDescription()
+			String name1 = new ItemStack(item1).getHoverName()
 				.getString()
 				.toLowerCase(locale);
-			String name2 = item2.getDescription()
+			String name2 = new ItemStack(item2).getHoverName()
 				.getString()
 				.toLowerCase(locale);
 			return name1.compareTo(name2);
@@ -107,7 +108,7 @@ public class MaterialChecklist {
 		for (Item item : keys) {
 			int amount = getRequiredAmount(item);
 			if (gathered.containsKey(item))
-				amount -= gathered.getIntOr(item, 0);
+				amount -= gathered.getOrDefault(item, 0);
 
 			if (amount <= 0) {
 				completed.add(item);
@@ -171,10 +172,10 @@ public class MaterialChecklist {
 		List<Item> keys = new ArrayList<>(Sets.union(required.keySet(), damageRequired.keySet()));
 		Collections.sort(keys, (item1, item2) -> {
 			Locale locale = Locale.ENGLISH;
-			String name1 = item1.getDescription()
+			String name1 = new ItemStack(item1).getHoverName()
 				.getString()
 				.toLowerCase(locale);
-			String name2 = item2.getDescription()
+			String name2 = new ItemStack(item2).getHoverName()
 				.getString()
 				.toLowerCase(locale);
 			return name1.compareTo(name2);
@@ -184,7 +185,7 @@ public class MaterialChecklist {
 		for (Item item : keys) {
 			int amount = getRequiredAmount(item);
 			if (gathered.containsKey(item))
-				amount -= gathered.getIntOr(item, 0);
+				amount -= gathered.getOrDefault(item, 0);
 
 			if (amount <= 0) {
 				completed.add(item);
@@ -230,7 +231,7 @@ public class MaterialChecklist {
 	public int getRequiredAmount(Item item) {
 		int amount = required.getOrDefault(item, 0);
 		if (damageRequired.containsKey(item))
-			amount += (int) Math.ceil(damageRequired.getIntOr(item, 0) / (float) new ItemStack(item).getMaxDamage());
+			amount += (int) Math.ceil(damageRequired.getOrDefault(item, 0) / (float) new ItemStack(item).getMaxDamage());
 		return amount;
 	}
 
@@ -239,8 +240,9 @@ public class MaterialChecklist {
 		int remainder = amount % 64;
         MutableComponent tc = Component.empty();
 		tc.append(item.getHoverName()
+			.copy()
 			.setStyle(Style.EMPTY
-				.withHoverEvent(new HoverEvent.ShowItem(item.getTemplate()))));
+				.withHoverEvent(new HoverEvent.ShowItem(ItemStackTemplate.fromNonEmptyStack(item)))));
 
 		if (!unfinished && forBook)
 			tc.append(" \u2714");

@@ -26,7 +26,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -54,7 +53,7 @@ public class DeployerFakePlayer extends FakePlayer {
 	private UUID owner;
 
 	public DeployerFakePlayer(ServerLevel world, @Nullable UUID owner) {
-		super(world, new DeployerGameProfile(fallbackID, "Deployer", owner));
+		super(world, profileFor(owner));
 		this.owner = owner;
 	}
 
@@ -87,12 +86,6 @@ public class DeployerFakePlayer extends FakePlayer {
 	@Override
 	public boolean canEat(boolean ignoreHunger) {
 		return false;
-	}
-
-	@Override
-	public ItemStack eat(Level level, ItemStack food, FoodProperties foodProperties) {
-		food.shrink(1);
-		return food;
 	}
 
 	@Override
@@ -160,46 +153,18 @@ public class DeployerFakePlayer extends FakePlayer {
 		}
 	}
 
-	// Credit to Mekanism for this approach. Helps fake players get past claims and
-	// protection by other mods
-	private static class DeployerGameProfile extends GameProfile {
-
-		private UUID owner;
-
-		public DeployerGameProfile(UUID id, String name, UUID owner) {
-			super(id, name);
-			this.owner = owner;
-		}
-
-		@Override
-		public UUID getId() {
-			return owner == null ? super.getId() : owner;
-		}
-
-		@Override
-		public String getName() {
-			if (owner == null)
-				return super.getName();
-			String lastKnownUsername = UsernameCache.getLastKnownUsername(owner);
-			return lastKnownUsername == null ? super.getName() : lastKnownUsername;
-		}
-
-		@Override
-		public boolean equals(final Object o) {
-			if (this == o)
-				return true;
-			if (!(o instanceof GameProfile otherProfile))
-				return false;
-			return Objects.equals(getId(), otherProfile.getId()) && Objects.equals(getName(), otherProfile.getName());
-		}
-
-		@Override
-		public int hashCode() {
-			UUID id = getId();
-			String name = getName();
-			int result = id == null ? 0 : id.hashCode();
-			result = 31 * result + (name == null ? 0 : name.hashCode());
-			return result;
-		}
+	/**
+	 * The profile a deployer acts under.
+	 * <p>
+	 * Credit to Mekanism for this approach: wearing the owner's identity helps fake players get past
+	 * claims and protection by other mods. {@code GameProfile} is a final record in 26.2, so the
+	 * owner's id and name are baked into it at construction rather than answered on demand - the
+	 * player is rebuilt whenever its owner changes anyway.
+	 */
+	private static GameProfile profileFor(@Nullable UUID owner) {
+		if (owner == null)
+			return new GameProfile(fallbackID, "Deployer");
+		String lastKnownUsername = UsernameCache.getLastKnownUsername(owner);
+		return new GameProfile(owner, lastKnownUsername == null ? "Deployer" : lastKnownUsername);
 	}
 }
