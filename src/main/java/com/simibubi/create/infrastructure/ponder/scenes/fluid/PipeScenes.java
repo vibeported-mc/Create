@@ -495,7 +495,7 @@ public class PipeScenes {
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				ifh.fill(new FluidStack(NeoForgeMod.MILK.get(), 1000), false);
+				FluidHandlerHelpers.fill(ifh, new FluidStack(NeoForgeMod.MILK.get(), 1000), false);
 		});
 
 		scene.world().setBlock(util.grid().at(3, 1, 3), AllBlocks.FLUID_PIPE.get()

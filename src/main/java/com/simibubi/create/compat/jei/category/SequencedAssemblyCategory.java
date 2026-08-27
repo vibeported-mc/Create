@@ -4,7 +4,6 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedRecipe;
@@ -60,12 +58,14 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 				.addSlot(RecipeIngredientRole.OUTPUT, 132 + xOffset, 91)
 				.setBackground(getRenderedSlot(recipe.getOutputChance()), -1 , -1)
 				.addItemStack(getResultItem(recipe))
-				.addTooltipCallback((recipeSlotView, tooltip) -> {
+				// The rich tooltip builder only appends, so the chance line lands at the end of the
+				// tooltip instead of straight after the item name.
+				.addRichTooltipCallback((recipeSlotView, tooltip) -> {
 					if (noRandomOutput)
 						return;
 
 					float chance = recipe.getOutputChance();
-					tooltip.add(1, chanceComponent(chance));
+					tooltip.add(chanceComponent(chance));
 				});
 
 		int width = 0;
@@ -73,7 +73,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 		for (SequencedRecipe<?> sequencedRecipe : recipe.getSequence())
 			width += getSubCategory(sequencedRecipe).getWidth() + margin;
 		width -= margin;
-		int x = width / -2 + getBackground().getWidth() / 2;
+		int x = width / -2 + getWidth() / 2;
 
 		for (SequencedRecipe<?> sequencedRecipe : recipe.getSequence()) {
 			SequencedAssemblySubCategory subCategory = getSubCategory(sequencedRecipe);
@@ -91,7 +91,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 				for (SizedFluidIngredient fluidIngredient : sequencedRecipe.getRecipe()
 					.getFluidIngredients())
 					builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-						.addIngredients(NeoForgeTypes.FLUID_STACK, Arrays.asList(fluidIngredient.getFluids()));
+						.addIngredients(NeoForgeTypes.FLUID_STACK, fluidsOf(fluidIngredient));
 			}
 		}
 	}
@@ -143,7 +143,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 		for (SequencedRecipe<?> sequencedRecipe : recipe.getSequence())
 			width += getSubCategory(sequencedRecipe).getWidth() + margin;
 		width -= margin;
-		matrixStack.translate(width / -2 + getBackground().getWidth() / 2, 0, 0);
+		matrixStack.translate(width / -2 + getWidth() / 2, 0);
 
 		matrixStack.pushMatrix();
 		List<SequencedRecipe<?>> sequence = recipe.getSequence();
@@ -198,7 +198,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 			for (SequencedRecipe<?> sequencedRecipe : recipe.getSequence())
 				width += getSubCategory(sequencedRecipe).getWidth() + margin;
 			width -= margin;
-			xOffset = width / 2 + getBackground().getWidth() / -2;
+			xOffset = width / 2 + getWidth() / -2;
 
 			double relativeX = mouseX + xOffset;
 			List<SequencedRecipe<?>> sequence = recipe.getSequence();

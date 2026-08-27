@@ -13,8 +13,6 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.compat.jei.category.animations.AnimatedCrafter;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 
@@ -35,8 +33,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
-
-import org.joml.Matrix4fStack;
 
 @NullMarked
 public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRecipe> {
@@ -103,7 +99,7 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
 		float scale = getScale(recipe);
-		matrixStack.translate(getXPadding(recipe), getYPadding(recipe), 0);
+		matrixStack.translate(getXPadding(recipe), getYPadding(recipe));
 
 		for (int row = 0; row < getHeight(recipe); row++)
 			for (int col = 0; col < getWidth(recipe); col++) {
@@ -133,7 +129,7 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 
 		int amount = 0;
 		for (Ingredient ingredient : RecipeAccessors.ingredients(recipe)) {
-			if (Ingredient.EMPTY == ingredient)
+			if (ingredient.isEmpty())
 				continue;
 			amount++;
 		}
@@ -159,16 +155,13 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 			float scale = getScale(recipe);
 			matrixStack.scale((float) (scale), (float) (scale));
 
+			// The model-view stack no longer feeds GUI drawing - the 2D pose stack above is what
+			// items are placed by - so the push/apply/pop around this is gone.
 			if (ingredient != null) {
-				Matrix4fStack modelViewStack = RenderSystem.getModelViewStack();
-				modelViewStack.pushMatrix();
-				RenderSystem.applyModelViewMatrix();
 				Minecraft minecraft = Minecraft.getInstance();
 				Font font = getFontRenderer(minecraft, ingredient);
 				graphics.item(ingredient, 0, 0);
 				graphics.itemDecorations(font, ingredient, 0, 0, null);
-				modelViewStack.popMatrix();
-				RenderSystem.applyModelViewMatrix();
 			}
 
 			matrixStack.popMatrix();

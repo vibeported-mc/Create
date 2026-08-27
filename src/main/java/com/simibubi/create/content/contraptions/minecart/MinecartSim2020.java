@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.minecart;
 
+import net.minecraft.world.entity.vehicle.minecart.OldMinecartBehavior;
+import net.minecraft.server.level.ServerLevel;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -51,8 +53,7 @@ public class MinecartSim2020 {
 
 	public static boolean canAddMotion(AbstractMinecart c) {
 		if (c instanceof MinecartFurnace furnace)
-			return Mth.equal(furnace.xPush, 0)
-				&& Mth.equal(furnace.zPush, 0);
+			return furnace.push.equals(Vec3.ZERO);
 
 		MinecartController controller = c.getData(AllAttachmentTypes.MINECART_CONTROLLER);
 		if (controller.isPresent())
@@ -64,6 +65,10 @@ public class MinecartSim2020 {
 		BlockState trackState) {
 
 		if (forcedMovement.equals(Vec3.ZERO))
+			return;
+		if (!(cart.getBehavior() instanceof OldMinecartBehavior behavior))
+			return;
+		if (!(cart.level() instanceof ServerLevel serverLevel))
 			return;
 
 		Vec3 previousMotion = cart.getDeltaMovement();
@@ -77,26 +82,26 @@ public class MinecartSim2020 {
 		double actualY = y;
 		double actualZ = z;
 
-		Vec3 actualVec = cart.getPos(actualX, actualY, actualZ);
+		Vec3 actualVec = behavior.getPos(actualX, actualY, actualZ);
 		actualY = cartPos.getY() + 1;
 
 		BaseRailBlock abstractrailblock = (BaseRailBlock) trackState.getBlock();
 		RailShape railshape = abstractrailblock.getRailDirection(trackState, cart.level(), cartPos, cart);
 		switch (railshape) {
 		case ASCENDING_EAST:
-			forcedMovement = forcedMovement.add(-1 * cart.getSlopeAdjustment(), 0.0D, 0.0D);
+			forcedMovement = forcedMovement.add(-slopeAdjustment(cart), 0.0D, 0.0D);
 			actualY++;
 			break;
 		case ASCENDING_WEST:
-			forcedMovement = forcedMovement.add(cart.getSlopeAdjustment(), 0.0D, 0.0D);
+			forcedMovement = forcedMovement.add(slopeAdjustment(cart), 0.0D, 0.0D);
 			actualY++;
 			break;
 		case ASCENDING_NORTH:
-			forcedMovement = forcedMovement.add(0.0D, 0.0D, cart.getSlopeAdjustment());
+			forcedMovement = forcedMovement.add(0.0D, 0.0D, slopeAdjustment(cart));
 			actualY++;
 			break;
 		case ASCENDING_SOUTH:
-			forcedMovement = forcedMovement.add(0.0D, 0.0D, -1 * cart.getSlopeAdjustment());
+			forcedMovement = forcedMovement.add(0.0D, 0.0D, -slopeAdjustment(cart));
 			actualY++;
 		default:
 			break;
@@ -136,7 +141,7 @@ public class MinecartSim2020 {
 
 		cart.setPos(actualX, actualY, actualZ);
 		cart.setDeltaMovement(forcedMovement);
-		cart.moveMinecartOnRail(cartPos);
+		behavior.moveAlongTrack(serverLevel);
 
 		x = cart.getX();
 		y = cart.getY();
@@ -154,7 +159,7 @@ public class MinecartSim2020 {
 		y = cart.getY();
 		z = cart.getZ();
 
-		Vec3 Vector3d3 = cart.getPos(x, y, z);
+		Vec3 Vector3d3 = behavior.getPos(x, y, z);
 		if (Vector3d3 != null && actualVec != null) {
 			double d17 = (actualVec.y - Vector3d3.y) * 0.05D;
 			Vec3 Vector3d4 = cart.getDeltaMovement();
@@ -179,6 +184,16 @@ public class MinecartSim2020 {
 		}
 
 		cart.setDeltaMovement(previousMotion);
+	}
+
+	/**
+	 * How hard a slope pulls a cart downhill.
+	 * <p>
+	 * NeoForge's per-cart hook for this is gone in 26.2; the value the vanilla behaviour uses is a
+	 * constant, softened in water.
+	 */
+	private static double slopeAdjustment(AbstractMinecart cart) {
+		return cart.isInWater() ? 0.0078125 * 0.2 : 0.0078125;
 	}
 
 	public static Vec3 getRailVec(RailShape shape) {

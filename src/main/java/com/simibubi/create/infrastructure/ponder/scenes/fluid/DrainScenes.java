@@ -74,7 +74,7 @@ public class DrainScenes {
 			be -> {
 				ResourceHandler<FluidResource> fh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (fh != null)
-					fh.drain(500, false);
+					FluidHandlerHelpers.drain(fh, 500, false);
 			});
 
 		scene.world().moveSection(drainLink, util.vector().of(1, 0, 0), 7);

@@ -45,7 +45,7 @@ public class PressingCategory extends CreateRecipeCategory<PressingRecipe> {
 		AllGuiTextures.JEI_SHADOW.render(graphics, 61, 41);
 		AllGuiTextures.JEI_LONG_ARROW.render(graphics, 52, 54);
 
-		press.draw(graphics, getBackground().getWidth() / 2 - 17, 22);
+		press.draw(graphics, getWidth() / 2 - 17, 22);
 	}
 
 }

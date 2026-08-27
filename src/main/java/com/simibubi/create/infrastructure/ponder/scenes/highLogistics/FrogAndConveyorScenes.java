@@ -1,6 +1,5 @@
 package com.simibubi.create.infrastructure.ponder.scenes.highLogistics;
 
-import org.joml.Matrix3x2fStack;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
@@ -30,12 +29,14 @@ import net.createmod.ponder.api.client.scene.Selection;
 import net.createmod.ponder.impl.client.element.ElementLinkImpl;
 import net.createmod.ponder.impl.client.element.ParrotElementImpl;
 import net.createmod.ponder.impl.client.instruction.CreateParrotInstruction;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -322,9 +323,8 @@ public class FrogAndConveyorScenes {
 		}
 
 		@Override
-		protected void renderLast(PonderLevel world, MultiBufferSource buffer, GuiGraphicsExtractor graphics, float fade,
-								  float pt) {
-			Matrix3x2fStack poseStack = graphics.pose();
+		protected void renderLast(PonderLevel world, SubmitNodeCollector queue, Camera camera,
+								  CameraRenderState cameraRenderState, PoseStack poseStack, float fade, float pt) {
 			EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance()
 				.getEntityRenderDispatcher();
 
@@ -343,33 +343,37 @@ public class FrogAndConveyorScenes {
 			double lz = Mth.lerp(pt, entity.zo, entity.getZ());
 			float angle = AngleHelper.angleLerp(pt, entity.yRotO, entity.getYRot());
 
-			poseStack.pushMatrix();
-			poseStack.translate((float) (location.x), (float) (location.y));
-			poseStack.translate((float) (lx), (float) (ly));
+			poseStack.pushPose();
+			poseStack.translate(location.x, location.y, location.z);
+			poseStack.translate(lx, ly, lz);
 			poseStack.mulPose(Axis.YP.rotationDegrees(angle));
 
-			poseStack.translate((float) (0), (float) (1.5f));
+			poseStack.translate(0, 1.5f, 0);
 			poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.sin((world.scene.getCurrentTime() + pt) * 0.2f) * 10));
-			poseStack.translate((float) (0), (float) (-1.5f));
+			poseStack.translate(0, -1.5f, 0);
 
-			poseStack.pushMatrix();
+			poseStack.pushPose();
 			poseStack.mulPose(Axis.YP.rotationDegrees(90));
 			poseStack.mulPose(Axis.XP.rotationDegrees(90));
 			poseStack.mulPose(Axis.ZP.rotationDegrees(90));
-			poseStack.scale((float) (1.5f), (float) (1.5f));
-			poseStack.translate((float) (-0.1), (float) (0.2));
-			BlockStateModel bakedmodel = Minecraft.getInstance()
-				.getItemRenderer()
-				.getModel(wrench.getItem(), world, null, 0);
-			Minecraft.getInstance()
-				.getItemRenderer()
-				.render(wrench.getItem(), ItemDisplayContext.GROUND, false, poseStack, buffer,
-					lightCoordsFromFade(fade), OverlayTexture.NO_OVERLAY, bakedmodel);
-			poseStack.popMatrix();
+			poseStack.scale(1.5f, 1.5f, 1.5f);
+			poseStack.translate(-0.1, 0.2, -0.6);
 
+			// Item rendering no longer walks a BakedModel into a MultiBufferSource: the model layers
+			// are resolved up front into an ItemStackRenderState, which is then submitted to the queue.
+			ItemStackRenderState wrenchState = new ItemStackRenderState();
+			Minecraft.getInstance()
+				.getItemModelResolver()
+				.updateForTopItem(wrenchState, wrench.getItem(), ItemDisplayContext.GROUND, world, null, 0);
+			wrenchState.submit(poseStack, queue, lightCoordsFromFade(fade), OverlayTexture.NO_OVERLAY, 0);
+			poseStack.popPose();
+
+			// The flap speed has to be set before the render state is extracted; extraction is what
+			// snapshots the entity for the deferred submit.
 			entity.flapSpeed = 2;
-			entityrenderermanager.render(entity, 0, 0, 0, 0, pt, poseStack, buffer, lightCoordsFromFade(fade));
-			poseStack.popMatrix();
+			EntityRenderState parrotState = entityrenderermanager.extractEntity(entity, pt);
+			entityrenderermanager.submit(parrotState, cameraRenderState, 0, 0, 0, poseStack, queue);
+			poseStack.popPose();
 		}
 
 	}

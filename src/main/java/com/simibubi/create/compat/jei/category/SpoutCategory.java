@@ -132,7 +132,7 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 		AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 126, 29);
 		spout.withFluids(Arrays.asList(recipe.getRequiredFluid()
 				.getFluids()))
-			.draw(graphics, getBackground().getWidth() / 2 - 13, 22);
+			.draw(graphics, getWidth() / 2 - 13, 22);
 	}
 
 }

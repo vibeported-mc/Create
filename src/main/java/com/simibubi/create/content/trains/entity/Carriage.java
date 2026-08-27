@@ -47,10 +47,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.api.distmarker.Dist;
@@ -65,6 +70,11 @@ public class Carriage {
 	);
 
 	public static final AtomicInteger netIdGenerator = new AtomicInteger();
+
+	// The CompoundTag overloads of EntityType.create/loadEntityRecursive spawned without any
+	// checks. Their ValueInput replacements run canSpawn unless told otherwise, so ignoreChecks
+	// keeps a stored carriage or seated passenger coming back on peaceful difficulty too.
+	private static final EntitySpawnRequest RESTORE_SPAWN = new EntitySpawnRequest(EntitySpawnReason.LOAD, true);
 
 	public Train train;
 	public int id;
@@ -484,8 +494,8 @@ public class Carriage {
 			Map<UUID, Integer> mapping = contraption.getSeatMapping();
 			for (Entity passenger : entity.getPassengers())
 				if (mapping.containsKey(passenger.getUUID())) {
-					CompoundTag data = new CompoundTag();
-					if (passenger.saveAsPassenger(data))
+					CompoundTag data = savePassenger(passenger);
+					if (data != null)
 						passengerMap.put(mapping.get(passenger.getUUID()), data);
 				}
 		}
@@ -508,11 +518,23 @@ public class Carriage {
 	}
 
 	private void serialize(Entity entity) {
-		serialisedEntity = new CompoundTag();
-		entity.saveAsPassenger(serialisedEntity);
+		CompoundTag saved = savePassenger(entity);
+		serialisedEntity = saved == null ? new CompoundTag() : saved;
 		serialisedEntity.remove("Passengers");
 		serialisedEntity.getCompoundOrEmpty("Contraption")
 			.remove("Passengers");
+	}
+
+	/**
+	 * Entities write themselves into a {@link net.minecraft.world.level.storage.ValueOutput} now,
+	 * but carriages keep their contents as plain tags so they can travel through saved data and
+	 * spawn packets untouched. Returns null when the entity declines to be saved.
+	 */
+	@Nullable
+	private static CompoundTag savePassenger(Entity entity) {
+		TagValueOutput output =
+			TagValueOutput.createWithContext(ProblemReporter.DISCARDING, entity.registryAccess());
+		return entity.saveAsPassenger(output) ? output.buildResult() : null;
 	}
 
 	public static Carriage read(CompoundTag tag, HolderLookup.Provider registries, TrackGraph graph, DimensionPalette dimensions) {
@@ -532,7 +554,7 @@ public class Carriage {
 				.read(c, registries));
 
 		CompoundTag passengersTag = tag.getCompoundOrEmpty("Passengers");
-		passengersTag.getAllKeys()
+		passengersTag.keySet()
 			.forEach(key -> carriage.serialisedPassengers.put(Integer.valueOf(key.substring(4)),
 				passengersTag.getCompoundOrEmpty(key)));
 
@@ -730,8 +752,8 @@ public class Carriage {
 						.getPlayer(tag.read("PlayerPassenger", UUIDUtil.CODEC).orElse(null));
 
 				} else {
-					passenger = EntityType.loadEntityRecursive(tag, entity.level(), e -> {
-						e.moveTo(positionAnchor);
+					passenger = EntityType.loadEntityRecursive(tag, entity.level(), RESTORE_SPAWN, e -> {
+						e.snapTo(positionAnchor);
 						return e;
 					});
 					if (passenger != null)
@@ -766,9 +788,9 @@ public class Carriage {
 					continue;
 				}
 
-				CompoundTag passengerData = new CompoundTag();
-				passenger.saveAsPassenger(passengerData);
-				serialisedPassengers.put(seat, passengerData);
+				CompoundTag passengerData = savePassenger(passenger);
+				if (passengerData != null)
+					serialisedPassengers.put(seat, passengerData);
 				passenger.discard();
 			}
 
@@ -799,7 +821,7 @@ public class Carriage {
 					continue;
 				ServerLevel level = sLevel.getServer()
 					.getLevel(other.getKey());
-				sp.teleportTo(level, loc.x, loc.y, loc.z, sp.getYRot(), sp.getXRot());
+				sp.teleportTo(level, loc.x, loc.y, loc.z, Set.of(), sp.getYRot(), sp.getXRot(), true);
 				sp.setPortalCooldown();
 				AllAdvancements.TRAIN_PORTAL.awardTo(sp);
 			}
@@ -832,7 +854,9 @@ public class Carriage {
 		private void createEntity(Level level, boolean loadPassengers) {
 			if (positionAnchor != null)
 				serialisedEntity.put("Pos", VecHelper.writeNBT(positionAnchor));
-			Entity entity = EntityType.create(serialisedEntity, level)
+			Entity entity = EntityType
+				.create(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), serialisedEntity), level,
+					RESTORE_SPAWN)
 				.orElse(null);
 
 			if (!(entity instanceof CarriageContraptionEntity cce)) {
@@ -840,7 +864,7 @@ public class Carriage {
 				return;
 			}
 
-			entity.moveTo(positionAnchor);
+			entity.snapTo(positionAnchor);
 			this.entity = new WeakReference<>(cce);
 
 			cce.setCarriage(Carriage.this);
@@ -867,9 +891,9 @@ public class Carriage {
 						continue;
 					}
 
-					CompoundTag passengerData = new CompoundTag();
-					passenger.saveAsPassenger(passengerData);
-					serialisedPassengers.put(seat, passengerData);
+					CompoundTag passengerData = savePassenger(passenger);
+					if (passengerData != null)
+						serialisedPassengers.put(seat, passengerData);
 				}
 			}
 

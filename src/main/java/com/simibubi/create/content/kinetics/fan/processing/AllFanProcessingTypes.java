@@ -1,5 +1,10 @@
 package com.simibubi.create.content.kinetics.fan.processing;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.util.ProblemReporter;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityTypes;
@@ -134,7 +139,7 @@ public class AllFanProcessingTypes {
 			if (blastingRecipe.isPresent())
 				return true;
 
-			return !stack.has(DataComponents.FIRE_RESISTANT);
+			return !stack.has(DataComponents.DAMAGE_RESISTANT);
 		}
 
 		@Override
@@ -152,11 +157,11 @@ public class AllFanProcessingTypes {
 			}
 
 			if (smeltingRecipe.isPresent()) {
-				RegistryAccess registryAccess = level.registryAccess();
-				if (smokingRecipe.isEmpty() || !ItemStack.isSameItem(smokingRecipe.get().value()
-						.getResultItem(registryAccess),
-					smeltingRecipe.get().value()
-						.getResultItem(registryAccess))) {
+				if (smokingRecipe.isEmpty()
+					|| !ItemStack.isSameItem(RecipeAccessors.result(smokingRecipe.get()
+						.value(), level),
+						RecipeAccessors.result(smeltingRecipe.get()
+							.value(), level))) {
 					return RecipeApplier.applyRecipeOn(level, stack, smeltingRecipe.get().value(), false);
 				}
 			}
@@ -273,7 +278,7 @@ public class AllFanProcessingTypes {
 
 			if (entity instanceof LivingEntity livingEntity) {
 				livingEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 30, 0, false, false));
-				livingEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 1, false, false));
+				livingEntity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 20, 1, false, false));
 			}
 			if (entity instanceof Horse horse) {
 				int progress = horse.getPersistentData()
@@ -291,16 +296,25 @@ public class AllFanProcessingTypes {
 				level.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EXTINGUISH_FIRE,
 					SoundSource.NEUTRAL, 1.25f, 0.65f);
 
-				SkeletonHorse skeletonHorse = EntityTypes.SKELETON_HORSE.create(level);
-				CompoundTag serializeNBT = horse.saveWithoutId(new CompoundTag());
+				SkeletonHorse skeletonHorse =
+					EntityTypes.SKELETON_HORSE.create(level, EntitySpawnReason.CONVERSION);
+				if (skeletonHorse == null)
+					return;
+
+				TagValueOutput output =
+					TagValueOutput.createWithContext(ProblemReporter.DISCARDING, entity.registryAccess());
+				horse.saveWithoutId(output);
+				CompoundTag serializeNBT = output.buildResult();
 				serializeNBT.remove("UUID");
+
 				if (!horse.getBodyArmorItem()
 					.isEmpty())
 					if (horse.level() instanceof ServerLevel horseLevel)
 						horse.spawnAtLocation(horseLevel, horse.getBodyArmorItem());
 
-				skeletonHorse.deserializeNBT(entity.registryAccess(), serializeNBT);
-				skeletonHorse.setPos(horse.getPosition(0));
+				skeletonHorse.load(
+					TagValueInput.create(ProblemReporter.DISCARDING, entity.registryAccess(), serializeNBT));
+				skeletonHorse.setPos(horse.position());
 				level.addFreshEntity(skeletonHorse);
 				horse.discard();
 			}
@@ -414,8 +428,7 @@ public class AllFanProcessingTypes {
 		public void spawnProcessingParticles(Level level, Vec3 pos) {
 			if (level.getRandom().nextInt(8) != 0)
 				return;
-			Vector3f color = new Color(0x0055FF).asVectorF();
-			level.addParticle(new DustParticleOptions(color, 1), pos.x + (level.getRandom().nextFloat() - .5f) * .5f,
+			level.addParticle(new DustParticleOptions(0x0055FF, 1), pos.x + (level.getRandom().nextFloat() - .5f) * .5f,
 				pos.y + .5f, pos.z + (level.getRandom().nextFloat() - .5f) * .5f, 0, 1 / 8f, 0);
 			level.addParticle(ParticleTypes.SPIT, pos.x + (level.getRandom().nextFloat() - .5f) * .5f, pos.y + .5f,
 				pos.z + (level.getRandom().nextFloat() - .5f) * .5f, 0, 1 / 8f, 0);

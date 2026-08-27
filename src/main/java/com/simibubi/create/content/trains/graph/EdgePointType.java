@@ -48,7 +48,7 @@ public class EdgePointType<T extends TrackEdgePoint> {
 	}
 	
 	public static TrackEdgePoint read(FriendlyByteBuf buffer, DimensionPalette dimensions) {
-		Identifier type = buffer.readResourceLocation();
+		Identifier type = buffer.readIdentifier();
 		EdgePointType<?> edgePointType = TYPES.get(type);
 		TrackEdgePoint point = edgePointType.create();
 		point.read(buffer, dimensions);

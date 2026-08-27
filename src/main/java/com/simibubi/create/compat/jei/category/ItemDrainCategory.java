@@ -113,7 +113,7 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 		AllGuiTextures.JEI_SHADOW.render(graphics, 62, 37);
 		AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 73, 4);
 		drain.withFluid(recipe.getResultingFluid())
-			.draw(graphics, getBackground().getWidth() / 2 - 13, 40);
+			.draw(graphics, getWidth() / 2 - 13, 40);
 	}
 
 }

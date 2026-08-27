@@ -20,7 +20,7 @@ public class FanBlastingCategory extends ProcessingViaFanCategory<AbstractCookin
 
 	@Override
 	protected void renderAttachedBlock(GuiGraphicsExtractor graphics) {
-		GuiGameElement.of(Fluids.LAVA)
+		viewRotated(GuiGameElement.of(Fluids.LAVA))
 			.scale(SCALE)
 			.atLocal(0, 0, 2)
 			.lighting(AnimatedKinetics.DEFAULT_LIGHTING)

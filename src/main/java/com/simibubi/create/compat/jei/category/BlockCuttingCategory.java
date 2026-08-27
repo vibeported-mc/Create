@@ -12,7 +12,9 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 
@@ -62,8 +64,11 @@ public class BlockCuttingCategory extends CreateRecipeCategory<CondensedBlockCut
 
 		List<ItemStack> outputs = new ArrayList<>();
 
+		// The recipe group moved onto StonecutterRecipe#group (hardcoded to "") and the result is now
+		// an ItemStackTemplate; CommonInfo only carries the show-notification flag, which keeps its
+		// former default. The result is never read - the category draws the condensed output list.
 		public CondensedBlockCuttingRecipe(Ingredient ingredient) {
-			super("", ingredient, ItemStack.EMPTY);
+			super(new Recipe.CommonInfo(true), ingredient, ItemStackTemplate.fromStack(ItemStack.EMPTY));
 		}
 
 		public void addOutput(ItemStack stack) {

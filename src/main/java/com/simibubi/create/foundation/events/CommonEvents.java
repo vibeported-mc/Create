@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.events;
 
+import com.simibubi.create.foundation.data.RuntimeDataGenerator;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+import com.simibubi.create.foundation.item.BlockBreakingItem;
 import com.simibubi.create.AllRecipeTypes;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import com.simibubi.create.AllMapDecorationTypes;
@@ -84,7 +87,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.gui.map.RegisterMapDecorationRenderersEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -120,6 +123,23 @@ public class CommonEvents {
 	@SubscribeEvent
 	public static void onDatapackSync(OnDatapackSyncEvent event) {
 		event.sendRecipes(AllRecipeTypes.syncedTypes());
+	}
+
+	/**
+	 * Answers for the items that used to refuse block breaking themselves.
+	 * <p>
+	 * 26.2 dropped {@code Item#canAttackBlock}; cancelling this event is what stops the break now,
+	 * so the item is still the one deciding.
+	 */
+	@SubscribeEvent
+	public static void onBreakBlock(BreakBlockEvent event) {
+		Player player = event.getPlayer();
+		if (!(player.getMainHandItem()
+			.getItem() instanceof BlockBreakingItem item))
+			return;
+		if (!(event.getLevel() instanceof Level level)
+			|| !item.canAttackBlock(event.getState(), level, event.getPos(), player))
+			event.setCanceled(true);
 	}
 
 	@SubscribeEvent
@@ -189,10 +209,11 @@ public class CommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void addReloadListeners(AddReloadListenerEvent event) {
-		event.addListener(RecipeFinder.LISTENER);
-		event.addListener(RecipeTrieFinder.LISTENER);
-		event.addListener(BeltHelper.LISTENER);
+	public static void addReloadListeners(AddServerReloadListenersEvent event) {
+		// 26.2 orders reload listeners by id, so each one has to name itself.
+		event.addListener(Create.asResource("recipe_finder"), RecipeFinder.LISTENER);
+		event.addListener(Create.asResource("recipe_trie_finder"), RecipeTrieFinder.LISTENER);
+		event.addListener(Create.asResource("belt_helper"), BeltHelper.LISTENER);
 	}
 
 	@SubscribeEvent

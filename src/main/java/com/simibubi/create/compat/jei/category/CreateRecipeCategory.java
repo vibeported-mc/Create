@@ -145,7 +145,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 	 * The fluids a sized ingredient stands for. 26.2 dropped the pre-expanded array in favour of the
 	 * ingredient's own stream.
 	 */
-	private static List<FluidStack> fluidsOf(SizedFluidIngredient ingredient) {
+	public static List<FluidStack> fluidsOf(SizedFluidIngredient ingredient) {
 		return ingredient.ingredient()
 			.fluids()
 			.stream()

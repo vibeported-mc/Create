@@ -1,5 +1,8 @@
 package com.simibubi.create.content.equipment.potatoCannon;
 
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import com.simibubi.create.foundation.utility.NbtValueIO;
@@ -219,7 +222,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 		boolean onServer = !level().isClientSide();
 		DamageSource damageSource = causePotatoDamage();
-		if (onServer && !target.hurt(damageSource, damage)) {
+		if (onServer && !target.hurtServer((ServerLevel) level(), damageSource, damage)) {
 			target.setRemainingFireTicks(k);
 			killOnServer();
 			return;
@@ -250,7 +253,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 				.multiply(1.0D, 0.0D, 1.0D)
 				.normalize();
 			if (appliedMotion.lengthSqr() > 0.0D)
-				livingentity.knockback(knockback * 0.6, -appliedMotion.x, -appliedMotion.z);
+				livingentity.knockback(knockback * 0.6, -appliedMotion.x, -appliedMotion.z, damageSource, damage);
 		}
 
 		if (onServer && owner instanceof LivingEntity) {
@@ -260,7 +263,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (livingentity != owner && livingentity instanceof Player && owner instanceof ServerPlayer
 			&& !this.isSilent()) {
 			((ServerPlayer) owner).connection
-				.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
+				.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND, 0.0F));
 		}
 
 		if (onServer && owner instanceof ServerPlayer serverplayerentity) {
@@ -307,10 +310,19 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 	}
 
 	@Override
-	public boolean hurt(@NotNull DamageSource source, float amt) {
+	public boolean hurtServer(ServerLevel level, DamageSource source, float amt) {
+		return popOnDamage(source);
+	}
+
+	@Override
+	public boolean hurtClient(DamageSource source) {
+		return popOnDamage(source);
+	}
+
+	private boolean popOnDamage(DamageSource source) {
 		if (source.is(DamageTypeTags.IS_FIRE))
 			return false;
-		if (this.isInvulnerableTo(source))
+		if (this.isInvulnerableToBase(source))
 			return false;
 		pop(position());
 		killOnServer();
@@ -341,14 +353,18 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 
 	@Override
 	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
-		CompoundTag compound = new CompoundTag();
-		addAdditionalSaveData(compound);
-		buffer.writeNbt(compound);
+		// 26.2 saves entities through a ValueOutput rather than straight into a tag.
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registryAccess());
+		addAdditionalSaveData(output);
+		buffer.writeNbt(output.buildResult());
 	}
 
 	@Override
 	public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
-		readAdditionalSaveData(additionalData.readNbt());
+		CompoundTag tag = additionalData.readNbt();
+		if (tag == null)
+			return;
+		readAdditionalSaveData(TagValueInput.create(ProblemReporter.DISCARDING, registryAccess(), tag));
 	}
 
 

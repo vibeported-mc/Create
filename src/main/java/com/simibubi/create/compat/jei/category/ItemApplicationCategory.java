@@ -2,8 +2,6 @@ package com.simibubi.create.compat.jei.category;
 
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.simibubi.create.compat.jei.category.animations.AnimatedKinetics;
 import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipe;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
@@ -41,9 +39,11 @@ public class ItemApplicationCategory extends CreateRecipeCategory<ItemApplicatio
 		builder.addSlot(RecipeIngredientRole.INPUT, 51, 5)
 				.setBackground(getRenderedSlot(), -1, -1)
 				.addIngredients(recipe.getRequiredHeldItem())
-				.addTooltipCallback(
+				// The rich tooltip builder only appends, so the note lands at the end of the tooltip
+				// instead of straight after the item name the way the old indexed insert placed it.
+				.addRichTooltipCallback(
 					recipe.shouldKeepHeldItem()
-						? (view, tooltip) -> tooltip.add(1, CreateLang.translateDirect("recipe.deploying.not_consumed")
+						? (view, tooltip) -> tooltip.add(CreateLang.translateDirect("recipe.deploying.not_consumed")
 							.withStyle(ChatFormatting.GOLD))
 						: (view, tooltip) -> {}
 				);
@@ -83,12 +83,13 @@ public class ItemApplicationCategory extends CreateRecipeCategory<ItemApplicatio
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
 		matrixStack.translate((float) (74), (float) (51));
-		matrixStack.mulPose(Axis.XP.rotationDegrees(-15.5f));
-		matrixStack.mulPose(Axis.YP.rotationDegrees(22.5f));
 		int scale = 20;
 
+		// The GUI transform stack is two-dimensional now, so the viewing angle travels with the
+		// element instead of being pushed around it.
 		GuiGameElement.of(state)
 			.lighting(AnimatedKinetics.DEFAULT_LIGHTING)
+			.viewRotate(-15.5, 22.5, 0)
 			.scale(scale)
 			.submit(graphics);
 

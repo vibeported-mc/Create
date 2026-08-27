@@ -48,8 +48,10 @@ public class DeployingCategory extends CreateRecipeCategory<DeployerApplicationR
 				.addRichTooltipCallback(addStochasticTooltip(output));
 		}
 
+		// The rich tooltip builder only appends, so the note lands at the end of the tooltip instead of
+		// straight after the item name the way the old indexed insert placed it.
 		if (recipe.shouldKeepHeldItem())
-			handItemSlot.addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, CreateLang.translateDirect("recipe.deploying.not_consumed").withStyle(ChatFormatting.GOLD)));
+			handItemSlot.addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(CreateLang.translateDirect("recipe.deploying.not_consumed").withStyle(ChatFormatting.GOLD)));
 
 	}
 
@@ -57,7 +59,7 @@ public class DeployingCategory extends CreateRecipeCategory<DeployerApplicationR
 	public void draw(DeployerApplicationRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		AllGuiTextures.JEI_SHADOW.render(graphics, 62, 57);
 		AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 126, 29 + (recipe.getRollableResults().size() > 2 ? -19 : 0));
-		deployer.draw(graphics, getBackground().getWidth() / 2 - 13, 22);
+		deployer.draw(graphics, getWidth() / 2 - 13, 22);
 	}
 
 }

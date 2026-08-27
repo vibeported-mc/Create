@@ -58,7 +58,7 @@ public class GlobalRailwayManager {
 
 	public void playerLogin(Player player) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			loadTrackData(serverPlayer.getServer());
+			loadTrackData(serverPlayer.level().getServer());
 			for (TrackGraph g : trackNetworks.values()) {
 				sync.sendFullGraphTo(g, serverPlayer);
 			}

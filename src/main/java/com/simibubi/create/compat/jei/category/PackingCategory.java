@@ -79,8 +79,8 @@ public class PackingCategory extends BasinCategory {
 		HeatCondition requiredHeat = recipe.getRequiredHeat();
 		if (requiredHeat != HeatCondition.NONE)
 			heater.withHeat(requiredHeat.visualizeAsBlazeBurner())
-				.draw(graphics, getBackground().getWidth() / 2 + 3, 55);
-		press.draw(graphics, getBackground().getWidth() / 2 + 3, 34);
+				.draw(graphics, getWidth() / 2 + 3, 55);
+		press.draw(graphics, getWidth() / 2 + 3, 34);
 
 
 	}

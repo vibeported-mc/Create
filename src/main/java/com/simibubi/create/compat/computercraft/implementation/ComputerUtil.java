@@ -15,14 +15,20 @@ import com.simibubi.create.compat.computercraft.implementation.luaObjects.LuaCom
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 
+import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
+
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import net.createmod.catnip.api.data.Glob;
 
 public class ComputerUtil {
 
+	// CC:Tweaked's detail registries now take a HolderLookup.Provider so that item components can be
+	// encoded against the active registries. None of these helpers are handed a Level, so the lookup
+	// comes from the global registry access; peripherals only ever run with a server present.
+
 	public static int bigItemStackToLuaTableFilter(BigItemStack entry, Map<?, ?> filter) throws LuaException {
-		Map<String, Object> details = VanillaDetailRegistries.ITEM_STACK.getDetails(entry.stack);
+		Map<String, Object> details = VanillaDetailRegistries.ITEM_STACK.getDetails(GlobalRegistryAccess.getOrThrow(), entry.stack);
 
 		// Count needs to be replaced because BigItemStack can have a different count than the stack
 		details.put("count", entry.count);
@@ -293,7 +299,7 @@ public class ComputerUtil {
 		var size = inventory.size();
 		for (var i = 0; i < size; i++) {
 			var stack = ItemHandlerHelpers.getStackInSlot(inventory, i);
-			if (!stack.isEmpty()) result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(stack));
+			if (!stack.isEmpty()) result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(GlobalRegistryAccess.getOrThrow(), stack));
 		}
 
 		return result;
@@ -305,7 +311,7 @@ public class ComputerUtil {
 		if (slot < 1 || slot > maxSlots)
 			throw new LuaException(String.format("Slot " + slot + " out of range, available slots between " + 1 + " and " + maxSlots));
 		var stack = ItemHandlerHelpers.getStackInSlot(inventory, slot - 1);
-		return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(stack);
+		return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(GlobalRegistryAccess.getOrThrow(), stack);
 	}
 
 	public static Map<String, ?> getItemDetail(InventorySummary inventorySummary, int slot) throws LuaException {
@@ -314,7 +320,7 @@ public class ComputerUtil {
 		if (slot < 1 || slot > maxSlots)
 			throw new LuaException(String.format("Slot " + slot + " out of range, available slots between " + 1 + " and " + maxSlots));
 		BigItemStack entry = stacks.get(slot - 1);
-		Map<String, Object> details = new HashMap<>(VanillaDetailRegistries.ITEM_STACK.getDetails(entry.stack));
+		Map<String, Object> details = new HashMap<>(VanillaDetailRegistries.ITEM_STACK.getDetails(GlobalRegistryAccess.getOrThrow(), entry.stack));
 		details.put("count", entry.count);
 
 		return

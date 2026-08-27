@@ -140,7 +140,7 @@ public class AllPotatoProjectileTypes {
 			.knockback(0.1f)
 			.renderTumbling()
 			.soundPitch(1.1f)
-			.onEntityHit(new PotionEffect(MobEffects.MOVEMENT_SLOWDOWN, 2, 160, true))
+			.onEntityHit(new PotionEffect(MobEffects.SLOWNESS, 2, 160, true))
 			.addItems(AllItems.HONEYED_APPLE.get())
 			.build());
 

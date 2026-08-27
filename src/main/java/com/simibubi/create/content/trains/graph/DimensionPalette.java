@@ -46,14 +46,14 @@ public class DimensionPalette {
 
 	public void send(FriendlyByteBuf buffer) {
 		buffer.writeInt(gatheredDims.size());
-		gatheredDims.forEach(rk -> buffer.writeResourceLocation(rk.identifier()));
+		gatheredDims.forEach(rk -> buffer.writeIdentifier(rk.identifier()));
 	}
 
 	public static DimensionPalette receive(FriendlyByteBuf buffer) {
 		DimensionPalette palette = new DimensionPalette();
 		int length = buffer.readInt();
 		for (int i = 0; i < length; i++)
-			palette.gatheredDims.add(ResourceKey.create(Registries.DIMENSION, buffer.readResourceLocation()));
+			palette.gatheredDims.add(ResourceKey.create(Registries.DIMENSION, buffer.readIdentifier()));
 		return palette;
 	}
 

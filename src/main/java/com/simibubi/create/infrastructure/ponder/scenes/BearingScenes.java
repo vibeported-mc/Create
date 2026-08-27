@@ -596,7 +596,7 @@ public class BearingScenes {
 		scene.idle(10);
 
 		scene.world().setBlock(util.grid().at(3, 3, 0), Blocks.STONE_BRICK_WALL.defaultBlockState()
-			.setValue(WallBlock.SOUTH_WALL, WallSide.TALL), false);
+			.setValue(WallBlock.SOUTH, WallSide.TALL), false);
 		ElementLink<WorldSectionElement> minuteHand =
 			scene.world().showIndependentSection(util.select().fromTo(3, 3, 0, 3, 6, 0), Direction.SOUTH);
 		scene.world().configureCenterOfRotation(minuteHand, util.vector().centerOf(bearingPos));

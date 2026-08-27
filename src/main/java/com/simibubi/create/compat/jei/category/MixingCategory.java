@@ -44,8 +44,8 @@ public class MixingCategory extends BasinCategory {
 		HeatCondition requiredHeat = recipe.getRequiredHeat();
 		if (requiredHeat != HeatCondition.NONE)
 			heater.withHeat(requiredHeat.visualizeAsBlazeBurner())
-				.draw(graphics, getBackground().getWidth() / 2 + 3, 55);
-		mixer.draw(graphics, getBackground().getWidth() / 2 + 3, 34);
+				.draw(graphics, getWidth() / 2 + 3, 55);
+		mixer.draw(graphics, getWidth() / 2 + 3, 34);
 	}
 
 }

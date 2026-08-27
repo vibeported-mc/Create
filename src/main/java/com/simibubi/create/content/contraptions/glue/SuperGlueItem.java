@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.glue;
 
+import com.simibubi.create.foundation.item.BlockBreakingItem;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.util.TriState;
 import com.simibubi.create.content.contraptions.chassis.AbstractChassisBlock;
@@ -25,7 +26,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber
-public class SuperGlueItem extends Item {
+public class SuperGlueItem extends Item implements BlockBreakingItem {
 
 	@SubscribeEvent
 	public static void glueItemAlwaysPlacesWhenUsed(PlayerInteractEvent.RightClickBlock event) {
@@ -47,7 +48,6 @@ public class SuperGlueItem extends Item {
 		super(properties);
 	}
 
-	@Override
 	public boolean canAttackBlock(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer) {
 		return false;
 	}

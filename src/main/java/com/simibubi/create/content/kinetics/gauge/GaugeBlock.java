@@ -113,7 +113,8 @@ public class GaugeBlock extends DirectionalAxisKineticBlock implements IBE<Gauge
 			return false;
 		if (getRotationAxis(state) == Axis.Y && face != state.getValue(FACING))
 			return false;
-		if (!Block.shouldRenderFace(state, world, pos, face, pos.relative(face)) && !(world instanceof WrappedLevel))
+		if (!Block.shouldRenderFace(world, pos, state, world.getBlockState(pos.relative(face)), face)
+			&& !(world instanceof WrappedLevel))
 			return false;
 		return true;
 	}
@@ -131,7 +132,6 @@ public class GaugeBlock extends DirectionalAxisKineticBlock implements IBE<Gauge
 			if (!shouldRenderHeadOnFace(worldIn, pos, stateIn, face))
 				continue;
 
-			Vector3f rgb = new Color(color).asVectorF();
 			Vec3 faceVec = Vec3.atLowerCornerOf(face.getUnitVec3i());
 			Direction positiveFacing = Direction.get(AxisDirection.POSITIVE, face.getAxis());
 			Vec3 positiveFaceVec = Vec3.atLowerCornerOf(positiveFacing.getUnitVec3i());
@@ -148,7 +148,7 @@ public class GaugeBlock extends DirectionalAxisKineticBlock implements IBE<Gauge
 				Vec3 offset = VecHelper.getCenterOf(pos)
 					.add(faceVec.scale(.55))
 					.add(mul);
-				worldIn.addParticle(new DustParticleOptions(rgb, 1), offset.x, offset.y, offset.z, mul.x, mul.y, mul.z);
+				worldIn.addParticle(new DustParticleOptions(color, 1), offset.x, offset.y, offset.z, mul.x, mul.y, mul.z);
 			}
 
 		}

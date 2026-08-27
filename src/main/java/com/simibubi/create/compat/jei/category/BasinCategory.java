@@ -99,7 +99,7 @@ public class BasinCategory extends CreateRecipeCategory<BasinRecipe> {
 		}
 		if (!requiredHeat.testBlazeBurner(HeatLevel.KINDLED)) {
 			builder
-					.addSlot(RecipeIngredientRole.CATALYST, 153, 81)
+					.addSlot(RecipeIngredientRole.CRAFTING_STATION, 153, 81)
 					.addItemStack(AllItems.BLAZE_CAKE.asStack());
 		}
 	}

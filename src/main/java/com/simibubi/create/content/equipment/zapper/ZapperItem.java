@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.zapper;
 
+import com.simibubi.create.foundation.item.BlockBreakingItem;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.List;
 
@@ -44,7 +45,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public abstract class ZapperItem extends Item implements CustomArmPoseItem {
+public abstract class ZapperItem extends Item implements CustomArmPoseItem, BlockBreakingItem {
 
 	public ZapperItem(Properties properties) {
 		super(properties.stacksTo(1));
@@ -189,7 +190,6 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem {
 		return true;
 	}
 
-	@Override
 	public boolean canAttackBlock(BlockState state, Level worldIn, BlockPos pos, Player player) {
 		return false;
 	}

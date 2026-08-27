@@ -20,7 +20,7 @@ public class FanHauntingCategory extends ProcessingViaFanCategory.MultiOutput<Ha
 
 	@Override
 	protected void renderAttachedBlock(GuiGraphicsExtractor graphics) {
-		GuiGameElement.of(Blocks.SOUL_FIRE.defaultBlockState())
+		viewRotated(GuiGameElement.of(Blocks.SOUL_FIRE.defaultBlockState()))
 			.scale(SCALE)
 			.atLocal(0, 0, 2)
 			.lighting(AnimatedKinetics.DEFAULT_LIGHTING)

@@ -4,6 +4,7 @@ import net.minecraft.world.item.DyeColor;
 import com.simibubi.create.foundation.item.ItemHelper;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllBlocks;
@@ -490,7 +491,7 @@ public class ProcessingScenes {
 		Vec3 basinSide = util.vector().blockSurface(basin, Direction.WEST);
 
 		ItemStack copper = new ItemStack(Items.COPPER_INGOT);
-		ItemStack copperBlock = new ItemStack(Items.COPPER_BLOCK);
+		ItemStack copperBlock = new ItemStack(Items.COPPER_BLOCK.weathering().unaffected());
 
 		scene.overlay().showText(60)
 			.pointAt(basinSide)
@@ -573,7 +574,7 @@ public class ProcessingScenes {
 		BlockPos center = util.grid().at(2, 0, 2);
 
 		scene.world().createEntity(w -> {
-			Blaze blazeEntity = EntityTypes.BLAZE.create(w);
+			Blaze blazeEntity = EntityTypes.BLAZE.create(w, EntitySpawnReason.LOAD);
 			Vec3 v = util.vector().topOf(center);
 			blazeEntity.setPosRaw(v.x, v.y, v.z);
 			blazeEntity.setYRot(blazeEntity.yRotO = 180);
@@ -872,7 +873,7 @@ public class ProcessingScenes {
 		scene.world().modifyBlockEntity(pressPos, type, pte -> pte.getPressingBehaviour()
 			.makeCompactingParticleEffect(util.vector().centerOf(basinPos), ingot));
 
-		ItemStack block = new ItemStack(Items.COPPER_BLOCK);
+		ItemStack block = new ItemStack(Items.COPPER_BLOCK.weathering().unaffected());
 		scene.idle(30);
 		scene.overlay().showControls(util.vector().topOf(basinPos), Pointing.RIGHT, 30).withItem(block);
 		scene.overlay().showText(70)

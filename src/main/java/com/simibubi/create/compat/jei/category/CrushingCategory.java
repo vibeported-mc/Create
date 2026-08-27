@@ -34,7 +34,7 @@ public class CrushingCategory extends CreateRecipeCategory<AbstractCrushingRecip
 				.setBackground(getRenderedSlot(), -1, -1)
 				.addIngredients(recipe.getIngredients().get(0));
 
-		int xOffset = getBackground().getWidth() / 2;
+		int xOffset = getWidth() / 2;
 		int yOffset = 86;
 
 		layoutOutput(recipe).forEach(layoutEntry -> builder

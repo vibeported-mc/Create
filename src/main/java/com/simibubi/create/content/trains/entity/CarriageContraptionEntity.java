@@ -41,6 +41,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -61,8 +63,11 @@ public class CarriageContraptionEntity extends OrientedContraptionEntity {
 
 	private static final EntityDataAccessor<CarriageSyncData> CARRIAGE_DATA =
 		SynchedEntityData.defineId(CarriageContraptionEntity.class, AllEntityDataSerializers.CARRIAGE_DATA);
+	// EntityDataSerializers.OPTIONAL_UUID is gone; serializers are now built from a stream codec.
+	private static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID =
+		EntityDataSerializer.forValueType(ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC));
 	private static final EntityDataAccessor<Optional<UUID>> TRACK_GRAPH =
-		SynchedEntityData.defineId(CarriageContraptionEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+		SynchedEntityData.defineId(CarriageContraptionEntity.class, OPTIONAL_UUID);
 	private static final EntityDataAccessor<Boolean> SCHEDULED =
 		SynchedEntityData.defineId(CarriageContraptionEntity.class, EntityDataSerializers.BOOLEAN);
 
@@ -96,9 +101,17 @@ public class CarriageContraptionEntity extends OrientedContraptionEntity {
 			.multiply(1, .25f, 1);
 	}
 
+	// isControlledByLocalInstance is now the final isLocalInstanceAuthoritative, assembled from
+	// these two hooks: the client half has to say yes and the server half no for a carriage to keep
+	// simulating its own movement on both sides.
 	@Override
-	public boolean isControlledByLocalInstance() {
+	protected boolean isLocalClientAuthoritative() {
 		return true;
+	}
+
+	@Override
+	public boolean isClientAuthoritative() {
+		return false;
 	}
 
 	@Override

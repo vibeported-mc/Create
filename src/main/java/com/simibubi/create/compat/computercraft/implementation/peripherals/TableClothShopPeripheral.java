@@ -12,6 +12,8 @@ import com.simibubi.create.content.logistics.redstoneRequester.AutoRequestData.M
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.logistics.tableCloth.TableClothBlockEntity;
 
+import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
+
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
@@ -54,7 +56,7 @@ public class TableClothShopPeripheral extends SyncedPeripheral<TableClothBlockEn
 	@LuaFunction(mainThread = true)
 	public final Map<String, ?> getPriceTagItem() throws LuaException {
 		assertShop();
-		return VanillaDetailRegistries.ITEM_STACK.getDetails(blockEntity.priceTag.getFilter());
+		return VanillaDetailRegistries.ITEM_STACK.getDetails(GlobalRegistryAccess.getOrThrow(), blockEntity.priceTag.getFilter());
 	}
 
 	@LuaFunction(mainThread = true)
@@ -91,7 +93,7 @@ public class TableClothShopPeripheral extends SyncedPeripheral<TableClothBlockEn
 		for (int i = 0; i < wares.size(); i++) {
 			ItemStack stack = wares.get(i).stack;
 			Map<String, Object> details = new HashMap<>(
-				VanillaDetailRegistries.ITEM_STACK.getDetails(stack));
+				VanillaDetailRegistries.ITEM_STACK.getDetails(GlobalRegistryAccess.getOrThrow(), stack));
 			details.put("count", wares.get(i).count);
 			result.put(i + 1, details); // +1 because lua
 		}

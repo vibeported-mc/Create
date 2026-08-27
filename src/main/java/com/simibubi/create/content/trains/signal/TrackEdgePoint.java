@@ -111,7 +111,7 @@ public abstract class TrackEdgePoint {
 	}
 
 	public void write(FriendlyByteBuf buffer, DimensionPalette dimensions) {
-		buffer.writeResourceLocation(type.getId());
+		buffer.writeIdentifier(type.getId());
 		buffer.writeUUID(id);
 		edgeLocation.forEach(loc -> loc.send(buffer, dimensions));
 		buffer.writeDouble(position);

@@ -14,7 +14,7 @@ public class FanWashingCategory extends ProcessingViaFanCategory.MultiOutput<Spl
 
 	@Override
 	protected void renderAttachedBlock(GuiGraphicsExtractor graphics) {
-		GuiGameElement.of(Fluids.WATER)
+		viewRotated(GuiGameElement.of(Fluids.WATER))
 			.scale(SCALE)
 			.atLocal(0, 0, 2)
 			.lighting(AnimatedKinetics.DEFAULT_LIGHTING)

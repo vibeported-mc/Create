@@ -1,6 +1,7 @@
 package com.simibubi.create.infrastructure.ponder.scenes;
 
 import com.simibubi.create.foundation.item.ItemHelper;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperItem;
@@ -181,7 +182,7 @@ public class DeployerScenes {
 		scene.idle(70);
 
 		ElementLink<EntityElement> sheep = scene.world().createEntity(w -> {
-			Sheep entity = EntityTypes.SHEEP.create(w);
+			Sheep entity = EntityTypes.SHEEP.create(w, EntitySpawnReason.LOAD);
 			entity.setColor(DyeColor.PINK);
 			Vec3 p = util.vector().topOf(util.grid().at(1, 0, 2));
 			entity.setPos(p.x, p.y, p.z);
@@ -189,7 +190,7 @@ public class DeployerScenes {
 			entity.yo = p.y;
 			entity.zo = p.z;
 			WalkAnimationState animation = entity.walkAnimation;
-			animation.update(-animation.position(), 1);
+			animation.update(-animation.position(), 1, 1);
 			animation.setSpeed(1);
 			entity.yRotO = 210;
 			entity.setYRot(210);

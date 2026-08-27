@@ -1,7 +1,6 @@
 package com.simibubi.create.compat.curios;
 
 import net.createmod.catnip.api.platform.services.PlatformHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +35,9 @@ public class Curios {
 		return Optional.ofNullable(entity.getCapability(CuriosCapability.INVENTORY)).map(ICuriosItemHandler::getCurios);
 	}
 
+	// Curios 16 still exposes its slots through NeoForge's legacy IItemHandlerModifiable rather than
+	// the new ResourceHandler, so these read the stacks directly instead of going through
+	// ItemHandlerHelpers like the rest of Create does.
 	public static void init(IEventBus modEventBus) {
 		modEventBus.addListener(Curios::onClientSetup);
 
@@ -43,9 +45,9 @@ public class Curios {
 			.map(curiosMap -> {
 				for (ICurioStacksHandler stacksHandler : curiosMap.values()) {
 					// Search all the curio slots for Goggles existing
-					int slots = stacksHandler.size();
+					int slots = stacksHandler.getSlots();
 					for (int slot = 0; slot < slots; slot++) {
-						if (AllItems.GOGGLES.isIn(ItemHandlerHelpers.getStackInSlot(stacksHandler.getStacks(), slot))) {
+						if (AllItems.GOGGLES.isIn(stacksHandler.getStacks().getStackInSlot(slot))) {
 							return true;
 						}
 					}
@@ -60,9 +62,9 @@ public class Curios {
 				List<ItemStack> stacks = new ArrayList<>();
 				for (ICurioStacksHandler stacksHandler : curiosMap.values()) {
 					// Search all the curio slots for pressurized air sources, and add them to the list
-					int slots = stacksHandler.size();
+					int slots = stacksHandler.getSlots();
 					for (int slot = 0; slot < slots; slot++) {
-						final ItemStack itemStack = ItemHandlerHelpers.getStackInSlot(stacksHandler.getStacks(), slot);
+						final ItemStack itemStack = stacksHandler.getStacks().getStackInSlot(slot);
 						if (AllTags.AllItemTags.PRESSURIZED_AIR_SOURCES.matches(itemStack))
 							stacks.add(itemStack);
 					}

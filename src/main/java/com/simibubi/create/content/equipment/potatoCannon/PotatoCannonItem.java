@@ -1,5 +1,8 @@
 package com.simibubi.create.content.equipment.potatoCannon;
 
+import com.simibubi.create.foundation.item.BlockBreakingItem;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.entity.EntitySpawnReason;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -52,7 +55,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
-public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmPoseItem {
+public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmPoseItem, BlockBreakingItem {
 	private static final Predicate<ItemStack> AMMO_PREDICATE = s ->
 		PotatoCannonProjectileType.getTypeForItem(GlobalRegistryAccess.getOrThrow(), s.getItem()).isPresent();
 
@@ -126,7 +129,10 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 		ItemStack ammoStackCopy = ammoStack.copy();
 
 		for (int i = 0; i < projectileType.split(); i++) {
-			PotatoProjectileEntity projectile = AllEntityTypes.POTATO_PROJECTILE.create(level);
+			PotatoProjectileEntity projectile =
+				AllEntityTypes.POTATO_PROJECTILE.create(level, EntitySpawnReason.TRIGGERED);
+			if (projectile == null)
+				continue;
 			projectile.setItem(ammoStackCopy);
 			projectile.setEnchantmentEffectsFromCannon(heldStack);
 
@@ -153,7 +159,7 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 		}
 
 		if (!BacktankUtil.canAbsorbDamage(player, maxUses()))
-			heldStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+			heldStack.hurtAndBreak(1, player, hand);
 
 		ShootableGadgetItemMethods.applyCooldown(player, heldStack, hand, s -> s.getItem() instanceof PotatoCannonItem, projectileType.reloadTicks());
 		ShootableGadgetItemMethods.sendPackets(player,
@@ -163,16 +169,17 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+		Consumer<Component> tooltip, TooltipFlag flag) {
 		LocalPlayer player = Minecraft.getInstance().player;
 		if (player == null) {
-			super.appendHoverText(stack, context, tooltip, flag);
+			super.appendHoverText(stack, context, display, tooltip, flag);
 			return;
 		}
 
 		Ammo ammo = getAmmo(player, stack);
 		if (ammo == null) {
-			super.appendHoverText(stack, context, tooltip, flag);
+			super.appendHoverText(stack, context, display, tooltip, flag);
 			return;
 		}
 		ItemStack ammoStack = ammo.stack();
@@ -192,8 +199,10 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 		String _reload = "potato_cannon.ammo.reload_ticks";
 		String _knockback = "potato_cannon.ammo.knockback";
 
-		tooltip.add(CommonComponents.EMPTY);
-		tooltip.add(ammoStack.getHoverName().append(Component.literal(":"))
+		tooltip.accept(CommonComponents.EMPTY);
+		tooltip.accept(ammoStack.getHoverName()
+			.copy()
+			.append(Component.literal(":"))
 			.withStyle(ChatFormatting.GRAY));
 		MutableComponent spacing = CommonComponents.space();
 		ChatFormatting green = ChatFormatting.GREEN;
@@ -209,18 +218,17 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 		knockback = knockback.withStyle(additionalKnockback > 0 ? green : darkGreen);
 		reloadTicks = reloadTicks.withStyle(darkGreen);
 
-		tooltip.add(spacing.plainCopy()
+		tooltip.accept(spacing.plainCopy()
 			.append(CreateLang.translateDirect(_attack, damage)
 				.withStyle(darkGreen)));
-		tooltip.add(spacing.plainCopy()
+		tooltip.accept(spacing.plainCopy()
 			.append(CreateLang.translateDirect(_reload, reloadTicks)
 				.withStyle(darkGreen)));
-		tooltip.add(spacing.plainCopy()
+		tooltip.accept(spacing.plainCopy()
 			.append(CreateLang.translateDirect(_knockback, knockback)
 				.withStyle(darkGreen)));
 	}
 
-	@Override
 	public boolean canAttackBlock(BlockState state, Level world, BlockPos pos, Player player) {
 		return false;
 	}

@@ -336,7 +336,7 @@ public class BeltScenes {
 		scene.idle(10);
 		scene.special().movePointOfInterest(util.grid().at(2, 2, 0));
 
-		ItemStack stack = new ItemStack(Items.COPPER_BLOCK);
+		ItemStack stack = new ItemStack(Items.COPPER_BLOCK.weathering().unaffected());
 		ElementLink<EntityElement> item =
 			scene.world().createItemEntity(util.vector().centerOf(0, 4, 2), util.vector().of(0, 0, 0), stack);
 		scene.idle(13);
@@ -499,9 +499,10 @@ public class BeltScenes {
 		scene.idle(70);
 
 		scene.overlay().showControls(topOf, Pointing.DOWN, 20).rightClick()
-			.withItem(new ItemStack(Items.COPPER_BLOCK));
+			.withItem(new ItemStack(Items.COPPER_BLOCK.weathering().unaffected()));
 		scene.idle(7);
-		scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, new ItemStack(Items.COPPER_BLOCK));
+		scene.world().createItemOnBeltLike(depotPos, Direction.NORTH,
+			new ItemStack(Items.COPPER_BLOCK.weathering().unaffected()));
 		scene.idle(10);
 		scene.overlay().showText(70)
 			.attachKeyFrame()

@@ -152,7 +152,7 @@ public class PackagePortTargetSelectionHandler {
 	}
 
 	public static void animateConnection(Minecraft mc, Vec3 source, Vec3 target, Color color) {
-		DustParticleOptions data = new DustParticleOptions(color.asVectorF(), 1);
+		DustParticleOptions data = new DustParticleOptions(color.getRGB(), 1);
 		ClientLevel world = mc.level;
 		double totalFlyingTicks = 10;
 		int segments = (((int) totalFlyingTicks) / 3) + 1;

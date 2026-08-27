@@ -31,7 +31,7 @@ public class FramedBlocksInSchematics {
 		data = blockEntity.saveWithFullMetadata(blockEntity.getLevel().registryAccess());
 
 		List<String> keysToRemove = new ArrayList<>();
-		for (String key : data.getAllKeys())
+		for (String key : data.keySet())
 			if (!KEYS_TO_RETAIN.contains(key))
 				keysToRemove.add(key);
 		for (String key : keysToRemove)

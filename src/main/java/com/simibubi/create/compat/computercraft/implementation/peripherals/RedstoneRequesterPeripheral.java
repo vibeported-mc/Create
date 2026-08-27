@@ -13,6 +13,8 @@ import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts.CraftingEntry;
 
+import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
+
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
@@ -42,7 +44,7 @@ public class RedstoneRequesterPeripheral extends SyncedPeripheral<RedstoneReques
 
 	@LuaFunction(mainThread = true)
 	public final void setCraftingRequest(IArguments arguments) throws LuaException {
-		int count = arguments.getIntOr(0, 0);
+		int count = arguments.getInt(0);
 		arguments = arguments.drop(1);
 
 		List<BigItemStack> orderStacks = generateOrder(arguments);
@@ -64,7 +66,7 @@ public class RedstoneRequesterPeripheral extends SyncedPeripheral<RedstoneReques
 		for (int i = 0; i < stacks.size(); i++) {
 			ItemStack stack = stacks.get(i).stack;
 			Map<String, Object> details = new HashMap<>(
-				VanillaDetailRegistries.ITEM_STACK.getDetails(stack));
+				VanillaDetailRegistries.ITEM_STACK.getDetails(GlobalRegistryAccess.getOrThrow(), stack));
 			if (!details.get("name").equals("minecraft:air")) {
 				details.put("count", stacks.get(i).count);
 				result.put(i + 1, details); // +1 because lua

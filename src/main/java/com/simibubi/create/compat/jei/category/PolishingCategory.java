@@ -58,7 +58,7 @@ public class PolishingCategory extends CreateRecipeCategory<SandPaperPolishingRe
 		renderedSandpaper.set(AllDataComponents.SAND_PAPER_POLISHING, new SandPaperItemComponent(matchingStacks[0]));
 		renderedSandpaper.set(AllDataComponents.SAND_PAPER_JEI, Unit.INSTANCE);
 		GuiGameElement.of(renderedSandpaper)
-				.<GuiGameElement.GuiRenderBuilder>at(getBackground().getWidth() / 2 - 16, 0, 0)
+				.<GuiGameElement.GuiRenderBuilder>at(getWidth() / 2 - 16, 0, 0)
 				.scale(2)
 				.submit(graphics);
 	}

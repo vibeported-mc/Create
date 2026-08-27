@@ -176,7 +176,7 @@ public class RuntimeDataGenerator {
 
 	private static void simpleWoodRecipe(TagKey<Item> inputTag, Identifier outputId, int amount) {
 		if (BuiltInRegistries.ITEM.containsKey(outputId)) {
-			new StandardBuilder<>(inputTag.identifier().getNamespace(), CuttingRecipe::new, "tag_" + inputTag.identifier().getPath(), outputId.getPath())
+			new StandardBuilder<>(inputTag.location().getNamespace(), CuttingRecipe::new, "tag_" + inputTag.location().getPath(), outputId.getPath())
 				.require(inputTag)
 				.output(BuiltInRegistries.ITEM.getValue(outputId), amount)
 				.duration(50)

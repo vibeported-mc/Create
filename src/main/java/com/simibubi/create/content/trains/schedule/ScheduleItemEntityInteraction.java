@@ -19,13 +19,15 @@ import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 
 @EventBusSubscriber
 public class ScheduleItemEntityInteraction {
 
+	// EntityInteractSpecific was folded into EntityInteract, which now carries the local hit
+	// location and covers every entity interaction.
 	@SubscribeEvent
-	public static void interactWithConductor(EntityInteractSpecific event) {
+	public static void interactWithConductor(EntityInteract event) {
 		Entity entity = event.getTarget();
 		Player player = event.getEntity();
 		if (player == null || entity == null)
@@ -38,8 +40,10 @@ public class ScheduleItemEntityInteraction {
 			return;
 		if (!(entity instanceof LivingEntity living))
 			return;
+		// Cooldowns are keyed by a stack's cooldown group rather than by Item, so a plain schedule
+		// stack stands in to reach the item's default group.
 		if (player.getCooldowns()
-			.isOnCooldown(AllItems.SCHEDULE.get()))
+			.isOnCooldown(AllItems.SCHEDULE.asStack()))
 			return;
 
 		ItemStack itemStack = event.getItemStack();
@@ -47,7 +51,7 @@ public class ScheduleItemEntityInteraction {
 			InteractionResult result = si.handScheduleTo(itemStack, player, living, event.getHand());
 			if (result.consumesAction()) {
 				player.getCooldowns()
-					.addCooldown(AllItems.SCHEDULE.get(), 5);
+					.addCooldown(AllItems.SCHEDULE.asStack(), 5);
 				event.setCancellationResult(result);
 				event.setCanceled(true);
 				return;
@@ -87,7 +91,7 @@ public class ScheduleItemEntityInteraction {
 			}
 
 			player.getCooldowns()
-				.addCooldown(AllItems.SCHEDULE.get(), 5);
+				.addCooldown(AllItems.SCHEDULE.asStack(), 5);
 			event.setCancellationResult(InteractionResult.SUCCESS);
 			event.setCanceled(true);
 			return;
@@ -115,7 +119,7 @@ public class ScheduleItemEntityInteraction {
 		}
 
 		player.getCooldowns()
-			.addCooldown(AllItems.SCHEDULE.get(), 5);
+			.addCooldown(AllItems.SCHEDULE.asStack(), 5);
 		event.setCancellationResult(InteractionResult.SUCCESS);
 		event.setCanceled(true);
 		return;

@@ -26,7 +26,7 @@ public class SophisticatedStorage implements ThresholdSwitchCompat {
 
 	@Override
 	public long getSpaceInSlot(ResourceHandler<ItemResource> inv, int slot) {
-		return (ItemHandlerHelpers.getSlotLimit((long) inv, slot) * ItemHandlerHelpers.getStackInSlot(inv, slot).getOrDefault(DataComponents.MAX_STACK_SIZE, 64)) / 64;
+		return (ItemHandlerHelpers.getSlotLimit(inv, slot) * ItemHandlerHelpers.getStackInSlot(inv, slot).getOrDefault(DataComponents.MAX_STACK_SIZE, 64)) / 64;
 	}
 
 }

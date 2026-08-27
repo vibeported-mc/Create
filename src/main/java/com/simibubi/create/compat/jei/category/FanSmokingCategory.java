@@ -20,7 +20,7 @@ public class FanSmokingCategory extends ProcessingViaFanCategory<SmokingRecipe> 
 
 	@Override
 	protected void renderAttachedBlock(GuiGraphicsExtractor graphics) {
-		GuiGameElement.of(Blocks.FIRE.defaultBlockState())
+		viewRotated(GuiGameElement.of(Blocks.FIRE.defaultBlockState()))
 			.scale(SCALE)
 			.atLocal(0, 0, 2)
 			.lighting(AnimatedKinetics.DEFAULT_LIGHTING)

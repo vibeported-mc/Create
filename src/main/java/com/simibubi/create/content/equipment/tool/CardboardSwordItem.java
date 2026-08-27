@@ -108,7 +108,7 @@ public class CardboardSwordItem extends Item {
 			NetworkHelper.INSTANCE.sendToClient(sp, new KnockbackPacket(yRot, (float) knockbackStrength));
 
 		if ((targetType == MobCategory.MISC || targetType == MobCategory.CREATURE) && !targetIsPlayer)
-			target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 9, true, false, false));
+			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 9, true, false, false));
 
 		attacker.setDeltaMovement(attacker.getDeltaMovement()
 			.multiply(0.6D, 1.0D, 0.6D));

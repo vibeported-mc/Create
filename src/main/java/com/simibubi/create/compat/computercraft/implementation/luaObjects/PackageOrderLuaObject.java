@@ -11,6 +11,8 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts.CraftingEntry;
 
+import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
+
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -64,7 +66,7 @@ public class PackageOrderLuaObject implements LuaComparable {
 		for (BigItemStack bis : context.stacks()) {
 			i++;
 			Map<String, Object> details = new HashMap<>(
-				VanillaDetailRegistries.ITEM_STACK.getBasicDetails(bis.stack));
+				VanillaDetailRegistries.ITEM_STACK.getBasicDetails(GlobalRegistryAccess.getOrThrow(), bis.stack));
 			details.put("count", bis.count); // Use bis count
 			stacks.put(i, details);
 		}
@@ -89,7 +91,7 @@ public class PackageOrderLuaObject implements LuaComparable {
 
 		BigItemStack bis = stacks.get(slot - 1);
 		Map<String, Object> details = new HashMap<>(
-			VanillaDetailRegistries.ITEM_STACK.getDetails(bis.stack));
+			VanillaDetailRegistries.ITEM_STACK.getDetails(GlobalRegistryAccess.getOrThrow(), bis.stack));
 		details.put("count", bis.count); // Use bis count
 
 		return new CreateLuaTable(details);
@@ -113,7 +115,7 @@ public class PackageOrderLuaObject implements LuaComparable {
 			for (BigItemStack bis : entry.pattern().stacks()) {
 				j++;
 				// Not sure if this is the best way to get the in game ID for the item, if there is please let me know
-				String name = VanillaDetailRegistries.ITEM_STACK.getBasicDetails(bis.stack).get("name").toString();
+				String name = VanillaDetailRegistries.ITEM_STACK.getBasicDetails(GlobalRegistryAccess.getOrThrow(), bis.stack).get("name").toString();
 				recipe.put(j, name.equals("minecraft:air") ? null : name);
 			}
 			i++;
