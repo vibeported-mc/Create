@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.schedule.destination;
 
+import com.simibubi.create.foundation.gui.widget.FilteredEditBox;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -83,12 +84,14 @@ public class FetchPackagesInstruction extends TextScheduleInstruction {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	protected void modifyEditBox(EditBox box) {
-		// TODO 26.2: cap the address at three '*' wildcards again. EditBox lost setFilter and has no
-		// replacement validator; the one remaining hook, setResponder, is claimed by ScheduleScreen
-		// for destination suggestions, so a filter has to come from a Create-owned EditBox subclass
-		// in ModularGuiLineBuilder. Until then a very wildcard-heavy filter is accepted and simply
-		// matches more stations than intended.
+	protected void modifyEditBox(FilteredEditBox box) {
+		box.setFilter(s -> {
+			int wildcards = 0;
+			for (int i = 0; i < s.length(); i++)
+				if (s.charAt(i) == '*')
+					wildcards++;
+			return wildcards <= 3;
+		});
 	}
 
 	@Override

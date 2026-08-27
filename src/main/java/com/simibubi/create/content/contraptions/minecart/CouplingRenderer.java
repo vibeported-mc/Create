@@ -1,6 +1,7 @@
 package com.simibubi.create.content.contraptions.minecart;
 
 import com.simibubi.create.foundation.render.CachedBufferer;
+import net.minecraft.world.entity.vehicle.minecart.OldMinecartBehavior;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -85,10 +86,10 @@ public class CouplingRenderer {
 			ms.pushPose();
 			cartTransform.apply(ms, camera);
 			attachment.light(lightValues.get(isFirst))
-				.renderInto(ms, builder);
+				.submit(ms, RenderTypes.solidMovingBlock(), queue);
 			msr.rotateYDegrees((float) connectorYaw - cartTransform.yaw);
 			ring.light(lightValues.get(isFirst))
-				.renderInto(ms, builder);
+				.submit(ms, RenderTypes.solidMovingBlock(), queue);
 			ms.popPose();
 		});
 
@@ -104,7 +105,7 @@ public class CouplingRenderer {
 		ms.scale((float) endPointDiff.length(), 1, 1);
 
 		connector.light(meanSkyLight << 20 | meanBlockLight << 4)
-			.renderInto(ms, builder);
+			.submit(ms, RenderTypes.solidMovingBlock(), queue);
 		ms.popPose();
 	}
 
@@ -134,12 +135,14 @@ public class CouplingRenderer {
 		Vec3 frontVec = positionVec.add(VecHelper.rotate(new Vec3(.5, 0, 0), 180 - yaw, Direction.Axis.Y));
 		Vec3 backVec = positionVec.add(VecHelper.rotate(new Vec3(-.5, 0, 0), 180 - yaw, Direction.Axis.Y));
 
-		Vec3 railVecOfPos = cart.getPos(xIn, yIn, zIn);
+		OldMinecartBehavior behavior =
+			cart.getBehavior() instanceof OldMinecartBehavior old ? old : null;
+		Vec3 railVecOfPos = behavior == null ? null : behavior.getPos(xIn, yIn, zIn);
 		boolean flip = false;
 
 		if (railVecOfPos != null) {
-			frontVec = cart.getPosOffs(xIn, yIn, zIn, (double) 0.3F);
-			backVec = cart.getPosOffs(xIn, yIn, zIn, (double) -0.3F);
+			frontVec = behavior.getPosOffs(xIn, yIn, zIn, (double) 0.3F);
+			backVec = behavior.getPosOffs(xIn, yIn, zIn, (double) -0.3F);
 			if (frontVec == null)
 				frontVec = railVecOfPos;
 			if (backVec == null)

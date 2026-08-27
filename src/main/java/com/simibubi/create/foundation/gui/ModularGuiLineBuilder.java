@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.gui;
 
+import com.simibubi.create.foundation.gui.widget.FilteredEditBox;
 import java.util.function.BiConsumer;
 
 import com.simibubi.create.foundation.gui.widget.Label;
@@ -60,8 +61,8 @@ public class ModularGuiLineBuilder {
 		target.add(Pair.of(input, dataKey));
 	}
 
-	public ModularGuiLineBuilder addIntegerTextInput(int x, int width, BiConsumer<EditBox, TooltipArea> inputTransform,
-													 String dataKey) {
+	public ModularGuiLineBuilder addIntegerTextInput(int x, int width,
+		BiConsumer<FilteredEditBox, TooltipArea> inputTransform, String dataKey) {
 		return addTextInput(x, width, inputTransform.andThen((editBox, $) -> editBox.setFilter(s -> {
 			if (s.isEmpty())
 				return true;
@@ -74,13 +75,13 @@ public class ModularGuiLineBuilder {
 		})), dataKey);
 	}
 
-	public ModularGuiLineBuilder addTextInput(int x, int width, BiConsumer<EditBox, TooltipArea> inputTransform,
-											  String dataKey) {
-		EditBox input = new EditBox(font, x + this.x + 5, y, width - 9, 8, CommonComponents.EMPTY);
+	public ModularGuiLineBuilder addTextInput(int x, int width,
+		BiConsumer<FilteredEditBox, TooltipArea> inputTransform, String dataKey) {
+		FilteredEditBox input = new FilteredEditBox(font, x + this.x + 5, y, width - 9, 8, CommonComponents.EMPTY);
 		input.setBordered(false);
 		input.setTextColor(0xffffff);
 		input.setFocused(false);
-		input.mouseClicked(0, 0, 0);
+		input.setFocused(true);
 		TooltipArea tooltipArea = new TooltipArea(this.x + x, y - 4, width, 18);
 		inputTransform.accept(input, tooltipArea);
 		target.add(Pair.of(input, dataKey));

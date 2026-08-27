@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.schedule.destination;
 
+import com.simibubi.create.foundation.gui.widget.FilteredEditBox;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -31,6 +32,6 @@ public abstract class TextScheduleInstruction extends ScheduleInstruction {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	protected void modifyEditBox(EditBox box) {}
+	protected void modifyEditBox(FilteredEditBox box) {}
 
 }
