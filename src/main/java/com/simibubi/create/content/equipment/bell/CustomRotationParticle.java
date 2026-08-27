@@ -1,12 +1,11 @@
 package com.simibubi.create.content.equipment.bell;
 
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
 import dev.engine_room.flywheel.lib.util.ShadersModHelper;
+import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.SimpleAnimatedParticle;
@@ -38,37 +37,30 @@ public class CustomRotationParticle extends SimpleAnimatedParticle {
 		return quaternion;
 	}
 
+	/**
+	 * 26.2 collects a particle into a render state rather than letting it write vertices, so the custom
+	 * rotation is handed over with the quad and the mirroring is expressed by swapping the U bounds.
+	 */
 	@Override
-	public void render(VertexConsumer builder, Camera camera, float partialTicks) {
-		Vec3 cameraPos = camera.getPosition();
-		float originX = (float) (Mth.lerp(partialTicks, xo, x) - cameraPos.x());
-		float originY = (float) (Mth.lerp(partialTicks, yo, y) - cameraPos.y());
-		float originZ = (float) (Mth.lerp(partialTicks, zo, z) - cameraPos.z());
-
-		Vector3f[] vertices = new Vector3f[] {
-				new Vector3f(-1.0F, -1.0F, 0.0F),
-				new Vector3f(-1.0F, 1.0F, 0.0F),
-				new Vector3f(1.0F, 1.0F, 0.0F),
-				new Vector3f(1.0F, -1.0F, 0.0F)
-		};
-		float scale = getQuadSize(partialTicks);
-
-		Quaternionf rotation = getCustomRotation(camera, partialTicks);
-		for(int i = 0; i < 4; ++i) {
-			Vector3f vertex = vertices[i];
-			vertex.rotate(rotation);
-			vertex.mul(scale);
-			vertex.add(originX, originY, originZ);
-		}
-
-		float minU = mirror ? getU1() : getU0();
-		float maxU = mirror ? getU0() : getU1();
-		float minV = getV0();
-		float maxV = getV1();
-		int brightness = ShadersModHelper.isShaderPackInUse() ? LightCoordsUtil.pack(12, 15) : getLightCoords(partialTicks);
-		builder.addVertex(vertices[0].x(), vertices[0].y(), vertices[0].z()).setUv(maxU, maxV).setColor(rCol, gCol, bCol, alpha).setLight(brightness);
-		builder.addVertex(vertices[1].x(), vertices[1].y(), vertices[1].z()).setUv(maxU, minV).setColor(rCol, gCol, bCol, alpha).setLight(brightness);
-		builder.addVertex(vertices[2].x(), vertices[2].y(), vertices[2].z()).setUv(minU, minV).setColor(rCol, gCol, bCol, alpha).setLight(brightness);
-		builder.addVertex(vertices[3].x(), vertices[3].y(), vertices[3].z()).setUv(minU, maxV).setColor(rCol, gCol, bCol, alpha).setLight(brightness);
+	public void extract(QuadParticleRenderState particleTypeRenderState, Camera camera, float partialTickTime) {
+		extractRotatedQuad(particleTypeRenderState, camera, getCustomRotation(camera, partialTickTime),
+			partialTickTime);
 	}
+
+	@Override
+	protected float getU0() {
+		return mirror ? super.getU1() : super.getU0();
+	}
+
+	@Override
+	protected float getU1() {
+		return mirror ? super.getU0() : super.getU1();
+	}
+
+	@Override
+	public int getLightCoords(float partialTicks) {
+		return ShadersModHelper.isShaderPackInUse() ? LightCoordsUtil.pack(12, 15)
+			: super.getLightCoords(partialTicks);
+	}
+
 }

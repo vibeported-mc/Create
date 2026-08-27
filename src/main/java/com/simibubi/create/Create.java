@@ -155,8 +155,8 @@ public class Create {
 		modEventBus.addListener(Create::init);
 		modEventBus.addListener(Create::onRegister);
 		modEventBus.addListener(AllEntityTypes::registerEntityAttributes);
-		modEventBus.addListener(EventPriority.HIGHEST, CreateDatagen::gatherDataHighPriority);
-		modEventBus.addListener(EventPriority.LOWEST, CreateDatagen::gatherData);
+		// TODO 26.2: re-register CreateDatagen's providers once datagen is ported; the class is
+		// excluded from the build for now (see build.gradle).
 		modEventBus.addListener(AllSoundEvents::register);
 
 		// FIXME: this is not thread-safe

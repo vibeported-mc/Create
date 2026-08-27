@@ -323,7 +323,8 @@ public class AllTags {
 		}
 
 		public boolean matches(EntityType<?> type) {
-			return type.is(tag);
+			return type.builtInRegistryHolder()
+				.is(tag);
 		}
 
 		public boolean matches(Entity entity) {
@@ -349,8 +350,8 @@ public class AllTags {
 		}
 
 		public boolean matches(RecipeSerializer<?> recipeSerializer) {
-			ResourceKey<RecipeSerializer<?>> key = BuiltInRegistries.RECIPE_SERIALIZER.getResourceKey(recipeSerializer).orElseThrow();
-			return BuiltInRegistries.RECIPE_SERIALIZER.getHolder(key).orElseThrow().is(tag);
+			return BuiltInRegistries.RECIPE_SERIALIZER.wrapAsHolder(recipeSerializer)
+				.is(tag);
 		}
 	}
 

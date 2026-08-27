@@ -40,7 +40,7 @@ public class WiFiParticle extends CustomRotationParticle {
 
 	@Override
 	public Quaternionf getCustomRotation(Camera camera, float partialTicks) {
-		return new Quaternionf().rotateY(-camera.getYRot() * Mth.DEG_TO_RAD)
+		return new Quaternionf().rotateY(-camera.yRot() * Mth.DEG_TO_RAD)
 			.mul(new Quaternionf().rotateZ(downward ? Mth.PI : 0));
 	}
 

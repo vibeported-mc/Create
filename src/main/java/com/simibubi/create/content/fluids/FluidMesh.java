@@ -18,6 +18,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
 public class FluidMesh {
+
+	/**
+	 * How far a fluid quad's texture coordinates are pulled towards the middle of the sprite.
+	 * <p>
+	 * NeoForge used to compute this per sprite through {@code uvShrinkRatio}; 26.2 dropped it, and this
+	 * is the value it returned for an ordinary, unstitched sprite.
+	 */
+	private static final float UV_SHRINK_RATIO = 0.0009765625F;
+
 	private static final RendererReloadCache<TextureAtlasSprite, Model> STREAM = new RendererReloadCache<>(sprite -> new SingleMeshModel(new FluidStreamMesh(sprite), material(sprite)));
 
 	private static final RendererReloadCache<SurfaceKey, Model> SURFACE = new RendererReloadCache<>(sprite -> new SingleMeshModel(new FluidSurfaceMesh(sprite.texture(), sprite.width()), material(sprite.texture())));
@@ -76,7 +85,7 @@ public class FluidMesh {
 
 			int vertex = 0;
 
-			float shrink = texture.uvShrinkRatio() * 0.25f * textureScale;
+			float shrink = UV_SHRINK_RATIO * 0.25f * textureScale;
 			float centerU = texture.getU0() + (texture.getU1() - texture.getU0()) * 0.5f;
 			float centerV = texture.getV0() + (texture.getV1() - texture.getV0()) * 0.5f;
 
@@ -148,7 +157,7 @@ public class FluidMesh {
 
 			float textureScale = 1 / 32f;
 
-			float shrink = texture.uvShrinkRatio() * 0.25f * textureScale;
+			float shrink = UV_SHRINK_RATIO * 0.25f * textureScale;
 			float centerU = texture.getU0() + (texture.getU1() - texture.getU0()) * 0.5f;
 
 			float radius = PIPE_RADIUS;

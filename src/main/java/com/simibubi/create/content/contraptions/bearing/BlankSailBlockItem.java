@@ -22,11 +22,6 @@ public class BlankSailBlockItem extends BlockItem {
 		}
 	}
 
-	@Override
-	public void removeFromBlockToItemMap(Map<Block, Item> blockToItemMap, Item item) {
-		super.removeFromBlockToItemMap(blockToItemMap, item);
-		for (BlockEntry<SailBlock> entry : AllBlocks.DYED_SAILS) {
-			blockToItemMap.remove(entry.get());
-		}
-	}
+	// 26.2 dropped removeFromBlockToItemMap; the map is rebuilt from scratch on reload, so nothing
+	// has to be taken back out of it.
 }

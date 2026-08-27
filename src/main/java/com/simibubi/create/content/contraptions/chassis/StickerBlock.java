@@ -99,7 +99,6 @@ public class StickerBlock extends WrenchableDirectionalBlock implements IBE<Stic
 		p_152429_.causeFallDamage(p_152430_, 1.0F, p_152426_.damageSources().fall());
 	}
 
-	@Override
 	/**
 	 * Only a sticker pointing up throws things back; the entity applies this itself in 26.2.
 	 */
@@ -136,7 +135,7 @@ public class StickerBlock extends WrenchableDirectionalBlock implements IBE<Stic
 		if (state.getValue(FACING) == Direction.UP) {
 			Vec3 Vector3d = entity.getDeltaMovement();
 			world.addParticle(
-				new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SLIME_BLOCK.defaultBlockState()).setPos(pos),
+				new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SLIME_BLOCK.defaultBlockState(), pos),
 				entity.getX() + ((double) world.getRandom().nextFloat() - 0.5D) * (double) entity.getBbWidth(),
 				entity.getY() + 0.1D,
 				entity.getZ() + ((double) world.getRandom().nextFloat() - 0.5D) * (double) entity.getBbWidth(),

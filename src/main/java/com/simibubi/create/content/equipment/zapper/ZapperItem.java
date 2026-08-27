@@ -2,6 +2,7 @@ package com.simibubi.create.content.equipment.zapper;
 
 import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.function.Consumer;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.item.BlockBreakingItem;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.List;
@@ -189,7 +190,7 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem, Bloc
 	}
 
 	@Override
-	public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
+	public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
 		return true;
 	}
 
@@ -221,7 +222,7 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem, Bloc
 				data.putInt("x", pos.getX());
 				data.putInt("y", pos.getY());
 				data.putInt("z", pos.getZ());
-				blockEntity.loadWithComponents(data, world.registryAccess());
+				blockEntity.loadWithComponents(NbtValueIO.fromTag(data, world.registryAccess()));
 			}
 		}
 	}
