@@ -83,7 +83,9 @@ public class PotionFluid extends VirtualFluid {
 			PotionContents contents = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
 			ItemLike itemFromBottleType =
 				PotionFluidHandler.itemFromBottleType(stack.getOrDefault(AllDataComponents.POTION_FLUID_BOTTLE_TYPE, BottleType.REGULAR));
-			return Potion.getName(contents.potion(), itemFromBottleType.asItem().getDescriptionId() + ".effect.");
+			return contents.getName(itemFromBottleType.asItem()
+				.getDescriptionId() + ".effect.")
+				.getString();
 		}
 
 		@Override

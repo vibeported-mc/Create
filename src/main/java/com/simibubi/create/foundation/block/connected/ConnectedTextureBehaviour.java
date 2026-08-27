@@ -3,6 +3,7 @@ package com.simibubi.create.foundation.block.connected;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.world.level.BlockAndLightGetter;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -76,7 +77,11 @@ public abstract class ConnectedTextureBehaviour {
 	public BlockState getCTBlockState(BlockGetter reader, BlockState reference, Direction face, BlockPos fromPos,
 		BlockPos toPos) {
 		BlockState blockState = reader.getBlockState(toPos);
-		return blockState.getAppearance(reader, toPos, face, reference, fromPos);
+		// A block's appearance is asked of it through the light-aware view of the level in 26.2; a plain
+		// getter cannot answer it, so such a reader sees the state as it is.
+		if (!(reader instanceof BlockAndLightGetter lightGetter))
+			return blockState;
+		return blockState.getAppearance(lightGetter, toPos, face, reference, fromPos);
 	}
 
 	protected boolean reverseUVs(BlockState state, Direction face) {
