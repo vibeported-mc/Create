@@ -45,14 +45,14 @@ public abstract class ArmorTrimMixin {
 
 	@Inject(method = "innerTexture", at = @At("HEAD"), cancellable = true)
 	private void create$swapTexturesForCardboardTrimsInner(Holder<ArmorMaterial> armorMaterial, CallbackInfoReturnable<Identifier> cir) {
-		if (armorMaterial == AllArmorMaterials.CARDBOARD) {
+		if (armorMaterial.value() == AllArmorMaterials.CARDBOARD) {
 			cir.setReturnValue(create$textureCardboard.apply(true, armorMaterial));
 		}
 	}
 
 	@Inject(method = "outerTexture", at = @At("HEAD"), cancellable = true)
 	private void create$swapTexturesForCardboardTrimsOuter(Holder<ArmorMaterial> armorMaterial, CallbackInfoReturnable<Identifier> cir) {
-		if (armorMaterial == AllArmorMaterials.CARDBOARD) {
+		if (armorMaterial.value() == AllArmorMaterials.CARDBOARD) {
 			cir.setReturnValue(create$textureCardboard.apply(false, armorMaterial));
 		}
 	}

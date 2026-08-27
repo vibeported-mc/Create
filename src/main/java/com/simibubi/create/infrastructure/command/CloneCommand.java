@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.command;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -133,7 +134,8 @@ public class CloneCommand {
 
 		for (StructureTemplate.StructureBlockInfo info : reverse) {
 			BlockEntity be = world.getBlockEntity(info.pos());
-			Clearable.tryClear(be);
+			if (be instanceof Clearable clearable)
+				clearable.clearContent();
 			world.setBlock(info.pos(), Blocks.BARRIER.defaultBlockState(), Block.UPDATE_CLIENTS);
 		}
 
@@ -148,7 +150,7 @@ public class CloneCommand {
 				info.nbt().putInt("x", info.pos().getX());
 				info.nbt().putInt("y", info.pos().getY());
 				info.nbt().putInt("z", info.pos().getZ());
-				be.loadWithComponents(info.nbt(), world.registryAccess());
+				be.loadWithComponents(NbtValueIO.fromTag(info.nbt(), world.registryAccess()));
 				be.setChanged();
 			}
 

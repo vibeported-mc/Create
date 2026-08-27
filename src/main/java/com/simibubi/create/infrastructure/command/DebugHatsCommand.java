@@ -5,6 +5,8 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.actors.seat.SeatBlock;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlock;
 
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -30,12 +32,12 @@ public class DebugHatsCommand {
 					for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
 						ServerLevel level = ctx.getSource().getLevel();
 
-						Entity entity = entityType.create(level);
+						Entity entity = entityType.create(level, EntitySpawnReason.COMMAND);
 						if (entity instanceof LivingEntity) {
 							level.setBlockAndUpdate(pos, AllBlocks.SEATS.get(DyeColor.RED).getDefaultState());
 							level.setBlockAndUpdate(pos.east(), AllBlocks.STOCK_TICKER.getDefaultState().setValue(StockTickerBlock.FACING, Direction.EAST));
 
-							entity.moveTo(pos.getCenter());
+							entity.moveTo(Vec3.atCenterOf(pos));
 
 							if (entity instanceof Mob mob)
 								mob.setNoAi(true);

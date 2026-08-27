@@ -29,6 +29,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -89,7 +90,7 @@ public class RecipeTrie<R extends Recipe<?>> {
 				ingredients.add(universalIngredientId);
 
 				for (AbstractVariant variant : pool) {
-					int id = variantToId.getIntOr(variant, 0);
+					int id = variantToId.getOrDefault(variant, -1);
 					if (id >= 0) {
 						var ingredientIds = variantToIngredients.get(id);
 						if (ingredientIds != null) {
@@ -213,8 +214,9 @@ public class RecipeTrie<R extends Recipe<?>> {
 					}
 
 					Set<AbstractVariant> variants = new HashSet<>();
-					for (FluidStack stack : ingredient.getFluids()) {
-						variants.add(getOrAssignVariant(stack.getFluid()));
+					for (Holder<Fluid> fluid : ingredient.ingredient()
+						.fluids()) {
+						variants.add(getOrAssignVariant(fluid.value()));
 					}
 
 					ingredients.add(new AbstractIngredient(variants));

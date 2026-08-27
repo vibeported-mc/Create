@@ -17,7 +17,7 @@ public class Debug {
 	@Deprecated
 	public static void debugChat(String message) {
 		if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.sendOverlayMessage(Component.literal(message), false);
+            Minecraft.getInstance().gui.hud.setOverlayMessage(Component.literal(message), false);
         }
 	}
 
@@ -32,7 +32,7 @@ public class Debug {
 	@Deprecated
 	public static void debugMessage(String message) {
 		if (Minecraft.getInstance().player != null) {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal(message));
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal(message));
         }
 	}
 

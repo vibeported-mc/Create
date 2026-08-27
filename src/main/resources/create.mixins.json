@@ -33,7 +33,6 @@
     "accessor.GameTestHelperAccessor",
     "accessor.ItemEntityAccessor",
     "accessor.ItemFrameAccessor",
-    "accessor.ItemModelGeneratorsAccessor",
     "accessor.ItemStackHandlerAccessor",
     "accessor.LivingEntityAccessor",
     "accessor.MappedRegistryAccessor",
@@ -51,7 +50,6 @@
     "datafixer.V1460Mixin"
   ],
   "client": [
-    "accessor.AgeableListModelAccessor",
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.FontAccessor",
     "accessor.HudAccessor",
@@ -66,8 +64,7 @@
 		"client.GuiRendererMixin",
     "client.HeavyBootsOnPlayerMixin",
     "client.HumanoidModelMixin",
-    "client.LevelRendererMixin",
-    "client.PlayerRendererMixin"
+    "client.LevelRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

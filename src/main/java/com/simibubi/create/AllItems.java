@@ -18,6 +18,7 @@ import static com.simibubi.create.foundation.data.recipe.CommonMetal.SILVER;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.TIN;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.URANIUM;
 
+import com.simibubi.create.foundation.item.CustomArmPoseClientExtension;
 import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.api.data.datamaps.BlazeBurnerFuel;
 import com.simibubi.create.api.registry.CreateDataMaps;
@@ -450,6 +451,7 @@ public class AllItems {
 	public static final ItemEntry<PotatoCannonItem> POTATO_CANNON =
 		REGISTRATE.item("potato_cannon", PotatoCannonItem::new)
 			.properties(p -> p.durability(100))
+			.clientExtension(() -> () -> CustomArmPoseClientExtension.INSTANCE)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .model(AssetLookup.itemModelWithPartials())
 			
@@ -475,6 +477,7 @@ public class AllItems {
 
 	public static final ItemEntry<WorldshaperItem> WORLDSHAPER =
 		REGISTRATE.item("handheld_worldshaper", WorldshaperItem::new)
+			.clientExtension(() -> () -> CustomArmPoseClientExtension.INSTANCE)
 			.properties(p -> p.rarity(Rarity.EPIC))
 			.lang("Creative Worldshaper")
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator

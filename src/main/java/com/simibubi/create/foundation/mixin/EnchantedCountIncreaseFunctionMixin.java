@@ -31,11 +31,11 @@ public abstract class EnchantedCountIncreaseFunctionMixin {
 
 	@Inject(method = "run", at = @At("TAIL"))
 	private void create$crushingWheelLooting(ItemStack stack, LootContext context, CallbackInfoReturnable<ItemStack> cir) {
-		DamageSource damageSource = context.getParamOrNull(LootContextParams.DAMAGE_SOURCE);
+		DamageSource damageSource = context.getOptionalParameter(LootContextParams.DAMAGE_SOURCE);
 		if (damageSource != null && damageSource.is(AllDamageTypes.CRUSH)) {
 			int lootingLevel = 2;
 
-			float f = (float) lootingLevel * this.value.getFloatOr(context, 0);
+			float f = (float) lootingLevel * this.value.getFloat(context);
 			stack.grow(Math.round(f));
 			if (this.hasLimit())
 				stack.limitSize(this.limit);
