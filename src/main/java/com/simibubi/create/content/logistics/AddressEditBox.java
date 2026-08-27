@@ -93,7 +93,7 @@ public class AddressEditBox extends EditBox {
 			}
 			return true;
 		}
-		if (destinationSuggestions.mouseClicked((int) pMouseX, (int) pMouseY, pButton))
+		if (destinationSuggestions.mouseClicked(event))
 			return true;
 		return false;
 	}
@@ -110,12 +110,12 @@ public class AddressEditBox extends EditBox {
 	}
 
 	@Override
-	public void renderWidget(GuiGraphicsExtractor pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		super.renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+	public void extractWidgetRenderState(GuiGraphicsExtractor pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		super.extractWidgetRenderState(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		Matrix3x2fStack matrixStack = pGuiGraphics.pose();
 		matrixStack.pushMatrix();
 		matrixStack.translate((float) (0), (float) (0));
-		destinationSuggestions.render(pGuiGraphics, pMouseX, pMouseY);
+		destinationSuggestions.extractRenderState(pGuiGraphics, pMouseX, pMouseY);
 		matrixStack.popMatrix();
 
 		if (!destinationSuggestions.isEmpty())

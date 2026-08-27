@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
  * overflow is a plain list - so both are made transactional here with a {@link SnapshotJournal}
  * that copies them before a transfer touches them.
  */
-public class DeployerItemHandler implements ResourceHandler<ItemResource>, IndexModifier<ItemResource> {
+public class DeployerItemHandler implements ModifiableItemHandler {
 
 	private final DeployerBlockEntity be;
 	private final DeployerFakePlayer player;

@@ -4,10 +4,15 @@ import java.util.function.Consumer;
 
 import com.mojang.serialization.MapCodec;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.ItemStackWithSlot;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.storage.TagValueInput;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -57,7 +62,56 @@ public class NbtValueIO {
 	 * A view of a tag that can be handed to something reading through {@link ValueInput}.
 	 */
 	public static ValueInput fromTag(CompoundTag tag) {
-		return TagValueInput.create(ProblemReporter.DISCARDING, RegistryAccess.EMPTY, tag);
+		return fromTag(tag, RegistryAccess.EMPTY);
+	}
+
+	/**
+	 * A view of a tag that can resolve registry entries while it is read.
+	 */
+	public static ValueInput fromTag(CompoundTag tag, HolderLookup.Provider registries) {
+		return TagValueInput.create(ProblemReporter.DISCARDING, registries, tag);
+	}
+
+	/**
+	 * A tag holding what the given object serialises, for the parts of Create that still hand tags
+	 * around.
+	 */
+	public static CompoundTag serialize(ValueIOSerializable target, HolderLookup.Provider registries) {
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+		target.serialize(output);
+		return output.buildResult();
+	}
+
+	/**
+	 * Read an object's state back out of a tag.
+	 */
+	public static void deserialize(ValueIOSerializable target, CompoundTag tag, HolderLookup.Provider registries) {
+		target.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, tag));
+	}
+
+	private static final String ITEMS = "Items";
+
+	/**
+	 * A player's inventory as the plain list of stacks Create stores under a key of its own.
+	 * <p>
+	 * 26.2 saves an inventory into a typed ValueIO list rather than a {@link ListTag}; the entries are
+	 * the same either way.
+	 */
+	public static ListTag saveInventory(Inventory inventory, HolderLookup.Provider registries) {
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+		inventory.save(output.list(ITEMS, ItemStackWithSlot.CODEC));
+		return output.buildResult()
+			.getList(ITEMS)
+			.orElseGet(ListTag::new);
+	}
+
+	/**
+	 * Fill a player's inventory from a list written by {@link #saveInventory}.
+	 */
+	public static void loadInventory(Inventory inventory, ListTag list, HolderLookup.Provider registries) {
+		CompoundTag tag = new CompoundTag();
+		tag.put(ITEMS, list);
+		inventory.load(fromTag(tag, registries).listOrEmpty(ITEMS, ItemStackWithSlot.CODEC));
 	}
 
 	private NbtValueIO() {

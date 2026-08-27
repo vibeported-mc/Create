@@ -10,6 +10,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 
 import org.jetbrains.annotations.Nullable;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.api.effect.OpenPipeEffectHandler;
 import com.simibubi.create.content.fluids.pipes.VanillaFluidTargets;
@@ -21,6 +22,7 @@ import com.simibubi.create.foundation.mixin.accessor.FlowingFluidAccessor;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.math.BlockFace;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -96,7 +98,7 @@ public class OpenEndedPipe extends FlowSource {
 
 	public CompoundTag serializeNBT(HolderLookup.Provider registries) {
 		CompoundTag compound = new CompoundTag();
-		fluidHandler.writeToNBT(registries, compound);
+		compound.merge(NbtValueIO.serialize(fluidHandler, registries));
 		compound.putBoolean("Pulling", wasPulling);
 		compound.store("Location", BlockFace.CODEC, location);
 		return compound;
@@ -107,7 +109,7 @@ public class OpenEndedPipe extends FlowSource {
 			.orElse(new BlockFace(blockEntityPos, Direction.UP));
 		OpenEndedPipe oep = new OpenEndedPipe(new BlockFace(blockEntityPos, stored.getFace()));
 
-		oep.fluidHandler.readFromNBT(registries, compound);
+		NbtValueIO.deserialize(oep.fluidHandler, compound, registries);
 		oep.wasPulling = compound.getBooleanOr("Pulling", false);
 		return oep;
 	}
@@ -203,8 +205,8 @@ public class OpenEndedPipe extends FlowSource {
 		if (!AllConfigs.server().fluids.pipesPlaceFluidSourceBlocks.get())
 			return true;
 
-		if (world.dimensionType()
-			.ultraWarm() && FluidHelper.isTag(fluid, FluidTags.WATER)) {
+		if (world.environmentAttributes()
+			.getValue(EnvironmentAttributes.WATER_EVAPORATES, outputPos) && FluidHelper.isTag(fluid, FluidTags.WATER)) {
 			int i = outputPos.getX();
 			int j = outputPos.getY();
 			int k = outputPos.getZ();

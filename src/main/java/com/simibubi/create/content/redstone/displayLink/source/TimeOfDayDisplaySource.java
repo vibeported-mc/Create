@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
+import com.simibubi.create.foundation.utility.WorldClocks;
 import com.simibubi.create.content.kinetics.clock.CuckooClockBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
 import com.simibubi.create.content.redstone.displayLink.target.DisplayTargetStats;
@@ -32,10 +33,9 @@ public class TimeOfDayDisplaySource extends SingleLineDisplaySource {
 
 		boolean c12 = context.sourceConfig()
 			.getIntOr("Cycle", 0) == 0;
-		boolean isNatural = sLevel.dimensionType()
-			.natural();
+		boolean isNatural = WorldClocks.hasDayCycle(sLevel);
 
-		int dayTime = (int) (sLevel.getDayTime() % 24000);
+		int dayTime = WorldClocks.getDayTime(sLevel);
 		int hours = (dayTime / 1000 + 6) % 24;
 		int minutes = (dayTime % 1000) * 60 / 1000;
 		MutableComponent suffix = CreateLang.translateDirect("generic.daytime." + (hours > 11 ? "pm" : "am"));

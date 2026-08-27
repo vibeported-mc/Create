@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.millstone;
 
+import net.neoforged.neoforge.items.IItemHandler;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
@@ -112,7 +113,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 			.isEmpty())
 			return;
 
-		RecipeWrapper inventoryIn = new RecipeWrapper(inputInv);
+		RecipeWrapper inventoryIn = new RecipeWrapper(IItemHandler.of(inputInv));
 		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, level)) {
 			Optional<RecipeHolder<MillingRecipe>> recipe = AllRecipeTypes.MILLING.find(inventoryIn, level);
 			if (!recipe.isPresent()) {
@@ -150,7 +151,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 	}
 
 	private void process() {
-		RecipeWrapper inventoryIn = new RecipeWrapper(inputInv);
+		RecipeWrapper inventoryIn = new RecipeWrapper(IItemHandler.of(inputInv));
 
 		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, level)) {
 			Optional<RecipeHolder<MillingRecipe>> recipe = AllRecipeTypes.MILLING.find(inventoryIn, level);
@@ -213,7 +214,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 	private boolean canProcess(ItemStack stack) {
 		ItemStacksResourceHandler tester = new ItemStacksResourceHandler(1);
 		ItemHandlerHelpers.setStackInSlot(tester, 0, stack);
-		RecipeWrapper inventoryIn = new RecipeWrapper(tester);
+		RecipeWrapper inventoryIn = new RecipeWrapper(IItemHandler.of(tester));
 
 		if (lastRecipe != null && lastRecipe.matches(inventoryIn, level))
 			return true;

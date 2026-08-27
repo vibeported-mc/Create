@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.BBHelper;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -134,8 +135,8 @@ public class FluidFillingBehaviour extends FluidManipulationBehaviour {
 		int maxRange = maxRange();
 		int maxRangeSq = maxRange * maxRange;
 		int maxBlocks = maxBlocks();
-		boolean evaporate = world.dimensionType()
-			.ultraWarm() && FluidHelper.isTag(fluid, FluidTags.WATER);
+		boolean evaporate = world.environmentAttributes()
+			.getValue(EnvironmentAttributes.WATER_EVAPORATES, rootPos) && FluidHelper.isTag(fluid, FluidTags.WATER);
 		boolean canPlaceSources = AllConfigs.server().fluids.fluidFillPlaceFluidSourceBlocks.get();
 
 		if ((!fillInfinite() && infinite) || evaporate || !canPlaceSources) {

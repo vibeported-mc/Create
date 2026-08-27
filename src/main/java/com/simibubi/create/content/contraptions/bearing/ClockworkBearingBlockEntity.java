@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.bearing;
 
+import com.simibubi.create.foundation.utility.WorldClocks;
 import java.util.List;
 
 import net.minecraft.core.HolderLookup;
@@ -180,9 +181,7 @@ public class ClockworkBearingBlockEntity extends KineticBlockEntity
 	}
 
 	protected float getHourTarget(boolean cycle24) {
-		boolean isNatural = level.dimensionType()
-			.natural();
-		int dayTime = (int) ((level.getDayTime() * (isNatural ? 1 : 24)) % 24000);
+		int dayTime = WorldClocks.getDayTime(level);
 		int hours = (dayTime / 1000 + 6) % 24;
 		int offset = getBlockState().getValue(ClockworkBearingBlock.FACING)
 			.getAxisDirection()
@@ -192,9 +191,7 @@ public class ClockworkBearingBlockEntity extends KineticBlockEntity
 	}
 
 	protected float getMinuteTarget() {
-		boolean isNatural = level.dimensionType()
-			.natural();
-		int dayTime = (int) ((level.getDayTime() * (isNatural ? 1 : 24)) % 24000);
+		int dayTime = WorldClocks.getDayTime(level);
 		int minutes = (dayTime % 1000) * 60 / 1000;
 		int offset = getBlockState().getValue(ClockworkBearingBlock.FACING)
 			.getAxisDirection()

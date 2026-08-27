@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.clock;
 
+import com.simibubi.create.foundation.utility.WorldClocks;
 import java.util.List;
 
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
@@ -12,6 +13,7 @@ import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.nbt.NBTHelper;
+import net.minecraft.world.entity.animal.pig.PigSoundVariants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -73,8 +75,8 @@ public class CuckooClockBlockEntity extends KineticBlockEntity {
 			return;
 
 
-		boolean isNatural = level.dimensionType().natural();
-		int dayTime = (int) ((level.getDayTime() * (isNatural ? 1 : 24)) % 24000);
+		boolean isNatural = WorldClocks.hasDayCycle(level);
+		int dayTime = WorldClocks.getDayTime(level);
 		int hours = (dayTime / 1000 + 6) % 24;
 		int minutes = (dayTime % 1000) * 60 / 1000;
 
@@ -149,7 +151,10 @@ public class CuckooClockBlockEntity extends KineticBlockEntity {
 						playSound(SoundEvents.CHEST_OPEN, 1 / 16f, 2f);
 					if (value == phase) {
 						if (animationType == Animation.PIG)
-							playSound(SoundEvents.PIG_AMBIENT, 1 / 4f, 1f);
+							playSound(SoundEvents.PIG_SOUNDS.get(PigSoundVariants.SoundSet.CLASSIC)
+								.adultSounds()
+								.ambientSound()
+								.value(), 1 / 4f, 1f);
 						else
 							playSound(SoundEvents.CREEPER_HURT, 1 / 4f, 3f);
 					}

@@ -1,8 +1,10 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.core.UUIDUtil;
 import java.util.Arrays;
 import java.util.List;
@@ -224,8 +226,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 			return;
 
 		cancelStall(context);
-		context.blockEntityData.put("Inventory", player.getInventory()
-			.save(new ListTag()));
+		context.blockEntityData.put("Inventory", NbtValueIO.saveInventory(player.getInventory(), context.world.registryAccess()));
 		player.discard();
 	}
 
@@ -251,18 +252,25 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 		Inventory inv = player.getInventory();
 		FilterItemStack filter = context.getFilterFromBE();
 
-		for (List<ItemStack> list : Arrays.asList(inv.armor, inv.offhand, inv.getNonEquipmentItems())) {
-			for (int i = 0; i < list.size(); ++i) {
-				ItemStack itemstack = list.get(i);
-				if (itemstack.isEmpty())
-					continue;
+		for (EquipmentSlot slot : EquipmentSlot.VALUES) {
+			ItemStack itemstack = player.getItemBySlot(slot);
+			if (itemstack.isEmpty() || slot == EquipmentSlot.MAINHAND)
+				continue;
+			collectOrDropItem(context, itemstack);
+			player.setItemSlot(slot, ItemStack.EMPTY);
+		}
 
-				if (list == inv.getNonEquipmentItems() && i == inv.getSelectedSlot() && filter.test(context.world, itemstack))
-					continue;
+		List<ItemStack> list = inv.getNonEquipmentItems();
+		for (int i = 0; i < list.size(); ++i) {
+			ItemStack itemstack = list.get(i);
+			if (itemstack.isEmpty())
+				continue;
 
-				collectOrDropItem(context, itemstack);
-				list.set(i, ItemStack.EMPTY);
-			}
+			if (i == inv.getSelectedSlot() && filter.test(context.world, itemstack))
+				continue;
+
+			collectOrDropItem(context, itemstack);
+			list.set(i, ItemStack.EMPTY);
 		}
 	}
 
@@ -279,8 +287,8 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 			UUID owner = context.blockEntityData.contains("Owner") ? context.blockEntityData.read("Owner", UUIDUtil.CODEC).orElse(null) : null;
 			DeployerFakePlayer deployerFakePlayer = new DeployerFakePlayer((ServerLevel) context.world, owner);
 			deployerFakePlayer.onMinecartContraption = context.contraption instanceof MountedContraption;
-			deployerFakePlayer.getInventory()
-				.load(context.blockEntityData.getListOrEmpty("Inventory"));
+			NbtValueIO.loadInventory(deployerFakePlayer.getInventory(),
+				context.blockEntityData.getListOrEmpty("Inventory"), context.world.registryAccess());
 			if (context.data.contains("HeldItem"))
 				deployerFakePlayer.setItemInHand(InteractionHand.MAIN_HAND,
 					context.data.read("HeldItem", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));

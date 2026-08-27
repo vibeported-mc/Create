@@ -1,6 +1,8 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
@@ -148,8 +150,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		if (level instanceof ServerLevel sLevel) {
 			player = new DeployerFakePlayer(sLevel, owner);
 			if (deferredInventoryList != null) {
-				player.getInventory()
-					.load(deferredInventoryList);
+				NbtValueIO.loadInventory(player.getInventory(), deferredInventoryList, sLevel.registryAccess());
 				deferredInventoryList = null;
 				heldItem = player.getMainHandItem();
 				sendData();
@@ -408,10 +409,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 			compound.store("Owner", UUIDUtil.CODEC, owner);
 
 		if (player != null) {
-			ListTag invNBT = new ListTag();
-			player.getInventory()
-				.save(invNBT);
-			compound.put("Inventory", invNBT);
+			compound.put("Inventory", NbtValueIO.saveInventory(player.getInventory(), registries));
 			compound.store("HeldItem", ItemStack.OPTIONAL_CODEC, player.getMainHandItem());
 			compound.put("Overflow", NBTHelper.writeItemList(overflowItems, registries));
 		} else if (deferredInventoryList != null) {
@@ -573,7 +571,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		ItemHandlerHelpers.setStackInSlot(recipeInv, 0, stack);
 		ItemHandlerHelpers.setStackInSlot(recipeInv, 1, heldItemMainhand);
 
-		DeployerRecipeSearchEvent event = new DeployerRecipeSearchEvent(this, new RecipeWrapper(recipeInv));
+		DeployerRecipeSearchEvent event = new DeployerRecipeSearchEvent(this, new RecipeWrapper(IItemHandler.of(recipeInv)));
 
 		event.addRecipe(() -> SequencedAssemblyRecipe.getRecipe(level, event.getInventory(),
 			AllRecipeTypes.DEPLOYING.getType(), DeployerApplicationRecipe.class), 100);

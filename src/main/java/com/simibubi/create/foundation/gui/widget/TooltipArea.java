@@ -3,7 +3,6 @@ package com.simibubi.create.foundation.gui.widget;
 import java.util.List;
 
 import net.createmod.catnip.api.client.gui.widget.AbstractSimiWidget;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public class TooltipArea extends AbstractSimiWidget {
@@ -12,11 +11,8 @@ public class TooltipArea extends AbstractSimiWidget {
 		super(x, y, width, height);
 	}
 
-	@Override
-	public void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-		if (visible)
-			isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
-	}
+	// Nothing is drawn: the area exists only to show a tooltip, and hover and tooltip are both the
+	// base widget's business in 26.2.
 
 	public TooltipArea withTooltip(List<Component> tooltip) {
 		this.toolTip = tooltip;

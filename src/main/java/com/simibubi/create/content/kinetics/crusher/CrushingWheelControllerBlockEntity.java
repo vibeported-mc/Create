@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.crusher;
 
+import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
@@ -72,7 +74,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 			}
 
 		};
-		wrapper = new RecipeWrapper(inventory);
+		wrapper = new RecipeWrapper(IItemHandler.of(inventory));
 	}
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -337,7 +339,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (hasEntity())
-			compound.put("Entity", NbtUtils.createUUID(entityUUID));
+			compound.store("Entity", UUIDUtil.CODEC, entityUUID);
 		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
 		compound.putFloat("Speed", crushingspeed);
 		super.write(compound, registries, clientPacket);
@@ -347,7 +349,8 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
 		if (compound.contains("Entity") && !isOccupied()) {
-			entityUUID = NbtUtils.loadUUID(NBTHelper.getINBT(compound, "Entity"));
+			entityUUID = compound.read("Entity", UUIDUtil.CODEC)
+				.orElse(null);
 			this.searchForEntity = true;
 		}
 		crushingspeed = compound.getFloatOr("Speed", 0);

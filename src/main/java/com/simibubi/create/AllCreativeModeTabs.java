@@ -9,8 +9,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.network.chat.Component;
 
@@ -89,10 +90,11 @@ public class AllCreativeModeTabs {
 			MutableObject<Predicate<Item>> isItem3d = new MutableObject<>(item -> false);
 			if (PlatformHelper.INSTANCE.getEnv().isClient())
 				isItem3d.setValue(item -> {
-					ItemRenderer itemRenderer = Minecraft.getInstance()
-						.getItemRenderer();
-					BlockStateModel model = itemRenderer.getModel(new ItemStack(item), null, null, 0);
-					return model.isGui3d();
+					ItemStackRenderState renderState = new ItemStackRenderState();
+					Minecraft.getInstance()
+						.getItemModelResolver()
+						.updateForTopItem(renderState, new ItemStack(item), ItemDisplayContext.GUI, null, null, 0);
+					return renderState.usesBlockLight();
 				});
 			IS_ITEM_3D_PREDICATE = isItem3d.getValue();
 		}

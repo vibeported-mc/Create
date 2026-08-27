@@ -9,6 +9,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
@@ -92,10 +93,8 @@ public class ClientContraption {
 	}
 
 	public void invalidateStructure() {
-		for (RenderType renderType : RenderType.chunkBufferLayers()) {
-			SuperByteBufferCache.getInstance()
-				.invalidate(ContraptionEntityRenderer.CONTRAPTION, Pair.of(contraption, renderType));
-		}
+		SuperByteBufferCache.getInstance()
+			.invalidate(ContraptionEntityRenderer.CONTRAPTION, contraption);
 
 		structureVersion++;
 	}
@@ -104,7 +103,7 @@ public class ClientContraption {
 		for (StructureBlockInfo info : contraption.getBlocks().values()) {
 			renderLevel.setBlock(info.pos(), info.state(), 0);
 
-			BlockEntity blockEntity = readBlockEntity(renderLevel, info, contraption.getIsLegacy().getBooleanOr(info.pos(), false));
+			BlockEntity blockEntity = readBlockEntity(renderLevel, info, contraption.getIsLegacy().getBoolean(info.pos()));
 
 			if (blockEntity != null) {
 				renderLevel.setBlockEntity(blockEntity);
@@ -148,7 +147,7 @@ public class ClientContraption {
 		BlockEntity be = entityBlock.newBlockEntity(pos, state);
 		postprocessReadBlockEntity(level, be, state);
 		if (be != null && nbt != null) {
-			be.handleUpdateTag(nbt, level.registryAccess());
+			be.handleUpdateTag(NbtValueIO.fromTag(nbt, level.registryAccess()));
 		}
 
 		return be;
