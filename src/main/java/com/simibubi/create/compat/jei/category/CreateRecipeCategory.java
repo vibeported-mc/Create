@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import org.jspecify.annotations.NullMarked;
 import static mezz.jei.api.recipe.RecipeType.createRecipeHolderType;
 
@@ -151,7 +152,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 		ClientLevel level = Minecraft.getInstance().level;
 		if (level == null)
 			return ItemStack.EMPTY;
-		return recipe.getResultItem(level.registryAccess());
+		return RecipeAccessors.result(recipe, null);
 	}
 
 	public static IRecipeSlotRichTooltipCallback addStochasticTooltip(ProcessingOutput output) {

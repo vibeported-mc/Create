@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
@@ -72,11 +73,11 @@ public class BlueprintItem extends Item {
 	}
 
 	public static void assignCompleteRecipe(Level level, ItemStacksResourceHandler inv, Recipe<?> recipe) {
-		NonNullList<Ingredient> ingredients = recipe.getIngredients();
+		NonNullList<Ingredient> ingredients = RecipeAccessors.ingredients(recipe);
 
 		for (int i = 0; i < 9; i++)
 			ItemHandlerHelpers.setStackInSlot(inv, i, ItemStack.EMPTY);
-		ItemHandlerHelpers.setStackInSlot(inv, 9, recipe.getResultItem(level.registryAccess()));
+		ItemHandlerHelpers.setStackInSlot(inv, 9, RecipeAccessors.result(recipe, null));
 
 		if (recipe instanceof ShapedRecipe shapedRecipe) {
 			for (int row = 0; row < shapedRecipe.getHeight(); row++)

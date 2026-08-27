@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.mixer;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -264,7 +265,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 	protected boolean matchStaticFilters(RecipeHolder<? extends Recipe<?>> recipe) {
 		Recipe<?> r = recipe.value();
 		return ((r instanceof CraftingRecipe && !(r instanceof ShapedRecipe)
-			&& AllConfigs.server().recipes.allowShapelessInMixer.get() && r.getIngredients()
+			&& AllConfigs.server().recipes.allowShapelessInMixer.get() && RecipeAccessors.ingredients(r)
 			.size() > 1
 			&& !MechanicalPressBlockEntity.canCompress(r)) && !AllRecipeTypes.shouldIgnoreInAutomation(recipe)
 			|| r.getType() == AllRecipeTypes.MIXING.getType());

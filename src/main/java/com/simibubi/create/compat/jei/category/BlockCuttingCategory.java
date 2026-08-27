@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.compat.jei.category.BlockCuttingCategory.CondensedBlockCuttingRecipe;
 import com.simibubi.create.compat.jei.category.animations.AnimatedSaw;
@@ -35,7 +36,7 @@ public class BlockCuttingCategory extends CreateRecipeCategory<CondensedBlockCut
 		builder
 				.addSlot(RecipeIngredientRole.INPUT, 5, 5)
 				.setBackground(getRenderedSlot(), -1 , -1)
-				.addItemStacks(Arrays.asList(recipe.getIngredients().get(0).getItems()));
+				.addItemStacks(Arrays.asList(RecipeAccessors.ingredients(recipe).get(0).getItems()));
 
 		int i = 0;
 		for (List<ItemStack> itemStacks : results) {
@@ -100,9 +101,9 @@ public class BlockCuttingCategory extends CreateRecipeCategory<CondensedBlockCut
 	public static List<RecipeHolder<CondensedBlockCuttingRecipe>> condenseRecipes(List<RecipeHolder<?>> stoneCuttingRecipes) {
 		List<RecipeHolder<CondensedBlockCuttingRecipe>> condensed = new ArrayList<>();
 		Recipes: for (RecipeHolder<?> recipe : stoneCuttingRecipes) {
-			Ingredient i1 = recipe.value().getIngredients().get(0);
+			Ingredient i1 = RecipeAccessors.ingredients(recipe.value()).get(0);
 			for (RecipeHolder<CondensedBlockCuttingRecipe> condensedRecipe : condensed) {
-				if (ItemHelper.matchIngredients(i1, condensedRecipe.value().getIngredients().get(0))) {
+				if (ItemHelper.matchIngredients(i1, RecipeAccessors.ingredients(condensedRecipe.value()).get(0))) {
 					condensedRecipe.value().addOutput(getResultItem(recipe.value()));
 					continue Recipes;
 				}

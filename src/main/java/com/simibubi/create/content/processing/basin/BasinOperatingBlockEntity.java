@@ -1,5 +1,6 @@
 package com.simibubi.create.content.processing.basin;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -162,7 +163,7 @@ public abstract class BasinOperatingBlockEntity extends KineticBlockEntity {
 					list.add(r.value());
 		}
 
-		list.sort((r1, r2) -> r2.getIngredients().size() - r1.getIngredients().size());
+		list.sort((r1, r2) -> RecipeAccessors.ingredients(r2).size() - RecipeAccessors.ingredients(r1).size());
 
 		return list;
 	}

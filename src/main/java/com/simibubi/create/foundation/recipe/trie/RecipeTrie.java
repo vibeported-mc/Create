@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.recipe.trie;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -185,7 +186,7 @@ public class RecipeTrie<R extends Recipe<?>> {
 		private <R1 extends R> AbstractRecipe<R1> createRecipe(R1 recipe) {
 			Set<AbstractIngredient> ingredients = new HashSet<>();
 
-			for (Ingredient ingredient : recipe.getIngredients()) {
+			for (Ingredient ingredient : RecipeAccessors.ingredients(recipe)) {
 				if (ingredient.isEmpty()) {
 					ingredients.add(AbstractIngredient.Universal.INSTANCE);
 					continue;

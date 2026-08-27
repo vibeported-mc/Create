@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.recipe;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import java.util.function.Predicate;
 
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
@@ -28,7 +29,7 @@ public class RecipeConditions {
 	}
 
 	public static Predicate<RecipeHolder<? extends Recipe<?>>> firstIngredientMatches(ItemStack stack) {
-		return r -> !r.value().getIngredients().isEmpty() && r.value().getIngredients().get(0).test(stack);
+		return r -> !RecipeAccessors.ingredients(r.value()).isEmpty() && RecipeAccessors.ingredients(r.value()).get(0).test(stack);
 	}
 
 	public static Predicate<RecipeHolder<? extends Recipe<?>>> outputMatchesFilter(FilteringBehaviour filtering) {

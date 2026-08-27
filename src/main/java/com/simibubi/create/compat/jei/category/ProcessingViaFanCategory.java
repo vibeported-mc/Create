@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
 import java.util.List;
@@ -45,7 +46,7 @@ public abstract class ProcessingViaFanCategory<T extends Recipe<?>> extends Crea
 		builder
 				.addSlot(RecipeIngredientRole.INPUT, 21, 48)
 				.setBackground(getRenderedSlot(), -1, -1)
-				.addIngredients(recipe.getIngredients().get(0));
+				.addIngredients(RecipeAccessors.ingredients(recipe).get(0));
 		builder
 				.addSlot(RecipeIngredientRole.OUTPUT, 141, 48)
 				.setBackground(getRenderedSlot(), -1, -1)

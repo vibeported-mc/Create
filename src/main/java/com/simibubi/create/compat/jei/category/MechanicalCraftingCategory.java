@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		IIngredientRenderer<ItemStack> renderer = new CrafterIngredientRenderer(recipe);
 		int i = 0;
 
-		for (Ingredient ingredient : recipe.getIngredients()) {
+		for (Ingredient ingredient : RecipeAccessors.ingredients(recipe)) {
 			float f = 19 * scale;
 			int xPosition = (int) (x + 1 + (i % getWidth(recipe)) * f);
 			int yPosition = (int) (y + 1 + (i / getWidth(recipe)) * f);
@@ -107,10 +108,10 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		for (int row = 0; row < getHeight(recipe); row++)
 			for (int col = 0; col < getWidth(recipe); col++) {
 				int pIndex = row * getWidth(recipe) + col;
-				if (pIndex >= recipe.getIngredients()
+				if (pIndex >= RecipeAccessors.ingredients(recipe)
 					.size())
 					break;
-				if (recipe.getIngredients()
+				if (RecipeAccessors.ingredients(recipe)
 					.get(pIndex)
 					.isEmpty())
 					continue;
@@ -131,7 +132,7 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		matrixStack.translate((float) (0), (float) (0));
 
 		int amount = 0;
-		for (Ingredient ingredient : recipe.getIngredients()) {
+		for (Ingredient ingredient : RecipeAccessors.ingredients(recipe)) {
 			if (Ingredient.EMPTY == ingredient)
 				continue;
 			amount++;

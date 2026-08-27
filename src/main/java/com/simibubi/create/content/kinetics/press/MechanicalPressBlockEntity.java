@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.press;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import java.util.List;
 import java.util.Optional;
 
@@ -189,7 +190,7 @@ public class MechanicalPressBlockEntity extends BasinOperatingBlockEntity implem
 	public static boolean canCompress(Recipe<?> recipe) {
 		if (!(recipe instanceof CraftingRecipe) || !AllConfigs.server().recipes.allowShapedSquareInPress.get())
 			return false;
-		NonNullList<Ingredient> ingredients = recipe.getIngredients();
+		NonNullList<Ingredient> ingredients = RecipeAccessors.ingredients(recipe);
 		return (ingredients.size() == 4 || ingredients.size() == 9) && ItemHelper.matchAllIngredients(ingredients);
 	}
 

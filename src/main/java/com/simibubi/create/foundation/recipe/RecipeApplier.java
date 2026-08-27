@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.recipe;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class RecipeApplier {
 
 			}
 		} else {
-			ItemStack out = recipe.getResultItem(level.registryAccess())
+			ItemStack out = RecipeAccessors.result(recipe, null)
 				.copy();
 			stacks = ItemHelper.multipliedOutput(stackIn, out);
 		}

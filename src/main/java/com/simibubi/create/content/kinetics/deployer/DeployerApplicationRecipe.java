@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -39,7 +40,7 @@ public class DeployerApplicationRecipe extends ItemApplicationRecipe implements 
 				sandpaperRecipe.id().getPath() + "_using_deployer"
 		);
 		DeployerApplicationRecipe recipe = new ItemApplicationRecipe.Builder<>(DeployerApplicationRecipe::new, id)
-				.require(sandpaperRecipe.value().getIngredients()
+				.require(RecipeAccessors.ingredients(sandpaperRecipe.value())
 						.get(0))
 						.require(AllItemTags.SANDPAPER.tag)
 						.output(sandpaperRecipe.value().getResultItem(Minecraft.getInstance().level.registryAccess()))

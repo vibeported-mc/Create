@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei;
 
+import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jspecify.annotations.NullMarked;
@@ -79,7 +80,7 @@ public class StockKeeperTransferHandler implements IUniversalRecipeTransferHandl
 
 		Recipe<?> recipe = recipeHolder.value();
 
-		if (recipe.getIngredients().size() > 9)
+		if (RecipeAccessors.ingredients(recipe).size() > 9)
 			return RecipeTransferErrorInternal.INSTANCE;
 
 		for (CraftableBigItemStack cbis : screen.recipesToOrder)
