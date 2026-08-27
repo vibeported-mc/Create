@@ -1,5 +1,8 @@
 package com.simibubi.create.content.decoration.copycat;
 
+import net.minecraft.world.level.BlockAndLightGetter;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -9,7 +12,7 @@ import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -238,7 +241,7 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public BlockState getAppearance(BlockState state, BlockGetter level, BlockPos pos, Direction side,
+	public BlockState getAppearance(BlockState state, BlockAndLightGetter level, BlockPos pos, Direction side,
 									@Nullable BlockState queryState, @Nullable BlockPos queryPos) {
 
 		if (isIgnoredConnectivitySide(level, state, side, pos, queryPos))
@@ -331,8 +334,10 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	}
 
 	@Override
-	public float getEnchantPowerBonus(BlockState state, LevelReader level, BlockPos pos) {
-		return getMaterial(level, pos).getEnchantPowerBonus(level, pos);
+	public float getEnchantPowerBonus(BlockState state, BlockGetter level, BlockPos pos) {
+		BlockState material = getMaterial(level, pos);
+		return material.getBlock()
+			.getEnchantPowerBonus(material, level, pos);
 	}
 
 	@Override
@@ -355,21 +360,26 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	//
 
 	@OnlyIn(Dist.CLIENT)
-	public static BlockColor wrappedColor() {
-		return new WrappedBlockColor();
+	public static List<BlockTintSource> wrappedColor() {
+		return List.of(new WrappedBlockColor());
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static class WrappedBlockColor implements BlockColor {
+	public static class WrappedBlockColor implements BlockTintSource {
 
 		@Override
-		public int getColor(BlockState pState, @Nullable BlockGetter pLevel, @Nullable BlockPos pPos,
-							int pTintIndex) {
-			if (pLevel == null || pPos == null)
-				return GrassColor.get(0.5D, 1.0D);
-			return Minecraft.getInstance()
+		public int color(BlockState state) {
+			// Without a level there is nothing to copy, so the neutral foliage tint stands in.
+			return GrassColor.get(0.5D, 1.0D);
+		}
+
+		@Override
+		public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+			BlockState material = getMaterial(level, pos);
+			BlockTintSource source = Minecraft.getInstance()
 				.getBlockColors()
-				.getColor(getMaterial(pLevel, pPos), pLevel, pPos, pTintIndex);
+				.getTintSource(material, 0);
+			return source == null ? color(state) : source.colorInWorld(material, level, pos);
 		}
 
 	}

@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.AABB;
 
 /**
@@ -130,14 +130,14 @@ public class AllPortalTracks {
 		SuperGlueEntity probe = new SuperGlueEntity(level, new AABB(portalPos));
 		probe.setYRot(inboundTrack.getFace().toYRot());
 
-		DimensionTransition dimensiontransition = portal.getPortalDestination(level, probe, probe.blockPosition());
-		if (dimensiontransition == null)
+		TeleportTransition teleportTransition = portal.getPortalDestination(level, probe, probe.blockPosition());
+		if (teleportTransition == null)
 			return null;
 
-		if (!minecraftServer.isLevelEnabled(dimensiontransition.newLevel()))
-			return null;
-
-		BlockPos otherPortalPos = BlockPos.containing(dimensiontransition.pos());
+		// MinecraftServer.isLevelEnabled is gone along with the allow-nether toggle it guarded; a
+		// dimension that is switched off is simply absent from the server's level map, which the
+		// getLevel null check above already covers.
+		BlockPos otherPortalPos = BlockPos.containing(teleportTransition.position());
 		BlockState otherPortalState = otherLevel.getBlockState(otherPortalPos);
 		if (!otherPortalState.is(portalState.getBlock()))
 			return null;

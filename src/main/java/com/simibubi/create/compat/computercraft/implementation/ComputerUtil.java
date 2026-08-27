@@ -14,7 +14,6 @@ import java.util.Objects;
 import com.simibubi.create.compat.computercraft.implementation.luaObjects.LuaComparable;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
-
 import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
 
 import dan200.computercraft.api.detail.VanillaDetailRegistries;

@@ -157,7 +157,7 @@ public class TrackBlockEntity extends SmartBlockEntity implements TransformableB
 		if (blockState.hasProperty(TrackBlock.HAS_BE))
 			level.setBlockAndUpdate(worldPosition, blockState.setValue(TrackBlock.HAS_BE, false));
 		if (level instanceof ServerLevel serverLevel)
-			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, new ChunkPos(worldPosition), new RemoveBlockEntityPacket(worldPosition));
+			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, ChunkPos.containing(worldPosition), new RemoveBlockEntityPacket(worldPosition));
 	}
 
 	public void removeInboundConnections(boolean dropAndDiscard) {
@@ -172,7 +172,7 @@ public class TrackBlockEntity extends SmartBlockEntity implements TransformableB
 			bezierConnection.spawnDestroyParticles(level);
 		}
 		if (dropAndDiscard && level instanceof ServerLevel serverLevel)
-			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, new ChunkPos(worldPosition), new RemoveBlockEntityPacket(worldPosition));
+			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, ChunkPos.containing(worldPosition), new RemoveBlockEntityPacket(worldPosition));
 	}
 
 	public void bind(ResourceKey<Level> boundDimension, BlockPos boundLocation) {

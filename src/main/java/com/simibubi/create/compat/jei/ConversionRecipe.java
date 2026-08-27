@@ -8,9 +8,12 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
@@ -24,11 +27,14 @@ public class ConversionRecipe extends StandardProcessingRecipe<RecipeWrapper> {
 
 	public static RecipeHolder<ConversionRecipe> create(ItemStack from, ItemStack to) {
 		Identifier recipeId = Create.asResource("conversion_" + counter++);
+		// An ingredient is a flat set of items now, so it can only name the item being converted.
 		ConversionRecipe recipe = new Builder<>(ConversionRecipe::new, recipeId)
-			.withItemIngredients(Ingredient.of(from))
+			.withItemIngredients(Ingredient.of(from.getItem()))
 			.withSingleItemOutput(to)
 			.build();
-		return new RecipeHolder<>(recipeId, recipe);
+		// A recipe is held under a registry key rather than a bare id in 26.2. This one only exists in
+		// JEI, so the key names something the recipe manager has never heard of.
+		return new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, recipeId), recipe);
 	}
 
 	public ConversionRecipe(ProcessingRecipeParams params) {

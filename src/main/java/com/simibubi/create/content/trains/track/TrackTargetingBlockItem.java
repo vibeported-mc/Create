@@ -29,7 +29,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.InteractionResult;
@@ -37,11 +36,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -142,10 +140,11 @@ public class TrackTargetingBlockItem extends BlockItem {
 		}
 
 		blockEntityData.store("TargetTrack", BlockPos.CODEC, selectedPos.subtract(placedPos));
-		blockEntityData.putString("id", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
-		BlockEntity.addEntityType(blockEntityData, ((IBE<?>) this.getBlock()).getBlockEntityType());
 
-		stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(blockEntityData));
+		// BLOCK_ENTITY_DATA holds a TypedEntityData now, which carries the block entity type
+		// alongside the tag instead of having it written in as an "id" key.
+		stack.set(DataComponents.BLOCK_ENTITY_DATA,
+			TypedEntityData.of(((IBE<?>) this.getBlock()).getBlockEntityType(), blockEntityData));
 		stack.remove(AllDataComponents.TRACK_TARGETING_ITEM_SELECTED_POS);
 		stack.remove(AllDataComponents.TRACK_TARGETING_ITEM_SELECTED_DIRECTION);
 		stack.remove(AllDataComponents.TRACK_TARGETING_ITEM_BEZIER);

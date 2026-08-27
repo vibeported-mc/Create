@@ -11,7 +11,6 @@ import com.simibubi.create.content.logistics.redstoneRequester.AutoRequestData;
 import com.simibubi.create.content.logistics.redstoneRequester.AutoRequestData.Mutable;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.logistics.tableCloth.TableClothBlockEntity;
-
 import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
 
 import dan200.computercraft.api.detail.VanillaDetailRegistries;

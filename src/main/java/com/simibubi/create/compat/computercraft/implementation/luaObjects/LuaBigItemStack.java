@@ -3,7 +3,6 @@ package com.simibubi.create.compat.computercraft.implementation.luaObjects;
 import java.util.Map;
 
 import com.simibubi.create.content.logistics.BigItemStack;
-
 import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
 
 import dan200.computercraft.api.detail.VanillaDetailRegistries;

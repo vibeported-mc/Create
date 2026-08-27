@@ -53,7 +53,7 @@ public class FakeTrackBlock extends Block implements EntityBlock, ProperWaterlog
 	@Override
 	public @Nullable PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos,
 											   @Nullable Mob mob) {
-		return PathType.DAMAGE_OTHER;
+		return PathType.DAMAGING;
 	}
 
 	@Override

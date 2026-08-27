@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei;
 
+import com.simibubi.create.foundation.recipe.ClientRecipes;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
@@ -388,7 +389,7 @@ public class CreateJEI implements IModPlugin {
 
 			if (potionContents.hasEffects()) {
 				Set<Holder<MobEffect>> effectSet = new HashSet<>();
-				potionContents.forEachEffect(mei -> effectSet.add(mei.getEffect()));
+				potionContents.forEachEffect(mei -> effectSet.add(mei.getEffect()), 1);
 				if (!visitedEffects.add(effectSet))
 					continue;
 }
@@ -426,19 +427,21 @@ public class CreateJEI implements IModPlugin {
 		}
 	}
 
+	/**
+	 * 26.2 stopped handing the client the loaded recipes; the connection only carries the recipe
+	 * book's displays. What Create asks the server to send back arrives in {@link ClientRecipes},
+	 * which is what every lookup here reads.
+	 */
 	public static void consumeAllRecipes(Consumer<? super RecipeHolder<?>> consumer) {
-		Minecraft.getInstance()
-			.getConnection()
+		ClientRecipes.values()
 			.forEach(consumer);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <T extends Recipe<?>> void consumeTypedRecipes(Consumer<RecipeHolder<?>> consumer, RecipeType<?> type) {
-		List<? extends RecipeHolder<?>> map = Minecraft.getInstance()
-			.getConnection()
-			.getAllRecipesFor((RecipeType) type);
-		if (!map.isEmpty())
-			map.forEach(consumer);
+		Collection<? extends RecipeHolder<?>> recipes = ClientRecipes.all((RecipeType) type);
+		if (!recipes.isEmpty())
+			recipes.forEach(consumer);
 	}
 
 	public static List<RecipeHolder<?>> getTypedRecipes(RecipeType<?> type) {
@@ -471,7 +474,6 @@ public class CreateJEI implements IModPlugin {
 	}
 
 	public static boolean doOutputsMatch(Recipe<?> recipe1, Recipe<?> recipe2) {
-		RegistryAccess registryAccess = Minecraft.getInstance().level.registryAccess();
 		return ItemHelper.sameItem(RecipeAccessors.result(recipe1, null), RecipeAccessors.result(recipe2, null));
 	}
 

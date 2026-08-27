@@ -2,7 +2,6 @@ package com.simibubi.create.compat.jei;
 
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +18,6 @@ import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.stockTicker.CraftableBigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestMenu;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
-import com.simibubi.create.foundation.blockEntity.ItemHandlerContainer;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -33,6 +31,7 @@ import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.library.transfer.RecipeTransferErrorMissingSlots;
 import mezz.jei.library.transfer.RecipeTransferErrorTooltip;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -96,13 +95,16 @@ public class StockKeeperTransferHandler implements IUniversalRecipeTransferHandl
 		if (summary == null)
 			return RecipeTransferErrorInternal.INSTANCE;
 
-		Container outputDummy = new ItemHandlerContainer(new ItemStacksResourceHandler(9));
+		// Both of these are only ever read from, to give JEI's transfer maths somewhere to hang slots.
+		// The old item handler had a modifiable-slot view; a resource handler splits that off into a
+		// separate interface, so a plain container is the shorter way to the same throwaway inventory.
+		Container outputDummy = new SimpleContainer(9);
 		List<Slot> craftingSlots = new ArrayList<>();
 		for (int i = 0; i < outputDummy.getContainerSize(); i++)
 			craftingSlots.add(new Slot(outputDummy, i, 0, 0));
 
 		List<BigItemStack> stacksByCount = summary.getStacksByCount();
-		Container inputDummy = new ItemHandlerContainer(new ItemStacksResourceHandler(stacksByCount.size()));
+		Container inputDummy = new SimpleContainer(stacksByCount.size());
 		Map<Slot, ItemStack> availableItemStacks = new HashMap<>();
 		for (int j = 0; j < stacksByCount.size(); j++) {
 			BigItemStack bigItemStack = stacksByCount.get(j);
@@ -121,7 +123,7 @@ public class StockKeeperTransferHandler implements IUniversalRecipeTransferHandl
 		if (!doTransfer)
 			return null;
 
-		ItemStack result = recipe.getResultItem(player.level().registryAccess());
+		ItemStack result = RecipeAccessors.result(recipe, player.level());
 		if (result.isEmpty())
 			return new RecipeTransferErrorTooltip(CreateLang.translate("gui.stock_keeper.recipe_result_empty").component());
 

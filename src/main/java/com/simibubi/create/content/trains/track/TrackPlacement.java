@@ -423,7 +423,9 @@ public class TrackPlacement {
 					else if (j == inv.getSelectedSlot())
 						continue;
 
-					ItemStack stackInSlot = (offhand ? inv.offhand : inv.getNonEquipmentItems()).get(i);
+					// The offhand slot moved out of the inventory lists and into the player's equipment.
+					ItemStack stackInSlot =
+						offhand ? player.getOffhandItem() : inv.getNonEquipmentItems().get(i);
 					boolean isTrack = AllTags.AllBlockTags.TRACKS.matches(stackInSlot) && stackInSlot.is(stack.getItem());
 					if (!isTrack && (!shouldPave || offhandItem.getItem() != stackInSlot.getItem()))
 						continue;

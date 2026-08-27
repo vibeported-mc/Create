@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSets;
 import it.unimi.dsi.fastutil.shorts.ShortList;
+import net.minecraft.world.level.chunk.ChunkAccess.PackedTicks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
@@ -63,7 +64,7 @@ public class VirtualChunk extends LevelChunk {
 
 	@Override
 	@Nullable
-	public BlockState setBlockState(BlockPos pos, BlockState state, boolean isMoving) {
+	public BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
 		return null;
 	}
 
@@ -142,11 +143,11 @@ public class VirtualChunk extends LevelChunk {
 	}
 
 	@Override
-	public void setUnsaved(boolean unsaved) {
+	public void markUnsaved() {
 	}
 
 	@Override
-	public boolean isUnsaved() {
+	public boolean tryMarkSaved() {
 		return false;
 	}
 
@@ -179,7 +180,8 @@ public class VirtualChunk extends LevelChunk {
 	@Override
 	public void findBlocks(@NotNull Predicate<BlockState> roughFilter, @NotNull BiPredicate<BlockState, BlockPos> fineFilter, @NotNull BiConsumer<BlockPos, BlockState> output) {
 		world.blockStates.forEach((pos, state) -> {
-			if (SectionPos.blockToSectionCoord(pos.getX()) == chunkPos.x && SectionPos.blockToSectionCoord(pos.getZ()) == chunkPos.z) {
+			if (SectionPos.blockToSectionCoord(pos.getX()) == chunkPos.x()
+				&& SectionPos.blockToSectionCoord(pos.getZ()) == chunkPos.z()) {
 				if (roughFilter.test(state) && fineFilter.test(state, pos)) {
 					output.accept(pos, state);
 				}
@@ -198,7 +200,7 @@ public class VirtualChunk extends LevelChunk {
 	}
 
 	@Override
-	public TicksToSave getTicksForSerialization() {
+	public PackedTicks getTicksForSerialization(long currentTick) {
 		throw new UnsupportedOperationException();
 	}
 

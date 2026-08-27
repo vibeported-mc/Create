@@ -37,9 +37,12 @@ public class TimeOfDayCondition extends ScheduleWaitCondition {
 	@Override
 	public boolean tickCompletion(Level level, Train train, CompoundTag context) {
 		int maxTickDiff = 40;
+		// Day time became a per-dimension clock. Level.getDayTime() used to read the same shared
+		// value everywhere, which is the overworld clock, and a schedule set by the in-game clock
+		// should keep following it in the nether and end.
 		int targetHour = intData("Hour");
 		int targetMinute = intData("Minute");
-		int dayTime = (int) (level.getDayTime() % getRotation());
+		int dayTime = (int) (level.getOverworldClockTime() % getRotation());
 		int targetTicks =
 			(int) ((((targetHour + 18) % 24) * 1000 + Math.ceil(targetMinute / 60f * 1000)) % getRotation());
 		int diff = dayTime - targetTicks;
@@ -171,7 +174,7 @@ public class TimeOfDayCondition extends ScheduleWaitCondition {
 	public MutableComponent getWaitingStatus(Level level, Train train, CompoundTag tag) {
 		int targetHour = intData("Hour");
 		int targetMinute = intData("Minute");
-		int dayTime = (int) (level.getDayTime() % getRotation());
+		int dayTime = (int) (level.getOverworldClockTime() % getRotation());
 		int targetTicks =
 			(int) ((((targetHour + 18) % 24) * 1000 + Math.ceil(targetMinute / 60f * 1000)) % getRotation());
 		int diff = targetTicks - dayTime;
@@ -179,7 +182,7 @@ public class TimeOfDayCondition extends ScheduleWaitCondition {
 		if (diff < 0)
 			diff += getRotation();
 
-		int departureTime = (int) (level.getDayTime() + diff) % 24000;
+		int departureTime = (int) (level.getOverworldClockTime() + diff) % 24000;
 		int departingHour = (departureTime / 1000 + 6) % 24;
 		int departingMinute = (departureTime % 1000) * 60 / 1000;
 

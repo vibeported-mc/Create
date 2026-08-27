@@ -11,7 +11,7 @@ import com.simibubi.create.content.equipment.blueprint.BlueprintMenu;
 
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +33,7 @@ public class BlueprintTransferHandler implements IRecipeTransferHandler<Blueprin
 	}
 
 	@Override
-	public RecipeType<RecipeHolder<CraftingRecipe>> getRecipeType() {
+	public IRecipeType<RecipeHolder<CraftingRecipe>> getRecipeType() {
 		return RecipeTypes.CRAFTING;
 	}
 
@@ -42,7 +42,7 @@ public class BlueprintTransferHandler implements IRecipeTransferHandler<Blueprin
 		if (!doTransfer)
 			return null;
 
-		ClientNetworkHelper.INSTANCE.sendToServer(new BlueprintAssignCompleteRecipePacket(craftingRecipe.id()));
+		ClientNetworkHelper.INSTANCE.sendToServer(new BlueprintAssignCompleteRecipePacket(craftingRecipe.id().identifier()));
 		return null;
 	}
 

@@ -1,6 +1,7 @@
 package com.simibubi.create.content.equipment.toolbox;
 
 import org.joml.Matrix3x2fStack;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
@@ -99,7 +100,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 				.at(-9, -9)
 				.submit(graphics);
 
-			ms.translate(0, -40 + (10 * (1 - fade) * (1 - fade)), 0);
+			ms.translate(0, -40 + (10 * (1 - fade) * (1 - fade)));
 			AllGuiTextures.TOOLBELT_SLOT.render(graphics, -12, -12);
 			ms.translate((float) (-0.5), (float) (0.5));
 			AllIcons.I_DISABLE.render(graphics, -9, -9);
@@ -117,7 +118,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 				hoveredSlot = DEPOSIT;
 
 			ms.pushMatrix();
-			ms.translate(80 + (-5 * (1 - fade) * (1 - fade)), 0, 0);
+			ms.translate(80 + (-5 * (1 - fade) * (1 - fade)), 0);
 			AllGuiTextures.TOOLBELT_SLOT.render(graphics, -12, -12);
 			ms.translate((float) (-0.5), (float) (0.5));
 			AllIcons.I_TOOLBOX.render(graphics, -9, -9);
@@ -131,10 +132,9 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 			for (int slot = 0; slot < 8; slot++) {
 				ms.pushMatrix();
-				TransformStack.of(ms)
-					.rotateZDegrees(slot * 45 - 45)
-					.translate(0, -40 + (10 * (1 - fade) * (1 - fade)), 0)
-					.rotateZDegrees(-slot * 45 + 45);
+				ms.rotate(Mth.DEG_TO_RAD * (slot * 45 - 45));
+				ms.translate(0, -40 + (10 * (1 - fade) * (1 - fade)));
+				ms.rotate(Mth.DEG_TO_RAD * (-slot * 45 + 45));
 				ms.translate((float) (-12), (float) (-12));
 
 				if (state == State.SELECT_ITEM || state == State.SELECT_ITEM_UNEQUIP) {
@@ -202,7 +202,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 			if (i1 > 8) {
 				ms.pushMatrix();
-				ms.translate((float) (width / 2), (float) (height - 68), 0.0F);
+				ms.translate((float) (width / 2), (float) (height - 68));
 				int k1 = 16777215;
 				int k = i1 << 24 & -16777216;
 				int l = font.width(tip);
@@ -214,7 +214,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 	}
 
 	@Override
-	public void renderBackground(GuiGraphicsExtractor pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void extractBackground(GuiGraphicsExtractor pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		Color color = BACKGROUND_COLOR
 				.scaleAlpha(Math.min(1, (ticksOpen + AnimationTickHolder.getPartialTicks()) / 20f));
 
@@ -360,12 +360,9 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 	@Override
 	public boolean keyPressed(KeyEvent event) {
-		int code = event.key();
-		int scanCode = event.scancode();
-		int modifiers = event.modifiers();
 		KeyMapping[] hotbarBinds = minecraft.options.keyHotbarSlots;
 		for (int i = 0; i < hotbarBinds.length && i < 8; i++) {
-			if (hotbarBinds[i].matches(code, scanCode)) {
+			if (hotbarBinds[i].matches(event)) {
 
 				if (state == State.SELECT_ITEM || state == State.SELECT_ITEM_UNEQUIP) {
 					ToolboxInventory inv = selectedBox.inventory;
@@ -381,7 +378,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 				scrollMode = true;
 				scrollSlot = i;
-				mouseClicked(0, 0, 0);
+				mouseClicked(new MouseButtonEvent(0, 0, new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0)), false);
 				return true;
 			}
 		}
@@ -391,12 +388,8 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 	@Override
 	public boolean keyReleased(KeyEvent event) {
-		int code = event.key();
-		int scanCode = event.scancode();
-		int modifiers = event.modifiers();
-		InputConstants.Key mouseKey = InputConstants.getKey(code, scanCode);
 		if (AllKeys.TOOLBELT.getKeybind()
-			.isActiveAndMatches(mouseKey)) {
+			.matches(event)) {
 			onClose();
 			return true;
 		}
