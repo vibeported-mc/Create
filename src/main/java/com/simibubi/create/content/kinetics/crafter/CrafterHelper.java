@@ -3,24 +3,24 @@ package com.simibubi.create.content.kinetics.crafter;
 import com.simibubi.create.content.kinetics.crafter.ConnectedInputHandler.ConnectedInput;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class CrafterHelper {
 
-	public static MechanicalCrafterBlockEntity getCrafter(BlockAndTintGetter reader, BlockPos pos) {
+	public static MechanicalCrafterBlockEntity getCrafter(BlockGetter reader, BlockPos pos) {
 		BlockEntity blockEntity = reader.getBlockEntity(pos);
 		if (!(blockEntity instanceof MechanicalCrafterBlockEntity))
 			return null;
 		return (MechanicalCrafterBlockEntity) blockEntity;
 	}
 
-	public static ConnectedInputHandler.ConnectedInput getInput(BlockAndTintGetter reader, BlockPos pos) {
+	public static ConnectedInputHandler.ConnectedInput getInput(BlockGetter reader, BlockPos pos) {
 		MechanicalCrafterBlockEntity crafter = getCrafter(reader, pos);
 		return crafter == null ? null : crafter.input;
 	}
 
-	public static boolean areCraftersConnected(BlockAndTintGetter reader, BlockPos pos, BlockPos otherPos) {
+	public static boolean areCraftersConnected(BlockGetter reader, BlockPos pos, BlockPos otherPos) {
 		ConnectedInput input1 = getInput(reader, pos);
 		ConnectedInput input2 = getInput(reader, otherPos);
 	

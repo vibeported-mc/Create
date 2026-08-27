@@ -469,7 +469,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 	public void renderBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 		Matrix3x2fStack ms = guiGraphics.pose();
 		ms.pushMatrix();
-		ms.translate(0, 0);
+		ms.translate((float) (0), (float) (0));
 		super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 		ms.popMatrix();
 	}
@@ -509,7 +509,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		LivingEntity keeper = stockKeeper.get();
 		if (keeper != null && keeper.isAlive()) {
 			ms.pushMatrix();
-			ms.translate(0, 0);
+			ms.translate((float) (0), (float) (0));
 			entitySizeOffset = (int) (Math.max(0, keeper.getBoundingBox()
 				.getXsize() - 1) * 50);
 			int entitySizeOffsetY = (int) (Math.max(0, keeper.getBoundingBox()
@@ -526,10 +526,10 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			ms.pushMatrix();
 			int entityX = x - 35;
 			int entityY = y + windowHeight - 43;
-			ms.translate(entityX, entityY);
+			ms.translate((float) (entityX), (float) (entityY));
 			ms.mulPose(Axis.XP.rotationDegrees(-22.5f));
 			ms.mulPose(Axis.YP.rotationDegrees(-45));
-			ms.scale(48, -48);
+			ms.scale((float) (48), (float) (-48));
 			float animation = keeperBE.headAnimation.getValue(AnimationTickHolder.getPartialTicks()) * .175f;
 			float horizontalAngle = AngleHelper.rad(270);
 			HeatLevel heatLevel = keeperBE.getHeatLevelForRender();
@@ -555,8 +555,8 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		// Render static item icons
 		if (encodeRequester) {
 			ms.pushMatrix();
-			ms.translate(x + windowWidth + 5, y + windowHeight - 70);
-			ms.scale(3.5f, 3.5f);
+			ms.translate((float) (x + windowWidth + 5), (float) (y + windowHeight - 70));
+			ms.scale((float) (3.5f), (float) (3.5f));
 			GuiGameElement.of(itemToProgram)
 				.submit(graphics);
 			ms.popMatrix();
@@ -571,7 +571,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			boolean isStackHovered = index == hoveredSlot.getSecond() && hoveredSlot.getFirst() == -1;
 
 			ms.pushMatrix();
-			ms.translate(itemsX + index * colWidth, orderY);
+			ms.translate((float) (itemsX + index * colWidth), (float) (orderY));
 			renderItemEntry(graphics, 1, entry, isStackHovered, true);
 			ms.popMatrix();
 		}
@@ -597,7 +597,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		if (justSent) {
 			float alpha = Mth.clamp((successTicks + partialTicks - 5f) / 5f, 0f, 1f);
 			ms.pushMatrix();
-			ms.translate(alpha * alpha * 50, 0);
+			ms.translate((float) (alpha * alpha * 50), (float) (0));
 			if (successTicks < 10)
 				graphics.text(font, component, x + windowWidth - 42 - font.width(component) / 2,
 					y + windowHeight - 35, new Color(0x252525).setAlpha(1 - alpha * alpha)
@@ -635,7 +635,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		graphics.enableScissor(itemWindowX - 5, itemWindowY, itemWindowX2 + 10, itemWindowY2);
 
 		ms.pushMatrix();
-		ms.translate(0, -currentScroll * rowHeight);
+		ms.translate((float) (0), (float) (-currentScroll * rowHeight));
 
 		// BG
 		for (int sliceY = -2; sliceY < getMaxScroll() * rowHeight + windowHeight - 72; sliceY +=
@@ -753,7 +753,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			int jeiX = x + (windowWidth - colWidth * recipesToOrder.size()) / 2 + 1;
 			int jeiY = orderY - 31;
 			ms.pushMatrix();
-			ms.translate(jeiX, jeiY);
+			ms.translate((float) (jeiX), (float) (jeiY));
 			int xoffset = -3;
 			AllGuiTextures.STOCK_KEEPER_REQUEST_BLUEPRINT_LEFT.render(graphics, xoffset, -3);
 			xoffset += 10;
@@ -767,7 +767,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 				CraftableBigItemStack craftableBigItemStack = recipesToOrder.get(index);
 				boolean isStackHovered = index == hoveredSlot.getSecond() && -2 == hoveredSlot.getFirst();
 				ms.pushMatrix();
-				ms.translate(index * colWidth, 0);
+				ms.translate((float) (index * colWidth), (float) (0));
 				renderItemEntry(graphics, 1, craftableBigItemStack, isStackHovered, true);
 				ms.popMatrix();
 			}
@@ -883,20 +883,20 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			scaleFromHover += .075f;
 
 		ms.translate((colWidth - 18) / 2.0, (rowHeight - 18) / 2.0, 0);
-		ms.translate(18 / 2.0, 18 / 2.0);
-		ms.scale(scale, scale);
-		ms.scale(scaleFromHover, scaleFromHover);
-		ms.translate(-18 / 2.0, -18 / 2.0);
+		ms.translate((float) (18 / 2.0), (float) (18 / 2.0));
+		ms.scale((float) (scale), (float) (scale));
+		ms.scale((float) (scaleFromHover), (float) (scaleFromHover));
+		ms.translate((float) (-18 / 2.0), (float) (-18 / 2.0));
 		if (customCount != 0 || craftable)
 			GuiGameElement.of(stackWithCount)
 				.submit(graphics);
 		ms.popMatrix();
 
 		ms.pushMatrix();
-		ms.translate(0, 0);
+		ms.translate((float) (0), (float) (0));
 		if (customCount != 0 || craftable)
 			graphics.itemDecorations(font, stackWithCount, 1, 1, "");
-		ms.translate(0, 0);
+		ms.translate((float) (0), (float) (0));
 		if (customCount > 1 || craftable)
 			drawItemCount(graphics, entry.count, customCount);
 		ms.popMatrix();

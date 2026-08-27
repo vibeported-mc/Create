@@ -13,13 +13,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class CrafterCTBehaviour extends ConnectedTextureBehaviour.Base {
 
 	@Override
-	public boolean connectsTo(BlockState state, BlockState other, BlockAndTintGetter reader, BlockPos pos, BlockPos otherPos,
+	public boolean connectsTo(BlockState state, BlockState other, BlockGetter reader, BlockPos pos, BlockPos otherPos,
 		Direction face) {
 		if (state.getBlock() != other.getBlock())
 			return false;

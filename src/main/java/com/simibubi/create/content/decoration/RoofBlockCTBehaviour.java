@@ -13,7 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
@@ -44,7 +44,7 @@ public class RoofBlockCTBehaviour extends ConnectedTextureBehaviour.Base {
 	}
 
 	@Override
-	public CTContext buildContext(BlockAndTintGetter reader, BlockPos pos, BlockState state, Direction face,
+	public CTContext buildContext(BlockGetter reader, BlockPos pos, BlockState state, Direction face,
 		ContextRequirement requirement) {
 
 		if (isUprightStair(state))
@@ -54,7 +54,7 @@ public class RoofBlockCTBehaviour extends ConnectedTextureBehaviour.Base {
 	}
 
 	@Override
-	public boolean connectsTo(BlockState state, BlockState other, BlockAndTintGetter reader, BlockPos pos,
+	public boolean connectsTo(BlockState state, BlockState other, BlockGetter reader, BlockPos pos,
 		BlockPos otherPos, Direction face, Direction primaryOffset, Direction secondaryOffset) {
 
 		if (connects(reader, pos, state, other)
@@ -108,7 +108,7 @@ public class RoofBlockCTBehaviour extends ConnectedTextureBehaviour.Base {
 		return context;
 	}
 
-	protected boolean connects(BlockAndTintGetter reader, BlockPos pos, BlockState state, BlockState other) {
+	protected boolean connects(BlockGetter reader, BlockPos pos, BlockState state, BlockState other) {
 		double top = state.getCollisionShape(reader, pos)
 			.max(Axis.Y);
 		double topOther = other.getSoundType() != SoundType.COPPER ? 0
@@ -117,7 +117,7 @@ public class RoofBlockCTBehaviour extends ConnectedTextureBehaviour.Base {
 		return Mth.equal(top, topOther);
 	}
 
-	protected boolean connectsHigh(BlockAndTintGetter reader, BlockPos pos, BlockState state, BlockState other,
+	protected boolean connectsHigh(BlockGetter reader, BlockPos pos, BlockState state, BlockState other,
 		BlockState aboveOther) {
 		if (state.getBlock() instanceof SlabBlock && other.getBlock() instanceof SlabBlock)
 			if (state.getValue(SlabBlock.TYPE) == SlabType.BOTTOM && other.getValue(SlabBlock.TYPE) != SlabType.BOTTOM)
@@ -137,7 +137,7 @@ public class RoofBlockCTBehaviour extends ConnectedTextureBehaviour.Base {
 	}
 
 	@Override
-	public @Nullable CTType getDataType(BlockAndTintGetter world, BlockPos pos, BlockState state, Direction direction) {
+	public @Nullable CTType getDataType(BlockGetter world, BlockPos pos, BlockState state, Direction direction) {
 		return isUprightStair(state) ? AllCTTypes.ROOF_STAIR : AllCTTypes.ROOF;
 	}
 

@@ -18,7 +18,7 @@ public class AnimatedCrushingWheels extends AnimatedKinetics {
 		viewRotation(0, -22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = 22;
 
 		blockElement(wheel)

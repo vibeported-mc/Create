@@ -96,9 +96,9 @@ public class FTBChunksTrainMap {
 		Matrix3x2fStack pose = graphics.pose();
 		pose.pushMatrix();
 
-		pose.translate(-minX, -minY);
-		pose.scale(regionTileSize, regionTileSize);
-		pose.translate(-regionMinX * blocksPerRegion, -regionMinZ * blocksPerRegion);
+		pose.translate((float) (-minX), (float) (-minY));
+		pose.scale((float) (regionTileSize), (float) (regionTileSize));
+		pose.translate((float) (-regionMinX * blocksPerRegion), (float) (-regionMinZ * blocksPerRegion));
 
 		mouseX += minX;
 		mouseY += minY;
@@ -125,7 +125,7 @@ public class FTBChunksTrainMap {
 		}
 
 		pose.pushMatrix();
-		pose.translate(0, 0);
+		pose.translate((float) (0), (float) (0));
 		for (Widget widget : largeMapScreen.getWidgets()) {
 			if (!widget.isEnabled())
 				continue;

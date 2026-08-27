@@ -32,7 +32,7 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 		viewRotation(-15.5f, 22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = 23;
 
 		float offset = (Mth.sin(AnimationTickHolder.getRenderTime() / 16f) + 0.5f) / 16f;
@@ -55,8 +55,8 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 			.scale(scale)
 			.submit(graphics);
 
-		matrixStack.scale(scale, -scale);
-		matrixStack.translate(0, -1.8);
+		matrixStack.scale((float) (scale), (float) (-scale));
+		matrixStack.translate((float) (0), (float) (-1.8));
 
 		SpriteShiftEntry spriteShift =
 			heatLevel == HeatLevel.SEETHING ? AllSpriteShifts.SUPER_BURNER_FLAME : AllSpriteShifts.BURNER_FLAME;

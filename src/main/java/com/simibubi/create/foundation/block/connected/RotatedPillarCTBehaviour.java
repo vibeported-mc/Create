@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class RotatedPillarCTBehaviour extends HorizontalCTBehaviour {
@@ -19,7 +19,7 @@ public class RotatedPillarCTBehaviour extends HorizontalCTBehaviour {
 	}
 
 	@Override
-	public boolean connectsTo(BlockState state, BlockState other, BlockAndTintGetter reader, BlockPos pos,
+	public boolean connectsTo(BlockState state, BlockState other, BlockGetter reader, BlockPos pos,
 		BlockPos otherPos, Direction face, Direction primaryOffset, Direction secondaryOffset) {
 		if (other.getBlock() != state.getBlock())
 			return false;
@@ -45,7 +45,7 @@ public class RotatedPillarCTBehaviour extends HorizontalCTBehaviour {
 	}
 
 	@Override
-	protected boolean isBeingBlocked(BlockState state, BlockAndTintGetter reader, BlockPos pos, BlockPos otherPos,
+	protected boolean isBeingBlocked(BlockState state, BlockGetter reader, BlockPos pos, BlockPos otherPos,
 		Direction face) {
 		return state.getValue(LayeredBlock.AXIS) == face.getAxis()
 			&& super.isBeingBlocked(state, reader, pos, otherPos, face);
@@ -77,7 +77,7 @@ public class RotatedPillarCTBehaviour extends HorizontalCTBehaviour {
 	}
 
 	@Override
-	protected Direction getUpDirection(BlockAndTintGetter reader, BlockPos pos, BlockState state, Direction face) {
+	protected Direction getUpDirection(BlockGetter reader, BlockPos pos, BlockState state, Direction face) {
 		Axis axis = state.getValue(LayeredBlock.AXIS);
 		if (axis == Axis.Y)
 			return super.getUpDirection(reader, pos, state, face);
@@ -92,7 +92,7 @@ public class RotatedPillarCTBehaviour extends HorizontalCTBehaviour {
 	}
 
 	@Override
-	protected Direction getRightDirection(BlockAndTintGetter reader, BlockPos pos, BlockState state, Direction face) {
+	protected Direction getRightDirection(BlockGetter reader, BlockPos pos, BlockState state, Direction face) {
 		Axis axis = state.getValue(LayeredBlock.AXIS);
 		if (axis == Axis.Y)
 			return super.getRightDirection(reader, pos, state, face);

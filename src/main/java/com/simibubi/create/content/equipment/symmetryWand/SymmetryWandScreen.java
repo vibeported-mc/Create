@@ -142,8 +142,8 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 		Matrix3x2fStack ms = graphics.pose();
 
 		ms.pushMatrix();
-		ms.translate(x + 26, y + 39);
-		ms.scale(16, 16);
+		ms.translate((float) (x + 26), (float) (y + 39));
+		ms.scale((float) (16), (float) (16));
 		ms.mulPose(Axis.of(new Vector3f(.3f, 1f, 0f)).rotationDegrees(-22.5f));
 		currentElement.applyModelTransform(ms);
 		// RenderSystem.multMatrix(ms.peek().getModel());

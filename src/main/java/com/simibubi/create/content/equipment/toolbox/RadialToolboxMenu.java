@@ -83,7 +83,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
-		ms.translate(width / 2, height / 2);
+		ms.translate((float) (width / 2), (float) (height / 2));
 		Component tip = null;
 
 		if (state == State.DETACH) {
@@ -101,9 +101,9 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 
 			ms.translate(0, -40 + (10 * (1 - fade) * (1 - fade)), 0);
 			AllGuiTextures.TOOLBELT_SLOT.render(graphics, -12, -12);
-			ms.translate(-0.5, 0.5);
+			ms.translate((float) (-0.5), (float) (0.5));
 			AllIcons.I_DISABLE.render(graphics, -9, -9);
-			ms.translate(0.5, -0.5);
+			ms.translate((float) (0.5), (float) (-0.5));
 			if (!scrollMode && hoveredSlot == UNEQUIP) {
 				AllGuiTextures.TOOLBELT_SLOT_HIGHLIGHT.render(graphics, -13, -13);
 				tip = CreateLang.translateDirect("toolbox.detach")
@@ -119,9 +119,9 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 			ms.pushMatrix();
 			ms.translate(80 + (-5 * (1 - fade) * (1 - fade)), 0, 0);
 			AllGuiTextures.TOOLBELT_SLOT.render(graphics, -12, -12);
-			ms.translate(-0.5, 0.5);
+			ms.translate((float) (-0.5), (float) (0.5));
 			AllIcons.I_TOOLBOX.render(graphics, -9, -9);
-			ms.translate(0.5, -0.5);
+			ms.translate((float) (0.5), (float) (-0.5));
 			if (!scrollMode && hoveredSlot == DEPOSIT) {
 				AllGuiTextures.TOOLBELT_SLOT_HIGHLIGHT.render(graphics, -13, -13);
 				tip = CreateLang.translateDirect(state == State.SELECT_BOX ? "toolbox.depositAll" : "toolbox.depositBox")
@@ -135,7 +135,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 					.rotateZDegrees(slot * 45 - 45)
 					.translate(0, -40 + (10 * (1 - fade) * (1 - fade)), 0)
 					.rotateZDegrees(-slot * 45 + 45);
-				ms.translate(-12, -12);
+				ms.translate((float) (-12), (float) (-12));
 
 				if (state == State.SELECT_ITEM || state == State.SELECT_ITEM_UNEQUIP) {
 					ToolboxInventory inv = selectedBox.inventory;

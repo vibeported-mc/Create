@@ -15,9 +15,9 @@ public class AnimatedSaw extends AnimatedKinetics {
 		viewRotation(-15.5f, 22.5f + 90);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
-		matrixStack.translate(0, 0);
-		matrixStack.translate(2, 22);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
+		matrixStack.translate((float) (0), (float) (0));
+		matrixStack.translate((float) (2), (float) (22));
 		int scale = 25;
 
 		blockElement(shaft(Direction.Axis.X))

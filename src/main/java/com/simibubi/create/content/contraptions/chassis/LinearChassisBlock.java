@@ -16,7 +16,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -102,7 +101,7 @@ public class LinearChassisBlock extends AbstractChassisBlock {
 		}
 
 		@Override
-		protected Direction getUpDirection(BlockAndTintGetter reader, BlockPos pos, BlockState state, Direction face) {
+		protected Direction getUpDirection(BlockGetter reader, BlockPos pos, BlockState state, Direction face) {
 			Axis axis = state.getValue(AXIS);
 			if (face.getAxis() == axis)
 				return super.getUpDirection(reader, pos, state, face);
@@ -110,7 +109,7 @@ public class LinearChassisBlock extends AbstractChassisBlock {
 		}
 
 		@Override
-		protected Direction getRightDirection(BlockAndTintGetter reader, BlockPos pos, BlockState state, Direction face) {
+		protected Direction getRightDirection(BlockGetter reader, BlockPos pos, BlockState state, Direction face) {
 			Axis axis = state.getValue(AXIS);
 			return axis != face.getAxis() && axis.isHorizontal() ? (face.getAxis()
 				.isHorizontal() ? Direction.DOWN : (axis == Axis.X ? Direction.NORTH : Direction.EAST))
@@ -144,7 +143,7 @@ public class LinearChassisBlock extends AbstractChassisBlock {
 		}
 
 		@Override
-		public boolean connectsTo(BlockState state, BlockState other, BlockAndTintGetter reader, BlockPos pos,
+		public boolean connectsTo(BlockState state, BlockState other, BlockGetter reader, BlockPos pos,
 			BlockPos otherPos, Direction face) {
 			Axis axis = state.getValue(AXIS);
 			boolean superConnect = face.getAxis() == axis ? super.connectsTo(state, other, reader, pos, otherPos, face)

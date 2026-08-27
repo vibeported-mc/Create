@@ -109,7 +109,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 				int count = menu.totalCountInCompartment(compartment);
 				String s = String.valueOf(count);
 				ms.pushMatrix();
-				ms.translate(0, 0);
+				ms.translate((float) (0), (float) (0));
 				RenderSystem.enableDepthTest();
 				graphics.item(minecraft.player, itemstack, i, j, 0);
 				graphics.itemDecorations(font, itemstack, i, j, s);

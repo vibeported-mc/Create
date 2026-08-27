@@ -107,15 +107,15 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 
 		for (int side : Iterate.positiveAndNegative) {
 			ms.pushMatrix();
-			ms.translate(width / 2, 60);
-			ms.scale(24 * side, 24 * side);
+			ms.translate((float) (width / 2), (float) (60));
+			ms.scale((float) (24 * side), (float) (24 * side));
 			ms.translate(-1.75 * ((alpha * alpha) / 2f + .5f), .25f, 0);
 			TransformStack.of(ms)
 				.rotateXDegrees(45);
 			GuiGameElement.of(AllBlocks.LARGE_COGWHEEL.getDefaultState())
 				.rotateBlock(0, Util.getMillis() / 32f * side, 0)
 				.submit(graphics);
-			ms.translate(-1, 0);
+			ms.translate((float) (-1), (float) (0));
 			GuiGameElement.of(AllBlocks.COGWHEEL.getDefaultState())
 				.rotateBlock(0, Util.getMillis() / -16f * side + 22.5f, 0)
 				.submit(graphics);
@@ -125,9 +125,9 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		RenderSystem.enableBlend();
 
 		ms.pushMatrix();
-		ms.translate(width / 2 - 32, 32);
+		ms.translate((float) (width / 2 - 32), (float) (32));
 		ms.pushMatrix();
-		ms.scale(0.25f, 0.25f);
+		ms.scale((float) (0.25f), (float) (0.25f));
 		AllGuiTextures.LOGO.render(graphics, 0, 0);
 		ms.popMatrix();
 		new BoxElement().withBackground(0x88_000000)
@@ -138,7 +138,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		ms.popMatrix();
 
 		ms.pushMatrix();
-		ms.translate(0, 0);
+		ms.translate((float) (0), (float) (0));
 		graphics.centeredText(font, Component.literal(Create.NAME).withStyle(ChatFormatting.BOLD)
 				.append(
 					Component.literal(" v" + CreateBuildInfo.VERSION).withStyle(ChatFormatting.BOLD, ChatFormatting.WHITE)),
@@ -244,7 +244,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 			Matrix3x2fStack pPoseStack = graphics.pose();
 			pPoseStack.pushMatrix();
 			pPoseStack.translate(getX() + width / 2 - (icon.getWidth() * scale) / 2, getY() + height / 2 - (icon.getHeight() * scale) / 2, 0);
-			pPoseStack.scale(scale, scale);
+			pPoseStack.scale((float) (scale), (float) (scale));
 			icon.render(graphics, 0, 0);
 			pPoseStack.popMatrix();
 		}

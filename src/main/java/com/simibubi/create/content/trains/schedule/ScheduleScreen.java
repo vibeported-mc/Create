@@ -406,14 +406,14 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 				matrixStack.pushMatrix();
 				float expectedY = scrollOffset + topPos + yOffset + 4;
 				float actualY = Mth.clamp(expectedY, topPos + 18, topPos + 170);
-				matrixStack.translate(0, actualY);
+				matrixStack.translate((float) (0), (float) (actualY));
 				(expectedY == actualY ? AllGuiTextures.SCHEDULE_POINTER : AllGuiTextures.SCHEDULE_POINTER_OFFSCREEN)
 					.render(graphics, leftPos, 0);
 				matrixStack.popMatrix();
 			}
 
 			matrixStack.pushMatrix();
-			matrixStack.translate(0, scrollOffset);
+			matrixStack.translate((float) (0), (float) (scrollOffset));
 			if (i == 0 || entries.size() == 0)
 				UIRenderHelper.drawStretched(graphics, leftPos + 33, topPos + 16, 3, 10, AllGuiTextures.SCHEDULE_STRIP_LIGHT);
 
@@ -458,14 +458,14 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 			// graphics.fill(leftPos + 43, 0, leftPos + 204, 300, 0xFFFFFFFF);
 			graphics.enableScissor(leftPos + 43, 0, leftPos + 204, 400);
 			matrixStack.pushMatrix();
-			matrixStack.translate(0, scrollOffset);
+			matrixStack.translate((float) (0), (float) (scrollOffset));
 			renderScheduleConditions(graphics, scheduleEntry, cardY, mouseX, mouseY, partialTicks, cardHeight, i);
 			matrixStack.popMatrix();
 			graphics.disableScissor();
 
 			if (isConditionAreaScrollable(scheduleEntry)) {
 				matrixStack.pushMatrix();
-				matrixStack.translate(0, scrollOffset);
+				matrixStack.translate((float) (0), (float) (scrollOffset));
 				int center = (cardHeight - 8 + CARD_HEADER) / 2;
 				float chaseTarget = horizontalScrolls.get(i)
 					.getChaseTarget();
@@ -504,7 +504,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(leftPos + 25, topPos + yOffset);
+		matrixStack.translate((float) (leftPos + 25), (float) (topPos + yOffset));
 
 		UIRenderHelper.drawStretched(graphics, 0, 1, cardWidth, cardHeight - 2, light);
 		UIRenderHelper.drawStretched(graphics, 1, 0, cardWidth - 2, cardHeight, light);
@@ -544,12 +544,12 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(leftPos + 25, topPos + yOffset);
+		matrixStack.translate((float) (leftPos + 25), (float) (topPos + yOffset));
 		int xOffset = 26;
 		float scrollOffset = getConditionScroll(entry, partialTicks, entryIndex);
 
 		matrixStack.pushMatrix();
-		matrixStack.translate(-scrollOffset, 0);
+		matrixStack.translate((float) (-scrollOffset), (float) (0));
 
 		for (List<ScheduleWaitCondition> list : entry.conditions) {
 			int maxWidth = getConditionColumnWidth(list);
@@ -622,7 +622,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		AllGuiTextures item = AllGuiTextures.SCHEDULE_CONDITION_ITEM;
 		AllGuiTextures right = AllGuiTextures.SCHEDULE_CONDITION_RIGHT;
 
-		matrixStack.translate(x, y);
+		matrixStack.translate((float) (x), (float) (y));
 		UIRenderHelper.drawStretched(graphics, 0, 0, fieldSize, 16, middle);
 		left.render(graphics, clean ? 0 : -3, 0);
 		right.render(graphics, fieldSize - 2, 0);
@@ -984,7 +984,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 		Matrix3x2fStack matrixStack = graphics.pose();
 		if (destinationSuggestions != null) {
 			matrixStack.pushMatrix();
-			matrixStack.translate(0, 0);
+			matrixStack.translate((float) (0), (float) (0));
 			destinationSuggestions.render(graphics, mouseX, mouseY);
 			matrixStack.popMatrix();
 		}
@@ -1038,7 +1038,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 
 		Matrix3x2fStack matrices = graphics.pose();
 		matrices.pushMatrix();
-		matrices.translate(0, 0);
+		matrices.translate((float) (0), (float) (0));
 
 		graphics.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
 		AllGuiTextures.SCHEDULE_EDITOR.render(graphics, leftPos - 2, topPos + 40);

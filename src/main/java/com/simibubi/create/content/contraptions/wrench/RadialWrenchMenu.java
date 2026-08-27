@@ -192,7 +192,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 		Matrix3x2fStack ms = graphics.pose();
 
 		ms.pushMatrix();
-		ms.translate(x, y);
+		ms.translate((float) (x), (float) (y));
 
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
@@ -276,7 +276,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 				.translateY(-(sectorWidth / 2f + innerRadius))
 				.rotateZDegrees(-i * sectorAngle);
 
-			poseStack.translate(0, 0);
+			poseStack.translate((float) (0), (float) (0));
 
 			try {
 				withLevel(blockEntity, nonVisualizationLevel,
@@ -293,7 +293,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 				return;
 			}
 
-			poseStack.translate(0, 0);
+			poseStack.translate((float) (0), (float) (0));
 
 			if (i == selectedStateIndex) {
 				graphics.centeredText(font, blockState.getValue(property).toString(), 0, 15, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
@@ -306,7 +306,7 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 			TransformStack.of(poseStack)
 				.rotateZDegrees(sectorAngle / 2);
 
-			poseStack.translate(0, -innerRadius - 20);
+			poseStack.translate((float) (0), (float) (-innerRadius - 20));
 
 			UIRenderHelper.angledGradient(graphics, -90, 0, 0, 0.5f, sectorWidth - 10, Color.WHITE.setAlpha(0.5f), Color.WHITE.setAlpha(0.15f));
 			UIRenderHelper.angledGradient(graphics, 90, 0, 0, 0.5f, 25, Color.WHITE.setAlpha(0.5f), Color.WHITE.setAlpha(0.15f));

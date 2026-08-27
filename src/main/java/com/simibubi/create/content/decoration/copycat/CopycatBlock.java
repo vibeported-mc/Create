@@ -18,14 +18,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GrassColor;
@@ -240,7 +238,7 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public BlockState getAppearance(BlockState state, BlockAndTintGetter level, BlockPos pos, Direction side,
+	public BlockState getAppearance(BlockState state, BlockGetter level, BlockPos pos, Direction side,
 									@Nullable BlockState queryState, @Nullable BlockPos queryPos) {
 
 		if (isIgnoredConnectivitySide(level, state, side, pos, queryPos))
@@ -252,12 +250,12 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 		return CopycatModel.getMaterial(modelData);
 	}
 
-	public boolean isIgnoredConnectivitySide(BlockAndTintGetter reader, BlockState state, Direction face,
+	public boolean isIgnoredConnectivitySide(BlockGetter reader, BlockState state, Direction face,
 											 @Nullable BlockPos fromPos, @Nullable BlockPos toPos) {
 		return false;
 	}
 
-	public abstract boolean canConnectTexturesToward(BlockAndTintGetter reader, BlockPos fromPos, BlockPos toPos,
+	public abstract boolean canConnectTexturesToward(BlockGetter reader, BlockPos fromPos, BlockPos toPos,
 													 BlockState state);
 
 	//
@@ -365,7 +363,7 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	public static class WrappedBlockColor implements BlockColor {
 
 		@Override
-		public int getColor(BlockState pState, @Nullable BlockAndTintGetter pLevel, @Nullable BlockPos pPos,
+		public int getColor(BlockState pState, @Nullable BlockGetter pLevel, @Nullable BlockPos pPos,
 							int pTintIndex) {
 			if (pLevel == null || pPos == null)
 				return GrassColor.get(0.5D, 1.0D);

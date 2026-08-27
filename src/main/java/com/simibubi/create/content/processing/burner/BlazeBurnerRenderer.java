@@ -120,7 +120,7 @@ public class BlazeBurnerRenderer
 		boolean canDrawFlame, boolean drawGoggles, PartialModel drawHat, int hashCode) {
 
 		boolean blockAbove = animation > 0.125f;
-		float time = AnimationTickHolder.getRenderTime(level);
+		float time = AnimationTickHolder.getRenderTime();
 		float renderTick = time + (hashCode % 13) * 16f;
 		float offsetMult = heatLevel.isAtLeast(HeatLevel.FADING) ? 64 : 16;
 		float offset = Mth.sin((float) ((renderTick / 16f) % (2 * Math.PI))) / offsetMult;

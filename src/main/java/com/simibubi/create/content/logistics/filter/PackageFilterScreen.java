@@ -62,7 +62,7 @@ public class PackageFilterScreen extends AbstractFilterScreen<PackageFilterMenu>
 
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
-		ms.translate(leftPos + 16, topPos + 23);
+		ms.translate((float) (leftPos + 16), (float) (topPos + 23));
 		GuiGameElement.of(PackageStyles.getDefaultBox())
 			.submit(graphics);
 		ms.popMatrix();

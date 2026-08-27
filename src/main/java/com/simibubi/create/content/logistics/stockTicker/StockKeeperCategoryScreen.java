@@ -194,7 +194,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 
 		for (int i = 0; i <= entries.size(); i++) {
 			matrixStack.pushMatrix();
-			matrixStack.translate(0, scrollOffset);
+			matrixStack.translate((float) (0), (float) (scrollOffset));
 
 			if (i == entries.size()) {
 				AllGuiTextures.STOCK_KEEPER_CATEGORY_NEW.render(graphics, leftPos + 7, topPos + yOffset);
@@ -221,7 +221,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(leftPos + 7, topPos + yOffset);
+		matrixStack.translate((float) (leftPos + 7), (float) (topPos + yOffset));
 
 		AllGuiTextures.STOCK_KEEPER_CATEGORY_ENTRY.render(graphics, 0, 0);
 

@@ -115,7 +115,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 		matrixStack.pushMatrix();
 
 		matrixStack.pushMatrix();
-		matrixStack.translate(0, 15);
+		matrixStack.translate((float) (0), (float) (15));
 		boolean singleOutput = recipe.getOutputChance() == 1;
 		int xOffset = singleOutput ? 0 : -7;
 		AllGuiTextures.JEI_LONG_ARROW.render(graphics, 52 + xOffset, 79);
@@ -128,7 +128,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 
 		if (recipe.getLoops() > 1) {
 			matrixStack.pushMatrix();
-			matrixStack.translate(15, 9);
+			matrixStack.translate((float) (15), (float) (9));
 			AllIcons.I_SEQ_REPEAT.render(graphics, 50 + xOffset, 75);
             Component repeat = Component.literal("x" + recipe.getLoops());
 			graphics.text(font, repeat, 66 + xOffset, 80, 0x888888, false);
@@ -153,7 +153,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
             MutableComponent component = Component.literal("" + romans[Math.min(i, 6)]);
 			graphics.text(font, component, font.width(component) / -2 + subWidth / 2, 2, 0x888888, false);
 			subCategory.draw(sequencedRecipe, graphics, mouseX, mouseY, i);
-			matrixStack.translate(subWidth + margin, 0);
+			matrixStack.translate((float) (subWidth + margin), (float) (0));
 		}
 		matrixStack.popMatrix();
 

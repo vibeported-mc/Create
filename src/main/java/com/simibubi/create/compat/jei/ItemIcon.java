@@ -38,7 +38,7 @@ public class ItemIcon implements IDrawable {
 
 		RenderSystem.enableDepthTest();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset + 1, yOffset + 1);
+		matrixStack.translate((float) (xOffset + 1), (float) (yOffset + 1));
 
 		GuiGameElement.of(stack)
 			.submit(graphics);

@@ -207,7 +207,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
-		ms.translate(torchX - 5, torchY + 14);
+		ms.translate((float) (torchX - 5), (float) (torchY + 14));
 		TransformStack.of(ms)
 			.rotateXDegrees(-22.5f)
 			.rotateYDegrees(45);
@@ -217,7 +217,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 					.setValue(RedstoneTorchBlock.LIT, blockEntity.isInverted() ^ power))
 				.scale(20)
 				.submit(graphics);
-			ms.translate(0, 26);
+			ms.translate((float) (0), (float) (26));
 		}
 
 		ms.popMatrix();

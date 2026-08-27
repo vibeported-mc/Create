@@ -271,10 +271,10 @@ public class DisplayLinkScreen extends AbstractSimiScreen {
 
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
-		ms.translate(0, guiTop + 46);
+		ms.translate((float) (0), (float) (guiTop + 46));
 		configWidgets.getFirst()
 			.renderWidgetBG(guiLeft, graphics);
-		ms.translate(0, 21);
+		ms.translate((float) (0), (float) (21));
 		configWidgets.getSecond()
 			.renderWidgetBG(guiLeft, graphics);
 		ms.popMatrix();

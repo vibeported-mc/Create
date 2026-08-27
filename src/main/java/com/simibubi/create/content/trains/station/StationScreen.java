@@ -302,7 +302,7 @@ public class StationScreen extends AbstractStationScreen {
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
 		RenderSystem.enableBlend();
-		ms.translate(position, 0);
+		ms.translate((float) (position), (float) (0));
 		TrainIconType icon = train.icon;
 		int offset = 0;
 

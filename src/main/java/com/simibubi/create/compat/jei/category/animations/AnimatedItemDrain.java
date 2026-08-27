@@ -24,7 +24,7 @@ public class AnimatedItemDrain extends AnimatedKinetics {
 		viewRotation(-15.5f, 22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = 20;
 
 		blockElement(AllBlocks.ITEM_DRAIN.getDefaultState())
@@ -32,7 +32,7 @@ public class AnimatedItemDrain extends AnimatedKinetics {
 			.submit(graphics);
 
 		UIRenderHelper.flipForGuiRender(matrixStack);
-		matrixStack.scale(scale, scale);
+		matrixStack.scale((float) (scale), (float) (scale));
 		float from = 2 / 16f;
 		float to = 1f - from;
 		NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluid, from, from, from, to, 3 / 4f, to, graphics.bufferSource(), matrixStack, LightCoordsUtil.FULL_BRIGHT, false, true);

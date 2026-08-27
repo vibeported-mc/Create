@@ -22,7 +22,7 @@ public class AnimatedPress extends AnimatedKinetics {
 		viewRotation(-15.5f, 22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = basin ? 23 : 24;
 
 		blockElement(shaft(Direction.Axis.Z))

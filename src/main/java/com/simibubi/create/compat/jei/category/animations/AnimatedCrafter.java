@@ -14,10 +14,10 @@ public class AnimatedCrafter extends AnimatedKinetics {
 		viewRotation(-12.5f, -22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		AllGuiTextures.JEI_SHADOW.render(graphics, -16, 13);
 
-		matrixStack.translate(3, 16);
+		matrixStack.translate((float) (3), (float) (16));
 		int scale = 22;
 
 		blockElement(cogwheel())

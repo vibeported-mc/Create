@@ -82,7 +82,7 @@ public class ItemApplicationCategory extends CreateRecipeCategory<ItemApplicatio
 
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(74, 51);
+		matrixStack.translate((float) (74), (float) (51));
 		matrixStack.mulPose(Axis.XP.rotationDegrees(-15.5f));
 		matrixStack.mulPose(Axis.YP.rotationDegrees(22.5f));
 		int scale = 20;

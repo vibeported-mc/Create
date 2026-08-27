@@ -140,7 +140,7 @@ public class TrainMapRenderer implements AutoCloseable {
 			int x = key.getFirst();
 			int y = key.getSecond();
 			pose.pushMatrix();
-			pose.translate(x * WIDTH, y * HEIGHT);
+			pose.translate((float) (x * WIDTH), (float) (y * HEIGHT));
 			tmi.draw(pose, bufferSource, linearFiltering);
 			pose.popMatrix();
 		});

@@ -52,8 +52,8 @@ public abstract class SequencedAssemblySubCategory {
 			Matrix3x2fStack ms = graphics.pose();
 			press.offset = index;
 			ms.pushMatrix();
-			ms.translate(-5, 50);
-			ms.scale(.6f, .6f);
+			ms.translate((float) (-5), (float) (50));
+			ms.scale((float) (.6f), (float) (.6f));
 			press.draw(graphics, getWidth() / 2, 0);
 			ms.popMatrix();
 		}
@@ -83,8 +83,8 @@ public abstract class SequencedAssemblySubCategory {
 			Matrix3x2fStack ms = graphics.pose();
 			spout.offset = index;
 			ms.pushMatrix();
-			ms.translate(-7, 50);
-			ms.scale(.75f, .75f);
+			ms.translate((float) (-7), (float) (50));
+			ms.scale((float) (.75f), (float) (.75f));
 			spout.withFluids(Arrays.asList(recipe.getRecipe()
 					.getFluidIngredients()
 					.get(0)
@@ -123,8 +123,8 @@ public abstract class SequencedAssemblySubCategory {
 			Matrix3x2fStack ms = graphics.pose();
 			deployer.offset = index;
 			ms.pushMatrix();
-			ms.translate(-7, 50);
-			ms.scale(.75f, .75f);
+			ms.translate((float) (-7), (float) (50));
+			ms.scale((float) (.75f), (float) (.75f));
 			deployer.draw(graphics, getWidth() / 2, 0);
 			ms.popMatrix();
 		}
@@ -144,8 +144,8 @@ public abstract class SequencedAssemblySubCategory {
 		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
 			Matrix3x2fStack ms = graphics.pose();
 			ms.pushMatrix();
-			ms.translate(0, 51.5f);
-			ms.scale(.6f, .6f);
+			ms.translate((float) (0), (float) (51.5f));
+			ms.scale((float) (.6f), (float) (.6f));
 			saw.draw(graphics, getWidth() / 2, 30);
 			ms.popMatrix();
 		}

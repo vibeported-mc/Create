@@ -22,7 +22,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -64,7 +63,7 @@ public class CopycatStepBlock extends WaterloggedCopycatBlock {
 	}
 
 	@Override
-	public boolean isIgnoredConnectivitySide(BlockAndTintGetter reader, BlockState state, Direction face,
+	public boolean isIgnoredConnectivitySide(BlockGetter reader, BlockState state, Direction face,
 											 @Nullable BlockPos fromPos, @Nullable BlockPos toPos) {
 		if (fromPos == null || toPos == null)
 			return true;
@@ -90,7 +89,7 @@ public class CopycatStepBlock extends WaterloggedCopycatBlock {
 	}
 
 	@Override
-	public boolean canConnectTexturesToward(BlockAndTintGetter reader, BlockPos fromPos, BlockPos toPos,
+	public boolean canConnectTexturesToward(BlockGetter reader, BlockPos fromPos, BlockPos toPos,
 											BlockState state) {
 		Direction facing = state.getValue(FACING);
 		BlockState toState = reader.getBlockState(toPos);

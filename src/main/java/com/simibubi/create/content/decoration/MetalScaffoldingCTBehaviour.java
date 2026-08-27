@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MetalScaffoldingCTBehaviour extends HorizontalCTBehaviour {
@@ -28,7 +28,7 @@ public class MetalScaffoldingCTBehaviour extends HorizontalCTBehaviour {
 	}
 
 	@Override
-	protected boolean isBeingBlocked(BlockState state, BlockAndTintGetter reader, BlockPos pos, BlockPos otherPos,
+	protected boolean isBeingBlocked(BlockState state, BlockGetter reader, BlockPos pos, BlockPos otherPos,
 		Direction face) {
 		return face.getAxis() == Axis.Y && super.isBeingBlocked(state, reader, pos, otherPos, face);
 	}
@@ -41,7 +41,7 @@ public class MetalScaffoldingCTBehaviour extends HorizontalCTBehaviour {
 	}
 
 	@Override
-	public boolean connectsTo(BlockState state, BlockState other, BlockAndTintGetter reader, BlockPos pos,
+	public boolean connectsTo(BlockState state, BlockState other, BlockGetter reader, BlockPos pos,
 		BlockPos otherPos, Direction face) {
 		return super.connectsTo(state, other, reader, pos, otherPos, face)
 			&& state.getValue(MetalScaffoldingBlock.BOTTOM) && other.getValue(MetalScaffoldingBlock.BOTTOM);

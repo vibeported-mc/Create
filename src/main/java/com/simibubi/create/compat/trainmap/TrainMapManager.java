@@ -102,7 +102,7 @@ public class TrainMapManager {
 		RenderSystem.enableBlend();
 		Matrix3x2fStack pose = graphics.pose();
 		pose.pushMatrix();
-		pose.translate(0, 0);
+		pose.translate((float) (0), (float) (0));
 		AllGuiTextures.TRAINMAP_TOGGLE_PANEL.render(graphics, x, y);
 		(enabled ? AllGuiTextures.TRAINMAP_TOGGLE_ON : AllGuiTextures.TRAINMAP_TOGGLE_OFF).render(graphics, x + 18,
 			y + 3);
@@ -288,7 +288,7 @@ public class TrainMapManager {
 				boolean highlight = hoveredElement == null && Math.max(Math.abs(mouseX - x), Math.abs(mouseY - y)) < 3;
 
 				pose.pushMatrix();
-				pose.translate(x - 2, y - 2);
+				pose.translate((float) (x - 2), (float) (y - 2));
 
 				pose.translate(sprite.getWidth() / 2.0, sprite.getHeight() / 2.0, 0);
 				pose.mulPose(Axis.ZP.rotationDegrees(90 * (rotation / 2)));
@@ -298,7 +298,7 @@ public class TrainMapManager {
 				sprite.render(graphics, 0, 0);
 
 				if (highlight) {
-					pose.translate(0, 0);
+					pose.translate((float) (0), (float) (0));
 					highlightSprite.render(graphics, -1, -1);
 					hoveredElement = station;
 				}

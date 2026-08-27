@@ -17,7 +17,7 @@ public class AnimatedDeployer extends AnimatedKinetics {
 		viewRotation(-15.5f, 22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = 20;
 
 		blockElement(shaft(Direction.Axis.Z))
@@ -36,7 +36,7 @@ public class AnimatedDeployer extends AnimatedKinetics {
 
 		matrixStack.pushMatrix();
 
-		matrixStack.translate(0, offset * 17);
+		matrixStack.translate((float) (0), (float) (offset * 17));
 		blockElement(AllPartialModels.DEPLOYER_POLE)
 			.rotateBlock(90, 0, 0)
 			.scale(scale)

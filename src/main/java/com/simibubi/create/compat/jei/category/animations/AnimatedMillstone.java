@@ -13,9 +13,9 @@ public class AnimatedMillstone extends AnimatedKinetics {
 	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		AllGuiTextures.JEI_SHADOW.render(graphics, -16, 13);
-		matrixStack.translate(-2, 18);
+		matrixStack.translate((float) (-2), (float) (18));
 		int scale = 22;
 
 		blockElement(AllPartialModels.MILLSTONE_COG)

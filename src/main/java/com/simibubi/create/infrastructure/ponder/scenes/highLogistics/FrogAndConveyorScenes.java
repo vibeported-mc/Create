@@ -344,20 +344,20 @@ public class FrogAndConveyorScenes {
 			float angle = AngleHelper.angleLerp(pt, entity.yRotO, entity.getYRot());
 
 			poseStack.pushMatrix();
-			poseStack.translate(location.x, location.y);
-			poseStack.translate(lx, ly);
+			poseStack.translate((float) (location.x), (float) (location.y));
+			poseStack.translate((float) (lx), (float) (ly));
 			poseStack.mulPose(Axis.YP.rotationDegrees(angle));
 
-			poseStack.translate(0, 1.5f);
+			poseStack.translate((float) (0), (float) (1.5f));
 			poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.sin((world.scene.getCurrentTime() + pt) * 0.2f) * 10));
-			poseStack.translate(0, -1.5f);
+			poseStack.translate((float) (0), (float) (-1.5f));
 
 			poseStack.pushMatrix();
 			poseStack.mulPose(Axis.YP.rotationDegrees(90));
 			poseStack.mulPose(Axis.XP.rotationDegrees(90));
 			poseStack.mulPose(Axis.ZP.rotationDegrees(90));
-			poseStack.scale(1.5f, 1.5f);
-			poseStack.translate(-0.1, 0.2);
+			poseStack.scale((float) (1.5f), (float) (1.5f));
+			poseStack.translate((float) (-0.1), (float) (0.2));
 			BlockStateModel bakedmodel = Minecraft.getInstance()
 				.getItemRenderer()
 				.getModel(wrench.getItem(), world, null, 0);

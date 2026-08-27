@@ -153,7 +153,7 @@ public class BlazeBurnerVisual extends AbstractBlockEntityVisual<BlazeBurnerBloc
 		}
 
 		var hashCode = blockEntity.hashCode();
-		float time = AnimationTickHolder.getRenderTime(level);
+		float time = AnimationTickHolder.getRenderTime();
 		float renderTick = time + (hashCode % 13) * 16f;
 		float offsetMult = heatLevel.isAtLeast(BlazeBurnerBlock.HeatLevel.FADING) ? 64 : 16;
 		float offset = Mth.sin((float) ((renderTick / 16f) % (2 * Math.PI))) / offsetMult;

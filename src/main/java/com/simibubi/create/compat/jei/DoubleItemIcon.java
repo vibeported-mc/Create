@@ -42,17 +42,17 @@ public class DoubleItemIcon implements IDrawable {
 
 		RenderSystem.enableDepthTest();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 
 		matrixStack.pushMatrix();
-		matrixStack.translate(1, 1);
+		matrixStack.translate((float) (1), (float) (1));
 		GuiGameElement.of(primaryStack)
 			.submit(graphics);
 		matrixStack.popMatrix();
 
 		matrixStack.pushMatrix();
-		matrixStack.translate(10, 10);
-		matrixStack.scale(.5f, .5f);
+		matrixStack.translate((float) (10), (float) (10));
+		matrixStack.scale((float) (.5f), (float) (.5f));
 		GuiGameElement.of(secondaryStack)
 			.submit(graphics);
 		matrixStack.popMatrix();

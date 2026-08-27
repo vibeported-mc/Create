@@ -320,7 +320,7 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
-		ms.translate(0, 0);
+		ms.translate((float) (0), (float) (0));
 
 		// ADDRESS
 		if (addressBox.isHovered() && !addressBox.isFocused())
@@ -336,7 +336,7 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 		int previewY = restocker ? 0 : 60;
 
 		ms.pushMatrix();
-		ms.translate(0, previewY);
+		ms.translate((float) (0), (float) (previewY));
 		GuiGameElement.of(AllBlocks.FACTORY_GAUGE.asStack())
 			.scale(4)
 			.at(0, 0, -200)

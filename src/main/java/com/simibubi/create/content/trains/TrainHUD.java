@@ -146,7 +146,7 @@ public class TrainHUD {
 		if (promptSize > 1) {
 
 			poseStack.pushMatrix();
-			poseStack.translate(promptSize / -2f + 91, -27);
+			poseStack.translate((float) (promptSize / -2f + 91), (float) (-27));
 
 			AllGuiTextures.TRAIN_PROMPT_L.render(guiGraphics, -3, 0);
 			AllGuiTextures.TRAIN_PROMPT_R.render(guiGraphics, promptSize, 0);
@@ -203,8 +203,8 @@ public class TrainHUD {
 		float angle = diff + angleOffset;
 		float snappedAngle = (snapSize * Math.round(angle / snapSize)) % 360f;
 
-		poseStack.translate(91, -9);
-		poseStack.scale(0.925f, 0.925f);
+		poseStack.translate((float) (91), (float) (-9));
+		poseStack.scale((float) (0.925f), (float) (0.925f));
 		PlacementClient.textured(poseStack, 0, 0, 1, snappedAngle);
 
 		poseStack.popMatrix();

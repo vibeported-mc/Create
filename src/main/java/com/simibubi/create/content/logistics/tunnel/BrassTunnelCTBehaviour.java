@@ -10,13 +10,13 @@ import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BrassTunnelCTBehaviour extends ConnectedTextureBehaviour.Base {
 
 	@Override
-	public @Nullable CTType getDataType(BlockAndTintGetter world, BlockPos pos, BlockState state, Direction direction) {
+	public @Nullable CTType getDataType(BlockGetter world, BlockPos pos, BlockState state, Direction direction) {
 		if (!(world.getBlockEntity(pos) instanceof BrassTunnelBlockEntity tunnelBE)
 			|| !tunnelBE.hasDistributionBehaviour())
 			return null;
@@ -34,7 +34,7 @@ public class BrassTunnelCTBehaviour extends ConnectedTextureBehaviour.Base {
 	}
 
 	@Override
-	public boolean connectsTo(BlockState state, BlockState other, BlockAndTintGetter reader, BlockPos pos,
+	public boolean connectsTo(BlockState state, BlockState other, BlockGetter reader, BlockPos pos,
 		BlockPos otherPos, Direction face) {
 		int yDiff = otherPos.getY() - pos.getY();
 		int zDiff = otherPos.getZ() - pos.getZ();

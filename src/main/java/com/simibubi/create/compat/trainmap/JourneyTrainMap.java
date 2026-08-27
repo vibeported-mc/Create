@@ -103,9 +103,9 @@ public class JourneyTrainMap implements IClientPlugin {
 		Matrix3x2fStack pose = graphics.pose();
 		pose.pushMatrix();
 
-		pose.translate(screen.width / 2.0f, screen.height / 2.0f);
+		pose.translate((float) (screen.width / 2.0f), (float) (screen.height / 2.0f));
 		pose.scale((float) scale, (float) scale, 1);
-		pose.translate(-x, -z);
+		pose.translate((float) (-x), (float) (-z));
 
 		float mouseX = mX - screen.width / 2.0f;
 		float mouseY = mY - screen.height / 2.0f;

@@ -12,7 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ItemVaultCTBehaviour extends ConnectedTextureBehaviour.Base {
@@ -35,7 +35,7 @@ public class ItemVaultCTBehaviour extends ConnectedTextureBehaviour.Base {
 	}
 
 	@Override
-	protected Direction getUpDirection(BlockAndTintGetter reader, BlockPos pos, BlockState state, Direction face) {
+	protected Direction getUpDirection(BlockGetter reader, BlockPos pos, BlockState state, Direction face) {
 		Axis vaultBlockAxis = ItemVaultBlock.getVaultBlockAxis(state);
 		boolean alongX = vaultBlockAxis == Axis.X;
 		if (face.getAxis()
@@ -48,7 +48,7 @@ public class ItemVaultCTBehaviour extends ConnectedTextureBehaviour.Base {
 	}
 
 	@Override
-	protected Direction getRightDirection(BlockAndTintGetter reader, BlockPos pos, BlockState state, Direction face) {
+	protected Direction getRightDirection(BlockGetter reader, BlockPos pos, BlockState state, Direction face) {
 		Axis vaultBlockAxis = ItemVaultBlock.getVaultBlockAxis(state);
 		if (face.getAxis()
 			.isVertical() && vaultBlockAxis == Axis.X)
@@ -64,7 +64,7 @@ public class ItemVaultCTBehaviour extends ConnectedTextureBehaviour.Base {
 	}
 
 	@Override
-	public boolean connectsTo(BlockState state, BlockState other, BlockAndTintGetter reader, BlockPos pos,
+	public boolean connectsTo(BlockState state, BlockState other, BlockGetter reader, BlockPos pos,
 		BlockPos otherPos, Direction face) {
 		return state == other && ConnectivityHandler.isConnected(reader, pos, otherPos); //ItemVaultConnectivityHandler.isConnected(reader, pos, otherPos);
 	}

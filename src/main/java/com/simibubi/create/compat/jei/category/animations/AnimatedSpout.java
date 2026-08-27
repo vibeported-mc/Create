@@ -30,7 +30,7 @@ public class AnimatedSpout extends AnimatedKinetics {
 		viewRotation(-15.5f, 22.5f);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
-		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = 20;
 
 		blockElement(AllBlocks.SPOUT.getDefaultState())
@@ -46,15 +46,15 @@ public class AnimatedSpout extends AnimatedKinetics {
 		blockElement(AllPartialModels.SPOUT_TOP)
 			.scale(scale)
 			.submit(graphics);
-		matrixStack.translate(0, -3 * squeeze / 32f);
+		matrixStack.translate((float) (0), (float) (-3 * squeeze / 32f));
 		blockElement(AllPartialModels.SPOUT_MIDDLE)
 			.scale(scale)
 			.submit(graphics);
-		matrixStack.translate(0, -3 * squeeze / 32f);
+		matrixStack.translate((float) (0), (float) (-3 * squeeze / 32f));
 		blockElement(AllPartialModels.SPOUT_BOTTOM)
 			.scale(scale)
 			.submit(graphics);
-		matrixStack.translate(0, -3 * squeeze / 32f);
+		matrixStack.translate((float) (0), (float) (-3 * squeeze / 32f));
 
 		matrixStack.popMatrix();
 
@@ -66,7 +66,7 @@ public class AnimatedSpout extends AnimatedKinetics {
 		AnimatedKinetics.DEFAULT_LIGHTING.applyLighting();
 		matrixStack.pushMatrix();
 		UIRenderHelper.flipForGuiRender(matrixStack);
-		matrixStack.scale(16, 16);
+		matrixStack.scale((float) (16), (float) (16));
 		float from = 3f / 16f;
 		float to = 17f / 16f;
 		FluidStack fluidStack = fluids.get(0);
@@ -74,10 +74,10 @@ public class AnimatedSpout extends AnimatedKinetics {
 		matrixStack.popMatrix();
 
 		float width = 1 / 128f * squeeze;
-		matrixStack.translate(scale / 2f, scale * 1.5f);
+		matrixStack.translate((float) (scale / 2f), (float) (scale * 1.5f));
 		UIRenderHelper.flipForGuiRender(matrixStack);
-		matrixStack.scale(16, 16);
-		matrixStack.translate(-0.5f, 0);
+		matrixStack.scale((float) (16), (float) (16));
+		matrixStack.translate((float) (-0.5f), (float) (0));
 		from = -width / 2 + 0.5f;
 		to = width / 2 + 0.5f;
 		NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, from, 0, from, to, 2, to, graphics.bufferSource(), matrixStack, LightCoordsUtil.FULL_BRIGHT, false, true);

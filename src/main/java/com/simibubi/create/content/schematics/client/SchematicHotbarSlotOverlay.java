@@ -18,7 +18,7 @@ public class SchematicHotbarSlotOverlay  {
 		RenderSystem.enableDepthTest();
 		Matrix3x2fStack ms = graphics.pose();
 		ms.pushMatrix();
-		ms.translate(0, 0);
+		ms.translate((float) (0), (float) (0));
 		AllGuiTextures.SCHEMATIC_SLOT.render(graphics, x + 20 * slot, y);
 		ms.popMatrix();
 	}
