@@ -21,12 +21,12 @@ public class AnimatedMillstone extends AnimatedKinetics {
 		blockElement(AllPartialModels.MILLSTONE_COG)
 			.rotateBlock(22.5, getCurrentAngle() * 2, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		blockElement(AllBlocks.MILLSTONE.getDefaultState())
 			.rotateBlock(22.5, 22.5, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		matrixStack.popMatrix();
 	}

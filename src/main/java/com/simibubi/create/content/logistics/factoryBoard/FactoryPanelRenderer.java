@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -17,7 +18,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRende
 import com.simibubi.create.foundation.render.RenderTypes;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.theme.Color;
 import net.minecraft.util.LightCoordsUtil;
@@ -86,7 +86,7 @@ public class FactoryPanelRenderer
 		PartialModel partial = behaviour.redstonePowered || missingAddress ? AllPartialModels.FACTORY_PANEL_RED_LIGHT
 			: AllPartialModels.FACTORY_PANEL_LIGHT;
 
-		SuperByteBuffer bulb = orient(CachedBuffers.partial(partial, blockState), behaviour, yRot, xRot);
+		SuperByteBuffer bulb = orient(CachedBufferer.partial(partial, blockState), behaviour, yRot, xRot);
 		out.add(new Part(bulb.light(glow > 0.125f ? LightCoordsUtil.FULL_BRIGHT : light)
 			.extractRenderState(),
 			net.minecraft.client.renderer.rendertype.RenderTypes.translucentMovingBlock()));
@@ -98,7 +98,7 @@ public class FactoryPanelRenderer
 		glow = Mth.clamp(glow, -1, 1);
 		int color = (int) (200 * glow);
 
-		SuperByteBuffer glowBulb = orient(CachedBuffers.partial(partial, blockState), behaviour, yRot, xRot);
+		SuperByteBuffer glowBulb = orient(CachedBufferer.partial(partial, blockState), behaviour, yRot, xRot);
 		out.add(new Part(glowBulb.light(LightCoordsUtil.FULL_BRIGHT)
 			.color(color, color, color, 255)
 			.extractRenderState(), RenderTypes.additive()));
@@ -164,7 +164,7 @@ public class FactoryPanelRenderer
 			PartialModel partial = (dots ? AllPartialModels.FACTORY_PANEL_DOTTED
 				: isArrowSegment ? AllPartialModels.FACTORY_PANEL_ARROWS : AllPartialModels.FACTORY_PANEL_LINES)
 					.get(pathReversed ? direction : direction.getOpposite());
-			SuperByteBuffer connectionSprite = CachedBuffers.partial(partial, blockState);
+			SuperByteBuffer connectionSprite = CachedBufferer.partial(partial, blockState);
 			TransformStack.of(connectionSprite.getTransforms())
 				.rotateCentered(yRot, Direction.UP)
 				.rotateCentered(xRot, Direction.EAST)

@@ -1,12 +1,12 @@
 package com.simibubi.create.content.equipment.bell;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -42,7 +42,7 @@ public class BellRenderer<BE extends AbstractBellBlockEntity>
 		Direction facing = blockState.getValue(BellBlock.FACING);
 		BellAttachType attachment = blockState.getValue(BellBlock.ATTACHMENT);
 
-		SuperByteBuffer bell = CachedBuffers.partial(be.getBellModel(), blockState);
+		SuperByteBuffer bell = CachedBufferer.partial(be.getBellModel(), blockState);
 		var msr = TransformStack.of(bell.getTransforms());
 
 		if (be.isRinging)

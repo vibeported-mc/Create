@@ -159,7 +159,7 @@ public class SchematicTableScreen extends AbstractSimiContainerScreen<SchematicT
 		GuiGameElement.of(renderedItem)
 			.<GuiGameElement.GuiRenderBuilder>at(x + background.getWidth(), y + background.getHeight() - 40, -200)
 			.scale(3)
-			.render(graphics);
+			.submit(graphics);
 
 		int width = (int) (SCHEMATIC_TABLE_PROGRESS.getWidth()
 			* Mth.lerp(partialTicks, lastChasingProgress, chasingProgress));

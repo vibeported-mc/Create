@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.createmod.catnip.api.client.event.LevelRenderCallback;
 import com.simibubi.create.foundation.events.ClientEvents;
 import com.simibubi.create.foundation.networking.CreateClientPayloadHandlers;
@@ -30,7 +31,6 @@ import com.simibubi.create.foundation.render.AllInstanceTypes;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.gui.CreateMainMenuScreen;
 
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBufferCache;
 import net.createmod.ponder.api.client.PonderIndex;
 import net.minecraft.ChatFormatting;
@@ -107,8 +107,8 @@ public class CreateClient {
 		//BUFFER_CACHE.registerCompartment(ContraptionRenderInfo.CONTRAPTION, 20);
 		//BUFFER_CACHE.registerCompartment(WorldSectionElement.DOC_WORLD_SECTION, 20);
 
-		SuperByteBufferCache.getInstance().registerCompartment(CachedBuffers.PARTIAL);
-		SuperByteBufferCache.getInstance().registerCompartment(CachedBuffers.DIRECTIONAL_PARTIAL);
+		SuperByteBufferCache.getInstance().registerCompartment(CachedBufferer.PARTIAL);
+		SuperByteBufferCache.getInstance().registerCompartment(CachedBufferer.DIRECTIONAL_PARTIAL);
 		SuperByteBufferCache.getInstance().registerCompartment(KineticBlockEntityRenderer.KINETIC_BLOCK);
 		SuperByteBufferCache.getInstance().registerCompartment(WaterWheelRenderer.WATER_WHEEL);
 		SuperByteBufferCache.getInstance().registerCompartment(ContraptionEntityRenderer.CONTRAPTION, 20);

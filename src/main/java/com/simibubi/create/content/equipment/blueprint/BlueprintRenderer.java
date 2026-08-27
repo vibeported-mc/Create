@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.joml.Matrix3f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,7 +9,6 @@ import com.simibubi.create.content.equipment.blueprint.BlueprintEntity.Blueprint
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.data.Couple;
 import net.minecraft.client.Minecraft;
@@ -34,7 +34,7 @@ public class BlueprintRenderer extends EntityRenderer<BlueprintEntity> {
 		int light) {
 		PartialModel partialModel = entity.size == 3 ? AllPartialModels.CRAFTING_BLUEPRINT_3x3
 			: entity.size == 2 ? AllPartialModels.CRAFTING_BLUEPRINT_2x2 : AllPartialModels.CRAFTING_BLUEPRINT_1x1;
-		SuperByteBuffer sbb = CachedBuffers.partial(partialModel, Blocks.AIR.defaultBlockState());
+		SuperByteBuffer sbb = CachedBufferer.partial(partialModel, Blocks.AIR.defaultBlockState());
 		sbb.rotateYDegrees(-yaw)
 			.rotateXDegrees(90.0F + entity.getXRot())
 			.translate(-.5, -1 / 32f, -.5);

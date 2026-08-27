@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -24,7 +25,6 @@ import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.math.VecHelper;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
@@ -130,7 +130,7 @@ public class TrackRenderer extends SafeBlockEntityRenderer<TrackBlockEntity, Tra
 	 */
 	private static SuperByteBufferRenderState transformed(PartialModel model, BlockState air, Pose transform,
 		int light) {
-		SuperByteBuffer buffer = CachedBuffers.partial(model, air);
+		SuperByteBuffer buffer = CachedBufferer.partial(model, air);
 		TransformStack.of(buffer.getTransforms())
 			.transform(transform);
 		return buffer.light(light)

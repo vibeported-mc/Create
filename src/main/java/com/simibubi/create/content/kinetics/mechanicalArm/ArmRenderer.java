@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.mechanicalArm;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,6 @@ import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.data.Iterate;
@@ -180,7 +180,7 @@ public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity, ArmR
 
 	private static SuperByteBufferRenderState baked(PartialModel model,
 		BlockState blockState, int light, @Nullable Integer color, PoseStack msLocal) {
-		SuperByteBuffer buffer = CachedBuffers.partial(model, blockState)
+		SuperByteBuffer buffer = CachedBufferer.partial(model, blockState)
 			.light(light);
 		if (color != null)
 			buffer.color(color);
@@ -228,7 +228,7 @@ public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity, ArmR
 
 	@Override
 	protected SuperByteBuffer getRotatedModel(ArmBlockEntity be, BlockState state) {
-		return CachedBuffers.partial(AllPartialModels.ARM_COG, state);
+		return CachedBufferer.partial(AllPartialModels.ARM_COG, state);
 	}
 
 }

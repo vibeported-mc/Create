@@ -1,12 +1,12 @@
 package com.simibubi.create.content.logistics.box;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -69,7 +69,7 @@ public class PackageRenderer extends EntityRenderer<PackageEntity, PackageRender
 		@Nullable PartialModel model) {
 		if (model == null)
 			return null;
-		SuperByteBuffer sbb = CachedBuffers.partial(model, Blocks.AIR.defaultBlockState());
+		SuperByteBuffer sbb = CachedBufferer.partial(model, Blocks.AIR.defaultBlockState());
 		return sbb.translate(-.5, 0, -.5)
 			.rotateCentered(-AngleHelper.rad(yaw + 90), Direction.UP)
 			.light(light)

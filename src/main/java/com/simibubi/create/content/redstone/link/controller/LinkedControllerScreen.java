@@ -75,7 +75,7 @@ public class LinkedControllerScreen extends AbstractSimiContainerScreen<LinkedCo
 		GuiGameElement.of(menu.contentHolder).<GuiGameElement
 			.GuiRenderBuilder>at(x + background.getWidth() - 4, y + background.getHeight() - 56, -200)
 			.scale(5)
-			.render(graphics);
+			.submit(graphics);
 	}
 
 	@Override

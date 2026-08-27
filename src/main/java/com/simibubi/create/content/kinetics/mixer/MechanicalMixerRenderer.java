@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.mixer;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,7 +10,6 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -59,7 +59,7 @@ public class MechanicalMixerRenderer
 
 		BlockState blockState = be.getBlockState();
 
-		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.SHAFTLESS_COGWHEEL, blockState);
+		SuperByteBuffer superBuffer = CachedBufferer.partial(AllPartialModels.SHAFTLESS_COGWHEEL, blockState);
 		state.cogwheel = standardKineticRotationTransform(superBuffer, be, state.lightCoords).extractRenderState();
 
 		float renderedHeadOffset = be.getRenderedHeadOffset(partialTicks);
@@ -67,13 +67,13 @@ public class MechanicalMixerRenderer
 		float time = AnimationTickHolder.getRenderTime(be.getLevel());
 		float angle = ((time * speed * 6 / 10f) % 360) / 180 * (float) Math.PI;
 
-		SuperByteBuffer poleRender = CachedBuffers.partial(AllPartialModels.MECHANICAL_MIXER_POLE, blockState);
+		SuperByteBuffer poleRender = CachedBufferer.partial(AllPartialModels.MECHANICAL_MIXER_POLE, blockState);
 		TransformStack.of(poleRender.getTransforms())
 			.translate(0, -renderedHeadOffset, 0);
 		state.pole = poleRender.light(state.lightCoords)
 			.extractRenderState();
 
-		SuperByteBuffer headRender = CachedBuffers.partial(AllPartialModels.MECHANICAL_MIXER_HEAD, blockState);
+		SuperByteBuffer headRender = CachedBufferer.partial(AllPartialModels.MECHANICAL_MIXER_HEAD, blockState);
 		TransformStack.of(headRender.getTransforms())
 			.rotateCentered(angle, Direction.UP)
 			.translate(0, -renderedHeadOffset, 0);

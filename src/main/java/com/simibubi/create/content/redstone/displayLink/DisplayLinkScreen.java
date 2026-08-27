@@ -288,7 +288,7 @@ public class DisplayLinkScreen extends AbstractSimiScreen {
 			.rotateYDegrees(63);
 		GuiGameElement.of(blockEntity.getBlockState()
 				.setValue(DisplayLinkBlock.FACING, Direction.UP))
-			.render(graphics);
+			.submit(graphics);
 		ms.popMatrix();
 	}
 

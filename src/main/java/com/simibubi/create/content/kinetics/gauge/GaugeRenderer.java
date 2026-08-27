@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.gauge;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import com.simibubi.create.content.kinetics.gauge.GaugeBlock.Type;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.data.Iterate;
@@ -77,7 +77,7 @@ public class GaugeRenderer extends ShaftRenderer<GaugeBlockEntity, GaugeRenderer
 
 			// Each face needs its own buffer now: a single buffer cannot carry two different
 			// transforms across the extract/submit boundary.
-			SuperByteBuffer dialBuffer = CachedBuffers.partial(AllPartialModels.GAUGE_DIAL, gaugeState);
+			SuperByteBuffer dialBuffer = CachedBufferer.partial(AllPartialModels.GAUGE_DIAL, gaugeState);
 			TransformStack.of(rotateBufferTowards(dialBuffer, facing).getTransforms())
 				.translate(0, dialPivot, dialPivot)
 				.rotate((float) (Math.PI / 2 * -progress), Direction.EAST)
@@ -85,7 +85,7 @@ public class GaugeRenderer extends ShaftRenderer<GaugeBlockEntity, GaugeRenderer
 			state.faces.add(dialBuffer.light(state.lightCoords)
 				.extractRenderState());
 
-			SuperByteBuffer headBuffer = CachedBuffers.partial(partialModel, gaugeState);
+			SuperByteBuffer headBuffer = CachedBufferer.partial(partialModel, gaugeState);
 			state.faces.add(rotateBufferTowards(headBuffer, facing).light(state.lightCoords)
 				.extractRenderState());
 		}

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.nixieTube;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity.ComputerSignal;
 import com.simibubi.create.content.trains.signal.SignalBlockEntity.SignalState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -19,7 +20,6 @@ import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.data.Couple;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.AngleHelper;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -180,7 +180,7 @@ public class NixieTubeRenderer
 		boolean invertTubes =
 			facing == Direction.DOWN || blockState.getValue(NixieTubeBlock.FACE) == DoubleAttachFace.WALL_REVERSED;
 
-		CachedBuffers.partial(AllPartialModels.SIGNAL_PANEL, blockState)
+		CachedBufferer.partial(AllPartialModels.SIGNAL_PANEL, blockState)
 			.light(light)
 			.submit(ms, net.minecraft.client.renderer.rendertype.RenderTypes.solidMovingBlock(), queue);
 
@@ -208,7 +208,7 @@ public class NixieTubeRenderer
 					float longSide = yellow ? 1 : 4;
 					float longSideGlow = yellow ? 2 : 5.125f;
 
-					submitScaled(CachedBuffers.partial(AllPartialModels.SIGNAL_WHITE_CUBE, blockState)
+					submitScaled(CachedBufferer.partial(AllPartialModels.SIGNAL_WHITE_CUBE, blockState)
 						.light(0xf000f0)
 						.disableDiffuse(), ms, queue,
 						net.minecraft.client.renderer.rendertype.RenderTypes.translucentMovingBlock(),
@@ -248,7 +248,7 @@ public class NixieTubeRenderer
 					float width = horiz ? tubeDisplay.glowWidth : tubeDisplay.glowHeight;
 					float height = horiz ? tubeDisplay.glowHeight : tubeDisplay.glowWidth;
 
-					submitScaled(CachedBuffers.partial(AllPartialModels.SIGNAL_COMPUTER_WHITE_CUBE, blockState)
+					submitScaled(CachedBufferer.partial(AllPartialModels.SIGNAL_COMPUTER_WHITE_CUBE, blockState)
 						.light(0xf000f0)
 						.disableDiffuse(), ms, queue, net.minecraft.client.renderer.rendertype.RenderTypes.translucentMovingBlock(), width, height,  1);
 

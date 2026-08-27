@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.steamWhistle;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -10,7 +11,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -58,7 +58,7 @@ public class WhistleRenderer extends SafeBlockEntityRenderer<WhistleBlockEntity,
 			offset -= Math.sin(wiggleProgress * (2 * Mth.PI) * (4 - size.ordinal())) / 16f;
 		}
 
-		SuperByteBuffer buffer = CachedBuffers.partial(mouth, blockState);
+		SuperByteBuffer buffer = CachedBufferer.partial(mouth, blockState);
 		TransformStack.of(buffer.getTransforms())
 			.center()
 			.rotateYDegrees(AngleHelper.horizontalAngle(direction))

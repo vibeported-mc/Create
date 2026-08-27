@@ -134,7 +134,7 @@ public class ElevatorContactScreen extends AbstractSimiScreen {
 		GuiGameElement.of(AllBlocks.ELEVATOR_CONTACT.asStack()).<GuiGameElement
 				.GuiRenderBuilder>at(x + background.getWidth() + 6, y + background.getHeight() - 56, -200)
 			.scale(5)
-			.render(graphics);
+			.submit(graphics);
 
 		graphics.item(AllBlocks.TRAIN_DOOR.asStack(), x + 37, y + 58);
 	}

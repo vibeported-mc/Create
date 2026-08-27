@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.chassis;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,7 +10,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -45,7 +45,7 @@ public class StickerRenderer extends SafeBlockEntityRenderer<StickerBlockEntity,
 		}
 
 		BlockState blockState = be.getBlockState();
-		SuperByteBuffer head = CachedBuffers.partial(AllPartialModels.STICKER_HEAD, blockState);
+		SuperByteBuffer head = CachedBufferer.partial(AllPartialModels.STICKER_HEAD, blockState);
 		float offset = be.piston.getValue(AnimationTickHolder.getPartialTicks(be.getLevel()));
 
 		if (be.getLevel() != Minecraft.getInstance().level && !be.isVirtual())

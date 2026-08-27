@@ -219,14 +219,14 @@ public class RadialWrenchMenu extends AbstractSimiScreen {
 		UIRenderHelper.streak(graphics, 180, 0, 0, 32, 65, Color.BLACK.setAlpha(0.8f));
 
 		if (selectedPropertyIndex > 0) {
-			iconScroll.at(-14, -46).render(graphics);
-			iconUp.at(-1, -46).render(graphics);
+			iconScroll.at(-14, -46).submit(graphics);
+			iconUp.at(-1, -46).submit(graphics);
 			graphics.centeredText(font, propertiesForState.get(selectedPropertyIndex - 1).getValue(), 0, -30, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
 		}
 
 		if (selectedPropertyIndex < propertiesForState.size() - 1) {
-			iconScroll.at(-14, 30).render(graphics);
-			iconDown.at(-1, 30).render(graphics);
+			iconScroll.at(-14, 30).submit(graphics);
+			iconDown.at(-1, 30).submit(graphics);
 			graphics.centeredText(font, propertiesForState.get(selectedPropertyIndex + 1).getValue(), 0, 22, UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
 		}
 

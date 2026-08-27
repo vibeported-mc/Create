@@ -24,7 +24,7 @@ public class FanBlastingCategory extends ProcessingViaFanCategory<AbstractCookin
 			.scale(SCALE)
 			.atLocal(0, 0, 2)
 			.lighting(AnimatedKinetics.DEFAULT_LIGHTING)
-			.render(graphics);
+			.submit(graphics);
 	}
 
 }

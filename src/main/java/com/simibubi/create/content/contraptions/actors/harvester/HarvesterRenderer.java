@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.harvester;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
@@ -15,7 +16,6 @@ import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -51,7 +51,7 @@ public class HarvesterRenderer
 	protected void extractSafe(HarvesterBlockEntity be, HarvesterRenderState state, float partialTicks,
 		Vec3 cameraPosition) {
 		BlockState blockState = be.getBlockState();
-		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.HARVESTER_BLADE, blockState);
+		SuperByteBuffer superBuffer = CachedBufferer.partial(AllPartialModels.HARVESTER_BLADE, blockState);
 		transform(be.getLevel(), blockState.getValue(HarvesterBlock.FACING), superBuffer, be.getAnimatedSpeed(), PIVOT);
 		state.blade = superBuffer.light(state.lightCoords)
 			.extractRenderState();
@@ -68,7 +68,7 @@ public class HarvesterRenderer
 		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState blockState = context.state;
 		Direction facing = blockState.getValue(HORIZONTAL_FACING);
-		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.HARVESTER_BLADE, blockState);
+		SuperByteBuffer superBuffer = CachedBufferer.partial(AllPartialModels.HARVESTER_BLADE, blockState);
 		float speed = (float) (!VecHelper.isVecPointingTowards(context.relativeMotion, facing.getOpposite())
 			? context.getAnimationSpeed()
 			: 0);

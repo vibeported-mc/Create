@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.deskBell;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -7,7 +8,6 @@ import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -55,7 +55,7 @@ public class DeskBellRenderer
 
 		Direction facing = blockState.getValue(DeskBellBlock.FACING);
 
-		SuperByteBuffer plunger = CachedBuffers.partial(AllPartialModels.DESK_BELL_PLUNGER, blockState);
+		SuperByteBuffer plunger = CachedBufferer.partial(AllPartialModels.DESK_BELL_PLUNGER, blockState);
 		TransformStack.of(plunger.getTransforms())
 			.center()
 			.rotateYDegrees(AngleHelper.horizontalAngle(facing))
@@ -65,7 +65,7 @@ public class DeskBellRenderer
 		state.plunger = plunger.light(state.lightCoords)
 			.extractRenderState();
 
-		SuperByteBuffer bell = CachedBuffers.partial(AllPartialModels.DESK_BELL_BELL, blockState);
+		SuperByteBuffer bell = CachedBufferer.partial(AllPartialModels.DESK_BELL_BELL, blockState);
 		TransformStack.of(bell.getTransforms())
 			.center()
 			.rotateYDegrees(AngleHelper.horizontalAngle(facing))

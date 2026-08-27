@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packagePort.postbox;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,7 +10,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRende
 
 import dev.engine_room.flywheel.lib.transform.Transform;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -45,7 +45,7 @@ public class PostboxRenderer extends SmartBlockEntityRenderer<PostboxBlockEntity
 			state.nameplate = extractNameplateOnHover(be, Component.literal(be.addressFilter), 1, cameraPosition,
 				state.lightCoords);
 
-		SuperByteBuffer sbb = CachedBuffers.partial(AllPartialModels.POSTBOX_FLAG, be.getBlockState());
+		SuperByteBuffer sbb = CachedBufferer.partial(AllPartialModels.POSTBOX_FLAG, be.getBlockState());
 
 		var msr = TransformStack.of(sbb.getTransforms());
 		msr.rotateCentered(Mth.DEG_TO_RAD * (180 - be.getBlockState()

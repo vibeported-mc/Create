@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.roller;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
@@ -15,7 +16,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRende
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -53,7 +53,7 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 		BlockState blockState = be.getBlockState();
 		Direction facing = blockState.getValue(RollerBlock.FACING);
 
-		SuperByteBuffer wheel = CachedBuffers.partial(AllPartialModels.ROLLER_WHEEL, blockState);
+		SuperByteBuffer wheel = CachedBufferer.partial(AllPartialModels.ROLLER_WHEEL, blockState);
 		TransformStack.of(wheel.getTransforms())
 			.translate(Vec3.atLowerCornerOf(facing.getUnitVec3i())
 				.scale(17 / 16f));
@@ -64,7 +64,7 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 		state.wheel = wheel.light(state.lightCoords)
 			.extractRenderState();
 
-		SuperByteBuffer frame = CachedBuffers.partial(AllPartialModels.ROLLER_FRAME, blockState);
+		SuperByteBuffer frame = CachedBufferer.partial(AllPartialModels.ROLLER_FRAME, blockState);
 		TransformStack.of(frame.getTransforms())
 			.rotateCentered(AngleHelper.rad(AngleHelper.horizontalAngle(facing) + 180), Direction.UP);
 		state.frame = frame.light(state.lightCoords)
@@ -90,7 +90,7 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState blockState = context.state;
 		Direction facing = blockState.getValue(HORIZONTAL_FACING);
-		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.ROLLER_WHEEL, blockState);
+		SuperByteBuffer superBuffer = CachedBufferer.partial(AllPartialModels.ROLLER_WHEEL, blockState);
 		float speed = (float) (!VecHelper.isVecPointingTowards(context.relativeMotion, facing.getOpposite())
 			? context.getAnimationSpeed()
 			: -context.getAnimationSpeed());
@@ -115,7 +115,7 @@ public class RollerRenderer extends SmartBlockEntityRenderer<RollerBlockEntity, 
 		out.add(ActorGeometry.of(viewProjection, superBuffer, RenderTypes.cutoutMovingBlock()));
 		viewProjection.popPose();
 
-		SuperByteBuffer frame = CachedBuffers.partial(AllPartialModels.ROLLER_FRAME, blockState);
+		SuperByteBuffer frame = CachedBufferer.partial(AllPartialModels.ROLLER_FRAME, blockState);
 		frame.transform(matrices.getModel());
 		TransformStack.of(frame.getTransforms())
 			.rotateCentered(AngleHelper.rad(AngleHelper.horizontalAngle(facing) + 180), Direction.UP);

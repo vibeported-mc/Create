@@ -60,7 +60,7 @@ public class PolishingCategory extends CreateRecipeCategory<SandPaperPolishingRe
 		GuiGameElement.of(renderedSandpaper)
 				.<GuiGameElement.GuiRenderBuilder>at(getBackground().getWidth() / 2 - 16, 0, 0)
 				.scale(2)
-				.render(graphics);
+				.submit(graphics);
 	}
 
 }

@@ -78,7 +78,7 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintMenu> 
 			.GuiRenderBuilder>at(x + background.getWidth() + 20, y + background.getHeight() - 32, 0)
 			.rotate(45, -45, 22.5f)
 			.scale(40)
-			.render(graphics);
+			.submit(graphics);
 	}
 
 	@Override

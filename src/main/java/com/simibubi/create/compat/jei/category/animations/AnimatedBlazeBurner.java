@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category.animations;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -11,7 +12,6 @@ import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -41,7 +41,7 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 
 		blockElement(AllBlocks.BLAZE_BURNER.getDefaultState()).atLocal(0, 1.65, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		PartialModel blaze =
 			heatLevel == HeatLevel.SEETHING ? AllPartialModels.BLAZE_SUPER : AllPartialModels.BLAZE_ACTIVE;
@@ -51,11 +51,11 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 		blockElement(blaze).atLocal(1, 1.8, 1)
 			.rotate(0, 180, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 		blockElement(rods2).atLocal(1, 1.7 + offset, 1)
 			.rotate(0, 180, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		matrixStack.scale(scale, -scale);
 		matrixStack.translate(0, -1.8);
@@ -84,7 +84,7 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 		uScroll = uScroll - Math.floor(uScroll);
 		uScroll = uScroll * spriteWidth / 2;
 
-		CachedBuffers.partial(AllPartialModels.BLAZE_BURNER_FLAME, Blocks.AIR.defaultBlockState())
+		CachedBufferer.partial(AllPartialModels.BLAZE_BURNER_FLAME, Blocks.AIR.defaultBlockState())
 		.shiftUVScrolling(spriteShift, (float) uScroll, (float) vScroll)
 		.light(LightCoordsUtil.FULL_BRIGHT)
 			.renderInto(matrixStack, graphics.bufferSource().getBuffer(RenderTypes.cutoutMovingBlock()));

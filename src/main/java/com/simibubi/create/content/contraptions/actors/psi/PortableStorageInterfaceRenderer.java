@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.LightCoordsUtil;
@@ -26,7 +27,6 @@ import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.nbt.NBTHelper;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -96,8 +96,8 @@ public class PortableStorageInterfaceRenderer
 	 */
 	private static void transform(BlockState blockState, boolean lit, float progress, PoseStack local,
 		Consumer<SuperByteBuffer> drawCallback) {
-		SuperByteBuffer middle = CachedBuffers.partial(getMiddleForState(blockState, lit), blockState);
-		SuperByteBuffer top = CachedBuffers.partial(getTopForState(blockState), blockState);
+		SuperByteBuffer middle = CachedBufferer.partial(getMiddleForState(blockState, lit), blockState);
+		SuperByteBuffer top = CachedBufferer.partial(getTopForState(blockState), blockState);
 
 		if (local != null) {
 			middle.transform(local);

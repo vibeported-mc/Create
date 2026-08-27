@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -24,7 +25,6 @@ import com.simibubi.create.content.schematics.cannon.LaunchedItem.ForEntity;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.impl.neoforge.render.VirtualRenderHelper;
 import net.minecraft.client.Minecraft;
@@ -84,7 +84,7 @@ public class SchematicannonRenderer
 		double pitch = cannonAngles[1];
 		double recoil = getRecoil(be, partialTicks);
 
-		SuperByteBuffer connector = CachedBuffers.partial(AllPartialModels.SCHEMATICANNON_CONNECTOR, blockState);
+		SuperByteBuffer connector = CachedBufferer.partial(AllPartialModels.SCHEMATICANNON_CONNECTOR, blockState);
 		TransformStack.of(connector.getTransforms())
 			.translate(.5f, 0, .5f)
 			.rotate((float) ((yaw + 90) / 180 * Math.PI), Direction.UP)
@@ -92,7 +92,7 @@ public class SchematicannonRenderer
 		state.connector = connector.light(state.lightCoords)
 			.extractRenderState();
 
-		SuperByteBuffer pipe = CachedBuffers.partial(AllPartialModels.SCHEMATICANNON_PIPE, blockState);
+		SuperByteBuffer pipe = CachedBufferer.partial(AllPartialModels.SCHEMATICANNON_PIPE, blockState);
 		TransformStack.of(pipe.getTransforms())
 			.translate(.5f, 15 / 16f, .5f)
 			.rotate((float) ((yaw + 90) / 180 * Math.PI), Direction.UP)

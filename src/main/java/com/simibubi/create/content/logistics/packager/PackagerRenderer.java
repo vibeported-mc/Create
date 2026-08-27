@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packager;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -17,7 +18,6 @@ import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.math.AngleHelper;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -64,7 +64,7 @@ public class PackagerRenderer
 		state.facing = facing;
 
 		if (!VisualizationManager.supportsVisualization(be.getLevel())) {
-			SuperByteBuffer hatch = CachedBuffers.partial(getHatchModel(be), blockState);
+			SuperByteBuffer hatch = CachedBufferer.partial(getHatchModel(be), blockState);
 			TransformStack.of(hatch.getTransforms())
 				.translate(Vec3.atLowerCornerOf(facing.getUnitVec3i())
 					.scale(.49999f))
@@ -73,7 +73,7 @@ public class PackagerRenderer
 			state.hatch = hatch.light(state.lightCoords)
 				.extractRenderState();
 
-			SuperByteBuffer tray = CachedBuffers.partial(getTrayModel(blockState), blockState);
+			SuperByteBuffer tray = CachedBufferer.partial(getTrayModel(blockState), blockState);
 			TransformStack.of(tray.getTransforms())
 				.translate(Vec3.atLowerCornerOf(facing.getUnitVec3i())
 					.scale(state.trayOffset))

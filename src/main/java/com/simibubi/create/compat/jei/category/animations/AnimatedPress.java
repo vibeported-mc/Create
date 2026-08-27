@@ -30,22 +30,22 @@ public class AnimatedPress extends AnimatedKinetics {
 		blockElement(shaft(Direction.Axis.Z))
 				.rotateBlock(0, 0, getCurrentAngle())
 				.scale(scale)
-				.render(graphics);
+				.submit(graphics);
 
 		blockElement(AllBlocks.MECHANICAL_PRESS.getDefaultState())
 				.scale(scale)
-				.render(graphics);
+				.submit(graphics);
 
 		blockElement(AllPartialModels.MECHANICAL_PRESS_HEAD)
 				.atLocal(0, -getAnimatedHeadOffset(), 0)
 				.scale(scale)
-				.render(graphics);
+				.submit(graphics);
 
 		if (basin)
 			blockElement(AllBlocks.BASIN.getDefaultState())
 					.atLocal(0, 1.65, 0)
 					.scale(scale)
-					.render(graphics);
+					.submit(graphics);
 
 		matrixStack.popMatrix();
 	}

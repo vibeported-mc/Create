@@ -57,7 +57,7 @@ public class RemainingAirOverlay implements LayeredDraw.Layer {
 		Component text = Component.literal(StringUtil.formatTickDuration(Math.max(0, timeLeft - 1) * 20, mc.level.tickRateManager().tickrate()));
 		GuiGameElement.of(backtank)
 			.at(0, 0)
-			.render(guiGraphics);
+			.submit(guiGraphics);
 		int color = 0xFF_FFFFFF;
 		if (timeLeft < 60 && timeLeft % 2 == 0) {
 			color = Color.mixColors(0xFF_FF0000, color, Math.max(timeLeft / 60f, .25f));

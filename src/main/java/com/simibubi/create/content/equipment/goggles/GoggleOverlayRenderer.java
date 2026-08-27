@@ -217,7 +217,7 @@ public class GoggleOverlayRenderer {
 
 		GuiGameElement.of(item)
 			.at(posX + 10, posY - 16, 450)
-			.render(guiGraphics);
+			.submit(guiGraphics);
 
 		if (!Mods.MODERNUI.isLoaded()) {
 			// default tooltip rendering when modernUI is not loaded

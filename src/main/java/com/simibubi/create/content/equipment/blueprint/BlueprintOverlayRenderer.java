@@ -378,7 +378,7 @@ public class BlueprintOverlayRenderer {
 			AllGuiTextures.HOTSLOT.render(guiGraphics, x, y);
 			GuiGameElement.of(Items.BARRIER)
 				.at(x + 3, y + 3)
-				.render(guiGraphics);
+				.submit(guiGraphics);
 		} else {
 			for (ItemStack result : results) {
 				AllGuiTextures slot = resultCraftable ? AllGuiTextures.HOTSLOT_SUPER_ACTIVE : AllGuiTextures.HOTSLOT;
@@ -425,7 +425,7 @@ public class BlueprintOverlayRenderer {
 
 		GuiGameElement.of(itemStack)
 			.at(x + 3, y + 3)
-			.render(graphics);
+			.submit(graphics);
 		graphics.itemDecorations(mc.font, itemStack, x + 3, y + 3, count);
 	}
 

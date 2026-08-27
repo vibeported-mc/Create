@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.pulley;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,6 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
@@ -80,13 +80,13 @@ public abstract class AbstractPulleyRenderer<T extends KineticBlockEntity, S ext
 
 		if (running || offset == 0) {
 			SuperByteBuffer magnet = offset > .25f ? renderMagnet(be)
-				: CachedBuffers.partial(this.halfMagnet, blockState);
+				: CachedBufferer.partial(this.halfMagnet, blockState);
 			state.parts.add(extractAt(world, magnet, offset, pos));
 		}
 
 		float f = offset % 1;
 		if (offset > .75f && (f < .25f || f > .75f))
-			state.parts.add(extractAt(world, CachedBuffers.partial(this.halfRope, blockState),
+			state.parts.add(extractAt(world, CachedBufferer.partial(this.halfRope, blockState),
 				f > .75f ? f - 1 : f, pos));
 
 		if (!running)
@@ -136,7 +136,7 @@ public abstract class AbstractPulleyRenderer<T extends KineticBlockEntity, S ext
 
 	protected SuperByteBuffer getRotatedCoil(T be) {
 		BlockState blockState = be.getBlockState();
-		return CachedBuffers.partialFacing(getCoil(), blockState,
+		return CachedBufferer.partialFacing(getCoil(), blockState,
 			Direction.get(AxisDirection.POSITIVE, getShaftAxis(be)));
 	}
 

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -137,8 +138,8 @@ public class DeployerRenderer
 		BlockState blockState = be.getBlockState();
 		Vec3 offset = getHandOffset(be, partialTicks, blockState);
 
-		SuperByteBuffer pole = CachedBuffers.partial(AllPartialModels.DEPLOYER_POLE, blockState);
-		SuperByteBuffer hand = CachedBuffers.partial(be.getHandPose(), blockState);
+		SuperByteBuffer pole = CachedBufferer.partial(AllPartialModels.DEPLOYER_POLE, blockState);
+		SuperByteBuffer hand = CachedBufferer.partial(be.getHandPose(), blockState);
 
 		TransformStack.of(pole.getTransforms())
 			.translate(offset.x, offset.y, offset.z);
@@ -222,8 +223,8 @@ public class DeployerRenderer
 			speed = 0;
 
 		SuperByteBuffer shaft = CachedBuffers.block(AllBlocks.SHAFT.getDefaultState());
-		SuperByteBuffer pole = CachedBuffers.partial(AllPartialModels.DEPLOYER_POLE, blockState);
-		SuperByteBuffer hand = CachedBuffers.partial(handPose, blockState);
+		SuperByteBuffer pole = CachedBufferer.partial(AllPartialModels.DEPLOYER_POLE, blockState);
+		SuperByteBuffer hand = CachedBufferer.partial(handPose, blockState);
 
 		double factor;
 		if (context.contraption.stalled || context.position == null || context.data.contains("StationaryTimer")) {

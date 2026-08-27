@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.depot;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.core.Direction;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -20,7 +21,6 @@ import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.transform.Rotate;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import dev.engine_room.flywheel.lib.transform.Translate;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.data.IntAttached;
 import net.createmod.catnip.api.math.VecHelper;
@@ -84,7 +84,7 @@ public class EjectorRenderer extends ShaftRenderer<EjectorBlockEntity, EjectorRe
 			.getValue(EjectorBlock.HORIZONTAL_FACING));
 
 		if (!VisualizationManager.supportsVisualization(be.getLevel())) {
-			SuperByteBuffer model = CachedBuffers.partial(AllPartialModels.EJECTOR_TOP, be.getBlockState());
+			SuperByteBuffer model = CachedBufferer.partial(AllPartialModels.EJECTOR_TOP, be.getBlockState());
 			applyLidAngle(be, state.lidAngle, TransformStack.of(model.getTransforms()));
 			state.lid = model.light(state.lightCoords)
 				.extractRenderState();

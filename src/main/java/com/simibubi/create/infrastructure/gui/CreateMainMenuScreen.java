@@ -114,11 +114,11 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 				.rotateXDegrees(45);
 			GuiGameElement.of(AllBlocks.LARGE_COGWHEEL.getDefaultState())
 				.rotateBlock(0, Util.getMillis() / 32f * side, 0)
-				.render(graphics);
+				.submit(graphics);
 			ms.translate(-1, 0);
 			GuiGameElement.of(AllBlocks.COGWHEEL.getDefaultState())
 				.rotateBlock(0, Util.getMillis() / -16f * side + 22.5f, 0)
-				.render(graphics);
+				.submit(graphics);
 			ms.popMatrix();
 		}
 
@@ -134,7 +134,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 			.flatBorder(new Color(0x01_000000))
 			.at(-32, 56, 100)
 			.withBounds(128, 11)
-			.render(graphics);
+			.submit(graphics);
 		ms.popMatrix();
 
 		ms.pushMatrix();

@@ -90,7 +90,7 @@ public class ItemApplicationCategory extends CreateRecipeCategory<ItemApplicatio
 		GuiGameElement.of(state)
 			.lighting(AnimatedKinetics.DEFAULT_LIGHTING)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		matrixStack.popMatrix();
 	}

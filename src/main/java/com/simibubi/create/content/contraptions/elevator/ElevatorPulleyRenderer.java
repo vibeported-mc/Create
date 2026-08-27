@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.elevator;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
@@ -61,7 +61,7 @@ public class ElevatorPulleyRenderer
 			180 + AngleHelper.horizontalAngle(blockState.getValue(ElevatorPulleyBlock.HORIZONTAL_FACING));
 
 		if (running || offset == 0) {
-			SuperByteBuffer magnet = CachedBuffers.partial(AllPartialModels.ELEVATOR_MAGNET, blockState);
+			SuperByteBuffer magnet = CachedBufferer.partial(AllPartialModels.ELEVATOR_MAGNET, blockState);
 			TransformStack.of(magnet.getTransforms())
 				.center()
 				.rotateYDegrees(blockStateAngle)
@@ -89,7 +89,7 @@ public class ElevatorPulleyRenderer
 
 		float f = offset % 1;
 		if (f < .25f || f > .75f) {
-			SuperByteBuffer halfRope = CachedBuffers.partial(AllPartialModels.ELEVATOR_BELT_HALF, blockState);
+			SuperByteBuffer halfRope = CachedBufferer.partial(AllPartialModels.ELEVATOR_BELT_HALF, blockState);
 			TransformStack.of(halfRope.getTransforms())
 				.center()
 				.rotateYDegrees(blockStateAngle)
@@ -103,7 +103,7 @@ public class ElevatorPulleyRenderer
 
 		// Each belt segment sits at a different height, so it needs a buffer of its own.
 		for (int i = 0; i < offset - .25f; i++) {
-			SuperByteBuffer rope = CachedBuffers.partial(AllPartialModels.ELEVATOR_BELT, blockState);
+			SuperByteBuffer rope = CachedBufferer.partial(AllPartialModels.ELEVATOR_BELT, blockState);
 			TransformStack.of(rope.getTransforms())
 				.center()
 				.rotateYDegrees(blockStateAngle)
@@ -128,7 +128,7 @@ public class ElevatorPulleyRenderer
 
 	protected SuperByteBuffer getRotatedCoil(KineticBlockEntity be) {
 		BlockState blockState = be.getBlockState();
-		return CachedBuffers.partialFacing(AllPartialModels.ELEVATOR_COIL, blockState,
+		return CachedBufferer.partialFacing(AllPartialModels.ELEVATOR_COIL, blockState,
 			blockState.getValue(ElevatorPulleyBlock.HORIZONTAL_FACING));
 	}
 

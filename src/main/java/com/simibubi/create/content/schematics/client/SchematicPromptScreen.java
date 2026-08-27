@@ -85,12 +85,12 @@ public class SchematicPromptScreen extends AbstractSimiScreen {
 
 		GuiGameElement.of(AllItems.SCHEMATIC.asStack())
 			.at(x + 22, y + 24, 0)
-			.render(graphics);
+			.submit(graphics);
 
 		GuiGameElement.of(AllItems.SCHEMATIC_AND_QUILL.asStack())
 			.scale(3)
 			.at(x + background.getWidth() + 6, y + background.getHeight() - 38, -200)
-			.render(graphics);
+			.submit(graphics);
 	}
 
 	@Override

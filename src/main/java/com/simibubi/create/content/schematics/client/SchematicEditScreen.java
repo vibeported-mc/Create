@@ -167,7 +167,7 @@ public class SchematicEditScreen extends AbstractSimiScreen {
 		GuiGameElement.of(AllItems.SCHEMATIC.asStack())
 			.<GuiGameElement.GuiRenderBuilder>at(x + background.getWidth() + 6, y + background.getHeight() - 40, -200)
 			.scale(3)
-			.render(graphics);
+			.submit(graphics);
 	}
 
 	@Override

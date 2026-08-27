@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.station;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.core.Direction.AxisDirection;
@@ -23,7 +24,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.Transform;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -136,7 +136,7 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity,
 				}
 
 			if (valid != -1) {
-				SuperByteBuffer sbb = CachedBuffers.partial(assemblyOverlay, trackState);
+				SuperByteBuffer sbb = CachedBufferer.partial(assemblyOverlay, trackState);
 				sbb.color(valid);
 				sbb.light(LightCoordsUtil.getLightCoords(level, currentPos));
 				state.assembly.add(new AssemblySlot(sbb.extractRenderState(), i + 1));
@@ -182,7 +182,7 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity,
 		int light) {
 		if (!be.resolveFlagAngle())
 			return null;
-		SuperByteBuffer flagBB = CachedBuffers.partial(flag, be.getBlockState());
+		SuperByteBuffer flagBB = CachedBufferer.partial(flag, be.getBlockState());
 		var tr = TransformStack.of(flagBB.getTransforms());
 		transformFlag(tr, be, partialTicks, be.flagYRot, be.flagFlipped);
 		tr.translate(0.5f / 16, 0, 0)

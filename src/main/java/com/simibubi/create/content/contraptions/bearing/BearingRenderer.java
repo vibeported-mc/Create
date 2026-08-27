@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.bearing;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -10,7 +11,6 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -53,7 +53,7 @@ public class BearingRenderer<T extends KineticBlockEntity & IBearingBlockEntity>
 		final Direction facing = be.getBlockState()
 			.getValue(BlockStateProperties.FACING);
 		PartialModel top = be.isWoodenTop() ? AllPartialModels.BEARING_TOP_WOODEN : AllPartialModels.BEARING_TOP;
-		SuperByteBuffer superBuffer = CachedBuffers.partial(top, be.getBlockState());
+		SuperByteBuffer superBuffer = CachedBufferer.partial(top, be.getBlockState());
 
 		float interpolatedAngle = be.getInterpolatedAngle(partialTicks - 1);
 		kineticRotationTransform(superBuffer, be, facing.getAxis(), (float) (interpolatedAngle / 180 * Math.PI),
@@ -78,7 +78,7 @@ public class BearingRenderer<T extends KineticBlockEntity & IBearingBlockEntity>
 
 	@Override
 	protected SuperByteBuffer getRotatedModel(T be, BlockState state) {
-		return CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, state, state
+		return CachedBufferer.partialFacing(AllPartialModels.SHAFT_HALF, state, state
 			.getValue(BearingBlock.FACING)
 			.getOpposite());
 	}

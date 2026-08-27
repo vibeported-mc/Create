@@ -181,7 +181,7 @@ public class SequencedGearshiftScreen extends AbstractSimiScreen {
 		GuiGameElement.of(renderedItem).<GuiGameElement
 				.GuiRenderBuilder>at(guiLeft + background.getWidth() + 6, guiTop + background.getHeight() - 56, 100)
 			.scale(5)
-			.render(graphics);
+			.submit(graphics);
 	}
 
 	private void label(GuiGraphicsExtractor graphics, int x, int y, Component text) {

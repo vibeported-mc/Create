@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,7 +9,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 import com.simibubi.create.foundation.render.RenderTypes;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -55,13 +55,13 @@ public class LinkBulbRenderer
 		BlockState blockState = be.getBlockState();
 		state.face = be.getBulbFacing(blockState);
 
-		var tube = CachedBuffers.partial(AllPartialModels.DISPLAY_LINK_TUBE, blockState);
+		var tube = CachedBufferer.partial(AllPartialModels.DISPLAY_LINK_TUBE, blockState);
 		TransformStack.of(tube.getTransforms())
 			.translate(be.getBulbOffset(blockState));
 		state.tube = tube.light(LightCoordsUtil.FULL_BRIGHT)
 			.extractRenderState();
 
-		var bulb = CachedBuffers.partial(AllPartialModels.DISPLAY_LINK_GLOW, blockState);
+		var bulb = CachedBufferer.partial(AllPartialModels.DISPLAY_LINK_GLOW, blockState);
 		TransformStack.of(bulb.getTransforms())
 			.translate(be.getBulbOffset(blockState));
 		state.glow = bulb.light(LightCoordsUtil.FULL_BRIGHT)

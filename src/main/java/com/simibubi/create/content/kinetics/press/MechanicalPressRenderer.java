@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.press;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 import org.jspecify.annotations.Nullable;
@@ -11,7 +12,6 @@ import com.simibubi.create.content.kinetics.press.PressingBehaviour;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -57,7 +57,7 @@ public class MechanicalPressRenderer
 		float renderedHeadOffset =
 			pressingBehaviour.getRenderedHeadOffset(partialTicks) * pressingBehaviour.mode.headOffset;
 
-		SuperByteBuffer headRender = CachedBuffers.partialFacing(AllPartialModels.MECHANICAL_PRESS_HEAD, blockState,
+		SuperByteBuffer headRender = CachedBufferer.partialFacing(AllPartialModels.MECHANICAL_PRESS_HEAD, blockState,
 			blockState.getValue(HORIZONTAL_FACING));
 		TransformStack.of(headRender.getTransforms())
 			.translate(0, -renderedHeadOffset, 0);

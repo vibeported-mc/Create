@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.hats;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,6 @@ import com.simibubi.create.foundation.mixin.accessor.EntityRenderDispatcherAcces
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
@@ -81,7 +81,7 @@ public class CreateHatArmorLayer<T extends LivingEntity, M extends EntityModel<T
 			ms.translate(0, -2.25F / 16.0F, 0);
 			msr.rotateXDegrees(-8.5F);
 			BlockState air = Blocks.AIR.defaultBlockState();
-			CachedBuffers.partial(hat, air)
+			CachedBufferer.partial(hat, air)
 				.disableDiffuse()
 				.light(light)
 				.renderInto(ms, buffer.getBuffer(Sheets.cutoutBlockSheet()));

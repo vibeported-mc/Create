@@ -41,7 +41,7 @@ public class ItemIcon implements IDrawable {
 		matrixStack.translate(xOffset + 1, yOffset + 1);
 
 		GuiGameElement.of(stack)
-			.render(graphics);
+			.submit(graphics);
 
 		matrixStack.popMatrix();
 	}

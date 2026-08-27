@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
@@ -24,7 +25,6 @@ import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.math.VecHelper;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.LightCoordsUtil;
@@ -91,7 +91,7 @@ public class ChainConveyorRenderer
 		if (visualized)
 			return;
 
-		state.wheel = CachedBuffers.partial(AllPartialModels.CHAIN_CONVEYOR_WHEEL, be.getBlockState())
+		state.wheel = CachedBufferer.partial(AllPartialModels.CHAIN_CONVEYOR_WHEEL, be.getBlockState())
 			.light(state.lightCoords)
 			.extractRenderState();
 
@@ -163,9 +163,9 @@ public class ChainConveyorRenderer
 		}
 
 		SuperByteBuffer rigBuffer =
-			CachedBuffers.partial(AllPartialModels.PACKAGE_RIGGING.get(physicsData.modelKey), blockState);
+			CachedBufferer.partial(AllPartialModels.PACKAGE_RIGGING.get(physicsData.modelKey), blockState);
 		SuperByteBuffer boxBuffer =
-			CachedBuffers.partial(AllPartialModels.PACKAGES.get(physicsData.modelKey), blockState);
+			CachedBufferer.partial(AllPartialModels.PACKAGES.get(physicsData.modelKey), blockState);
 
 		Vec3 dangleDiff = VecHelper.rotate(targetPosition.add(0, 0.5, 0)
 			.subtract(position), -yaw, Axis.Y);
@@ -221,7 +221,7 @@ public class ChainConveyorRenderer
 
 			if (!visualized) {
 				SuperByteBuffer guard =
-					CachedBuffers.partial(AllPartialModels.CHAIN_CONVEYOR_GUARD, be.getBlockState());
+					CachedBufferer.partial(AllPartialModels.CHAIN_CONVEYOR_GUARD, be.getBlockState());
 				var guardTransform = TransformStack.of(guard.getTransforms());
 				guardTransform.center();
 				guardTransform.rotateYDegrees(yaw);
@@ -319,7 +319,7 @@ public class ChainConveyorRenderer
 
 	@Override
 	protected SuperByteBuffer getRotatedModel(ChainConveyorBlockEntity be, BlockState state) {
-		return CachedBuffers.partial(AllPartialModels.CHAIN_CONVEYOR_SHAFT, state);
+		return CachedBufferer.partial(AllPartialModels.CHAIN_CONVEYOR_SHAFT, state);
 	}
 
 	@Override

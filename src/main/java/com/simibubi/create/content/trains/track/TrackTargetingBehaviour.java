@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.UUIDUtil;
@@ -33,7 +34,6 @@ import net.createmod.catnip.api.nbt.NBTHelper;
 import net.createmod.catnip.api.level.wrapper.SchematicLevel;
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.nbt.NBTHelper;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.ponder.api.client.level.PonderLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -337,7 +337,7 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 		var msr = TransformStack.of(ms);
 		PartialModel partial = track.prepareTrackOverlay(msr, level, pos, trackState, bezier, direction, type);
 		if (partial != null) {
-			SuperByteBuffer buffer = CachedBuffers.partial(partial, trackState);
+			SuperByteBuffer buffer = CachedBufferer.partial(partial, trackState);
 			TransformStack.of(buffer.getTransforms())
 				.translate(.5, 0, .5)
 				.scale(scale)

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.bogey;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.List;
 
 import com.simibubi.create.AllBlocks;
@@ -53,14 +54,14 @@ public class StandardBogeyRenderer implements BogeyRenderer {
 			boolean inContraption, List<Part> out) {
 			super.extract(bogeyData, wheelAngle, partialTick, light, inContraption, out);
 
-			SuperByteBuffer frame = CachedBuffers.partial(AllPartialModels.BOGEY_FRAME, Blocks.AIR.defaultBlockState());
+			SuperByteBuffer frame = CachedBufferer.partial(AllPartialModels.BOGEY_FRAME, Blocks.AIR.defaultBlockState());
 			TransformStack.of(frame.getTransforms())
 				.scale(1 - 1 / 512f);
 			add(out, frame, light);
 
 			for (int side : Iterate.positiveAndNegative) {
 				SuperByteBuffer wheels =
-					CachedBuffers.partial(AllPartialModels.SMALL_BOGEY_WHEELS, Blocks.AIR.defaultBlockState());
+					CachedBufferer.partial(AllPartialModels.SMALL_BOGEY_WHEELS, Blocks.AIR.defaultBlockState());
 				TransformStack.of(wheels.getTransforms())
 					.translate(0, 12 / 16f, side)
 					.rotateXDegrees(wheelAngle);
@@ -89,7 +90,7 @@ public class StandardBogeyRenderer implements BogeyRenderer {
 				add(out, secondaryShaft, light);
 			}
 
-			SuperByteBuffer drive = CachedBuffers.partial(AllPartialModels.BOGEY_DRIVE, Blocks.AIR.defaultBlockState());
+			SuperByteBuffer drive = CachedBufferer.partial(AllPartialModels.BOGEY_DRIVE, Blocks.AIR.defaultBlockState());
 			TransformStack.of(drive.getTransforms())
 				.scale(1 - 1 / 512f);
 			add(out, drive, light);
@@ -104,25 +105,25 @@ public class StandardBogeyRenderer implements BogeyRenderer {
 			scroll = scroll * spriteSize * 0.5f;
 
 			SuperByteBuffer belt =
-				CachedBuffers.partial(AllPartialModels.BOGEY_DRIVE_BELT, Blocks.AIR.defaultBlockState());
+				CachedBufferer.partial(AllPartialModels.BOGEY_DRIVE_BELT, Blocks.AIR.defaultBlockState());
 			TransformStack.of(belt.getTransforms())
 				.scale(1 - 1 / 512f);
 			add(out, belt.shiftUVScrolling(AllSpriteShifts.BOGEY_BELT, scroll), light);
 
 			SuperByteBuffer piston =
-				CachedBuffers.partial(AllPartialModels.BOGEY_PISTON, Blocks.AIR.defaultBlockState());
+				CachedBufferer.partial(AllPartialModels.BOGEY_PISTON, Blocks.AIR.defaultBlockState());
 			TransformStack.of(piston.getTransforms())
 				.translate(0, 0, 1 / 4f * Math.sin(AngleHelper.rad(wheelAngle)));
 			add(out, piston, light);
 
 			SuperByteBuffer wheels =
-				CachedBuffers.partial(AllPartialModels.LARGE_BOGEY_WHEELS, Blocks.AIR.defaultBlockState());
+				CachedBufferer.partial(AllPartialModels.LARGE_BOGEY_WHEELS, Blocks.AIR.defaultBlockState());
 			TransformStack.of(wheels.getTransforms())
 				.translate(0, 1, 0)
 				.rotateXDegrees(wheelAngle);
 			add(out, wheels, light);
 
-			SuperByteBuffer pin = CachedBuffers.partial(AllPartialModels.BOGEY_PIN, Blocks.AIR.defaultBlockState());
+			SuperByteBuffer pin = CachedBufferer.partial(AllPartialModels.BOGEY_PIN, Blocks.AIR.defaultBlockState());
 			TransformStack.of(pin.getTransforms())
 				.translate(0, 1, 0)
 				.rotateXDegrees(wheelAngle)

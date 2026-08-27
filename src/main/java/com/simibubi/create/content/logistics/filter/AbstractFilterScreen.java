@@ -78,7 +78,7 @@ public abstract class AbstractFilterScreen<F extends AbstractFilterMenu> extends
 		GuiGameElement.of(menu.contentHolder).<GuiGameElement
 			.GuiRenderBuilder>at(x + background.getWidth() + 8, y + background.getHeight() - 52, -200)
 			.scale(4)
-			.render(graphics);
+			.submit(graphics);
 	}
 
 	protected int getTitleColor() {

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.armor;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -10,7 +11,6 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -44,7 +44,7 @@ public class BacktankRenderer
 		super.extractSafe(be, state, partialTicks, cameraPosition);
 
 		BlockState blockState = be.getBlockState();
-		SuperByteBuffer cogs = CachedBuffers.partial(getCogsModel(blockState), blockState);
+		SuperByteBuffer cogs = CachedBufferer.partial(getCogsModel(blockState), blockState);
 		TransformStack.of(cogs.getTransforms())
 			.center()
 			.rotateYDegrees(180 + AngleHelper.horizontalAngle(blockState.getValue(BacktankBlock.HORIZONTAL_FACING)))
@@ -67,7 +67,7 @@ public class BacktankRenderer
 
 	@Override
 	protected SuperByteBuffer getRotatedModel(BacktankBlockEntity be, BlockState state) {
-		return CachedBuffers.partial(getShaftModel(state), state);
+		return CachedBufferer.partial(getShaftModel(state), state);
 	}
 
 	public static PartialModel getCogsModel(BlockState state) {

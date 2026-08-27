@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.analogLever;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,7 +9,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -53,7 +53,7 @@ public class AnalogLeverRenderer
 		float value = be.clientState.getValue(partialTicks);
 
 		// Handle
-		SuperByteBuffer handle = CachedBuffers.partial(AllPartialModels.ANALOG_LEVER_HANDLE, leverState);
+		SuperByteBuffer handle = CachedBufferer.partial(AllPartialModels.ANALOG_LEVER_HANDLE, leverState);
 		float angle = (float) ((value / 15) * 90 / 180 * Math.PI);
 		TransformStack.of(transform(handle, leverState).getTransforms())
 			.translate(1 / 2f, 1 / 16f, 1 / 2f)
@@ -65,7 +65,7 @@ public class AnalogLeverRenderer
 		// Indicator
 		int color = Color.mixColors(0x2C0300, 0xCD0000, value / 15f);
 		SuperByteBuffer indicator =
-			transform(CachedBuffers.partial(AllPartialModels.ANALOG_LEVER_INDICATOR, leverState), leverState);
+			transform(CachedBufferer.partial(AllPartialModels.ANALOG_LEVER_INDICATOR, leverState), leverState);
 		state.indicator = indicator.light(state.lightCoords)
 			.color(color)
 			.extractRenderState();

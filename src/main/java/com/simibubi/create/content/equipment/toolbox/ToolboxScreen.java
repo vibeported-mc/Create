@@ -139,7 +139,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 
 		GuiGameElement.of(AllBlocks.TOOLBOXES.get(color)
 			.getDefaultState())
-			.render(graphics);
+			.submit(graphics);
 
         TransformStack.of(ms)
 			.pushPose()
@@ -147,7 +147,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 			.rotateXDegrees(-105 * menu.contentHolder.lid.getValue(partialTicks))
 			.translate(0, 6 / 16f, -12 / 16f);
 		GuiGameElement.of(AllPartialModels.TOOLBOX_LIDS.get(color))
-			.render(graphics);
+			.submit(graphics);
 		ms.popMatrix();
 
 		for (int offset : Iterate.zeroAndOne) {
@@ -155,7 +155,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 			ms.translate(0, -offset * 1 / 8f,
 				menu.contentHolder.drawers.getValue(partialTicks) * -.175f * (2 - offset));
 			GuiGameElement.of(AllPartialModels.TOOLBOX_DRAWER)
-				.render(graphics);
+				.submit(graphics);
 			ms.popMatrix();
 		}
 		ms.popMatrix();

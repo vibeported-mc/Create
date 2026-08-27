@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -63,7 +64,6 @@ import net.createmod.catnip.api.client.gui.UIRenderHelper;
 import net.createmod.catnip.api.client.gui.element.GuiGameElement;
 import net.createmod.catnip.api.lang.Lang;
 import net.createmod.catnip.api.math.AngleHelper;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -540,7 +540,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			Lighting.setupForEntityInInventory();
 
 			VertexConsumer cutout = graphics.bufferSource().getBuffer(RenderTypes.cutoutMovingBlock());
-			CachedBuffers.partial(AllPartialModels.BLAZE_CAGE, keeperBE.getBlockState())
+			CachedBufferer.partial(AllPartialModels.BLAZE_CAGE, keeperBE.getBlockState())
 				.rotateCentered(horizontalAngle + Mth.PI, Direction.UP)
 				.light(LightCoordsUtil.FULL_BRIGHT)
 				.renderInto(ms, cutout);
@@ -558,7 +558,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			ms.translate(x + windowWidth + 5, y + windowHeight - 70);
 			ms.scale(3.5f, 3.5f);
 			GuiGameElement.of(itemToProgram)
-				.render(graphics);
+				.submit(graphics);
 			ms.popMatrix();
 		}
 
@@ -889,7 +889,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		ms.translate(-18 / 2.0, -18 / 2.0);
 		if (customCount != 0 || craftable)
 			GuiGameElement.of(stackWithCount)
-				.render(graphics);
+				.submit(graphics);
 		ms.popMatrix();
 
 		ms.pushMatrix();

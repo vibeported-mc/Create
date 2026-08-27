@@ -37,7 +37,7 @@ public class AnimatedSpout extends AnimatedKinetics {
 
 		blockElement(AllBlocks.SPOUT.getDefaultState())
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		float cycle = (AnimationTickHolder.getRenderTime() - offset * 8) % 30;
 		float squeeze = cycle < 20 ? Mth.sin((float) (cycle / 20f * Math.PI)) : 0;
@@ -47,15 +47,15 @@ public class AnimatedSpout extends AnimatedKinetics {
 
 		blockElement(AllPartialModels.SPOUT_TOP)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 		matrixStack.translate(0, -3 * squeeze / 32f);
 		blockElement(AllPartialModels.SPOUT_MIDDLE)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 		matrixStack.translate(0, -3 * squeeze / 32f);
 		blockElement(AllPartialModels.SPOUT_BOTTOM)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 		matrixStack.translate(0, -3 * squeeze / 32f);
 
 		matrixStack.popMatrix();
@@ -63,7 +63,7 @@ public class AnimatedSpout extends AnimatedKinetics {
 		blockElement(AllBlocks.DEPOT.getDefaultState())
 			.atLocal(0, 2, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		AnimatedKinetics.DEFAULT_LIGHTING.applyLighting();
 		matrixStack.pushMatrix();

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packagePort.frogport;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
@@ -12,7 +13,6 @@ import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
@@ -109,7 +109,7 @@ public class FrogportRenderer
 		headPitch = Math.max(headPitch, be.manualOpenAnimationProgress.getValue(partialTicks) * 60);
 		tongueLength = Math.max(tongueLength, be.manualOpenAnimationProgress.getValue(partialTicks) * 0.25f);
 
-		SuperByteBuffer body = CachedBuffers.partial(AllPartialModels.FROGPORT_BODY, be.getBlockState());
+		SuperByteBuffer body = CachedBufferer.partial(AllPartialModels.FROGPORT_BODY, be.getBlockState());
 		TransformStack.of(body.getTransforms())
 			.center()
 			.rotateYDegrees(yaw)
@@ -117,7 +117,7 @@ public class FrogportRenderer
 		state.parts.add(body.light(state.lightCoords)
 			.extractRenderState());
 
-		SuperByteBuffer head = CachedBuffers.partial(
+		SuperByteBuffer head = CachedBufferer.partial(
 			be.goggles ? AllPartialModels.FROGPORT_HEAD_GOGGLES : AllPartialModels.FROGPORT_HEAD, be.getBlockState());
 		TransformStack.of(head.getTransforms())
 			.center()
@@ -129,7 +129,7 @@ public class FrogportRenderer
 		state.parts.add(head.light(state.lightCoords)
 			.extractRenderState());
 
-		SuperByteBuffer tongue = CachedBuffers.partial(AllPartialModels.FROGPORT_TONGUE, be.getBlockState());
+		SuperByteBuffer tongue = CachedBufferer.partial(AllPartialModels.FROGPORT_TONGUE, be.getBlockState());
 		TransformStack.of(tongue.getTransforms())
 			.center()
 			.rotateYDegrees(yaw)
@@ -159,9 +159,9 @@ public class FrogportRenderer
 		Identifier key = BuiltInRegistries.ITEM.getKey(be.animatedPackage.getItem());
 		if (key == BuiltInRegistries.ITEM.getDefaultKey())
 			return;
-		SuperByteBuffer rigBuffer = CachedBuffers.partial(AllPartialModels.PACKAGE_RIGGING.get(key),
+		SuperByteBuffer rigBuffer = CachedBufferer.partial(AllPartialModels.PACKAGE_RIGGING.get(key),
 			be.getBlockState());
-		SuperByteBuffer boxBuffer = CachedBuffers.partial(AllPartialModels.PACKAGES.get(key), be.getBlockState());
+		SuperByteBuffer boxBuffer = CachedBufferer.partial(AllPartialModels.PACKAGES.get(key), be.getBlockState());
 
 		boolean animating = be.isAnimationInProgress();
 		boolean depositing = be.currentlyDepositing;

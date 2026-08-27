@@ -25,30 +25,30 @@ public class AnimatedMixer extends AnimatedKinetics {
 			.rotateBlock(0, getCurrentAngle() * 2, 0)
 			.atLocal(0, 0, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		blockElement(AllBlocks.MECHANICAL_MIXER.getDefaultState())
 			.atLocal(0, 0, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		float animation = ((Mth.sin(AnimationTickHolder.getRenderTime() / 32f) + 1) / 5) + .5f;
 
 		blockElement(AllPartialModels.MECHANICAL_MIXER_POLE)
 			.atLocal(0, animation, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		blockElement(AllPartialModels.MECHANICAL_MIXER_HEAD)
 			.rotateBlock(0, getCurrentAngle() * 4, 0)
 			.atLocal(0, animation, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		blockElement(AllBlocks.BASIN.getDefaultState())
 			.atLocal(0, 1.65, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		matrixStack.popMatrix();
 	}

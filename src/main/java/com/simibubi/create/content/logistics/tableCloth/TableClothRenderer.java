@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.tableCloth;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import com.simibubi.create.content.logistics.depot.DepotRenderer;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
@@ -53,7 +53,7 @@ public class TableClothRenderer
 		state.itemPosition = Vec3.atCenterOf(be.getBlockPos());
 
 		if (be.isShop()) {
-			var priceTag = CachedBuffers.partial(be.sideOccluded ? AllPartialModels.TABLE_CLOTH_PRICE_TOP
+			var priceTag = CachedBufferer.partial(be.sideOccluded ? AllPartialModels.TABLE_CLOTH_PRICE_TOP
 				: AllPartialModels.TABLE_CLOTH_PRICE_SIDE, be.getBlockState());
 			TransformStack.of(priceTag.getTransforms())
 				.rotateCentered(state.rotationInRadians, Direction.UP);

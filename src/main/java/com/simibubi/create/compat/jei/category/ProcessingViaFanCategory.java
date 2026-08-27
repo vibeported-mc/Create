@@ -66,13 +66,13 @@ public abstract class ProcessingViaFanCategory<T extends Recipe<?>> extends Crea
 		AnimatedKinetics.defaultBlockElement(AllPartialModels.ENCASED_FAN_INNER)
 			.rotateBlock(180, 0, AnimatedKinetics.getCurrentAngle() * 16)
 			.scale(SCALE)
-			.render(graphics);
+			.submit(graphics);
 
 		AnimatedKinetics.defaultBlockElement(AllBlocks.ENCASED_FAN.getDefaultState())
 			.rotateBlock(0, 180, 0)
 			.atLocal(0, 0, 0)
 			.scale(SCALE)
-			.render(graphics);
+			.submit(graphics);
 
 		renderAttachedBlock(graphics);
 		matrixStack.popMatrix();

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.tunnel;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -11,7 +12,6 @@ import com.simibubi.create.content.logistics.FlapStuffs;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.data.Iterate;
@@ -60,7 +60,7 @@ public class BeltTunnelRenderer
 
 		// One extracted state serves every direction: the segments share geometry and differ only in
 		// the PoseStack they are submitted with.
-		SuperByteBuffer flapBuffer = CachedBuffers.partial(AllPartialModels.BELT_TUNNEL_FLAP, be.getBlockState());
+		SuperByteBuffer flapBuffer = CachedBufferer.partial(AllPartialModels.BELT_TUNNEL_FLAP, be.getBlockState());
 		state.flap = flapBuffer.light(state.lightCoords)
 			.extractRenderState();
 	}

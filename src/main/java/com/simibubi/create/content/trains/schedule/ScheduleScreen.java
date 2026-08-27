@@ -633,7 +633,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 			if (stack.getItem() != Items.STRUCTURE_VOID)
 				GuiGameElement.of(stack)
 					.at(4, 0)
-					.render(graphics);
+					.submit(graphics);
 		}
 
 		if (text != null)
@@ -995,7 +995,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 				.GuiRenderBuilder>at(leftPos + AllGuiTextures.SCHEDULE.getWidth(),
 				topPos + AllGuiTextures.SCHEDULE.getHeight() - 56, -200)
 			.scale(3)
-			.render(graphics);
+			.submit(graphics);
 		action(graphics, mouseX, mouseY, -1);
 
 		if (editingCondition == null && editingDestination == null)
@@ -1067,7 +1067,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> {
 			else
 				GuiGameElement.of(icon)
 					.at(leftPos + 54, topPos + 88)
-					.render(graphics);
+					.submit(graphics);
 		}
 
 		matrices.pushMatrix();

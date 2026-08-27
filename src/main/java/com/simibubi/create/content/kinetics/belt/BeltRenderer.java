@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.belt;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -29,7 +30,6 @@ import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.data.Iterate;
@@ -139,7 +139,7 @@ public class BeltRenderer extends SafeBlockEntityRenderer<BeltBlockEntity, BeltR
 
 			PartialModel beltPartial = getBeltPartial(diagonal, start, end, bottom);
 
-			SuperByteBuffer beltBuffer = CachedBuffers.partial(beltPartial, blockState)
+			SuperByteBuffer beltBuffer = CachedBufferer.partial(beltPartial, blockState)
 				.light(light);
 
 			SpriteShiftEntry spriteShift = getSpriteShiftEntry(color, diagonal, bottom);
@@ -190,7 +190,7 @@ public class BeltRenderer extends SafeBlockEntityRenderer<BeltBlockEntity, BeltR
 				return stack;
 			};
 
-			SuperByteBuffer superBuffer = CachedBuffers.partialDirectional(AllPartialModels.BELT_PULLEY,
+			SuperByteBuffer superBuffer = CachedBufferer.partialDirectional(AllPartialModels.BELT_PULLEY,
 				blockState, dir, matrixStackSupplier);
 			state.belt.add(KineticBlockEntityRenderer.standardKineticRotationTransform(superBuffer, be, light)
 				.extractRenderState());

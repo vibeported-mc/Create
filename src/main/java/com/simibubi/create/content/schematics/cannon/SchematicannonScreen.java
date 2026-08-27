@@ -295,7 +295,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 		GuiGameElement.of(renderedItem).<GuiGameElement
 				.GuiRenderBuilder>at(x + BG_TOP.getWidth(), y + BG_TOP.getHeight() + BG_BOTTOM.getHeight() - 48, -200)
 			.scale(5)
-			.render(graphics);
+			.submit(graphics);
 
 		graphics.text(font, title, x + (BG_TOP.getWidth() - 8 - font.width(title)) / 2, y + 2, 0x505050, false);
 
@@ -307,7 +307,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 			GuiGameElement.of(be.missingItem).<GuiGameElement
 					.GuiRenderBuilder>at(x + 128, y + 49, 100)
 				.scale(1)
-				.render(graphics);
+				.submit(graphics);
 		}
 
 		graphics.text(font, msg, x + 103 - stringWidth / 2, y + 53, 0xDDEEFF);

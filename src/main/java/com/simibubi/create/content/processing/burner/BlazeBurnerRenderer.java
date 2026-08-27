@@ -1,5 +1,6 @@
 package com.simibubi.create.content.processing.burner;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
 import net.minecraft.world.phys.Vec3;
@@ -22,7 +23,6 @@ import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.math.AngleHelper;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.util.LightCoordsUtil;
@@ -132,7 +132,7 @@ public class BlazeBurnerRenderer
 
 		var blazeModel = getBlazeModel(heatLevel, blockAbove);
 
-		SuperByteBuffer blazeBuffer = CachedBuffers.partial(blazeModel, blockState);
+		SuperByteBuffer blazeBuffer = CachedBufferer.partial(blazeModel, blockState);
 		if (modelTransform != null)
 			blazeBuffer.transform(modelTransform);
 		TransformStack.of(blazeBuffer.getTransforms())
@@ -143,7 +143,7 @@ public class BlazeBurnerRenderer
 			PartialModel gogglesModel = blazeModel == AllPartialModels.BLAZE_INERT
 					? AllPartialModels.BLAZE_GOGGLES_SMALL : AllPartialModels.BLAZE_GOGGLES;
 
-			SuperByteBuffer gogglesBuffer = CachedBuffers.partial(gogglesModel, blockState);
+			SuperByteBuffer gogglesBuffer = CachedBufferer.partial(gogglesModel, blockState);
 			if (modelTransform != null)
 				gogglesBuffer.transform(modelTransform);
 			TransformStack.of(gogglesBuffer.getTransforms())
@@ -152,7 +152,7 @@ public class BlazeBurnerRenderer
 		}
 
 		if (drawHat != null) {
-			SuperByteBuffer hatBuffer = CachedBuffers.partial(drawHat, blockState);
+			SuperByteBuffer hatBuffer = CachedBufferer.partial(drawHat, blockState);
 			if (modelTransform != null)
 				hatBuffer.transform(modelTransform);
 			var hatTr = TransformStack.of(hatBuffer.getTransforms());
@@ -177,7 +177,7 @@ public class BlazeBurnerRenderer
 			PartialModel rodsModel2 = heatLevel == HeatLevel.SEETHING ? AllPartialModels.BLAZE_BURNER_SUPER_RODS_2
 					: AllPartialModels.BLAZE_BURNER_RODS_2;
 
-			SuperByteBuffer rodsBuffer = CachedBuffers.partial(rodsModel, blockState);
+			SuperByteBuffer rodsBuffer = CachedBufferer.partial(rodsModel, blockState);
 			if (modelTransform != null)
 				rodsBuffer.transform(modelTransform);
 			TransformStack.of(rodsBuffer.getTransforms())
@@ -185,7 +185,7 @@ public class BlazeBurnerRenderer
 			rodsBuffer.light(LightCoordsUtil.FULL_BRIGHT)
 					.submit(ms, RenderTypes.solidMovingBlock(), queue);
 
-			SuperByteBuffer rodsBuffer2 = CachedBuffers.partial(rodsModel2, blockState);
+			SuperByteBuffer rodsBuffer2 = CachedBufferer.partial(rodsModel2, blockState);
 			if (modelTransform != null)
 				rodsBuffer2.transform(modelTransform);
 			TransformStack.of(rodsBuffer2.getTransforms())
@@ -218,7 +218,7 @@ public class BlazeBurnerRenderer
 			uScroll = uScroll - Math.floor(uScroll);
 			uScroll = uScroll * spriteWidth / 2;
 
-			SuperByteBuffer flameBuffer = CachedBuffers.partial(AllPartialModels.BLAZE_BURNER_FLAME, blockState);
+			SuperByteBuffer flameBuffer = CachedBufferer.partial(AllPartialModels.BLAZE_BURNER_FLAME, blockState);
 			if (modelTransform != null)
 				flameBuffer.transform(modelTransform);
 			flameBuffer.shiftUVScrolling(spriteShift, (float) uScroll, (float) vScroll);

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.gantry;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -10,7 +11,6 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.data.Iterate;
@@ -74,7 +74,7 @@ public class GantryCarriageRenderer
 			if (facing == Direction.NORTH || facing == Direction.EAST)
 				angleForBE *= -1;
 
-		SuperByteBuffer cogs = CachedBuffers.partial(AllPartialModels.GANTRY_COGS, blockState);
+		SuperByteBuffer cogs = CachedBufferer.partial(AllPartialModels.GANTRY_COGS, blockState);
 		TransformStack.of(cogs.getTransforms())
 			.center()
 			.rotateYDegrees(AngleHelper.horizontalAngle(facing))

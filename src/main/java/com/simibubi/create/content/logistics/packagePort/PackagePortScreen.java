@@ -135,7 +135,7 @@ public class PackagePortScreen extends AbstractSimiContainerScreen<PackagePortMe
 		GuiGameElement.of(icon).<GuiGameElement
 			.GuiRenderBuilder>at(x + background.getWidth() + 6, y + background.getHeight() - 56, -200)
 			.scale(4)
-			.render(graphics);
+			.submit(graphics);
 
 		int invX = leftPos + 30;
 		int invY = topPos + 8 + imageHeight - AllGuiTextures.PLAYER_INVENTORY.getHeight();

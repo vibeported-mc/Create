@@ -97,7 +97,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 			GuiGameElement.of(AllBlocks.TOOLBOXES.get(DyeColor.BROWN)
 				.asStack())
 				.at(-9, -9)
-				.render(graphics);
+				.submit(graphics);
 
 			ms.translate(0, -40 + (10 * (1 - fade) * (1 - fade)), 0);
 			AllGuiTextures.TOOLBELT_SLOT.render(graphics, -12, -12);
@@ -149,7 +149,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 							.render(graphics, 0, 0);
 						GuiGameElement.of(stackInSlot)
 							.at(3, 3)
-							.render(graphics);
+							.submit(graphics);
 
 						if (slot == (scrollMode ? scrollSlot : hoveredSlot) && !empty) {
 							AllGuiTextures.TOOLBELT_SLOT_HIGHLIGHT.render(graphics, -1, -1);
@@ -166,7 +166,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 						GuiGameElement.of(AllBlocks.TOOLBOXES.get(toolboxBlockEntity.getColor())
 							.asStack())
 							.at(3, 3)
-							.render(graphics);
+							.submit(graphics);
 
 						if (slot == (scrollMode ? scrollSlot : hoveredSlot)) {
 							AllGuiTextures.TOOLBELT_SLOT_HIGHLIGHT.render(graphics, -1, -1);

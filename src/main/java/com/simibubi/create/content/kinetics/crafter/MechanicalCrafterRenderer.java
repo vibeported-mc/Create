@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -23,7 +24,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.math.Pointing;
@@ -241,7 +241,7 @@ public class MechanicalCrafterRenderer
 		BlockState blockState = be.getBlockState();
 
 		if (!VisualizationManager.supportsVisualization(be.getLevel())) {
-			SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.SHAFTLESS_COGWHEEL, blockState);
+			SuperByteBuffer superBuffer = CachedBufferer.partial(AllPartialModels.SHAFTLESS_COGWHEEL, blockState);
 			standardKineticRotationTransform(superBuffer, be, state.lightCoords);
 			TransformStack.of(superBuffer.getTransforms())
 				.rotateCentered((float) (blockState.getValue(HORIZONTAL_FACING)
@@ -281,7 +281,7 @@ public class MechanicalCrafterRenderer
 	}
 
 	private SuperByteBuffer renderAndTransform(PartialModel renderBlock, BlockState crafterState) {
-		SuperByteBuffer buffer = CachedBuffers.partial(renderBlock, crafterState);
+		SuperByteBuffer buffer = CachedBufferer.partial(renderBlock, crafterState);
 		float xRot = crafterState.getValue(MechanicalCrafterBlock.POINTING)
 			.getXRotation();
 		float yRot = AngleHelper.horizontalAngle(crafterState.getValue(HORIZONTAL_FACING));

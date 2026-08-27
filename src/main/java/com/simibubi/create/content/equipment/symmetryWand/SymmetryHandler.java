@@ -1,9 +1,9 @@
 package com.simibubi.create.content.equipment.symmetryWand;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.joml.Vector3f;
 
@@ -108,7 +108,7 @@ public class SymmetryHandler {
 			ms.translate(0, yShift + .2f, 0);
 			mirror.applyModelTransform(ms);
 
-			CachedBuffers.partial(mirror.getModel(), Blocks.AIR.defaultBlockState())
+			CachedBufferer.partial(mirror.getModel(), Blocks.AIR.defaultBlockState())
 				.light(LightCoordsUtil.FULL_BRIGHT)
 				.submit(ms, RenderTypes.solidMovingBlock(), queue);
 

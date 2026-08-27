@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.slidingDoor;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +73,7 @@ public class SlidingDoorRenderer
 
 			boolean flip = blockState.getValue(DoorBlock.HINGE) == DoorHingeSide.RIGHT;
 			for (boolean left : Iterate.trueAndFalse) {
-				SuperByteBuffer partial = CachedBuffers.partial(partials.get(left ^ flip), blockState);
+				SuperByteBuffer partial = CachedBufferer.partial(partials.get(left ^ flip), blockState);
 				float f = flip ? -1 : 1;
 
 				var msr = TransformStack.of(partial.getTransforms());

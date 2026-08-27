@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.funnel;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,7 +10,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRende
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -50,7 +50,7 @@ public class FunnelRenderer
 		BlockState blockState = be.getBlockState();
 		PartialModel partialModel = (blockState.getBlock() instanceof FunnelBlock ? AllPartialModels.FUNNEL_FLAP
 			: AllPartialModels.BELT_FUNNEL_FLAP);
-		SuperByteBuffer flapBuffer = CachedBuffers.partial(partialModel, blockState);
+		SuperByteBuffer flapBuffer = CachedBufferer.partial(partialModel, blockState);
 
 		state.funnelFacing = FunnelBlock.getFunnelFacing(blockState);
 		state.flapness = be.flap.getValue(partialTicks);

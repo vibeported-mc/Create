@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,6 @@ import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.data.Iterate;
@@ -51,7 +51,7 @@ public class ToolboxRenderer extends SmartBlockEntityRenderer<ToolboxBlockEntity
 		float lidAngle = be.lid.getValue(partialTicks);
 		float drawerOffset = be.drawers.getValue(partialTicks);
 
-		SuperByteBuffer lid = CachedBuffers.partial(AllPartialModels.TOOLBOX_LIDS.get(be.getColor()), blockState);
+		SuperByteBuffer lid = CachedBufferer.partial(AllPartialModels.TOOLBOX_LIDS.get(be.getColor()), blockState);
 		TransformStack.of(lid.getTransforms())
 			.center()
 			.rotateYDegrees(-facing.toYRot())
@@ -64,7 +64,7 @@ public class ToolboxRenderer extends SmartBlockEntityRenderer<ToolboxBlockEntity
 
 		// The two drawers sit at different offsets, so each needs its own buffer.
 		for (int offset : Iterate.zeroAndOne) {
-			SuperByteBuffer drawer = CachedBuffers.partial(AllPartialModels.TOOLBOX_DRAWER, blockState);
+			SuperByteBuffer drawer = CachedBufferer.partial(AllPartialModels.TOOLBOX_DRAWER, blockState);
 			TransformStack.of(drawer.getTransforms())
 				.center()
 				.rotateYDegrees(-facing.toYRot())

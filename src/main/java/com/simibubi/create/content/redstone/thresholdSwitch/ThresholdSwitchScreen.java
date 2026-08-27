@@ -188,7 +188,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 		GuiGameElement.of(renderedItem).<GuiGameElement
 				.GuiRenderBuilder>at(x + background.getWidth() + 6, y + background.getHeight() - 56, -200)
 			.scale(5)
-			.render(graphics);
+			.submit(graphics);
 
 		int itemX = x + 13;
 		int itemY = y + 80;
@@ -196,7 +196,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 		ItemStack displayItem = blockEntity.getDisplayItemForScreen();
 		GuiGameElement.of(displayItem.isEmpty() ? new ItemStack(Items.BARRIER) : displayItem).<GuiGameElement
 				.GuiRenderBuilder>at(itemX, itemY, 0)
-			.render(graphics);
+			.submit(graphics);
 
 		int torchX = x + 23;
 		int torchY = y + 24;
@@ -216,7 +216,7 @@ public class ThresholdSwitchScreen extends AbstractSimiScreen {
 			GuiGameElement.of(Blocks.REDSTONE_TORCH.defaultBlockState()
 					.setValue(RedstoneTorchBlock.LIT, blockEntity.isInverted() ^ power))
 				.scale(20)
-				.render(graphics);
+				.submit(graphics);
 			ms.translate(0, 26);
 		}
 

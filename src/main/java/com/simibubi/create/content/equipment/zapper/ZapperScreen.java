@@ -122,7 +122,7 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 		GuiGameElement.of(zapper)
 			.scale(4)
 			.at(x + background.getWidth(), y + background.getHeight() - 48, -200)
-			.render(graphics);
+			.submit(graphics);
 	}
 
 	protected void renderBlock(GuiGraphicsExtractor graphics, int x, int y) {
@@ -136,7 +136,7 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 		BlockState state = zapper.getOrDefault(AllDataComponents.SHAPER_BLOCK_USED, Blocks.AIR.defaultBlockState());;
 
 		GuiGameElement.of(state)
-			.render(graphics);
+			.submit(graphics);
 		ms.popMatrix();
 	}
 

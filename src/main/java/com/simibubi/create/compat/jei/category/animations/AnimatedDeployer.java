@@ -25,13 +25,13 @@ public class AnimatedDeployer extends AnimatedKinetics {
 		blockElement(shaft(Direction.Axis.Z))
 			.rotateBlock(0, 0, getCurrentAngle())
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		blockElement(AllBlocks.DEPLOYER.getDefaultState()
 			.setValue(DeployerBlock.FACING, Direction.DOWN)
 			.setValue(DeployerBlock.AXIS_ALONG_FIRST_COORDINATE, false))
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		float cycle = (AnimationTickHolder.getRenderTime() - offset * 8) % 30;
 		float offset = cycle < 10 ? cycle / 10f : cycle < 20 ? (20 - cycle) / 10f : 0;
@@ -42,18 +42,18 @@ public class AnimatedDeployer extends AnimatedKinetics {
 		blockElement(AllPartialModels.DEPLOYER_POLE)
 			.rotateBlock(90, 0, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 		blockElement(AllPartialModels.DEPLOYER_HAND_HOLDING)
 			.rotateBlock(90, 0, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		matrixStack.popMatrix();
 
 		blockElement(AllBlocks.DEPOT.getDefaultState())
 			.atLocal(0, 2, 0)
 			.scale(scale)
-			.render(graphics);
+			.submit(graphics);
 
 		matrixStack.popMatrix();
 	}

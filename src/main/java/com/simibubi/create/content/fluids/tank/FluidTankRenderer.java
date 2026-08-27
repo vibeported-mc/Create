@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.tank;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.animation.LerpedFloat;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.FluidRenderHelper;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
@@ -118,7 +118,7 @@ public class FluidTankRenderer
 				continue;
 			float yRot = -d.toYRot() - 90;
 
-			SuperByteBuffer gauge = CachedBuffers.partial(AllPartialModels.BOILER_GAUGE, blockState);
+			SuperByteBuffer gauge = CachedBufferer.partial(AllPartialModels.BOILER_GAUGE, blockState);
 			TransformStack.of(gauge.getTransforms())
 				.rotateYDegrees(yRot)
 				.uncenter()
@@ -126,7 +126,7 @@ public class FluidTankRenderer
 			state.gauges.add(gauge.light(state.lightCoords)
 				.extractRenderState());
 
-			SuperByteBuffer dial = CachedBuffers.partial(AllPartialModels.BOILER_GAUGE_DIAL, blockState);
+			SuperByteBuffer dial = CachedBufferer.partial(AllPartialModels.BOILER_GAUGE_DIAL, blockState);
 			TransformStack.of(dial.getTransforms())
 				.rotateYDegrees(yRot)
 				.uncenter()

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.drill;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
@@ -11,7 +12,6 @@ import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.math.VecHelper;
@@ -29,13 +29,13 @@ public class DrillRenderer extends KineticBlockEntityRenderer<DrillBlockEntity, 
 
 	@Override
 	protected SuperByteBuffer getRotatedModel(DrillBlockEntity be, BlockState state) {
-		return CachedBuffers.partialFacing(AllPartialModels.DRILL_HEAD, state);
+		return CachedBufferer.partialFacing(AllPartialModels.DRILL_HEAD, state);
 	}
 
 	public static void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
 		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		BlockState state = context.state;
-		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.DRILL_HEAD, state);
+		SuperByteBuffer superBuffer = CachedBufferer.partial(AllPartialModels.DRILL_HEAD, state);
 		Direction facing = state.getValue(DrillBlock.FACING);
 
 		float speed = (float) (context.contraption.stalled

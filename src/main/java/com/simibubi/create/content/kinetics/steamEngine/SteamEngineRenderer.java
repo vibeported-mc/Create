@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.steamEngine;
 
+import com.simibubi.create.foundation.render.CachedBufferer;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -10,7 +11,6 @@ import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRender
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
 import net.createmod.catnip.api.math.AngleHelper;
@@ -112,7 +112,7 @@ public class SteamEngineRenderer
 	}
 
 	private SuperByteBuffer transformed(PartialModel model, BlockState blockState, Direction facing, boolean roll90) {
-		SuperByteBuffer buffer = CachedBuffers.partial(model, blockState);
+		SuperByteBuffer buffer = CachedBufferer.partial(model, blockState);
 		TransformStack.of(buffer.getTransforms())
 			.center()
 			.rotateYDegrees(AngleHelper.horizontalAngle(facing))
