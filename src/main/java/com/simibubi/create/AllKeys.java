@@ -106,13 +106,13 @@ public enum AllKeys {
 	public static boolean isKeyDown(int key) {
 		return InputConstants.isKeyDown(Minecraft.getInstance()
 			.getWindow()
-			.getWindow(), key);
+			.handle(), key);
 	}
 
 	public static boolean isMouseButtonDown(int button) {
 		return GLFW.glfwGetMouseButton(Minecraft.getInstance()
 			.getWindow()
-			.getWindow(), button) == 1;
+			.handle(), button) == 1;
 	}
 
 	public static boolean ctrlDown() {

@@ -85,7 +85,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 		double guiScale = minecraft.getWindow()
 			.getGuiScale();
 		GLFW.glfwSetCursorPos(minecraft.getWindow()
-			.getWindow(), coordinateOfValue.x * guiScale, coordinateOfValue.y * guiScale);
+			.handle(), coordinateOfValue.x * guiScale, coordinateOfValue.y * guiScale);
 	}
 
 	public ValueSettings getClosestCoordinate(int mouseX, int mouseY) {
@@ -172,7 +172,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 		renderBrassFrame(graphics, x + maxLabelWidth + 14, y - 3, valueBarWidth + 8, board.rows()
 			.size() * 11 + 5);
 		UIRenderHelper.drawStretched(graphics, x + maxLabelWidth + 17, y, valueBarWidth + 2, board.rows()
-			.size() * 11 - 1, zLevel, AllGuiTextures.VALUE_SETTINGS_BAR_BG);
+			.size() * 11 - 1, AllGuiTextures.VALUE_SETTINGS_BAR_BG);
 
 		int originalY = y;
 		for (Component component : board.rows()) {
@@ -182,7 +182,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 				UIRenderHelper.drawCropped(graphics, x - 4, y, maxLabelWidth + 8, 11, AllGuiTextures.VALUE_SETTINGS_LABEL_BG);
 				for (int w = 0; w < valueBarWidth; w += AllGuiTextures.VALUE_SETTINGS_BAR.getWidth() - 1)
 					UIRenderHelper.drawCropped(graphics, valueBarX + w, y + 1,
-						Math.min(AllGuiTextures.VALUE_SETTINGS_BAR.getWidth() - 1, valueBarWidth - w), 8, zLevel,
+						Math.min(AllGuiTextures.VALUE_SETTINGS_BAR.getWidth() - 1, valueBarWidth - w), 8,
 						AllGuiTextures.VALUE_SETTINGS_BAR);
 				graphics.text(font, component, x, y + 1, 0x442000, false);
 			}
@@ -269,7 +269,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 	}
 
 	@Override
-	public void renderBackground(@NotNull GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void extractBackground(@NotNull GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pPartialTick) {
 		int a = ((int) (0x50 * Math.min(1, (ticksOpen + AnimationTickHolder.getPartialTicks()) / 20f))) << 24;
 		graphics.fillGradient(0, 0, this.width, this.height, 0x101010 | a, 0x101010 | a);
 	}
@@ -298,7 +298,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 		int pKeyCode = event.key();
 		int pScanCode = event.scancode();
 		int pModifiers = event.modifiers();
-		if (minecraft.options.keyUse.matches(pKeyCode, pScanCode)) {
+		if (minecraft.options.keyUse.matches(event)) {
 			Window window = minecraft.getWindow();
 			double x = minecraft.mouseHandler.xpos() * window.getGuiScaledWidth() / window.getScreenWidth();
 			double y = minecraft.mouseHandler.ypos() * window.getGuiScaledHeight() / window.getScreenHeight();
@@ -313,7 +313,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 		double pMouseX = event.x();
 		double pMouseY = event.y();
 		int pButton = event.button();
-		if (minecraft.options.keyUse.matchesMouse(pButton)) {
+		if (minecraft.options.keyUse.matchesMouse(event)) {
 			saveAndClose(pMouseX, pMouseY);
 			return true;
 		}

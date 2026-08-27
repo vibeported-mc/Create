@@ -145,7 +145,7 @@ public class LinkedControllerClientHandler {
 		}
 
 		if (InputConstants.isKeyDown(mc.getWindow()
-			.getWindow(), GLFW.GLFW_KEY_ESCAPE)) {
+			.handle(), GLFW.GLFW_KEY_ESCAPE)) {
 			MODE = Mode.IDLE;
 			onReset();
 			return;
