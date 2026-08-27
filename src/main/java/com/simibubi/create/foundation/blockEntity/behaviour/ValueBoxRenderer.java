@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
+import net.minecraft.tags.BlockItemTags;
 import org.joml.Matrix3f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -78,7 +79,7 @@ public class ValueBoxRenderer {
 			if (block instanceof FenceBlock)
 				return nudge;
 			if (block.builtInRegistryHolder()
-				.is(BlockTags.BUTTONS))
+				.is(BlockItemTags.BUTTONS.block()))
 				return nudge;
 			if (block == Blocks.END_ROD)
 				return nudge;

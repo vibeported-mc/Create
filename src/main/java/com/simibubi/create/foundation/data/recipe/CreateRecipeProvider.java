@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.data.recipe;
 
+import net.minecraft.tags.BlockItemTags;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -87,7 +88,7 @@ public final class CreateRecipeProvider extends RecipeProvider {
 		}
 
 		static TagKey<Item> woodSlab() {
-			return ItemTags.WOODEN_SLABS;
+			return BlockItemTags.WOODEN_SLABS.item();
 		}
 
 		static TagKey<Item> gold() {

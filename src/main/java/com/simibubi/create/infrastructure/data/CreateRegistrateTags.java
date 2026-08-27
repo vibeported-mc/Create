@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.data;
 
+import net.minecraft.tags.BlockItemTags;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.entity.EntityTypes;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class CreateRegistrateTags {
 			.addTag(BlockTags.CAVE_VINES)
 			.addTag(BlockTags.BANNERS)
 			.addTag(BlockTags.BEDS)
-			.addTag(BlockTags.DOORS);
+			.addTag(BlockItemTags.DOORS.block());
 
 		prov.tag(AllBlockTags.COPYCAT_ALLOW.tag)
 			.add(Blocks.BARREL);
@@ -86,7 +87,7 @@ public class CreateRegistrateTags {
 				Blocks.WAXED_WEATHERED_COPPER_GRATE, Blocks.WAXED_OXIDIZED_COPPER_GRATE
 			)
 			.addTag(BlockTags.CAMPFIRES)
-			.addTag(BlockTags.FENCES)
+			.addTag(BlockItemTags.FENCES.block())
 			.addTag(BlockTags.LEAVES);
 
 		prov.tag(AllBlockTags.MOVABLE_EMPTY_COLLIDER.tag)
@@ -96,7 +97,7 @@ public class CreateRegistrateTags {
 			)
 			.addTag(AllBlockTags.CORALS.tag)
 			.addTag(BlockTags.CAVE_VINES)
-			.addTag(BlockTags.FENCE_GATES)
+			.addTag(BlockItemTags.FENCE_GATES.block())
 			.addTag(BlockTags.BANNERS);
 
 		prov.tag(AllBlockTags.PASSIVE_BOILER_HEATERS.tag)
@@ -118,7 +119,7 @@ public class CreateRegistrateTags {
 			.add(Blocks.REDSTONE_WIRE, Blocks.REDSTONE_TORCH, Blocks.REPEATER, Blocks.LEVER, Blocks.REDSTONE_LAMP,
 				Blocks.COMPARATOR, Blocks.OBSERVER, Blocks.REDSTONE_WALL_TORCH, Blocks.PISTON, Blocks.STICKY_PISTON,
 				Blocks.TRIPWIRE, Blocks.TRIPWIRE_HOOK, Blocks.DAYLIGHT_DETECTOR, Blocks.TARGET, Blocks.HOPPER)
-			.addTag(BlockTags.BUTTONS)
+			.addTag(BlockItemTags.BUTTONS.block())
 			.addTag(BlockTags.PRESSURE_PLATES)
 			.addTag(BlockTags.RAILS);
 

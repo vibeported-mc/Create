@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.block;
 
+import net.minecraft.tags.BlockItemTags;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
@@ -159,10 +160,10 @@ public class CopperBlockSet {
 		}
 
 		if (variant == StairVariant.INSTANCE)
-			builder.tag(BlockTags.STAIRS);
+			builder.tag(BlockItemTags.STAIRS.block());
 
 		if (variant == SlabVariant.INSTANCE)
-			builder.tag(BlockTags.SLABS);
+			builder.tag(BlockItemTags.SLABS.block());
 
 		return builder.register();
 	}

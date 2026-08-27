@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import net.minecraft.tags.BlockItemTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.api.behaviour.display.DisplaySource.displaySource;
 import static com.simibubi.create.api.behaviour.display.DisplayTarget.displayTarget;
@@ -2930,7 +2931,7 @@ public class AllBlocks {
 			// .recipe((c, p) -> {
 				// ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
 					// .requires(DyeHelper.getWoolOfDye(colour))
-					// .requires(ItemTags.WOODEN_SLABS)
+					// .requires(BlockItemTags.WOODEN_SLABS.item())
 					// .unlockedBy("has_wool", RegistrateRecipeProvider.has(ItemTags.WOOL))
 					// .save(p, Create.asResource("crafting/kinetics/" + c.getName()));
 				// ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())

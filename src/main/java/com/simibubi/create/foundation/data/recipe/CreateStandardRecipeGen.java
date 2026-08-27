@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.data.recipe;
 
+import net.minecraft.tags.BlockItemTags;
 import org.jspecify.annotations.NullMarked;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.ALUMINUM;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.LEAD;
@@ -367,7 +368,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("I")),
 
 	MECHANICAL_PISTON = create(AllBlocks.MECHANICAL_PISTON).unlockedBy(I::andesiteCasing)
-		.viaShaped(b -> b.define('B', ItemTags.WOODEN_SLABS)
+		.viaShaped(b -> b.define('B', BlockItemTags.WOODEN_SLABS.item())
 			.define('C', I.andesiteCasing())
 			.define('I', AllBlocks.PISTON_EXTENSION_POLE.get())
 			.pattern("B")
@@ -382,7 +383,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 
 	TURNTABLE = create(AllBlocks.TURNTABLE).unlockedBy(I::andesiteAlloy)
 		.viaShaped(b -> b.define('S', I.shaft())
-			.define('P', ItemTags.WOODEN_SLABS)
+			.define('P', BlockItemTags.WOODEN_SLABS.item())
 			.pattern("P")
 			.pattern("S")),
 
@@ -395,7 +396,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("P")),
 
 	GANTRY_PINION = create(AllBlocks.GANTRY_CARRIAGE).unlockedBy(I::andesiteCasing)
-		.viaShaped(b -> b.define('B', ItemTags.WOODEN_SLABS)
+		.viaShaped(b -> b.define('B', BlockItemTags.WOODEN_SLABS.item())
 			.define('C', I.andesiteCasing())
 			.define('I', I.cog())
 			.pattern("B")
@@ -417,37 +418,37 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 
 	TRAIN_DOOR = create(AllBlocks.TRAIN_DOOR).returns(1)
 		.unlockedBy(() -> I.railwayCasing())
-		.viaShapeless(b -> b.requires(ItemTags.WOODEN_DOORS)
+		.viaShapeless(b -> b.requires(BlockItemTags.WOODEN_DOORS.item())
 			.requires(I.railwayCasing())),
 
 	ANDESITE_DOOR = create(AllBlocks.ANDESITE_DOOR).returns(1)
 		.unlockedBy(() -> I.andesiteCasing())
-		.viaShapeless(b -> b.requires(ItemTags.WOODEN_DOORS)
+		.viaShapeless(b -> b.requires(BlockItemTags.WOODEN_DOORS.item())
 			.requires(I.andesiteCasing())),
 
 	BRASS_DOOR = create(AllBlocks.BRASS_DOOR).returns(1)
 		.unlockedBy(() -> I.brassCasing())
-		.viaShapeless(b -> b.requires(ItemTags.WOODEN_DOORS)
+		.viaShapeless(b -> b.requires(BlockItemTags.WOODEN_DOORS.item())
 			.requires(I.brassCasing())),
 
 	COPPER_DOOR = create(AllBlocks.COPPER_DOOR).returns(1)
 		.unlockedBy(() -> I.copperCasing())
-		.viaShapeless(b -> b.requires(ItemTags.WOODEN_DOORS)
+		.viaShapeless(b -> b.requires(BlockItemTags.WOODEN_DOORS.item())
 			.requires(I.copperCasing())),
 
 	TRAIN_TRAPDOOR = create(AllBlocks.TRAIN_TRAPDOOR).returns(1)
 		.unlockedBy(() -> I.railwayCasing())
-		.viaShapeless(b -> b.requires(ItemTags.WOODEN_TRAPDOORS)
+		.viaShapeless(b -> b.requires(BlockItemTags.WOODEN_TRAPDOORS.item())
 			.requires(I.railwayCasing())),
 
 	FRAMED_GLASS_DOOR = create(AllBlocks.FRAMED_GLASS_DOOR).returns(1)
 		.unlockedBy(AllPaletteBlocks.FRAMED_GLASS::get)
-		.viaShapeless(b -> b.requires(ItemTags.WOODEN_DOORS)
+		.viaShapeless(b -> b.requires(BlockItemTags.WOODEN_DOORS.item())
 			.requires(AllPaletteBlocks.FRAMED_GLASS.get())),
 
 	FRAMED_GLASS_TRAPDOOR = create(AllBlocks.FRAMED_GLASS_TRAPDOOR).returns(1)
 		.unlockedBy(AllPaletteBlocks.FRAMED_GLASS::get)
-		.viaShapeless(b -> b.requires(ItemTags.WOODEN_TRAPDOORS)
+		.viaShapeless(b -> b.requires(BlockItemTags.WOODEN_TRAPDOORS.item())
 			.requires(AllPaletteBlocks.FRAMED_GLASS.get())),
 
 	ANALOG_LEVER = create(AllBlocks.ANALOG_LEVER).unlockedBy(I::andesiteAlloy)
@@ -549,7 +550,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("R")),
 
 	WINDMILL_BEARING = create(AllBlocks.WINDMILL_BEARING).unlockedBy(I::andesiteAlloy)
-		.viaShaped(b -> b.define('B', ItemTags.WOODEN_SLABS)
+		.viaShaped(b -> b.define('B', BlockItemTags.WOODEN_SLABS.item())
 			.define('C', I.stone())
 			.define('I', I.shaft())
 			.pattern("B")
@@ -557,7 +558,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("I")),
 
 	MECHANICAL_BEARING = create(AllBlocks.MECHANICAL_BEARING).unlockedBy(I::andesiteCasing)
-		.viaShaped(b -> b.define('B', ItemTags.WOODEN_SLABS)
+		.viaShaped(b -> b.define('B', BlockItemTags.WOODEN_SLABS.item())
 			.define('C', I.andesiteCasing())
 			.define('I', I.shaft())
 			.pattern("B")
@@ -748,7 +749,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("I")),
 
 	CONTRAPTION_CONTROLS = create(AllBlocks.CONTRAPTION_CONTROLS).unlockedBy(I::andesiteAlloy)
-		.viaShaped(b -> b.define('B', ItemTags.BUTTONS)
+		.viaShaped(b -> b.define('B', BlockItemTags.BUTTONS.item())
 			.define('C', I.andesiteCasing())
 			.define('I', I.electronTube())
 			.pattern("B")
@@ -1156,7 +1157,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 	GeneratedRecipe
 
 		SCHEMATIC_TABLE = create(AllBlocks.SCHEMATIC_TABLE).unlockedBy(AllItems.EMPTY_SCHEMATIC::get)
-		.viaShaped(b -> b.define('W', ItemTags.WOODEN_SLABS)
+		.viaShaped(b -> b.define('W', BlockItemTags.WOODEN_SLABS.item())
 			.define('S', Blocks.SMOOTH_STONE)
 			.pattern("WWW")
 			.pattern(" S ")
@@ -1272,7 +1273,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("G G")),
 
 	LINKED_CONTROLLER = create(AllItems.LINKED_CONTROLLER).unlockedBy(AllBlocks.REDSTONE_LINK::get)
-		.viaShaped(b -> b.define('S', ItemTags.WOODEN_BUTTONS)
+		.viaShaped(b -> b.define('S', BlockItemTags.WOODEN_BUTTONS.item())
 			.define('P', AllBlocks.REDSTONE_LINK.get())
 			.pattern("SSS")
 			.pattern(" P ")

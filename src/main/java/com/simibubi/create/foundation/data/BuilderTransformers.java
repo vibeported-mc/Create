@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.data;
 
+import net.minecraft.tags.BlockItemTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
@@ -88,7 +89,6 @@ import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
 public class BuilderTransformers {
@@ -99,13 +99,12 @@ public class BuilderTransformers {
 			.onRegister(CreateRegistrate.casingConnectivity((block, cc) -> cc.make(block, casingShift.get(),
 				(s, f) -> f.getAxis() != s.getValue(EncasedShaftBlock.AXIS))))
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> axisBlock(c, p, blockState -> p.models()
-										// .getExistingFile(p.modLoc("block/encased_shaft/block_" + casing)), true))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.customBlockItemModel("encased_shaft", "item_" + casing))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.build();
 	}
@@ -116,8 +115,7 @@ public class BuilderTransformers {
 			.properties(p -> p.noOcclusion())
 			.transform(pickaxeOnly())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> BlockStateGen.horizontalAxisBlock(c, p, s -> p.models()
-										// .getExistingFile(p.modLoc("block/track/bogey/top"))))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			// TODO 26.2: port datagen to the new recipe/loot builders
@@ -130,8 +128,7 @@ public class BuilderTransformers {
 	public static <B extends CopycatBlock, P> NonNullUnaryOperator<BlockBuilder<B, P>> copycat() {
 		return b -> b.initialProperties(SharedProperties::softMetal)
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.simpleBlock(c.get(), p.models()
-										// .getExistingFile(p.mcLoc("air"))))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.initialProperties(SharedProperties::softMetal)
@@ -143,21 +140,12 @@ public class BuilderTransformers {
 	}
 
 	public static <B extends TrapDoorBlock, P> NonNullUnaryOperator<BlockBuilder<B, P>> trapdoor(boolean orientable) {
-		return b -> b.blockstate((c, p) -> {
-				ModelFile bottom = AssetLookup.partialBaseModel(c, p, "bottom");
-				ModelFile top = AssetLookup.partialBaseModel(c, p, "top");
-				ModelFile open = AssetLookup.partialBaseModel(c, p, "open");
-				if (orientable)
-					p.trapdoorBlock(c.get(), bottom, top, open, orientable);
-				else
-					BlockStateGen.uvLockedTrapdoorBlock(c.get(), bottom, top, open)
-						.accept(c, p);
-			})
+		return b -> b/* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			.transform(pickaxeOnly())
-			.tag(BlockTags.TRAPDOORS)
+			.tag(BlockItemTags.TRAPDOORS.block())
 			.onRegister(interactionBehaviour(new TrapdoorMovingInteraction()))
 			.item()
-			.tag(ItemTags.TRAPDOORS)
+			.tag(BlockItemTags.TRAPDOORS.item())
 			.build();
 	}
 
@@ -166,27 +154,23 @@ public class BuilderTransformers {
 			.properties(p -> p.requiresCorrectToolForDrops()
 				.strength(3.0F, 6.0F))
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> {
-										// ModelFile bottom = AssetLookup.partialBaseModel(c, p, "bottom");
-										// ModelFile top = AssetLookup.partialBaseModel(c, p, "top");
-										// p.doorBlock(c.get(), bottom, bottom, bottom, bottom, top, top, top, top);
-									// })
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.transform(pickaxeOnly())
 			.onRegister(interactionBehaviour(new DoorMovingInteraction()))
 			.onRegister(movementBehaviour(new SlidingDoorMovementBehaviour()))
-			.tag(BlockTags.DOORS)
-			.tag(BlockTags.WOODEN_DOORS) // for villager AI
+			.tag(BlockItemTags.DOORS.block())
+			.tag(BlockItemTags.WOODEN_DOORS.block()) // for villager AI
 			.tag(AllBlockTags.NON_DOUBLE_DOOR.tag)
 			// TODO 26.2: port datagen to the new recipe/loot builders
 			// .loot((lr, block) -> lr.add(block, lr.createDoorTable(block)))
 			
 			.item()
-			.tag(ItemTags.DOORS)
+			.tag(BlockItemTags.DOORS.item())
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.blockSprite(c, p.modLoc("item/" + type + "_door")))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.build();
 	}
@@ -214,27 +198,12 @@ public class BuilderTransformers {
 					&& !s.getValue(f.getAxisDirection() == AxisDirection.POSITIVE ? EncasedCogwheelBlock.TOP_SHAFT
 					: EncasedCogwheelBlock.BOTTOM_SHAFT))))
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> axisBlock(c, p, blockState -> {
-										// String suffix = (blockState.getValue(EncasedCogwheelBlock.TOP_SHAFT) ? "_top" : "")
-											// + (blockState.getValue(EncasedCogwheelBlock.BOTTOM_SHAFT) ? "_bottom" : "");
-										// String modelName = c.getName() + suffix;
-										// return p.models()
-											// .withExistingParent(modelName, p.modLoc("block/" + blockFolder + "/block" + suffix))
-											// .texture("casing", Create.asResource("block/" + casing + "_casing"))
-											// .texture("particle", Create.asResource("block/" + casing + "_casing"))
-											// .texture("4", Create.asResource("block/" + gearbox))
-											// .texture("1", Identifier.withDefaultNamespace("block/stripped_" + wood + "_log_top"))
-											// .texture("side", Create.asResource("block/" + casing + encasedSuffix));
-									// }, false))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/" + blockFolder + "/item"))
-				// .texture("casing", Create.asResource("block/" + casing + "_casing"))
-				// .texture("particle", Create.asResource("block/" + casing + "_casing"))
-				// .texture("1", Identifier.withDefaultNamespace("block/stripped_" + wood + "_log_top"))
-				// .texture("side", Create.asResource("block/" + casing + encasedSuffix)))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.build();
 	}
@@ -252,8 +221,7 @@ public class BuilderTransformers {
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> cuckooClock() {
 		return b -> b.initialProperties(SharedProperties::wooden)
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.horizontalBlock(c.get(), p.models()
-										// .getExistingFile(p.modLoc("block/cuckoo_clock/block"))))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.transform(CStress.setImpact(1))
@@ -269,11 +237,7 @@ public class BuilderTransformers {
 		return b -> b.initialProperties(() -> Blocks.LADDER)
 			.properties(p -> p.mapColor(color))
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.horizontalBlock(c.get(), p.models()
-										// .withExistingParent(c.getName(), p.modLoc("block/ladder"))
-										// .texture("0", p.modLoc("block/ladder_" + name + "_hoop"))
-										// .texture("1", p.modLoc("block/ladder_" + name))
-										// .texture("particle", p.modLoc("block/ladder_" + name))))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.properties(p -> p.sound(SoundType.COPPER))
@@ -284,7 +248,7 @@ public class BuilderTransformers {
 			// .recipe((c, p) -> p.stonecutting(ingredient.get(), RecipeCategory.DECORATIONS, c::get, 2))
 			
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.blockSprite(c::get, p.modLoc("block/ladder_" + name)))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.build();
 	}
@@ -296,19 +260,7 @@ public class BuilderTransformers {
 			.properties(p -> p.sound(SoundType.COPPER)
 				.mapColor(color))
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.getVariantBuilder(c.get())
-										// .forAllStatesExcept(s -> {
-											// String suffix = s.getValue(MetalScaffoldingBlock.BOTTOM) ? "_horizontal" : "";
-											// return ConfiguredModel.builder()
-												// .modelFile(p.models()
-													// .withExistingParent(c.getName() + suffix, p.modLoc("block/scaffold/block" + suffix))
-													// .texture("top", p.modLoc("block/funnel/" + name + "_funnel_frame"))
-													// .texture("inside", p.modLoc("block/scaffold/" + name + "_scaffold_inside"))
-													// .texture("side", p.modLoc("block/scaffold/" + name + "_scaffold"))
-													// .texture("casing", p.modLoc("block/" + name + "_casing"))
-													// .texture("particle", p.modLoc("block/scaffold/" + name + "_scaffold")))
-												// .build();
-										// }, MetalScaffoldingBlock.WATERLOGGED, MetalScaffoldingBlock.DISTANCE))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.onRegister(connectedTextures(
@@ -320,7 +272,7 @@ public class BuilderTransformers {
 			// .recipe((c, p) -> p.stonecutting(ingredient.get(), RecipeCategory.DECORATIONS, c::get, 2))
 			
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/" + c.getName())))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.build();
 	}
@@ -329,12 +281,7 @@ public class BuilderTransformers {
 		@Nullable DyeColor color) {
 		return b -> b.initialProperties(SharedProperties::copperMetal)
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> {
-										// String variant = color == null ? "copper" : color.getSerializedName();
-										// p.directionalBlock(c.get(), p.models()
-											// .withExistingParent(variant + "_valve_handle", p.modLoc("block/valve_handle"))
-											// .texture("3", p.modLoc("block/valve_handle/valve_handle_" + variant)));
-									// })
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.tag(AllBlockTags.BRITTLE.tag, AllBlockTags.VALVE_HANDLES.tag)
@@ -351,7 +298,7 @@ public class BuilderTransformers {
 			.properties(p -> p.sound(SoundType.WOOD))
 			.transform(axeOrPickaxe())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.simpleBlock(c.get()))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.onRegister(connectedTextures(() -> new EncasedCTBehaviour(ct.get())))
@@ -367,11 +314,7 @@ public class BuilderTransformers {
 		return b -> b.initialProperties(SharedProperties::stone)
 			.transform(axeOrPickaxe())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.simpleBlock(c.get(), p.models()
-										// .cubeColumn(c.getName(), ct.get()
-												// .getOriginalResourceLocation(),
-											// ct2.get()
-												// .getOriginalResourceLocation())))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.onRegister(connectedTextures(() -> new HorizontalCTBehaviour(ct.get(), ct2.get())))
@@ -390,36 +333,12 @@ public class BuilderTransformers {
 			.properties(BlockBehaviour.Properties::noOcclusion)
 			.transform(pickaxeOnly())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.getVariantBuilder(c.get())
-										// .forAllStates(state -> {
-											// Shape shape = state.getValue(BeltTunnelBlock.SHAPE);
-											// String window = shape == Shape.WINDOW ? "_window" : "";
-											// if (shape == BeltTunnelBlock.Shape.CLOSED)
-												// shape = BeltTunnelBlock.Shape.STRAIGHT;
-											// String shapeName = shape.getSerializedName();
-											// return ConfiguredModel.builder()
-												// .modelFile(p.models()
-													// .withExistingParent(prefix + "/" + shapeName, p.modLoc("block/belt_tunnel/" + shapeName))
-													// .texture("top", p.modLoc(prefix + "_top" + window))
-													// .texture("tunnel", p.modLoc(prefix))
-													// .texture("direction", p.modLoc(funnel_prefix + "_neutral"))
-													// .texture("frame", p.modLoc(funnel_prefix + "_frame"))
-													// .texture("particle", particleTexture))
-												// .rotationY(state.getValue(BeltTunnelBlock.HORIZONTAL_AXIS) == Axis.X ? 0 : 90)
-												// .build();
-										// }))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.item(BeltTunnelItem::new)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> {
-				// p.withExistingParent("item/" + type + "_tunnel", p.modLoc("block/belt_tunnel/item"))
-					// .texture("top", p.modLoc(prefix + "_top"))
-					// .texture("tunnel", p.modLoc(prefix))
-					// .texture("direction", p.modLoc(funnel_prefix + "_neutral"))
-					// .texture("frame", p.modLoc(funnel_prefix + "_frame"))
-					// .texture("particle", particleTexture);
-			// })
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.build();
 	}
@@ -428,7 +347,7 @@ public class BuilderTransformers {
 		return b -> b.initialProperties(SharedProperties::stone)
 			.properties(p -> p.noOcclusion())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate(new MechanicalPistonGenerator(type)::generate)
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.transform(CStress.setImpact(4.0))
@@ -449,18 +368,12 @@ public class BuilderTransformers {
 		return b -> b.initialProperties(SharedProperties::stone)
 			.properties(p -> p.noOcclusion())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.directionalBlock(c.get(), p.models()
-										// .withExistingParent(c.getName(), baseBlockModelLocation)
-										// .texture("side", sideTextureLocation)
-										// .texture("back", backTextureLocation)))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.withExistingParent(c.getName(), baseItemModelLocation)
-				// .texture("top", topTextureLocation)
-				// .texture("side", sideTextureLocation)
-				// .texture("back", backTextureLocation))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.build();
 	}
@@ -469,29 +382,7 @@ public class BuilderTransformers {
 		return b -> b.initialProperties(SharedProperties::stone)
 			.transform(axeOrPickaxe())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> {
-										// String[] variants = {"single", "top", "bottom", "left", "right"};
-										// Map<String, ModelFile> models = new HashMap<>();
-						// 
-										// Identifier crate = p.modLoc("block/crate_" + type);
-										// Identifier side = p.modLoc("block/crate_" + type + "_side");
-										// Identifier casing = p.modLoc("block/" + type + "_casing");
-						// 
-										// for (String variant : variants)
-											// models.put(variant, p.models()
-												// .withExistingParent("block/crate/" + type + "/" + variant, p.modLoc("block/crate/" + variant))
-												// .texture("crate", crate)
-												// .texture("side", side)
-												// .texture("casing", casing));
-						// 
-										// p.getVariantBuilder(c.get())
-											// .forAllStates(state -> {
-												// String variant = "single";
-												// return ConfiguredModel.builder()
-													// .modelFile(models.get(variant))
-													// .build();
-											// });
-									// })
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.item()
@@ -503,7 +394,7 @@ public class BuilderTransformers {
 	}
 
 	public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> backtank(Supplier<ItemLike> drop) {
-		return b -> b.blockstate((c, p) -> p.horizontalBlock(c.getEntry(), AssetLookup.partialBaseModel(c, p)))
+		return b -> b/* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			.transform(pickaxeOnly())
 			.transform(CStress.setImpact(4.0))
 			// TODO 26.2: port datagen to the new recipe/loot builders
@@ -527,17 +418,12 @@ public class BuilderTransformers {
 			.transform(pickaxeOnly())
 			.tag(AllBlockTags.BRITTLE.tag)
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.horizontalBlock(c.getEntry(), state -> {
-										// String variant = state.getValue(BlockStateProperties.BELL_ATTACHMENT)
-											// .getSerializedName();
-										// return p.models()
-											// .withExistingParent(c.getName() + "_" + variant, p.modLoc("block/bell_base/block_" + variant));
-									// }))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.item()
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/" + c.getName())))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 			.build();
@@ -550,13 +436,7 @@ public class BuilderTransformers {
 			.properties(p -> p.stacksTo(1))
 			.tag(AllItemTags.PACKAGES.tag)
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> {
-				// if (style.rare())
-					// p.withExistingParent(c.getName(), p.modLoc("item/package/custom" + size))
-						// .texture("2", p.modLoc("item/package/" + style.type()));
-				// else
-					// p.withExistingParent(c.getName(), p.modLoc("item/package/" + style.type() + size));
-			// })
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			.lang((style.rare() ? "Rare"
 				: style.type()
@@ -574,9 +454,7 @@ public class BuilderTransformers {
 
 			ItemBuilder<TableClothBlockItem, BlockBuilder<B, P>> item = b.initialProperties(initialProps)
 				// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-				// .blockstate((c, p) -> p.simpleBlock(c.get(), p.models()
-													// .withExistingParent(name + "_table_cloth", p.modLoc("block/table_cloth/block"))
-													// .texture("0", p.modLoc("block/table_cloth/" + name))))
+				// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 				
 				
 				.onRegister(CreateRegistrate.blockModel(() -> TableClothModel::new))
@@ -587,8 +465,7 @@ public class BuilderTransformers {
 			if (dyed)
 				item.tag(AllItemTags.DYED_TABLE_CLOTHS.tag);
 
-			return item.model((c, p) -> p.withExistingParent(name + "_table_cloth", p.modLoc("block/table_cloth/item"))
-					.texture("0", p.modLoc("block/table_cloth/" + name)))
+			return item/* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 				.tag(AllItemTags.TABLE_CLOTHS.tag)
 				// TODO 26.2: port datagen to the new recipe/loot builders
 				// .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get())
@@ -608,12 +485,12 @@ public class BuilderTransformers {
 				.sound(SoundType.NETHERITE_BLOCK))
 			.transform(pickaxeOnly())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate(new PackagerGenerator()::generate)
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.item()
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .model(AssetLookup::customItemModel)
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			.build();
 	}
 
@@ -624,8 +501,7 @@ public class BuilderTransformers {
 				.requiresCorrectToolForDrops())
 			.transform(pickaxeOnly())
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.simpleBlock(c.get(), p.models()
-										// .cubeColumn(c.getName(), p.modLoc("block/" + c.getName()), p.modLoc("block/" + c.getName() + "_top"))))
+			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
 			
 			
 			.tag(AllBlockTags.WRENCH_PICKUP.tag)
