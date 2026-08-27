@@ -1,5 +1,6 @@
 package com.simibubi.create.content.processing.burner;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.random.WeightedEntry.Wrapper;
+import net.minecraft.util.random.Weighted;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -39,7 +40,8 @@ public class BlazeBurnerBlockItem extends BlockItem {
 	private final boolean capturedBlaze;
 
 	public static BlazeBurnerBlockItem empty(Properties properties) {
-		return new BlazeBurnerBlockItem(AllBlocks.BLAZE_BURNER.get(), properties, false);
+		return new BlazeBurnerBlockItem(AllBlocks.BLAZE_BURNER.get(),
+			properties.overrideDescription("item.create.empty_blaze_burner"), false);
 	}
 
 	public static BlazeBurnerBlockItem withBlaze(Block block, Properties properties) {
@@ -59,11 +61,6 @@ public class BlazeBurnerBlockItem extends BlockItem {
 	}
 
 	@Override
-	public String getDescriptionId() {
-		return hasCapturedBlaze() ? super.getDescriptionId() : "item.create." + RegisteredObjectsHelper.getKeyOrThrow(this).getPath();
-	}
-
-	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		if (hasCapturedBlaze())
 			return super.useOn(context);
@@ -80,7 +77,7 @@ public class BlazeBurnerBlockItem extends BlockItem {
 
 		List<SpawnData> possibleSpawns = spawner.spawnPotentials.unwrap()
 			.stream()
-			.map(Wrapper::data)
+			.map(Weighted::value)
 			.toList();
 
 		if (possibleSpawns.isEmpty()) {
@@ -89,7 +86,7 @@ public class BlazeBurnerBlockItem extends BlockItem {
 		}
 
 		for (SpawnData e : possibleSpawns) {
-			Optional<EntityType<?>> optionalEntity = EntityType.by(e.entityToSpawn());
+			Optional<EntityType<?>> optionalEntity = EntityType.by(NbtValueIO.fromTag(e.entityToSpawn()));
 			if (optionalEntity.isEmpty() || !AllEntityTags.BLAZE_BURNER_CAPTURABLE.matches(optionalEntity.get()))
 				continue;
 

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.vault;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
+import com.simibubi.create.foundation.item.EmptyItemHandler;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -45,7 +47,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 	protected ICapabilityProvider<ResourceHandler<ItemResource>> itemCapability = null;
 	protected InventoryIdentifier invId;
 
-	protected ItemStacksResourceHandler inventory;
+	protected ItemStackHandler inventory;
 	protected BlockPos controller;
 	protected BlockPos lastKnownPos;
 	protected boolean updateConnectivity;
@@ -55,7 +57,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 	public ItemVaultBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 
-		inventory = new ItemStacksResourceHandler(AllConfigs.server().logistics.vaultCapacity.get()) {
+		inventory = new ItemStackHandler(AllConfigs.server().logistics.vaultCapacity.get()) {
 			@Override
 			protected void onContentsChanged(int slot, ItemStack previousContents) {
 				super.onContentsChanged(slot, previousContents);
@@ -176,7 +178,8 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 			updatePos.move(direction);
 			blockstate = level.getBlockState(updatePos);
 			if (blockstate.getWeakChanges(level, updatePos)) {
-				level.neighborChanged(blockstate, updatePos, provokingBlock, provokingPos, false);
+				// Matches vanilla's own updateNeighbourForOutputSignal, which passes no orientation.
+				level.neighborChanged(blockstate, updatePos, provokingBlock, null, false);
 			}
 		}
 	}
@@ -322,7 +325,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 		((ItemStackHandlerAccessor) inventory).create$getStacks().clear();
 	}
 
-	public ItemStacksResourceHandler getInventoryOfBlock() {
+	public ItemStackHandler getInventoryOfBlock() {
 		return inventory;
 	}
 
@@ -366,7 +369,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 					ItemVaultBlockEntity vaultAt =
 						ConnectivityHandler.partAt(AllBlockEntityTypes.ITEM_VAULT.get(), level, vaultPos);
 					invs[yOffset * radius * radius + xOffset * radius + zOffset] =
-						vaultAt != null ? vaultAt.inventory : new ItemStacksResourceHandler();
+						vaultAt != null ? vaultAt.inventory : EmptyItemHandler.INSTANCE;
 				}
 			}
 		}

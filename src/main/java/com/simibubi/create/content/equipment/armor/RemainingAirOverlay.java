@@ -9,6 +9,7 @@ import com.simibubi.create.AllItems;
 
 import net.createmod.catnip.api.client.gui.element.GuiGameElement;
 import net.createmod.catnip.api.theme.Color;
+import net.minecraft.world.entity.EntityFluidInteraction;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -39,8 +40,15 @@ public class RemainingAirOverlay implements GuiLayer {
 		if (!player.getPersistentData()
 			.contains("VisualBacktankAir"))
 			return;
-		boolean isAir = player.getEyeInFluidType().isAir() || player.level().getBlockState(BlockPos.containing(player.getX(), player.getEyeY(), player.getZ())).is(Blocks.BUBBLE_COLUMN);
-		boolean canBreathe = !player.canDrownInFluidType(player.getEyeInFluidType()) || MobEffectUtil.hasWaterBreathing(player) || player.getAbilities().invulnerable;
+		// 26.2 asks the entity's fluid interaction about the fluid at eye level rather than handing out
+		// the fluid type itself.
+		EntityFluidInteraction fluidInteraction = player.getFluidInteraction();
+		boolean isAir = !fluidInteraction.isEyeInFluidMatching(player, (e, type, s) -> !type.isAir())
+			|| player.level()
+				.getBlockState(BlockPos.containing(player.getX(), player.getEyeY(), player.getZ()))
+				.is(Blocks.BUBBLE_COLUMN);
+		boolean canBreathe = !fluidInteraction.isEyeInFluidMatching(player, (e, type, s) -> e.canDrownInFluidType(type))
+			|| MobEffectUtil.hasWaterBreathing(player) || player.getAbilities().invulnerable;
 		if ((isAir || canBreathe) && !player.isInLava())
 			return;
 
@@ -51,8 +59,8 @@ public class RemainingAirOverlay implements GuiLayer {
 		poseStack.pushMatrix();
 
 		ItemStack backtank = getDisplayedBacktank(player);
-		poseStack.translate(guiGraphics.guiWidth() / 2 + 90, guiGraphics.guiHeight() - 53 + (backtank
-				.has(DataComponents.FIRE_RESISTANT) ? 9 : 0), 0);
+		poseStack.translate(guiGraphics.guiWidth() / 2 + 90,
+			guiGraphics.guiHeight() - 53 + (backtank.has(DataComponents.DAMAGE_RESISTANT) ? 9 : 0));
 
 		Component text = Component.literal(StringUtil.formatTickDuration(Math.max(0, timeLeft - 1) * 20, mc.level.tickRateManager().tickrate()));
 		GuiGameElement.of(backtank)

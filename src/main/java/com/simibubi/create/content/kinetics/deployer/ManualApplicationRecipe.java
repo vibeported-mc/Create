@@ -13,6 +13,8 @@ import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.advancement.CreateAdvancement;
 import com.simibubi.create.foundation.utility.BlockHelper;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -54,7 +56,7 @@ public class ManualApplicationRecipe extends ItemApplicationRecipe {
 			return;
 
 		RecipeType<Recipe<RecipeWrapper>> type = AllRecipeTypes.ITEM_APPLICATION.getType();
-		Optional<RecipeHolder<Recipe<RecipeWrapper>>> foundRecipe = RecipeFinder.all(type)
+		Optional<RecipeHolder<Recipe<RecipeWrapper>>> foundRecipe = RecipeFinder.all(type, level)
 			.stream()
 			.filter(r -> {
 				ManualApplicationRecipe mar = (ManualApplicationRecipe) r.value();
@@ -130,8 +132,11 @@ public class ManualApplicationRecipe extends ItemApplicationRecipe {
 
 	public static RecipeHolder<DeployerApplicationRecipe> asDeploying(RecipeHolder<?> recipe) {
 		ManualApplicationRecipe mar = (ManualApplicationRecipe) recipe.value();
-		Identifier id = AllRecipeTypes.CAN_BE_AUTOMATED.test(recipe) ?
-			recipe.id().withSuffix("_using_deployer") : recipe.id();
+		Identifier id = AllRecipeTypes.CAN_BE_AUTOMATED.test(recipe) ? recipe.id()
+			.identifier()
+			.withSuffix("_using_deployer")
+			: recipe.id()
+				.identifier();
 		ItemApplicationRecipe.Builder<DeployerApplicationRecipe> builder =
 			new ItemApplicationRecipe.Builder<>(DeployerApplicationRecipe::new, id)
 					.require(mar.ingredients.get(0))
@@ -140,7 +145,7 @@ public class ManualApplicationRecipe extends ItemApplicationRecipe {
 			builder.output(output);
 		if (mar.shouldKeepHeldItem())
 			builder.toolNotConsumed();
-		return new RecipeHolder<>(id, builder.build());
+		return new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, id), builder.build());
 	}
 
 	public boolean testBlock(BlockState in) {

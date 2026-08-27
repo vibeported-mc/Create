@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import net.minecraft.world.item.ItemStack;
@@ -231,7 +232,7 @@ public class PipeConnection {
 			flowData.store("Fluid", ItemStack.OPTIONAL_CODEC, flow.fluid);
 			flowData.putBoolean("In", flow.inbound);
 			if (!flow.complete)
-				flowData.put("Progress", flow.progress.writeNBT());
+				flowData.put("Progress", NbtValueIO.toTag(flow.progress::write));
 			connectionData.put("Flow", flowData);
 		}
 
@@ -271,7 +272,7 @@ public class PipeConnection {
 			flow.complete = !flowData.contains("Progress");
 
 			if (!flow.complete)
-				flow.progress.readNBT(flowData.getCompoundOrEmpty("Progress"), clientPacket);
+				flow.progress.read(NbtValueIO.fromTag(flowData.getCompoundOrEmpty("Progress")), clientPacket);
 			else {
 				if (flow.progress.getValue() == 0)
 					flow.progress.startWithValue(1);

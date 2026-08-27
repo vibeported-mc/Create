@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.codec;
 
+import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.fluids.crafting.FluidIngredientType;
+import com.mojang.serialization.MapCodec;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.function.Function;
 
@@ -30,8 +33,8 @@ public class CreateCodecs {
 		String::valueOf
 	);
 
-	public static final Codec<ItemStacksResourceHandler> ITEM_STACK_HANDLER = Codec.lazyInitialized(() -> ItemSlots.CODEC.xmap(
-		slots -> slots.toHandler(ItemStacksResourceHandler::new), ItemSlots::fromHandler
+	public static final Codec<ItemStackHandler> ITEM_STACK_HANDLER = Codec.lazyInitialized(() -> ItemSlots.CODEC.xmap(
+		slots -> slots.toHandler(ItemStackHandler::new), ItemSlots::fromHandler
 	));
 
 	public static Codec<Integer> boundedIntStr(int min) {
@@ -51,11 +54,20 @@ public class CreateCodecs {
 		);
 	}
 
+	/**
+	 * A fluid ingredient written flat: its type beside its own fields, rather than nested under a key.
+	 * <p>
+	 * 26.2 dropped {@code FluidIngredient.MAP_CODEC_NONEMPTY}; dispatching on the type registry gives
+	 * back the same shape, since a dispatch map codec inlines the dispatched fields.
+	 */
+	private static final MapCodec<FluidIngredient> FLAT_FLUID_INGREDIENT = NeoForgeRegistries.FLUID_INGREDIENT_TYPES
+		.byNameCodec()
+		.dispatchMap("type", FluidIngredient::getType, FluidIngredientType::codec);
+
 	public static Codec<SizedFluidIngredient> FLAT_SIZED_FLUID_INGREDIENT_WITH_TYPE = RecordCodecBuilder.create(instance -> instance.group(
-		NeoForgeRegistries.FLUID_INGREDIENT_TYPES.byNameCodec().fieldOf("type").forGetter(i -> i.ingredient().getType()),
-		FluidIngredient.MAP_CODEC_NONEMPTY.forGetter(SizedFluidIngredient::ingredient),
+		FLAT_FLUID_INGREDIENT.forGetter(SizedFluidIngredient::ingredient),
 		NeoForgeExtraCodecs.optionalFieldAlwaysWrite(ExtraCodecs.POSITIVE_INT, "amount", 1000).forGetter(SizedFluidIngredient::amount)
-	).apply(instance, (type, ingredient, amount) -> new SizedFluidIngredient(ingredient, amount)));
+	).apply(instance, SizedFluidIngredient::new));
 
 	@ScheduledForRemoval(inVersion = "1.21.1+ Port")
 	@Deprecated(since = "6.0.7", forRemoval = true)

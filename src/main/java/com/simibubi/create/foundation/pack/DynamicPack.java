@@ -16,13 +16,14 @@ import org.jetbrains.annotations.Nullable;
 import com.google.gson.JsonElement;
 import com.simibubi.create.Create;
 
+import net.minecraft.util.InclusiveRange;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.IoSupplier;
@@ -40,7 +41,8 @@ public class DynamicPack implements PackResources {
 		this.packId = packId;
 		this.packType = packType;
 
-		metadata = new PackMetadataSection(Component.empty(), SharedConstants.getCurrentVersion().getPackVersion(packType));
+		metadata = new PackMetadataSection(Component.empty(), new InclusiveRange<>(SharedConstants.getCurrentVersion()
+			.packVersion(packType)));
 		packLocationInfo = new PackLocationInfo(packId, Component.literal(packId), PackSource.BUILT_IN, Optional.empty());
 	}
 
@@ -106,8 +108,8 @@ public class DynamicPack implements PackResources {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public @Nullable <T> T getMetadataSection(@NotNull MetadataSectionSerializer<T> deserializer) throws IOException {
-		return deserializer == PackMetadataSection.TYPE ? (T) metadata : null;
+	public @Nullable <T> T getMetadataSection(@NotNull MetadataSectionType<T> deserializer) throws IOException {
+		return deserializer == PackMetadataSection.forPackType(packType) ? (T) metadata : null;
 	}
 
 	@Override

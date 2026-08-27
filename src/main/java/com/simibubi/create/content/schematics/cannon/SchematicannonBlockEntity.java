@@ -1,6 +1,7 @@
 package com.simibubi.create.content.schematics.cannon;
 
 import net.minecraft.core.component.DataComponentGetter;
+import com.simibubi.create.foundation.item.EmptyItemHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;

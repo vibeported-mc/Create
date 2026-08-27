@@ -1,8 +1,14 @@
 package com.simibubi.create.foundation.utility;
 
+import java.util.function.Consumer;
+
 import com.mojang.serialization.MapCodec;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -33,6 +39,25 @@ public class NbtValueIO {
 	public static CompoundTag read(ValueInput input) {
 		return input.read(WHOLE)
 			.orElseGet(CompoundTag::new);
+	}
+
+	/**
+	 * A fresh tag holding whatever the writer stores.
+	 * <p>
+	 * For the small, registry-free pieces Create keeps as nested tags - animation state and the like -
+	 * which now write themselves through {@link ValueOutput}.
+	 */
+	public static CompoundTag toTag(Consumer<ValueOutput> writer) {
+		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, RegistryAccess.EMPTY);
+		writer.accept(output);
+		return output.buildResult();
+	}
+
+	/**
+	 * A view of a tag that can be handed to something reading through {@link ValueInput}.
+	 */
+	public static ValueInput fromTag(CompoundTag tag) {
+		return TagValueInput.create(ProblemReporter.DISCARDING, RegistryAccess.EMPTY, tag);
 	}
 
 	private NbtValueIO() {

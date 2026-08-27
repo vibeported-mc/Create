@@ -6,7 +6,7 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.simibubi.create.foundation.item.EmptyItemHandler;
 import com.simibubi.create.content.logistics.depot.DepotRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
@@ -20,6 +20,7 @@ import net.createmod.catnip.api.client.render.FluidRenderHelper;
 import net.createmod.catnip.api.data.IntAttached;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.math.VecHelper;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -63,15 +64,6 @@ public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity, Ba
 	public record OutputItem(DepotRenderer.ItemState item, float progress) {
 	}
 
-	/**
-	 * Stand-in for a basin whose item capability has not been resolved yet.
-	 */
-	private static class EmptyItemHandler extends ItemStacksResourceHandler implements ModifiableItemHandler {
-		EmptyItemHandler() {
-			super(0);
-		}
-	}
-
 	public BasinRenderer(BlockEntityRendererProvider.Context context) {
 		super(context);
 	}
@@ -100,7 +92,7 @@ public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity, Ba
 
 		ModifiableItemHandler inv = basin.itemCapability;
 		if (inv == null)
-			inv = new EmptyItemHandler();
+			inv = EmptyItemHandler.INSTANCE;
 
 		int itemCount = 0;
 		for (int slot = 0; slot < inv.size(); slot++)

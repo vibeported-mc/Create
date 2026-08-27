@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.hosePulley;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import java.util.List;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -158,7 +159,7 @@ public class HosePulleyBlockEntity extends KineticBlockEntity {
 	protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (clientPacket)
 			offset.forceNextSync();
-		compound.put("Offset", offset.writeNBT());
+		compound.put("Offset", NbtValueIO.toTag(offset::write));
 		compound.put("Tank", internalTank.writeToNBT(registries, new CompoundTag()));
 		super.write(compound, registries, clientPacket);
 		if (clientPacket)
@@ -167,7 +168,7 @@ public class HosePulleyBlockEntity extends KineticBlockEntity {
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		offset.readNBT(compound.getCompoundOrEmpty("Offset"), clientPacket);
+		offset.read(NbtValueIO.fromTag(compound.getCompoundOrEmpty("Offset")), clientPacket);
 
 		internalTank.readFromNBT(registries, compound.getCompoundOrEmpty("Tank"));
 		super.read(compound, registries, clientPacket);

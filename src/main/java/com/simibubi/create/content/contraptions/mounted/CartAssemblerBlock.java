@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import com.mojang.serialization.MapCodec;
+import com.simibubi.create.foundation.block.MinecartPassBlock;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
@@ -64,7 +65,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CartAssemblerBlock extends BaseRailBlock
-	implements IBE<CartAssemblerBlockEntity>, IWrenchable, SpecialBlockItemRequirement {
+	implements IBE<CartAssemblerBlockEntity>, IWrenchable, SpecialBlockItemRequirement, MinecartPassBlock {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	public static final BooleanProperty BACKWARDS = BooleanProperty.create("backwards");
@@ -163,7 +164,7 @@ public class CartAssemblerBlock extends BaseRailBlock
 	}
 
 	public static boolean canAssembleTo(AbstractMinecart cart) {
-		return cart.canBeRidden() || cart instanceof MinecartFurnace || cart instanceof MinecartChest;
+		return cart.isRideable() || cart instanceof MinecartFurnace || cart instanceof MinecartChest;
 	}
 
 	@Override

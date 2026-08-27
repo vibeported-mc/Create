@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.depot;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -34,6 +35,7 @@ import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.createmod.catnip.api.math.AngleHelper;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -50,7 +52,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ClipContext.Block;
@@ -185,8 +186,8 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 				+ launcher.getVerticalDistance() * launcher.getVerticalDistance() >= 25 * 25)
 				ClientNetworkHelper.INSTANCE.sendToServer(new EjectorAwardPacket(worldPosition));
 
-			if (!(playerEntity.getItemBySlot(EquipmentSlot.CHEST)
-				.getItem() instanceof ElytraItem))
+			if (!playerEntity.getItemBySlot(EquipmentSlot.CHEST)
+				.has(DataComponents.GLIDER))
 				continue;
 
 			playerEntity.setXRot(-35);
@@ -526,7 +527,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 		compound.putInt("VerticalDistance", launcher.getVerticalDistance());
 		compound.putBoolean("Powered", powered);
 		NBTHelper.writeEnum(compound, "State", state);
-		compound.put("Lid", lidProgress.writeNBT());
+		compound.put("Lid", NbtValueIO.toTag(lidProgress::write));
 		compound.put("LaunchedItems",
 			NBTHelper.writeCompoundList(launchedItems, ia -> ia.serializeNBT(s -> (CompoundTag) ItemHelper.saveOptional(s, registries))));
 
@@ -558,7 +559,7 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 
 		powered = compound.getBooleanOr("Powered", false);
 		state = NBTHelper.readEnum(compound, "State", State.class);
-		lidProgress.readNBT(compound.getCompoundOrEmpty("Lid"), false);
+		lidProgress.read(NbtValueIO.fromTag(compound.getCompoundOrEmpty("Lid")), false);
 		launchedItems = NBTHelper.readCompoundList(compound.getListOrEmpty("LaunchedItems"),
 			nbt -> IntAttached.read(nbt, t -> ItemHelper.parseOptional(registries, t)));
 

@@ -26,7 +26,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Equipable;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -51,11 +51,12 @@ public class AllItemAttributeTypes {
 		BADLY_DAMAGED = singleton("badly_damaged", s -> s.isDamaged() && (float) s.getDamageValue() / s.getMaxDamage() > 3 / 4f),
 		NOT_STACKABLE = singleton("not_stackable", ((Predicate<ItemStack>) ItemStack::isStackable).negate()),
 		EQUIPABLE = singleton("equipable", s -> {
-			Equipable equipable = Equipable.get(s);
-			EquipmentSlot.Type type = equipable != null ? equipable.getEquipmentSlot().getType() : EquipmentSlot.MAINHAND.getType();
+			Equippable equippable = s.get(DataComponents.EQUIPPABLE);
+			EquipmentSlot.Type type = equippable != null ? equippable.slot()
+				.getType() : EquipmentSlot.MAINHAND.getType();
 			return type != EquipmentSlot.Type.HAND;
 		}),
-		FURNACE_FUEL = singleton("furnace_fuel", AbstractFurnaceBlockEntity::isFuel),
+		FURNACE_FUEL = singleton("furnace_fuel", (s, w) -> s.getBurnTime(null, w.fuelValues()) > 0),
 		WASHABLE = singleton("washable", AllFanProcessingTypes.SPLASHING::canProcess),
 		HAUNTABLE = singleton("hauntable", AllFanProcessingTypes.HAUNTING::canProcess),
 		CRUSHABLE = singleton("crushable", (s, w) -> testRecipe(s, w, AllRecipeTypes.CRUSHING.getType())

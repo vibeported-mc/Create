@@ -1,7 +1,6 @@
 package com.simibubi.create.foundation.utility;
 
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import com.simibubi.create.foundation.item.CombinedItemHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 /**
  * Specialized combined inventory wrapper with faster slot -> inv lookup
@@ -14,7 +13,7 @@ import com.simibubi.create.foundation.item.ModifiableItemHandler;
  *
  * <p>Throw in some sanity checks and fallbacks so this isn't obscenely fragile.
  */
-public class SameSizeCombinedInvWrapper extends CombinedResourceHandler<ItemResource> {
+public class SameSizeCombinedInvWrapper extends CombinedItemHandler {
 
 	private final int numSlotsPerInv;
 	private final int numCombinedSlots;
@@ -30,18 +29,18 @@ public class SameSizeCombinedInvWrapper extends CombinedResourceHandler<ItemReso
 	 * Create a SameSizeCombinedInvWrapper if all item handlers actually have the same size.
 	 * Otherwise, falls back to the parent class.
 	 */
-	public static CombinedResourceHandler<ItemResource> create(ModifiableItemHandler... itemHandler) {
+	public static CombinedItemHandler create(ModifiableItemHandler... itemHandler) {
 		if (itemHandler.length == 0) {
 			// No need to subclass here.
 			// Early out because we need to validate that all slots have the same length.
-			return new CombinedResourceHandler<>(itemHandler);
+			return new CombinedItemHandler(itemHandler);
 		}
 
 		// If any inventories have different slot counts, fall back to the default impl.
 		int firstInvNumSlots = itemHandler[0].size();
 		for (int i = 1; i < itemHandler.length; i++) {
 			if (firstInvNumSlots != itemHandler[i].size()) {
-				return new CombinedResourceHandler<>(itemHandler);
+				return new CombinedItemHandler(itemHandler);
 			}
 		}
 
@@ -49,10 +48,10 @@ public class SameSizeCombinedInvWrapper extends CombinedResourceHandler<ItemReso
 	}
 
 	@Override
-	protected int getIndexForSlot(int slot) {
-		// The parent class agrees than -1 means invalid input.
+	protected int getHandlerIndex(int slot) {
+		// Out-of-bounds is the parent's business; it throws with a useful message.
 		if (slot < 0 || slot >= numCombinedSlots) {
-			return -1;
+			return super.getHandlerIndex(slot);
 		}
 
 		// Floor div go brr.

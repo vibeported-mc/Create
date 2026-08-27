@@ -3,11 +3,13 @@ package com.simibubi.create.content.redstone.rail;
 import org.jspecify.annotations.NullMarked;
 import org.jetbrains.annotations.Nullable;
 import com.mojang.serialization.MapCodec;
+import com.simibubi.create.foundation.block.MinecartPassBlock;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.VecHelper;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -37,7 +39,7 @@ import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.phys.Vec3;
 
 @NullMarked
-public class ControllerRailBlock extends BaseRailBlock implements IWrenchable {
+public class ControllerRailBlock extends BaseRailBlock implements IWrenchable, MinecartPassBlock {
 
 	public static final EnumProperty<RailShape> SHAPE = BlockStateProperties.RAIL_SHAPE_STRAIGHT;
 	public static final BooleanProperty BACKWARDS = BooleanProperty.create("backwards");
@@ -139,15 +141,14 @@ public class ControllerRailBlock extends BaseRailBlock implements IWrenchable {
 
 	@Override
 	public void onMinecartPass(BlockState state, Level world, BlockPos pos, AbstractMinecart cart) {
-		if (world.isClientSide())
+		if (!(world instanceof ServerLevel serverLevel))
 			return;
 		Vec3 accelerationVec = Vec3.atLowerCornerOf(getAccelerationVector(state));
-		double targetSpeed = cart.getMaxSpeedWithRail() * state.getValue(POWER) / 15f;
+		double targetSpeed = cart.getMaxSpeed(serverLevel) * state.getValue(POWER) / 15f;
 
-		if (cart instanceof MinecartFurnace fme) {
-			fme.xPush = accelerationVec.x;
-			fme.zPush = accelerationVec.z;
-		}
+		// A furnace cart's push is one vector now rather than a pair of components.
+		if (cart instanceof MinecartFurnace fme)
+			fme.push = new Vec3(accelerationVec.x, 0, accelerationVec.z);
 
 		Vec3 motion = cart.getDeltaMovement();
 		if ((motion.dot(accelerationVec) >= 0 || motion.lengthSqr() < 0.0001) && targetSpeed > 0)

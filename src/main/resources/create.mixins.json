@@ -6,6 +6,7 @@
   "plugin": "com.simibubi.create.foundation.mixin.CreateMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AbstractMinecartMixin",
     "ArmorTrimMixin",
     "BeehiveBlockMixin",
     "BlockItemMixin",

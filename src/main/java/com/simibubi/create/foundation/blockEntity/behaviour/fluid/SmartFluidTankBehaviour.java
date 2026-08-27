@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.fluid;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -284,13 +285,13 @@ public class SmartFluidTankBehaviour extends BlockEntityBehaviour {
 		public CompoundTag writeNBT(HolderLookup.Provider registries) {
 			CompoundTag compound = new CompoundTag();
 			compound.put("TankContent", tank.writeToNBT(registries, new CompoundTag()));
-			compound.put("Level", fluidLevel.writeNBT());
+			compound.put("Level", NbtValueIO.toTag(fluidLevel::write));
 			return compound;
 		}
 
 		public void readNBT(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 			tank.readFromNBT(registries, compound.getCompoundOrEmpty("TankContent"));
-			fluidLevel.readNBT(compound.getCompoundOrEmpty("Level"), clientPacket);
+			fluidLevel.read(NbtValueIO.fromTag(compound.getCompoundOrEmpty("Level")), clientPacket);
 			if (!tank.getFluid()
 				.isEmpty())
 				renderedFluid = tank.getFluid();
