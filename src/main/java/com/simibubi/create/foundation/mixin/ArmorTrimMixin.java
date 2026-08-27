@@ -13,6 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.equipment.armor.AllArmorMaterials;
 
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
@@ -31,29 +33,31 @@ public abstract class ArmorTrimMixin {
 	@Final
 	private Holder<TrimPattern> pattern;
 
-	@Shadow
-	private static String getColorPaletteSuffix(Holder<TrimMaterial> trimMaterial, Holder<ArmorMaterial> armorMaterial) {
-		throw new AssertionError();
-	}
-
+	/**
+	 * The cardboard variant of a trim texture.
+	 * <p>
+	 * 26.2 folded the inner and outer texture lookups into one {@code layerAssetId}, and the colour
+	 * suffix that used to come from {@code getColorPaletteSuffix} is now the material's asset info for
+	 * the equipment being trimmed. The suffix still matters: Create's trim textures go through the
+	 * paletted_permutations atlas source, so the sprite is named after the palette.
+	 */
 	@Unique
-	private final BiFunction<Boolean, Holder<ArmorMaterial>, Identifier> create$textureCardboard = Util.memoize((inner, armorMaterial) -> {
-		String assetPath = pattern.value().assetId().getPath();
-		String colorSuffix = getColorPaletteSuffix(material, armorMaterial);
-		return Create.asResource("trims/models/armor/card_" + assetPath + (inner ? "_leggings_" : "_") + colorSuffix);
-	});
-
-	@Inject(method = "innerTexture", at = @At("HEAD"), cancellable = true)
-	private void create$swapTexturesForCardboardTrimsInner(Holder<ArmorMaterial> armorMaterial, CallbackInfoReturnable<Identifier> cir) {
-		if (armorMaterial.value() == AllArmorMaterials.CARDBOARD) {
-			cir.setReturnValue(create$textureCardboard.apply(true, armorMaterial));
-		}
+	private Identifier create$textureCardboard(boolean leggings, ResourceKey<EquipmentAsset> equipmentAsset) {
+		String assetPath = pattern.value()
+			.assetId()
+			.getPath();
+		String colorSuffix = material.value()
+			.assets()
+			.assetId(equipmentAsset)
+			.suffix();
+		return Create.asResource("trims/models/armor/card_" + assetPath + (leggings ? "_leggings_" : "_") + colorSuffix);
 	}
 
-	@Inject(method = "outerTexture", at = @At("HEAD"), cancellable = true)
-	private void create$swapTexturesForCardboardTrimsOuter(Holder<ArmorMaterial> armorMaterial, CallbackInfoReturnable<Identifier> cir) {
-		if (armorMaterial.value() == AllArmorMaterials.CARDBOARD) {
-			cir.setReturnValue(create$textureCardboard.apply(false, armorMaterial));
-		}
+	@Inject(method = "layerAssetId", at = @At("HEAD"), cancellable = true)
+	private void create$swapTexturesForCardboardTrims(String layerAssetPrefix,
+		ResourceKey<EquipmentAsset> equipmentAsset, CallbackInfoReturnable<Identifier> cir) {
+		if (equipmentAsset != AllArmorMaterials.CARDBOARD_ASSET)
+			return;
+		cir.setReturnValue(create$textureCardboard(layerAssetPrefix.endsWith("_leggings"), equipmentAsset));
 	}
 }

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.simibubi.create.foundation.mixin.accessor.ItemStackHandlerAccessor;
 import net.minecraft.world.Clearable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -740,7 +739,9 @@ public class BrassTunnelBlockEntity extends BeltTunnelBlockEntity implements IHa
 
 	@Override
 	public void clearContent() {
-		((ItemStackHandlerAccessor) tunnelCapability).create$getStacks().clear();
+		// The tunnel's handler is a view onto the one stack being distributed rather than a slot array,
+		// so clearing it means dropping that stack.
+		setStackToDistribute(ItemStack.EMPTY, null);
 	}
 
 	@Override

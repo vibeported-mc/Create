@@ -25,6 +25,7 @@ import com.simibubi.create.infrastructure.debugInfo.element.InfoEntry;
 import dev.engine_room.flywheel.api.Flywheel;
 import dev.engine_room.flywheel.api.backend.Backend;
 import dev.engine_room.flywheel.api.backend.BackendManager;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.SharedConstants;
 import net.minecraft.SystemReport;
 import net.minecraft.util.Util;
@@ -46,7 +47,10 @@ public class DebugInformation {
 	private static final ImmutableMap<String, String> mcSystemInfo = Util.make(() -> {
 		SystemReport systemReport = new SystemReport();
 		SystemReportAccessor access = (SystemReportAccessor) systemReport;
-		return ImmutableMap.copyOf(access.getEntries());
+		ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+		for (CrashReportCategory.Entry entry : access.getEntries())
+			builder.put(entry.key(), entry.value());
+		return builder.buildKeepingLast();
 	});
 
 	public static void registerClientInfo(DebugInfoSection section) {

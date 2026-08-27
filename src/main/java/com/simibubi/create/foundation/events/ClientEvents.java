@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.events;
 
+import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import com.simibubi.create.foundation.recipe.ClientRecipes;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
@@ -375,6 +376,17 @@ public class ClientEvents {
 			.getEntityRenderDispatcher();
 		BacktankArmorLayer.registerOnAll(dispatcher);
 		CreateHatArmorLayer.registerOnAll(dispatcher);
+	}
+
+	/**
+	 * Trains pull the camera further out.
+	 * <p>
+	 * Create used to reach this by mixing into the camera's own zoom; 26.2 asks through an event of its
+	 * own, so the mixin is gone.
+	 */
+	@SubscribeEvent
+	public static void modifyDetachedCameraDistance(CalculateDetachedCameraDistanceEvent event) {
+		event.setDistance(event.getDistance() * CameraDistanceModifier.getMultiplier());
 	}
 
 	@SubscribeEvent

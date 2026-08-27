@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains.station;
 
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.Codec;
 import com.simibubi.create.foundation.utility.ComponentJson;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,6 +12,7 @@ import com.simibubi.create.content.trains.track.TrackTargetingBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
 import net.createmod.catnip.api.nbt.NBTHelper;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +23,20 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 
 public class StationMarker {
+	/**
+	 * 26.2 saves map data through a codec instead of reading and writing tags, so the marker needs one
+	 * of its own to be stored alongside it.
+	 */
+	public static final Codec<StationMarker> CODEC = RecordCodecBuilder.create(i -> i.group(
+		BlockPos.CODEC.fieldOf("source")
+			.forGetter(StationMarker::getSource),
+		BlockPos.CODEC.fieldOf("target")
+			.forGetter(StationMarker::getTarget),
+		ComponentSerialization.CODEC.optionalFieldOf("name", CommonComponents.EMPTY)
+			.forGetter(StationMarker::getName)
+	)
+		.apply(i, StationMarker::new));
+
 	private final BlockPos source;
 	private final BlockPos target;
 	private final Component name;

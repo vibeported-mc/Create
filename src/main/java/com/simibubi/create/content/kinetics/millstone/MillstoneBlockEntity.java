@@ -19,7 +19,6 @@ import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehavi
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.item.ItemHelper;
-import com.simibubi.create.foundation.mixin.accessor.ItemStackHandlerAccessor;
 import com.simibubi.create.foundation.sound.SoundScapes;
 import com.simibubi.create.foundation.sound.SoundScapes.AmbienceGroup;
 
@@ -139,8 +138,8 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 
 	@Override
 	public void clearContent() {
-		((ItemStackHandlerAccessor) inputInv).create$getStacks().clear();
-		((ItemStackHandlerAccessor) outputInv).create$getStacks().clear();
+		inputInv.getStacks().clear();
+		outputInv.getStacks().clear();
 	}
 
 	@Override

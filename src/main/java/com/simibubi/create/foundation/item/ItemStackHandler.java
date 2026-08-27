@@ -20,4 +20,15 @@ public class ItemStackHandler extends ItemStacksResourceHandler implements Modif
 	public ItemStackHandler(NonNullList<ItemStack> stacks) {
 		super(stacks);
 	}
+
+	/**
+	 * The stacks this handler is backed by, not a copy.
+	 * <p>
+	 * Create used to reach these through a mixin accessor. 26.2 moved the field up into
+	 * {@code StacksResourceHandler}, where a mixin on the subclass cannot see it - but it is protected,
+	 * so a subclass can simply hand it out.
+	 */
+	public NonNullList<ItemStack> getStacks() {
+		return stacks;
+	}
 }

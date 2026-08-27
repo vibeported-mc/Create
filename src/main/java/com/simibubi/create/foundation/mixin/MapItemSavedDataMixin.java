@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.mixin;
 
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import com.simibubi.create.content.trains.station.StationMapCodec;
+import com.mojang.serialization.Codec;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,31 +60,20 @@ public class MapItemSavedDataMixin implements StationMapData {
 	@Unique
 	private final Map<String, StationMarker> create$stationMarkers = Maps.newHashMap();
 
-	@Inject(
-			method = "load",
-			at = @At("RETURN")
-	)
-	private static void create$onLoad(CompoundTag tag, HolderLookup.Provider levelRegistry, CallbackInfoReturnable<MapItemSavedData> cir) {
-		MapItemSavedData mapData = cir.getReturnValue();
-		StationMapData stationMapData = (StationMapData) mapData;
-
-		ListTag listTag = tag.getListOrEmpty(STATION_MARKERS_KEY);
-		for (int i = 0; i < listTag.size(); ++i) {
-			StationMarker stationMarker = StationMarker.load(listTag.getCompoundOrEmpty(i), levelRegistry);
-			stationMapData.addStationMarker(stationMarker);
-		}
+	/**
+	 * 26.2 saves map data through a codec instead of the save/load pair Create used to append to, so
+	 * the markers ride along in a wrapped codec.
+	 */
+	@ModifyArg(method = "type", at = @At(value = "INVOKE",
+		target = "Lnet/minecraft/world/level/saveddata/SavedDataType;<init>(Lnet/minecraft/resources/Identifier;Ljava/util/function/Supplier;Lcom/mojang/serialization/Codec;Lnet/minecraft/util/datafix/DataFixTypes;)V"),
+		index = 2)
+	private static Codec<MapItemSavedData> create$carryStationMarkers(Codec<MapItemSavedData> codec) {
+		return StationMapCodec.withStations(codec);
 	}
 
-	@Inject(
-			method = "save",
-			at = @At("RETURN")
-	)
-	private void create$onSave(CompoundTag tag, HolderLookup.Provider registries, CallbackInfoReturnable<CompoundTag> cir) {
-		ListTag listTag = new ListTag();
-		for (StationMarker stationMarker : create$stationMarkers.values()) {
-			listTag.add(stationMarker.save(registries));
-		}
-		tag.put(STATION_MARKERS_KEY, listTag);
+	@Override
+	public List<StationMarker> create$getStationMarkers() {
+		return List.copyOf(create$stationMarkers.values());
 	}
 
 	@Override

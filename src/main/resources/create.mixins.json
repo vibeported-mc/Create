@@ -14,7 +14,6 @@
     "BuiltInRegistriesMixin",
     "EnchantedCountIncreaseFunctionMixin",
     "EntityMixin",
-    "ItemStackMixin",
     "LavaSwimmingMixin",
     "MapItemSavedDataMixin",
     "MobMixin",
@@ -33,7 +32,6 @@
     "accessor.GameTestHelperAccessor",
     "accessor.ItemEntityAccessor",
     "accessor.ItemFrameAccessor",
-    "accessor.ItemStackHandlerAccessor",
     "accessor.LivingEntityAccessor",
     "accessor.MappedRegistryAccessor",
     "accessor.MinecartFurnaceAccessor",
@@ -53,18 +51,16 @@
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.FontAccessor",
     "accessor.HudAccessor",
-    "accessor.LevelRendererAccessor",
     "accessor.MinecraftAccessor",
     "accessor.MouseHandlerAccessor",
     "accessor.TimerAccessor",
     "client.BlockDestructionProgressMixin",
-    "client.CameraMixin",
     "client.EntityContraptionInteractionMixin",
-    "client.GameRendererMixin",
+    "client.MinecraftPickMixin",
 		"client.GuiRendererMixin",
     "client.HeavyBootsOnPlayerMixin",
     "client.HumanoidModelMixin",
-    "client.LevelRendererMixin"
+    "client.ClientLevelDestructionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

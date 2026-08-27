@@ -5,9 +5,9 @@ import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.CachedRenderBBBlockEntity;
-import com.simibubi.create.foundation.mixin.accessor.LevelRendererAccessor;
 
 import net.createmod.ponder.api.client.level.PonderLevel;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -77,10 +77,9 @@ public abstract class SafeBlockEntityRenderer<T extends BlockEntity, S extends S
 		if (level instanceof PonderLevel)
 			return false;
 
-		LevelRendererAccessor accessor = (LevelRendererAccessor) Minecraft.getInstance().levelRenderer;
-		Frustum frustum = accessor.create$getCapturedFrustum() != null ?
-			accessor.create$getCapturedFrustum() :
-			accessor.create$getCullingFrustum();
+		Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
+		Frustum captured = camera.getCapturedFrustum();
+		Frustum frustum = captured != null ? captured : camera.getCullFrustum();
 
 		AABB itemBB = new AABB(
 				itemPos.x - 0.25,
