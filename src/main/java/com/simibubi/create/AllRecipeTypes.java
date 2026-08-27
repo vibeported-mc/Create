@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import com.simibubi.create.content.processing.recipe.ProcessingSerializer;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -34,6 +35,7 @@ import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe.Serializer;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeSerializer;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
+import com.simibubi.create.foundation.recipe.RecipeFinder;
 import com.simibubi.create.foundation.recipe.ItemCopyingRecipe;
 
 import net.createmod.catnip.api.lang.Lang;
@@ -47,7 +49,6 @@ import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
-import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.Level;
 
 import net.neoforged.bus.api.IEventBus;
@@ -72,13 +73,14 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 	EMPTYING(EmptyingRecipe::new),
 	ITEM_APPLICATION(ManualApplicationRecipe::new),
 
-	MECHANICAL_CRAFTING(MechanicalCraftingRecipe.Serializer::new),
-	SEQUENCED_ASSEMBLY(SequencedAssemblyRecipeSerializer::new),
+	MECHANICAL_CRAFTING(() -> MechanicalCraftingRecipe.SERIALIZER),
+	SEQUENCED_ASSEMBLY(() -> new SequencedAssemblyRecipeSerializer().recipeSerializer()),
 
-	TOOLBOX_DYEING(() -> new SimpleCraftingRecipeSerializer<>(ToolboxDyeingRecipe::new), () -> RecipeType.CRAFTING, false),
-	ITEM_COPYING(() -> new SimpleCraftingRecipeSerializer<>(ItemCopyingRecipe::new), () -> RecipeType.CRAFTING, false);
+	TOOLBOX_DYEING(() -> ToolboxDyeingRecipe.SERIALIZER, () -> RecipeType.CRAFTING, false),
+	ITEM_COPYING(() -> ItemCopyingRecipe.SERIALIZER, () -> RecipeType.CRAFTING, false);
 
 	public static final Predicate<RecipeHolder<?>> CAN_BE_AUTOMATED = r -> !r.id()
+			.identifier()
 			.getPath()
 			.endsWith("_manual_only");
 
@@ -90,6 +92,8 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 	private final Supplier<RecipeType<?>> type;
 
 	private boolean isProcessingRecipe;
+	@Nullable
+	private ProcessingSerializer<?, ?> processingSerializer;
 
 	public static final Codec<AllRecipeTypes> CODEC = StringRepresentable.fromEnum(AllRecipeTypes::values);
 
@@ -119,12 +123,16 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 	}
 
 	AllRecipeTypes(StandardProcessingRecipe.Factory<?> processingFactory) {
-		this(() -> new Serializer<>(processingFactory));
-		isProcessingRecipe = true;
+		this(new Serializer<>(processingFactory));
 	}
 
 	AllRecipeTypes(ProcessingRecipe.Factory<ItemApplicationRecipeParams, ? extends ItemApplicationRecipe> itemApplicationFactory) {
-		this(() -> new ItemApplicationRecipe.Serializer<>(itemApplicationFactory));
+		this(new ItemApplicationRecipe.Serializer<>(itemApplicationFactory));
+	}
+
+	AllRecipeTypes(ProcessingSerializer<?, ?> processingSerializer) {
+		this(processingSerializer::recipeSerializer);
+		this.processingSerializer = processingSerializer;
 		isProcessingRecipe = true;
 	}
 
@@ -153,8 +161,7 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 	}
 
 	public <I extends RecipeInput, R extends Recipe<I>> Optional<RecipeHolder<R>> find(I inv, Level world) {
-		return world.getRecipeManager()
-			.getRecipeFor(getType(), inv, world);
+		return RecipeFinder.find(getType(), inv, world);
 	}
 
 	public static boolean shouldIgnoreInAutomation(RecipeHolder<?> recipe) {
@@ -162,6 +169,12 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 		if (serializer != null && AllTags.AllRecipeSerializerTags.AUTOMATION_IGNORE.matches(serializer))
 			return true;
 		return !CAN_BE_AUTOMATED.test(recipe);
+	}
+
+	@Override
+	@Nullable
+	public ProcessingSerializer<?, ?> getProcessingSerializer() {
+		return processingSerializer;
 	}
 
 	@Override

@@ -24,8 +24,9 @@ public abstract class StandardProcessingRecipeGen<R extends StandardProcessingRe
 		super(output, registries, defaultNamespace);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected StandardProcessingRecipe.Serializer<R> getSerializer() {
-		return getRecipeType().getSerializer();
+		return (StandardProcessingRecipe.Serializer<R>) getRecipeType().getProcessingSerializer();
 	}
 
 	@Override

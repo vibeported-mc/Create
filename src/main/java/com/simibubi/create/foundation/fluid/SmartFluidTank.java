@@ -38,7 +38,18 @@ public class SmartFluidTank extends FluidStacksResourceHandler {
 	}
 
 	public int getCapacity() {
-		return getCapacityAsInt(0, FluidResource.EMPTY);
+		return capacity;
+	}
+
+	/**
+	 * Multiblock tanks grow and shrink, so the capacity stays settable the way it was.
+	 */
+	public void setCapacity(int capacity) {
+		this.capacity = capacity;
+	}
+
+	public int getSpace() {
+		return getCapacity() - getFluidAmount();
 	}
 
 	public boolean isEmpty() {

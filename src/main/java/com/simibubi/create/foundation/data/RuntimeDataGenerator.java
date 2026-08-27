@@ -203,7 +203,7 @@ public class RuntimeDataGenerator {
 			IRecipeTypeInfo recipeType = recipe.getTypeInfo();
 			Identifier typeId = recipeType.getId();
 
-			if (!(recipeType.getSerializer() instanceof StandardProcessingRecipe.Serializer))
+			if (!(recipeType.getProcessingSerializer() instanceof StandardProcessingRecipe.Serializer))
 				throw new IllegalStateException("Cannot datagen ProcessingRecipe of type: " + typeId);
 
 			Identifier id = Identifier.fromNamespaceAndPath(recipeId.getNamespace(),

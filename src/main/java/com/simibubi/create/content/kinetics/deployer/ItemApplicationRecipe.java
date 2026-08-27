@@ -1,18 +1,15 @@
 package com.simibubi.create.content.kinetics.deployer;
 
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
+import com.simibubi.create.content.processing.recipe.ProcessingSerializer;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
 
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public class ItemApplicationRecipe extends ProcessingRecipe<RecipeWrapper, ItemApplicationRecipeParams> {
@@ -81,24 +78,11 @@ public class ItemApplicationRecipe extends ProcessingRecipe<RecipeWrapper, ItemA
 		}
 	}
 
-	public static class Serializer<R extends ItemApplicationRecipe> implements RecipeSerializer<R> {
-		private final MapCodec<R> codec;
-		private final StreamCodec<RegistryFriendlyByteBuf, R> streamCodec;
+	public static class Serializer<R extends ItemApplicationRecipe>
+		extends ProcessingSerializer<ItemApplicationRecipeParams, R> {
 
 		public Serializer(ProcessingRecipe.Factory<ItemApplicationRecipeParams, R> factory) {
-			this.codec = ProcessingRecipe.codec(factory, ItemApplicationRecipeParams.CODEC);
-			this.streamCodec = ProcessingRecipe.streamCodec(factory, ItemApplicationRecipeParams.STREAM_CODEC);
+			super(factory, ItemApplicationRecipeParams.CODEC, ItemApplicationRecipeParams.STREAM_CODEC);
 		}
-
-		@Override
-		public MapCodec<R> codec() {
-			return codec;
-		}
-
-		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, R> streamCodec() {
-			return streamCodec;
-		}
-
 	}
 }

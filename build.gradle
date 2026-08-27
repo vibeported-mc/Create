@@ -187,6 +187,15 @@ sourceSets.main {
         exclude("**/*Generator.java")
         exclude("**/*BlockStateGen*.java")
 
+        // 26.2 rebuilt the recipe framework around it: RecipeProvider#buildRecipes takes no
+        // arguments, RecipeSerializer is a final record, and colour variants of items collapsed into
+        // ColorCollections, so every generator that names Items.WHITE_DYE and friends has to be
+        // rewritten. Their output is committed alongside the rest of the generated resources.
+        // TODO: port the recipe generators to the 26.2 datagen API and drop these exclusions.
+        exclude("**/*RecipeGen.java")
+        exclude("**/*RecipeProvider.java")
+        exclude("com/simibubi/create/api/data/recipe/MechanicalCraftingRecipeBuilder.java")
+
         // Minecraft 1.21.5 replaced the annotation-driven gametest framework (@GameTest,
         // TestFunction, StructureUtils) with data-driven GameTestInstance. Nothing outside the
         // package references it and it never ships in the mod's runtime path.

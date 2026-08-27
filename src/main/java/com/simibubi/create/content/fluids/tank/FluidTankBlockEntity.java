@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.tank;
 
+import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -40,14 +41,13 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.IFluidTank;
 public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IMultiBlockEntityContainer.Fluid {
 
 	private static final int MAX_SIZE = 3;
 
 	protected ResourceHandler<FluidResource> fluidCapability;
 	protected boolean forceFluidLevelUpdate;
-	protected FluidStacksResourceHandler tankInventory;
+	protected SmartFluidTank tankInventory;
 	protected BlockPos controller;
 	protected BlockPos lastKnownPos;
 	protected boolean updateConnectivity;
@@ -229,7 +229,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		tankInventory.setCapacity(blocks * getCapacityMultiplier());
 		int overflow = tankInventory.getFluidAmount() - tankInventory.getCapacity();
 		if (overflow > 0)
-			tankInventory.drain(overflow, false);
+			FluidHandlerHelpers.drain(tankInventory, overflow, false);
 		forceFluidLevelUpdate = true;
 	}
 
@@ -371,7 +371,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 	private ResourceHandler<FluidResource> handlerForCapability() {
 		return isController() ? (boiler.isActive() ? boiler.createHandler() : tankInventory)
-				: ((getControllerBE() != null) ? getControllerBE().handlerForCapability() : new FluidStacksResourceHandler(0));
+				: ((getControllerBE() != null) ? getControllerBE().handlerForCapability() : new FluidStacksResourceHandler(0, 0));
 	}
 
 	@Override
@@ -434,7 +434,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 			tankInventory.readFromNBT(registries, compound.getCompoundOrEmpty("TankContent"));
 			if (tankInventory.getSpace() < 0)
-				tankInventory.drain(-tankInventory.getSpace(), false);
+				FluidHandlerHelpers.drain(tankInventory, -tankInventory.getSpace(), false);
 		}
 
 		boiler.read(compound.getCompoundOrEmpty("Boiler"), width * width * height);
@@ -517,7 +517,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		registerAwardables(behaviours, AllAdvancements.STEAM_ENGINE_MAXED, AllAdvancements.PIPE_ORGAN);
 	}
 
-	public FluidStacksResourceHandler getTankInventory() {
+	public SmartFluidTank getTankInventory() {
 		return tankInventory;
 	}
 
@@ -639,7 +639,7 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	}
 
 	@Override
-	public IFluidTank getTank(int tank) {
+	public SmartFluidTank getTank(int tank) {
 		return tankInventory;
 	}
 

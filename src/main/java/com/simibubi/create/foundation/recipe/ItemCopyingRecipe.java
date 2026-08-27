@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.recipe;
 
+import net.minecraft.network.codec.StreamCodec;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllRecipeTypes;
@@ -36,9 +38,8 @@ public class ItemCopyingRecipe extends CustomRecipe {
 		DataComponentType<?> getComponentType();
 	}
 
-	public ItemCopyingRecipe(CraftingBookCategory category) {
-		super(category);
-	}
+	public static final RecipeSerializer<ItemCopyingRecipe> SERIALIZER =
+		new RecipeSerializer<>(MapCodec.unit(ItemCopyingRecipe::new), StreamCodec.unit(new ItemCopyingRecipe()));
 
 	@Override
 	public boolean matches(CraftingInput input, Level level) {
@@ -46,7 +47,7 @@ public class ItemCopyingRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+	public ItemStack assemble(CraftingInput input) {
 		IntAttached<ItemStack> copyCheck = copyCheck(input);
 		if (copyCheck == null)
 			return ItemStack.EMPTY;
@@ -97,11 +98,8 @@ public class ItemCopyingRecipe extends CustomRecipe {
 		return IntAttached.with(copyTargets, itemToCopy);
 	}
 
-	public RecipeSerializer<?> getSerializer() {
-		return AllRecipeTypes.ITEM_COPYING.getSerializer();
-	}
-
-	public boolean canCraftInDimensions(int width, int height) {
-		return width >= 2 && height >= 2;
+	@Override
+	public RecipeSerializer<ItemCopyingRecipe> getSerializer() {
+		return SERIALIZER;
 	}
 }

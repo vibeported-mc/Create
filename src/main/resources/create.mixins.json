@@ -43,7 +43,6 @@
     "accessor.PotionBrewingAccessor",
     "accessor.ProjectileDispenseBehaviorAccessor",
     "accessor.ServerLevelAccessor",
-    "accessor.ShapedRecipeAccessor",
     "accessor.StateHolderAccessor",
     "accessor.SystemReportAccessor",
     "accessor.UseOnContextAccessor",

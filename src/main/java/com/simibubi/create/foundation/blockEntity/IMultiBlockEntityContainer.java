@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.IFluidTank;
+import com.simibubi.create.foundation.fluid.SmartFluidTank;
 
 public interface IMultiBlockEntityContainer {
 
@@ -70,7 +70,7 @@ public interface IMultiBlockEntityContainer {
 
 		default void setTankSize(int tank, int blocks) {}
 
-		default IFluidTank getTank(int tank) { return null; }
+		default SmartFluidTank getTank(int tank) { return null; }
 
 		default FluidStack getFluid(int tank) {	return FluidStack.EMPTY; }
 	}
