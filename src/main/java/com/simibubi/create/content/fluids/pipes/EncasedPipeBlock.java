@@ -28,7 +28,6 @@ import com.simibubi.create.foundation.block.IBE;
 import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -103,7 +102,6 @@ public class EncasedPipeBlock extends Block
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock, @Nullable Orientation orientation,
 		boolean isMoving) {
-		DebugPackets.sendNeighborsUpdatePacket(world, pos);
 		if (!FluidPropagator.validateNeighbourChange(state, world, pos, otherBlock, isMoving, (s, d) -> s.getValue(FACING_TO_PROPERTY_MAP.get(d))))
 			return;
 		world.scheduleTick(pos, this, 1, TickPriority.HIGH);

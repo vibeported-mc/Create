@@ -19,7 +19,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -94,7 +93,6 @@ public class AxisPipeBlock extends RotatedPillarBlock implements IWrenchableWith
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock, @Nullable Orientation orientation,
 		boolean isMoving) {
-		DebugPackets.sendNeighborsUpdatePacket(world, pos);
 		if (!FluidPropagator.validateNeighbourChange(state, world, pos, otherBlock, isMoving, AxisPipeBlock::isOpenAt))
 			return;
 		world.scheduleTick(pos, this, 1, TickPriority.HIGH);

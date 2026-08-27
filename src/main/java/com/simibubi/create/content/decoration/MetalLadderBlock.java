@@ -62,7 +62,7 @@ public class MetalLadderBlock extends LadderBlock implements IWrenchable {
 	}
 
 	@Override
-	public VoxelShape getOcclusionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
+	protected VoxelShape getOcclusionShape(BlockState pState) {
 		return AllShapes.SIX_VOXEL_POLE.get(Axis.Y);
 	}
 

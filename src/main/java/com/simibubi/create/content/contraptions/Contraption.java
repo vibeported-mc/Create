@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions;
 
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.core.UUIDUtil;
 import static com.simibubi.create.content.contraptions.piston.MechanicalPistonBlock.isExtensionPole;
 import static com.simibubi.create.content.contraptions.piston.MechanicalPistonBlock.isPistonHead;
@@ -97,7 +99,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -781,7 +782,8 @@ public abstract class Contraption {
 
 		seatMapping.clear();
 		NBTHelper.iterateCompoundList(nbt.getListOrEmpty("Passengers"),
-			c -> seatMapping.put(NbtUtils.loadUUID(NBTHelper.getINBT(c, "Id")), c.getIntOr("Seat", 0)));
+			c -> c.read("Id", UUIDUtil.CODEC)
+				.ifPresent(id -> seatMapping.put(id, c.getIntOr("Seat", 0))));
 
 		stabilizedSubContraptions.clear();
 		NBTHelper.iterateCompoundList(nbt.getListOrEmpty("SubContraptions"),
@@ -871,7 +873,7 @@ public abstract class Contraption {
 		}));
 		nbt.put("Passengers", NBTHelper.writeCompoundList(getSeatMapping().entrySet(), e -> {
 			CompoundTag tag = new CompoundTag();
-			tag.put("Id", NbtUtils.createUUID(e.getKey()));
+			tag.store("Id", UUIDUtil.CODEC, e.getKey());
 			tag.putInt("Seat", e.getValue());
 			return tag;
 		}));
@@ -907,13 +909,13 @@ public abstract class Contraption {
 
 	private CompoundTag writeBlocksCompound(boolean spawnPacket) {
 		CompoundTag compound = new CompoundTag();
-		HashMapPalette<BlockState> palette = new HashMapPalette<>(GameData.getBlockStateIDMap(), 16, (i, s) -> {
-			throw new IllegalStateException("Palette Map index exceeded maximum");
-		});
+		HashMapPalette<BlockState> palette = new HashMapPalette<>(16);
 		ListTag blockList = new ListTag();
 
 		for (StructureBlockInfo block : this.blocks.values()) {
-			int id = palette.idFor(block.state());
+			int id = palette.idFor(block.state(), (bits, added) -> {
+				throw new IllegalStateException("Palette Map index exceeded maximum");
+			});
 			BlockPos pos = block.pos();
 			CompoundTag c = new CompoundTag();
 			c.putLong("Pos", pos.asLong());
@@ -963,9 +965,7 @@ public abstract class Contraption {
 		ListTag blockList;
 		if (usePalettedDeserialization) {
 			CompoundTag c = ((CompoundTag) compound);
-			palette = new HashMapPalette<>(GameData.getBlockStateIDMap(), 16, (i, s) -> {
-				throw new IllegalStateException("Palette Map index exceeded maximum");
-			});
+			palette = new HashMapPalette<>(16);
 
 			ListTag list = c.getListOrEmpty("Palette");
 			palette.values.clear();
@@ -1086,16 +1086,10 @@ public abstract class Contraption {
 			// remove it again, so to prevent an error from being logged by double-removal
 			// we add the POI data back now
 			// (code copied from ServerWorld.onBlockStateChange)
+			// 26.2 keeps the debug listener private, but the level's own state-change hook does exactly
+			// what the copy below it used to.
 			ServerLevel serverWorld = (ServerLevel) world;
-			PoiTypes.forState(block.state())
-				.ifPresent(poiType -> {
-					world.getServer()
-						.execute(() -> {
-							serverWorld.getPoiManager()
-								.add(add, poiType);
-							DebugPackets.sendPoiAddedPacket(serverWorld, add);
-						});
-				});
+			serverWorld.updatePOIOnBlockStateChange(add, Blocks.AIR.defaultBlockState(), block.state());
 
 			world.markAndNotifyBlock(add, world.getChunkAt(add), block.state(), Blocks.AIR.defaultBlockState(), flags,
 				512);
@@ -1196,7 +1190,8 @@ public abstract class Contraption {
 						}
 					}
 
-					blockEntity.loadWithComponents(tag, world.registryAccess());
+					blockEntity.loadWithComponents(
+						TagValueInput.create(ProblemReporter.DISCARDING, world.registryAccess(), tag));
 				}
 
 				storage.unmount(world, block, targetPos, blockEntity);

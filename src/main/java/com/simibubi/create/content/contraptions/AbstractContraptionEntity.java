@@ -1,5 +1,9 @@
 package com.simibubi.create.content.contraptions;
 
+import net.minecraft.world.entity.InterpolationHandler;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
@@ -84,8 +88,10 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 	private static final EntityDataAccessor<Boolean> STALLED =
 		SynchedEntityData.defineId(AbstractContraptionEntity.class, EntityDataSerializers.BOOLEAN);
+	private static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID =
+		EntityDataSerializer.forValueType(ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC));
 	private static final EntityDataAccessor<Optional<UUID>> CONTROLLED_BY =
-		SynchedEntityData.defineId(AbstractContraptionEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+		SynchedEntityData.defineId(AbstractContraptionEntity.class, OPTIONAL_UUID);
 
 	public final Map<Entity, MutableInt> collidingEntities;
 
@@ -158,7 +164,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 				entity.stopRiding();
 			}
 		}
-		passenger.startRiding(this, true);
+		passenger.startRiding(this, true, true);
 		if (passenger instanceof TamableAnimal ta)
 			ta.setInSittingPose(true);
 		if (level().isClientSide())
@@ -418,8 +424,9 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 		float angle = AngleHelper.deg(-Mth.atan2(motion.x, motion.z));
 		angle = AngleHelper.angleLerp(0.4f, prevAngle, angle);
 		if (level().isClientSide()) {
-			living.lerpTo(0, 0, 0, 0, 0, 0);
-			living.lerpHeadTo(0, 0);
+			InterpolationHandler interpolation = living.getInterpolation();
+			if (interpolation != null)
+				interpolation.cancel();
 			living.setYRot(angle);
 			living.setXRot(0);
 			living.yBodyRot = angle;
@@ -614,7 +621,6 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 	@Override
 	protected final void addAdditionalSaveData(ValueOutput output) {
-		super.addAdditionalSaveData(output);
 		CompoundTag compound = new CompoundTag();
 		writeAdditional(compound, registryAccess(), false);
 		NbtValueIO.store(output, compound);
@@ -637,7 +643,6 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 	@Override
 	protected final void readAdditionalSaveData(ValueInput input) {
-		super.readAdditionalSaveData(input);
 		CompoundTag compound = NbtValueIO.read(input);
 		readAdditional(compound, false);
 	}
@@ -779,7 +784,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	}
 
 	@Override
-	public CompoundTag saveWithoutId(CompoundTag nbt) {
+	public void saveWithoutId(ValueOutput output) {
 		Vec3 vec = position();
 		List<Entity> passengers = getPassengers();
 
@@ -796,8 +801,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 			entity.removalReason = null;
 		}
 
-		CompoundTag tag = super.saveWithoutId(nbt);
-		return tag;
+		super.saveWithoutId(output);
 	}
 
 	@Override
@@ -916,7 +920,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	}
 
 	@Override
-	protected boolean updateInWaterStateAndDoFluidPushing() {
+	protected boolean updateFluidInteraction() {
 		/*
 		 * Override this with an empty method to reduce enormous calculation time when
 		 * contraptions are in water WARNING: THIS HAS A BUNCH OF SIDE EFFECTS! - Fluids
