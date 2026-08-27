@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.armor;
 
+import net.minecraft.world.item.equipment.ArmorType;
 import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
@@ -9,7 +10,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -21,10 +21,10 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 @EventBusSubscriber
 public class DivingBootsItem extends BaseArmorItem {
 	public static final EquipmentSlot SLOT = EquipmentSlot.FEET;
-	public static final ArmorItem.Type TYPE = ArmorItem.Type.BOOTS;
+	public static final ArmorType TYPE = ArmorType.BOOTS;
 
-	public DivingBootsItem(Holder<ArmorMaterial> material, Properties properties, Identifier textureLoc) {
-		super(material, TYPE, properties, textureLoc);
+	public DivingBootsItem(ArmorMaterial material, Properties properties, Identifier textureLoc) {
+		super(material, TYPE, properties);
 	}
 
 	public static boolean isWornBy(Entity entity) {

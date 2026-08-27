@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.armor;
 
+import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.equipment.ArmorType;
 import java.util.List;
 
 import com.simibubi.create.foundation.advancement.AllAdvancements;
@@ -12,7 +14,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -27,10 +28,10 @@ import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 @EventBusSubscriber
 public class DivingHelmetItem extends BaseArmorItem {
 	public static final EquipmentSlot SLOT = EquipmentSlot.HEAD;
-	public static final ArmorItem.Type TYPE = ArmorItem.Type.HELMET;
+	public static final ArmorType TYPE = ArmorType.HELMET;
 
-	public DivingHelmetItem(Holder<ArmorMaterial> material, Properties properties, Identifier textureLoc) {
-		super(material, TYPE, properties, textureLoc);
+	public DivingHelmetItem(ArmorMaterial material, Properties properties, Identifier textureLoc) {
+		super(material, TYPE, properties);
 	}
 
 	@Override
@@ -41,7 +42,7 @@ public class DivingHelmetItem extends BaseArmorItem {
 	}
 
 	@Override
-	public int getEnchantmentLevel(ItemStack stack, Holder<Enchantment> enchantment) {
+	public int getEnchantmentLevel(ItemInstance stack, Holder<Enchantment> enchantment) {
 		if (enchantment.is(Enchantments.AQUA_AFFINITY))
 			return 1;
 		return super.getEnchantmentLevel(stack, enchantment);
@@ -82,7 +83,7 @@ public class DivingHelmetItem extends BaseArmorItem {
 			return;
 
 		boolean lavaDiving = entity.isInLava();
-		if (!helmet.has(DataComponents.FIRE_RESISTANT) && lavaDiving)
+		if (!helmet.has(DataComponents.DAMAGE_RESISTANT) && lavaDiving)
 			return;
 
 		if (event.canBreathe() && !lavaDiving)
@@ -96,7 +97,7 @@ public class DivingHelmetItem extends BaseArmorItem {
 			if (entity instanceof ServerPlayer sp)
 				AllAdvancements.DIVING_SUIT_LAVA.awardTo(sp);
 			if (backtanks.stream()
-				.noneMatch(backtank -> backtank.has(DataComponents.FIRE_RESISTANT)))
+				.noneMatch(backtank -> backtank.has(DataComponents.DAMAGE_RESISTANT)))
 				return;
 		}
 

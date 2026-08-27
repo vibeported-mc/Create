@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.tool;
 
+import net.minecraft.world.item.Item;
 import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.function.Consumer;
 
@@ -21,7 +22,6 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -38,10 +38,11 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber
-public class CardboardSwordItem extends SwordItem {
+public class CardboardSwordItem extends Item {
 
 	public CardboardSwordItem(Properties pProperties) {
-		super(AllToolMaterials.CARDBOARD, pProperties);
+		// 26.2 has no SwordItem: the material and its attack values are properties now.
+		super(pProperties.sword(AllToolMaterials.CARDBOARD, 3, -2.4F));
 	}
 
 	@Override

@@ -1,27 +1,21 @@
 package com.simibubi.create.content.equipment.armor;
 
-import net.minecraft.core.Holder;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorMaterial;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.ArmorType;
 
-import org.jetbrains.annotations.Nullable;
+/**
+ * Base for Create's wearable gear.
+ * <p>
+ * Minecraft 26.2 has no ArmorItem class any more: a piece of armour is a plain {@link Item} whose
+ * properties carry the material and slot, and whose look comes from the material's equipment asset
+ * rather than from a getArmorTexture override. Create's own subclasses stay for their behaviour -
+ * air supply, goggles, and so on.
+ */
+public class BaseArmorItem extends Item {
 
-import java.util.Locale;
-
-public class BaseArmorItem extends ArmorItem {
-	protected final Identifier textureLoc;
-
-	public BaseArmorItem(Holder<ArmorMaterial> armorMaterial, ArmorItem.Type type, Properties properties, Identifier textureLoc) {
-		super(armorMaterial, type, properties.stacksTo(1));
-		this.textureLoc = textureLoc;
-	}
-
-	@Override
-	public @Nullable Identifier getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
-		return Identifier.parse(String.format(Locale.ROOT, "%s:textures/models/armor/%s_layer_%d.png", textureLoc.getNamespace(), textureLoc.getPath(), slot == EquipmentSlot.LEGS ? 2 : 1));
+	public BaseArmorItem(ArmorMaterial armorMaterial, ArmorType type, Properties properties) {
+		super(properties.humanoidArmor(armorMaterial, type)
+			.stacksTo(1));
 	}
 }

@@ -1,5 +1,9 @@
 package com.simibubi.create;
 
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.core.component.DataComponents;
 import static com.simibubi.create.AllTags.AllItemTags.CREATE_INGOTS;
 import static com.simibubi.create.AllTags.AllItemTags.CRUSHED_RAW_MATERIALS;
 import static com.simibubi.create.AllTags.AllItemTags.PLATES;
@@ -77,12 +81,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorItem.Type;
-import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.SwordItem;
 
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.Tags.Items;
@@ -170,9 +170,13 @@ public class AllItems {
 				.nutrition(1)
 				.saturationModifier(.6F)
 				.alwaysEdible()
-				.effect(() -> new MobEffectInstance(MobEffects.DIG_SPEED, 3 * 60 * 20, 0, false, false, false), 1F)
-				.build()
-			)
+				.build())
+			// 26.2 moved a food's status effects out of FoodProperties and onto the Consumable
+			// component, which is also what decides that this is drunk rather than eaten.
+			.component(DataComponents.CONSUMABLE, Consumables.defaultDrink()
+				.onConsume(new ApplyStatusEffectsConsumeEffect(
+					new MobEffectInstance(MobEffects.HASTE, 3 * 60 * 20, 0, false, false, false), 1F))
+				.build())
 		)
 		.lang("Builder's Tea")
 		.register();
@@ -181,7 +185,6 @@ public class AllItems {
 		REGISTRATE.item("cardboard_sword", CardboardSwordItem::new)
 			.burnTime(1000)
 			.properties(p -> p.stacksTo(1))
-			.properties(p -> p.attributes(SwordItem.createAttributes(AllToolMaterials.CARDBOARD, 3, 1)))
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .model(AssetLookup.itemModelWithPartials())
 			
@@ -318,7 +321,7 @@ public class AllItems {
 
 	NETHERITE_BACKTANK = REGISTRATE
 		.item("netherite_backtank",
-			p -> new BacktankItem.Layered(ArmorMaterials.NETHERITE, p, Create.asResource("netherite_diving"),
+			p -> new BacktankItem.Layered(AllArmorMaterials.NETHERITE_DIVING, p, Create.asResource("netherite_diving"),
 				NETHERITE_BACKTANK_PLACEABLE))
 		// TODO 26.2: port datagen to RegistrateItemModelGenerator
 		// .model(AssetLookup.customGenericItemModel("_", "item"))
@@ -332,14 +335,14 @@ public class AllItems {
 		COPPER_DIVING_HELMET = REGISTRATE
 		.item("copper_diving_helmet",
 			p -> new DivingHelmetItem(AllArmorMaterials.COPPER, p, Create.asResource("copper_diving")))
-		.properties(p -> p.durability(Type.HELMET.getDurability(7)))
+		.properties(p -> p.durability(ArmorType.HELMET.getDurability(7)))
 		.tag(ItemTags.HEAD_ARMOR)
 		.register(),
 
 	NETHERITE_DIVING_HELMET = REGISTRATE
 		.item("netherite_diving_helmet",
-			p -> new DivingHelmetItem(ArmorMaterials.NETHERITE, p, Create.asResource("netherite_diving")))
-		.properties(p -> p.fireResistant().durability(Type.HELMET.getDurability(37)))
+			p -> new DivingHelmetItem(AllArmorMaterials.NETHERITE_DIVING, p, Create.asResource("netherite_diving")))
+		.properties(p -> p.fireResistant().durability(ArmorType.HELMET.getDurability(37)))
 		.tag(ItemTags.HEAD_ARMOR)
 		.register();
 
@@ -347,21 +350,21 @@ public class AllItems {
 		COPPER_DIVING_BOOTS = REGISTRATE
 		.item("copper_diving_boots",
 			p -> new DivingBootsItem(AllArmorMaterials.COPPER, p, Create.asResource("copper_diving")))
-		.properties(p -> p.durability(Type.BOOTS.getDurability(7)))
+		.properties(p -> p.durability(ArmorType.BOOTS.getDurability(7)))
 		.tag(ItemTags.FOOT_ARMOR)
 		.register(),
 
 	NETHERITE_DIVING_BOOTS = REGISTRATE
 		.item("netherite_diving_boots",
-			p -> new DivingBootsItem(ArmorMaterials.NETHERITE, p, Create.asResource("netherite_diving")))
-		.properties(p -> p.fireResistant().durability(Type.BOOTS.getDurability(37)))
+			p -> new DivingBootsItem(AllArmorMaterials.NETHERITE_DIVING, p, Create.asResource("netherite_diving")))
+		.properties(p -> p.fireResistant().durability(ArmorType.BOOTS.getDurability(37)))
 		.tag(ItemTags.FOOT_ARMOR)
 		.register();
 
 	public static final ItemEntry<? extends BaseArmorItem>
 
-		CARDBOARD_HELMET = REGISTRATE.item("cardboard_helmet", p -> new CardboardArmorItem(ArmorItem.Type.HELMET, p))
-		.properties(p -> p.durability(Type.HELMET.getDurability(4)))
+		CARDBOARD_HELMET = REGISTRATE.item("cardboard_helmet", p -> new CardboardArmorItem(ArmorType.HELMET, p))
+		.properties(p -> p.durability(ArmorType.HELMET.getDurability(4)))
 		.tag(ItemTags.HEAD_ARMOR)
 		.burnTime(1000)
 		.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
@@ -372,8 +375,8 @@ public class AllItems {
 		.register(),
 
 	CARDBOARD_CHESTPLATE =
-		REGISTRATE.item("cardboard_chestplate", p -> new CardboardArmorItem(ArmorItem.Type.CHESTPLATE, p))
-			.properties(p -> p.durability(Type.CHESTPLATE.getDurability(4)))
+		REGISTRATE.item("cardboard_chestplate", p -> new CardboardArmorItem(ArmorType.CHESTPLATE, p))
+			.properties(p -> p.durability(ArmorType.CHESTPLATE.getDurability(4)))
 			.tag(ItemTags.CHEST_ARMOR)
 			.burnTime(1000)
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
@@ -383,8 +386,8 @@ public class AllItems {
 			.register(),
 
 	CARDBOARD_LEGGINGS =
-		REGISTRATE.item("cardboard_leggings", p -> new CardboardArmorItem(ArmorItem.Type.LEGGINGS, p))
-			.properties(p -> p.durability(Type.LEGGINGS.getDurability(4)))
+		REGISTRATE.item("cardboard_leggings", p -> new CardboardArmorItem(ArmorType.LEGGINGS, p))
+			.properties(p -> p.durability(ArmorType.LEGGINGS.getDurability(4)))
 			.tag(ItemTags.LEG_ARMOR)
 			.burnTime(1000)
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
@@ -393,8 +396,8 @@ public class AllItems {
 			
 			.register(),
 
-	CARDBOARD_BOOTS = REGISTRATE.item("cardboard_boots", p -> new CardboardArmorItem(ArmorItem.Type.BOOTS, p))
-		.properties(p -> p.durability(Type.BOOTS.getDurability(4)))
+	CARDBOARD_BOOTS = REGISTRATE.item("cardboard_boots", p -> new CardboardArmorItem(ArmorType.BOOTS, p))
+		.properties(p -> p.durability(ArmorType.BOOTS.getDurability(4)))
 		.tag(ItemTags.FOOT_ARMOR)
 		.burnTime(1000)
 		.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
