@@ -135,7 +135,8 @@ public class CrushingWheelControllerBlock extends DirectionalBlock implements IB
 	@Override
 	public BlockState updateShape(BlockState stateIn, LevelReader worldIn, ScheduledTickAccess ticks,
 		BlockPos currentPos, Direction facing, BlockPos facingPos, BlockState facingState, RandomSource random) {
-		updateSpeed(stateIn, worldIn, currentPos);
+		if (worldIn instanceof LevelAccessor levelAccess)
+			updateSpeed(stateIn, levelAccess, currentPos);
 		return stateIn;
 	}
 

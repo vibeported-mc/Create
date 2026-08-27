@@ -62,7 +62,7 @@ public class WaterWheelBlock extends DirectionalKineticBlock implements IBE<Wate
 			return stateIn;
 		if (worldIn.isClientSide())
 			return stateIn;
-		if (!worldIn.getBlockTicks()
+		if (!ticks.getBlockTicks()
 			.hasScheduledTick(currentPos, this))
 			ticks.scheduleTick(currentPos, this, 1);
 		return stateIn;

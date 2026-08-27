@@ -176,7 +176,7 @@ public class SawBlock extends DirectionalAxisKineticBlock implements IBE<SawBloc
 		withBlockEntityDo(entityIn.level(), pos, be -> {
 			if (be.getSpeed() == 0)
 				return;
-			ItemHandlerHelpers.insertItem(be, (ItemEntity) entityIn);
+			be.insertItem((ItemEntity) entityIn);
 		});
 	}
 

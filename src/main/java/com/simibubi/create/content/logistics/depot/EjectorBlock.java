@@ -92,19 +92,24 @@ public class EjectorBlock extends HorizontalKineticBlock implements IBE<EjectorB
 
 	@Override
 	public void fallOn(Level p_180658_1_, BlockState p_152427_, BlockPos p_180658_2_, Entity p_180658_3_,
-		float p_180658_4_) {
+		double p_180658_4_) {
 		Optional<EjectorBlockEntity> blockEntityOptional = getBlockEntityOptional(p_180658_1_, p_180658_2_);
 		if (blockEntityOptional.isPresent() && !p_180658_3_.isSuppressingBounce()) {
 			p_180658_3_.causeFallDamage(p_180658_4_, 1.0F, p_180658_1_.damageSources().fall());
+			onLanded(p_180658_1_, p_180658_3_);
 			return;
 		}
 		super.fallOn(p_180658_1_, p_152427_, p_180658_2_, p_180658_3_, p_180658_4_);
+		onLanded(p_180658_1_, p_180658_3_);
 	}
 
-	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
+	/**
+	 * Launches whatever just landed on the ejector.
+	 * <p>
+	 * 26.2 dropped {@code updateEntityAfterFallOn}, which this used to run from; landing is reported by
+	 * {@link #fallOn}, which is the same moment.
+	 */
+	private void onLanded(Level worldIn, Entity entityIn) {
 		BlockPos position = entityIn.getOnPosLegacy();
 		if (!AllBlocks.WEIGHTED_EJECTOR.has(worldIn.getBlockState(position)))
 			return;
