@@ -7,6 +7,7 @@ import java.util.Queue;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.simibubi.create.foundation.item.ContainerItemHandler;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllContraptionTypes;
 import com.simibubi.create.api.contraption.ContraptionType;
@@ -155,7 +156,7 @@ public class MountedContraption extends Contraption {
 
 	public void addExtraInventories(Entity cart) {
 		if (cart instanceof Container container)
-			storage.attachExternal(VanillaContainerWrapper.of(container));
+			storage.attachExternal(new ContainerItemHandler(container));
 	}
 
 

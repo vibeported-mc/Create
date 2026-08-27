@@ -50,7 +50,7 @@ public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceB
 	}
 
 	private ResourceHandler<FluidResource> createEmptyHandler() {
-		return new InterfaceFluidHandler(new FluidStacksResourceHandler(0));
+		return new InterfaceFluidHandler(new FluidStacksResourceHandler(0, 0));
 	}
 
 	public class InterfaceFluidHandler implements ResourceHandler<FluidResource> {

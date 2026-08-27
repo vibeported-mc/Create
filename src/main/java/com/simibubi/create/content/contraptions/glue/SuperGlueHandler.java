@@ -10,6 +10,7 @@ import com.simibubi.create.api.contraption.BlockMovementChecks;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.level.wrapper.RayTraceLevel;
 import net.createmod.catnip.api.placement.IPlacementHelper;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -95,9 +96,9 @@ public class SuperGlueHandler {
 			return;
 
 		SuperGlueEntity entity = new SuperGlueEntity(world, SuperGlueEntity.span(gluePos, gluePos.relative(face)));
-		CustomData customData = itemstack.get(DataComponents.CUSTOM_DATA);
-		if (customData != null)
-			EntityType.updateCustomEntityTag(world, placer, entity, customData);
+		TypedEntityData<EntityType<?>> entityData = itemstack.get(DataComponents.ENTITY_DATA);
+		if (entityData != null)
+			EntityType.updateCustomEntityTag(world, placer, entity, entityData);
 
 		if (SuperGlueEntity.isValidFace(world, gluePos, face)) {
 			if (!world.isClientSide()) {

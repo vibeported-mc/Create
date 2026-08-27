@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.fluid;
 
+import java.util.Collection;
 import net.createmod.catnip.api.data.Iterate;
 import net.neoforged.neoforge.transfer.EmptyResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -19,6 +20,11 @@ public class CombinedTankWrapper implements ResourceHandler<FluidResource> {
 	protected final int[] baseIndex;
 	protected final int tankCount;
 	protected boolean enforceVariety;
+
+	@SuppressWarnings("unchecked")
+	public CombinedTankWrapper(Collection<? extends ResourceHandler<FluidResource>> fluidHandlers) {
+		this(fluidHandlers.toArray(ResourceHandler[]::new));
+	}
 
 	@SafeVarargs
 	public CombinedTankWrapper(ResourceHandler<FluidResource>... fluidHandlers) {

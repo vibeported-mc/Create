@@ -1,0 +1,85 @@
+package com.simibubi.create.foundation.item;
+
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+
+/**
+ * A container seen as a handler whose slots can also be written directly.
+ * <p>
+ * 26.2's {@link VanillaContainerWrapper} only offers the transactional half of the API. Create hands
+ * containers to code that also overwrites slots outright - mounted storage unmounting itself, for one
+ * - so the direct write goes to the container, which is what the wrapper reads from anyway.
+ */
+public class ContainerItemHandler implements ModifiableItemHandler {
+
+	private final Container container;
+	private final ResourceHandler<ItemResource> wrapped;
+
+	public ContainerItemHandler(Container container) {
+		this.container = container;
+		this.wrapped = VanillaContainerWrapper.of(container);
+	}
+
+	@Override
+	public void set(int index, ItemResource resource, int amount) {
+		container.setItem(index, resource.toStack(amount));
+		container.setChanged();
+	}
+
+	@Override
+	public int size() {
+		return wrapped.size();
+	}
+
+	@Override
+	public ItemResource getResource(int index) {
+		return wrapped.getResource(index);
+	}
+
+	@Override
+	public long getAmountAsLong(int index) {
+		return wrapped.getAmountAsLong(index);
+	}
+
+	@Override
+	public long getCapacityAsLong(int index, ItemResource resource) {
+		return wrapped.getCapacityAsLong(index, resource);
+	}
+
+	@Override
+	public boolean isValid(int index, ItemResource resource) {
+		return wrapped.isValid(index, resource);
+	}
+
+	@Override
+	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return wrapped.insert(index, resource, amount, transaction);
+	}
+
+	@Override
+	public int insert(ItemResource resource, int amount, TransactionContext transaction) {
+		return wrapped.insert(resource, amount, transaction);
+	}
+
+	@Override
+	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+		return wrapped.extract(index, resource, amount, transaction);
+	}
+
+	@Override
+	public int extract(ItemResource resource, int amount, TransactionContext transaction) {
+		return wrapped.extract(resource, amount, transaction);
+	}
+
+	/**
+	 * The stack in a slot, without a copy - the container's own.
+	 */
+	public ItemStack getStackInSlot(int index) {
+		return container.getItem(index);
+	}
+
+}

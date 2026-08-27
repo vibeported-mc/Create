@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions;
 
+import com.simibubi.create.foundation.item.CombinedItemHandler;
 import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -76,7 +77,7 @@ public class MountedStorageManager {
 	private ImmutableMap<BlockPos, SyncedMountedStorage> syncedFluids;
 
 	private List<ModifiableItemHandler> externalHandlers;
-	protected CombinedResourceHandler<ItemResource> allItems;
+	protected CombinedItemHandler allItems;
 
 	// ticks until storage can sync again
 	private int syncCooldown;
@@ -373,14 +374,14 @@ public class MountedStorageManager {
 			all[i + 1] = this.externalHandlers.get(i);
 		}
 
-		this.allItems = new CombinedResourceHandler<>(all);
+		this.allItems = new CombinedItemHandler(all);
 	}
 
 	/**
 	 * The primary way to access a contraption's inventory. Includes all
 	 * non-internal mounted storages as well as all external storage.
 	 */
-	public CombinedResourceHandler<ItemResource> getAllItems() {
+	public CombinedItemHandler getAllItems() {
 		this.assertInitialized();
 		return this.allItems;
 	}

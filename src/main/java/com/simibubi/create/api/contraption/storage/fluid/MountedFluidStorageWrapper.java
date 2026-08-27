@@ -15,7 +15,8 @@ public class MountedFluidStorageWrapper extends CombinedTankWrapper {
 	public final ImmutableMap<BlockPos, MountedFluidStorage> storages;
 
 	public MountedFluidStorageWrapper(ImmutableMap<BlockPos, MountedFluidStorage> storages) {
-		super(storages.values().toArray(ResourceHandler<FluidResource>[]::new));
+		super(storages.values()
+			.asList());
 		this.storages = storages;
 	}
 }
