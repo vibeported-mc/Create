@@ -90,7 +90,7 @@ public abstract class ChainConveyorShape {
 				.rotateYDegrees((float) yaw)
 				.rotateXDegrees((float) pitch)
 				.translateBack(pivot);
-			TrackBlockOutline.renderShape(voxelShape, ms, vb, null);
+			TrackBlockOutline.renderShape(voxelShape, ms.last(), vb, null);
 		}
 
 		@Override
@@ -139,7 +139,7 @@ public abstract class ChainConveyorShape {
 
 		@Override
 		public void drawOutline(BlockPos anchor, PoseStack ms, VertexConsumer vb) {
-			TrackBlockOutline.renderShape(AllShapes.CHAIN_CONVEYOR_INTERACTION, ms, vb, null);
+			TrackBlockOutline.renderShape(AllShapes.CHAIN_CONVEYOR_INTERACTION, ms.last(), vb, null);
 		}
 
 		@Override

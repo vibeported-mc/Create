@@ -1,7 +1,7 @@
 package com.simibubi.create.content.kinetics.base;
 
+import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.util.RandomSource;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
 
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
@@ -60,11 +60,13 @@ public class RotationIndicatorParticle extends SimpleAnimatedParticle {
 		radius += (radius2 - radius) * .1f;
 	}
 
+	// A particle is collected into a render state instead of drawing itself in 26.2; one that is not
+	// visible simply contributes nothing.
 	@Override
-	public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
+	public void extract(QuadParticleRenderState particleTypeRenderState, Camera camera, float partialTickTime) {
 		if (!isVisible)
 			return;
-		super.render(buffer, renderInfo, partialTicks);
+		super.extract(particleTypeRenderState, camera, partialTickTime);
 	}
 
 	public void move(double x, double y, double z) {

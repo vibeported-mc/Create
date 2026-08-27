@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.tank.storage.creative;
 
+import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +40,7 @@ public class CreativeFluidTankMountedStorage extends WrapperMountedFluidStorage<
 
 	public static CreativeFluidTankMountedStorage fromTank(CreativeFluidTankBlockEntity tank) {
 		// make an isolated copy
-		FluidStacksResourceHandler inv = tank.getTankInventory();
+		SmartFluidTank inv = tank.getTankInventory();
 		CreativeSmartFluidTank copy = new CreativeSmartFluidTank(inv.getCapacity(), $ -> {});
 		copy.setContainedFluid(inv.getFluid());
 		return new CreativeFluidTankMountedStorage(copy);

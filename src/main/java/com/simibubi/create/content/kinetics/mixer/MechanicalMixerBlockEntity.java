@@ -162,7 +162,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 					Optional<BasinBlockEntity> basin = getBasin();
 					if (basin.isPresent()) {
 						Couple<SmartFluidTankBehaviour> tanks = basin.get()
-							.size();
+							.getTanks();
 						if (!tanks.getFirst()
 							.isEmpty()
 							|| !tanks.getSecond()
@@ -204,7 +204,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 		}
 
 		for (SmartFluidTankBehaviour behaviour : basin.get()
-			.size()) {
+			.getTanks()) {
 			if (behaviour == null)
 				continue;
 			for (TankSegment tankSegment : behaviour.getTanks()) {

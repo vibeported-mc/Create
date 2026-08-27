@@ -516,11 +516,13 @@ public class BeltBlock extends HorizontalKineticBlock
 	public BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess ticks,
 		BlockPos pos, Direction side, BlockPos p_196271_6_, BlockState p_196271_3_, RandomSource random) {
 		updateWater(world, ticks, state, pos);
-		if (side.getAxis()
-			.isHorizontal())
-			updateTunnelConnections(world, pos.above());
-		if (side == Direction.UP)
-			updateCoverProperty(world, pos, state);
+		if (world instanceof LevelAccessor levelAccess) {
+			if (side.getAxis()
+				.isHorizontal())
+				updateTunnelConnections(levelAccess, pos.above());
+			if (side == Direction.UP)
+				updateCoverProperty(levelAccess, pos, state);
+		}
 		return state;
 	}
 
