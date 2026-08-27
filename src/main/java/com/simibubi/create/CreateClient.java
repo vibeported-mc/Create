@@ -1,5 +1,7 @@
 package com.simibubi.create;
 
+import net.createmod.catnip.api.client.event.LevelRenderCallback;
+import com.simibubi.create.foundation.events.ClientEvents;
 import com.simibubi.create.foundation.networking.CreateClientPayloadHandlers;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -94,6 +96,9 @@ public class CreateClient {
 		// Clientbound payload handlers cannot be registered from the common side; see
 		// CreateClientPayloadHandlers.
 		CreateClientPayloadHandlers.register();
+
+		// 26.2 submits render nodes ahead of drawing them; see ClientEvents#onSubmitFeatures.
+		LevelRenderCallback.SUBMIT_FEATURES.subscribe(ClientEvents::onSubmitFeatures);
 
 		//BUFFER_CACHE.registerCompartment(CachedBufferer.GENERIC_BLOCK);
 		//BUFFER_CACHE.registerCompartment(CachedPartialBuffers.partial);

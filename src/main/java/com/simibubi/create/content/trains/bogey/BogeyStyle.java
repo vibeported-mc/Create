@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains.bogey;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import java.util.List;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +18,6 @@ import com.simibubi.create.content.trains.bogey.BogeySizes.BogeySize;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -81,17 +82,31 @@ public class BogeyStyle {
 				.orElse((AbstractBogeyBlock) getBlockForSize(currentSize));
 	}
 
+	/**
+	 * Collect this bogey's geometry. 26.2 runs this on the client thread, ahead of submission; see
+	 * {@link BogeyRenderer}.
+	 */
 	@OnlyIn(Dist.CLIENT)
-	public void render(BogeySize size, float partialTick, PoseStack poseStack, MultiBufferSource buffers, int light, int overlay, float wheelAngle, @Nullable CompoundTag bogeyData, boolean inContraption) {
+	public void extract(BogeySize size, float partialTick, int light, float wheelAngle,
+		@Nullable CompoundTag bogeyData, boolean inContraption, List<BogeyRenderer.Part> out) {
 		if (bogeyData == null)
 			bogeyData = new CompoundTag();
 
-		poseStack.translate(0, -1.5 - 1 / 128f, 0);
-
 		SizeRenderer renderer = sizeRenderers.get(size);
-		if (renderer != null) {
-			renderer.renderer.render(bogeyData, wheelAngle, partialTick, poseStack, buffers, light, overlay, inContraption);
-		}
+		if (renderer != null)
+			renderer.renderer.extract(bogeyData, wheelAngle, partialTick, light, inContraption, out);
+	}
+
+	/**
+	 * The drop onto the rail is a pose transform rather than part of the geometry, so it belongs
+	 * here rather than in extraction.
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public static void submit(List<BogeyRenderer.Part> parts, PoseStack poseStack, SubmitNodeCollector queue) {
+		poseStack.pushPose();
+		poseStack.translate(0, -1.5 - 1 / 128f, 0);
+		BogeyRenderer.submit(parts, poseStack, queue);
+		poseStack.popPose();
 	}
 
 	@OnlyIn(Dist.CLIENT)

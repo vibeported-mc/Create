@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.blockEntity.behaviour;
 
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import java.lang.ref.WeakReference;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,13 +12,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIc
 import com.simibubi.create.foundation.gui.AllIcons;
 
 import net.createmod.catnip.api.client.outliner.ChasingAABBOutline;
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.util.LightCoordsUtil;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -72,7 +71,7 @@ public class ValueBox extends ChasingAABBOutline {
 	}
 
 	@Override
-	public void render(PoseStack ms, SuperRenderTypeBuffer buffer, Vec3 camera, float pt) {
+	public void submit(PoseStack ms, SubmitNodeCollector queue, Vec3 camera, float pt) {
 		boolean hasTransform = transform != null;
 		if (transform instanceof Sided && params.getHighlightedFace() != null)
 			((Sided) transform).fromSide(params.getHighlightedFace());
@@ -90,13 +89,13 @@ public class ValueBox extends ChasingAABBOutline {
 			ms.pushPose();
 			ms.scale(-2.01f, -2.01f, 2.01f);
 			ms.translate(-8 / 16.0, -8 / 16.0, -.5 / 16.0);
-			getOutline().render(ms, buffer, 0xffffff);
+			getOutline().submit(ms, queue, 0xffffff);
 			ms.popPose();
 		}
 
 		float fontScale = hasTransform ? -transform.getFontScale() : -1 / 64f;
 		ms.scale(fontScale, fontScale, fontScale);
-		renderContents(ms, buffer);
+		submitContents(ms, queue);
 
 		ms.popPose();
 	}
@@ -105,7 +104,7 @@ public class ValueBox extends ChasingAABBOutline {
 		return outline;
 	}
 
-	public void renderContents(PoseStack ms, MultiBufferSource buffer) {
+	public void submitContents(PoseStack ms, SubmitNodeCollector queue) {
 	}
 
 	public static class ItemValueBox extends ValueBox {
@@ -126,8 +125,8 @@ public class ValueBox extends ChasingAABBOutline {
 		}
 
 		@Override
-		public void renderContents(PoseStack ms, MultiBufferSource buffer) {
-			super.renderContents(ms, buffer);
+		public void submitContents(PoseStack ms, SubmitNodeCollector queue) {
+			super.submitContents(ms, queue);
 			if (count == null)
 				return;
 
@@ -137,10 +136,12 @@ public class ValueBox extends ChasingAABBOutline {
 			boolean isFilter = stack.getItem() instanceof FilterItem;
 			boolean isEmpty = stack.isEmpty();
 
-			ItemRenderer itemRenderer = Minecraft.getInstance()
-				.getItemRenderer();
-			BakedModel modelWithOverrides = itemRenderer.getModel(stack, null, null, 0);
-			boolean blockItem = modelWithOverrides.isGui3d();
+			// Whether the item is drawn as a block is a property of its resolved model in 26.2.
+			Minecraft mc = Minecraft.getInstance();
+			ItemStackRenderState itemState = new ItemStackRenderState();
+			mc.getItemModelResolver()
+				.updateForTopItem(itemState, stack, ItemDisplayContext.GUI, mc.level, mc.player, 0);
+			boolean blockItem = itemState.usesBlockLight();
 
 			float scale = 1.5f;
 			ms.translate(-font.width(count), 0, 0);
@@ -158,7 +159,7 @@ public class ValueBox extends ChasingAABBOutline {
 				ms.translate(-1, 3, 0);
 
 			ms.scale(scale, scale, scale);
-			drawString8x(ms, buffer, count, 0, 0, isFilter ? 0xFFFFFF : 0xEDEDED);
+			submitText8x(ms, queue, count, isFilter ? 0xFFFFFF : 0xEDEDED);
 		}
 
 	}
@@ -177,8 +178,8 @@ public class ValueBox extends ChasingAABBOutline {
 		}
 
 		@Override
-		public void renderContents(PoseStack ms, MultiBufferSource buffer) {
-			super.renderContents(ms, buffer);
+		public void submitContents(PoseStack ms, SubmitNodeCollector queue) {
+			super.submitContents(ms, queue);
 			Font font = Minecraft.getInstance().font;
 			float scale = 3;
 			ms.scale(scale, scale, 1);
@@ -196,9 +197,9 @@ public class ValueBox extends ChasingAABBOutline {
 
 			int overrideColor = transform.getOverrideColor();
 			if (overrideColor == -1)
-				drawString8x(ms, buffer, text, 0, 0, 0xEDEDED);
+				submitText8x(ms, queue, text, 0xEDEDED);
 			else
-				drawString(ms, buffer, text, 0, 0, overrideColor);
+				submitText(ms, queue, text, overrideColor, 0);
 		}
 
 	}
@@ -212,28 +213,30 @@ public class ValueBox extends ChasingAABBOutline {
 		}
 
 		@Override
-		public void renderContents(PoseStack ms, MultiBufferSource buffer) {
-			super.renderContents(ms, buffer);
+		public void submitContents(PoseStack ms, SubmitNodeCollector queue) {
+			super.submitContents(ms, queue);
 			float scale = 2 * 16;
 			ms.scale(scale, scale, scale);
 			ms.translate(-.5f, -.5f, 5 / 32f);
 
 			int overrideColor = transform.getOverrideColor();
-			icon.render(ms, buffer, overrideColor != -1 ? overrideColor : 0xFFFFFF);
+			icon.submit(ms, queue, overrideColor != -1 ? overrideColor : 0xFFFFFF);
 		}
 
 	}
 
-	private static void drawString(PoseStack ms, MultiBufferSource buffer, Component text, float x, float y,
-								   int color) {
-		Minecraft.getInstance().font.drawInBatch(text, x, y, color, false, ms.last()
-			.pose(), buffer, Font.DisplayMode.NORMAL, 0, LightCoordsUtil.FULL_BRIGHT);
+	/**
+	 * 26.2 draws text through the queue rather than through the font, and the eight-way outline the
+	 * font used to draw by hand is now just an outline colour on the node.
+	 */
+	private static void submitText(PoseStack ms, SubmitNodeCollector queue, Component text, int color,
+		int outlineColor) {
+		queue.submitText(ms, 0, 0, text.getVisualOrderText(), false, Font.DisplayMode.NORMAL,
+			LightCoordsUtil.FULL_BRIGHT, color, 0, outlineColor);
 	}
 
-	private static void drawString8x(PoseStack ms, MultiBufferSource buffer, Component text, float x, float y,
-									 int color) {
-		Minecraft.getInstance().font.drawInBatch8xOutline(text.getVisualOrderText(), x, y, color, 0xff333333, ms.last()
-			.pose(), buffer, LightCoordsUtil.FULL_BRIGHT);
+	private static void submitText8x(PoseStack ms, SubmitNodeCollector queue, Component text, int color) {
+		submitText(ms, queue, text, color, 0xff333333);
 	}
 
 }

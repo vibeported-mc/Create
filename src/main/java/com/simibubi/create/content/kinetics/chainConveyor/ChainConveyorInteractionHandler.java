@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.chainConveyor;
 
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.util.List;
@@ -20,7 +22,6 @@ import net.createmod.catnip.api.data.WorldAttached;
 import net.createmod.catnip.api.client.outliner.Outliner;
 import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -32,7 +33,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.common.Tags;
 
 @EventBusSubscriber(Dist.CLIENT)
@@ -156,7 +156,7 @@ public class ChainConveyorInteractionHandler {
 		return true;
 	}
 
-	public static void drawCustomBlockSelection(PoseStack ms, MultiBufferSource buffer, Vec3 camera) {
+	public static void submitCustomBlockSelection(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
 		if (selectedLift == null || selectedShape == null)
 			return;
 
@@ -168,7 +168,7 @@ public class ChainConveyorInteractionHandler {
 	}
 
 	@SubscribeEvent
-	public static void hideVanillaBlockSelection(RenderHighlightEvent.Block event) {
+	public static void hideVanillaBlockSelection(ExtractBlockOutlineRenderStateEvent event) {
 		if (selectedLift == null || selectedShape == null)
 			return;
 

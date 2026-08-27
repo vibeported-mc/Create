@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.List;
 
@@ -206,7 +207,7 @@ public class SchematicHandler implements LayeredDraw.Layer {
 		}
 	}
 
-	public void render(PoseStack ms, SuperRenderTypeBuffer buffer, Vec3 camera) {
+	public void submit(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
 		if (!active) {
 			return;
 		}

@@ -1,5 +1,9 @@
 package com.simibubi.create.content.trains.track;
 
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
+import java.util.List;
+import java.util.ArrayList;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +24,6 @@ import net.createmod.catnip.api.data.WorldAttached;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -38,7 +41,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class TrackBlockOutline {
@@ -141,7 +143,7 @@ public class TrackBlockOutline {
 		}
 	}
 
-	public static void drawCurveSelection(PoseStack ms, MultiBufferSource buffer, Vec3 camera) {
+	public static void submitCurveSelection(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.options.hideGui || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
 			return;
@@ -150,7 +152,6 @@ public class TrackBlockOutline {
 		if (result == null)
 			return;
 
-		VertexConsumer vb = buffer.getBuffer(RenderTypes.lines());
 		Vec3 vec = result.vec()
 			.subtract(camera);
 		Vec3 angles = result.angles();
@@ -162,48 +163,57 @@ public class TrackBlockOutline {
 			.translate(-.5, -.125f, -.5);
 
 		boolean holdingTrack = AllTags.AllBlockTags.TRACKS.matches(Minecraft.getInstance().player.getMainHandItem());
-		renderShape(AllShapes.TRACK_ORTHO.get(Direction.SOUTH), ms, vb, holdingTrack ? false : null);
+		Boolean valid = holdingTrack ? Boolean.FALSE : null;
+		// The outline is raw line geometry, so it is written when the queue hands over a consumer.
+		queue.submitCustomGeometry(ms, RenderTypes.lines(),
+			(pose, vb) -> renderShape(AllShapes.TRACK_ORTHO.get(Direction.SOUTH), pose, vb, valid));
 		ms.popPose();
 	}
 
+	/**
+	 * A track's outline follows the rail rather than the block, so it is drawn by hand. 26.2 extracts
+	 * the outline ahead of drawing it and a custom renderer may not hold on to the level, so
+	 * everything the drawing needs is read here and captured by value.
+	 */
 	@SubscribeEvent
-	public static void drawCustomBlockSelection(RenderHighlightEvent.Block event) {
+	public static void drawCustomBlockSelection(ExtractBlockOutlineRenderStateEvent event) {
 		Minecraft mc = Minecraft.getInstance();
-		BlockHitResult target = event.getTarget();
-		BlockPos pos = target.getBlockPos();
-		BlockState blockstate = mc.level.getBlockState(pos);
+		BlockPos pos = event.getBlockPos();
+		BlockState blockstate = event.getBlockState();
 
 		if (!(blockstate.getBlock() instanceof TrackBlock))
 			return;
-		if (!mc.level.getWorldBorder()
+		if (!event.getLevel()
+			.getWorldBorder()
 			.isWithinBounds(pos))
 			return;
 
-		VertexConsumer vb = event.getMultiBufferSource()
-			.getBuffer(RenderTypes.lines());
-		Vec3 camPos = event.getCamera()
-			.getPosition();
-
-		PoseStack ms = event.getPoseStack();
-
-		ms.pushPose();
-		ms.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
-
-		boolean holdingTrack = AllTags.AllBlockTags.TRACKS.matches(Minecraft.getInstance().player.getMainHandItem());
+		boolean holdingTrack = AllTags.AllBlockTags.TRACKS.matches(mc.player.getMainHandItem());
 		TrackShape shape = blockstate.getValue(TrackBlock.SHAPE);
 		boolean canConnectFrom = !shape.isJunction()
-			&& !(mc.level.getBlockEntity(pos)instanceof TrackBlockEntity tbe && tbe.isTilted());
+			&& !(event.getLevel()
+				.getBlockEntity(pos) instanceof TrackBlockEntity tbe && tbe.isTilted());
+		Boolean valid = holdingTrack ? canConnectFrom : null;
 
-		walkShapes(shape, TransformStack.of(ms), s -> {
-			renderShape(s, ms, vb, holdingTrack ? canConnectFrom : null);
-			event.setCanceled(true);
+		event.addCustomRenderer((renderState, queue, ms, levelRenderState) -> {
+			Vec3 camPos = levelRenderState.cameraRenderState.pos;
+			ms.pushPose();
+			ms.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
+
+			List<VoxelShape> shapes = new ArrayList<>();
+			walkShapes(shape, TransformStack.of(ms), shapes::add);
+			// walkShapes moves the pose as it goes, so the shapes are queued as it walks.
+			queue.submitCustomGeometry(ms, RenderTypes.lines(), (pose, vb) -> {
+				for (VoxelShape s : shapes)
+					renderShape(s, pose, vb, valid);
+			});
+
+			ms.popPose();
+			return !shapes.isEmpty();
 		});
-
-		ms.popPose();
 	}
 
-	public static void renderShape(VoxelShape s, PoseStack ms, VertexConsumer vb, Boolean valid) {
-		PoseStack.Pose transform = ms.last();
+	public static void renderShape(VoxelShape s, PoseStack.Pose transform, VertexConsumer vb, Boolean valid) {
 		s.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
 			float xDiff = (float) (x2 - x1);
 			float yDiff = (float) (y2 - y1);

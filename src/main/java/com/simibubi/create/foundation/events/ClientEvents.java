@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.events;
 
+import net.minecraft.client.renderer.state.level.LevelRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import com.simibubi.create.content.equipment.symmetryWand.SymmetryHandler;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.function.Supplier;
 
@@ -78,8 +81,6 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.createmod.catnip.api.client.level.wrapper.WrappedClientLevel;
-import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -104,12 +105,11 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -232,26 +232,25 @@ public class ClientEvents {
 		ControlsHandler.levelUnloaded(event.getLevel());
 	}
 
-	@SubscribeEvent
-	public static void onRenderWorld(RenderLevelStageEvent event) {
-		if (event.getStage() != Stage.AFTER_PARTICLES)
-			return;
-
-		PoseStack ms = event.getPoseStack();
+	/**
+	 * Everything Create draws in the world that is not a block entity or an entity.
+	 * <p>
+	 * 26.2 collects the nodes it will draw before drawing any of them, and NeoForge's render stage
+	 * events all fire during execution - too late to add anything. Catnip's submit-features callback
+	 * runs at the right point instead; {@link CreateClient} subscribes this method to it.
+	 */
+	public static void onSubmitFeatures(LevelRenderState state, SubmitNodeCollector queue, PoseStack ms) {
 		ms.pushPose();
-		SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
-		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera()
-			.getPosition();
+		Vec3 camera = state.cameraRenderState.pos;
 
-		TrackBlockOutline.drawCurveSelection(ms, buffer, camera);
-		TrackTargetingClient.render(ms, buffer, camera);
-		CouplingRenderer.renderAll(ms, buffer, camera);
-		CarriageCouplingRenderer.renderAll(ms, buffer, camera);
-		CreateClient.SCHEMATIC_HANDLER.render(ms, buffer, camera);
-		ChainConveyorInteractionHandler.drawCustomBlockSelection(ms, buffer, camera);
+		TrackBlockOutline.submitCurveSelection(ms, queue, camera);
+		TrackTargetingClient.submit(ms, queue, camera);
+		CouplingRenderer.submitAll(ms, queue, camera);
+		CarriageCouplingRenderer.submitAll(ms, queue, camera);
+		CreateClient.SCHEMATIC_HANDLER.submit(ms, queue, camera);
+		ChainConveyorInteractionHandler.submitCustomBlockSelection(ms, queue, camera);
+		SymmetryHandler.onSubmitFeatures(state, queue, ms);
 
-		buffer.draw();
-		RenderSystem.enableCull();
 		ms.popPose();
 
 		ContraptionPlayerPassengerRotation.frame();
@@ -356,7 +355,7 @@ public class ClientEvents {
 	}
 
 	@SubscribeEvent
-	public static void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
+	public static void registerClientReloadListeners(AddClientReloadListenersEvent event) {
 		event.registerReloadListener(CreateClient.RESOURCE_RELOAD_LISTENER);
 		event.registerReloadListener(TrainHatInfoReloadListener.LISTENER);
 	}

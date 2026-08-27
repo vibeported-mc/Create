@@ -1,10 +1,13 @@
 package com.simibubi.create.content.equipment.symmetryWand;
 
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.joml.Vector3f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.symmetryWand.mirror.EmptyMirror;
 import com.simibubi.create.content.equipment.symmetryWand.mirror.SymmetryMirror;
@@ -14,10 +17,8 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -35,8 +36,6 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
 import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.event.level.BlockEvent.BreakEvent;
 import net.neoforged.neoforge.event.level.BlockEvent.EntityPlaceEvent;
@@ -73,15 +72,20 @@ public class SymmetryHandler {
 				SymmetryWandItem.remove(player.level(), inv.getItem(i), player, event.getPos());
 	}
 
+	/**
+	 * 26.2 collects everything it will draw before drawing any of it, so the mirror markers are
+	 * submitted from Catnip's submit-features callback rather than from a render stage. The models
+	 * are partials, so they go through the same cached-buffer path as the rest of Create rather than
+	 * through the block tesselator.
+	 */
 	@OnlyIn(Dist.CLIENT)
-	@SubscribeEvent
-	public static void onRenderWorld(RenderLevelStageEvent event) {
-		if (event.getStage() != Stage.AFTER_PARTICLES)
-			return;
-
+	public static void onSubmitFeatures(LevelRenderState state, SubmitNodeCollector queue, PoseStack ms) {
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;
-		RandomSource random = RandomSource.create();
+		if (player == null)
+			return;
+
+		Vec3 view = state.cameraRenderState.pos;
 
 		for (int i = 0; i < Inventory.getSelectionSize(); i++) {
 			ItemStack stackInSlot = player.getInventory()
@@ -96,31 +100,19 @@ public class SymmetryHandler {
 
 			BlockPos pos = BlockPos.containing(mirror.getPosition());
 
-			float yShift = 0;
 			double speed = 1 / 16d;
-			yShift = Mth.sin((float) (AnimationTickHolder.getRenderTime() * speed)) / 5f;
+			float yShift = Mth.sin((float) (AnimationTickHolder.getRenderTime() * speed)) / 5f;
 
-			MultiBufferSource.BufferSource buffer = mc.renderBuffers()
-				.bufferSource();
-			Camera info = mc.gameRenderer.getMainCamera();
-			Vec3 view = info.getPosition();
-
-			PoseStack ms = event.getPoseStack();
 			ms.pushPose();
 			ms.translate(pos.getX() - view.x(), pos.getY() - view.y(), pos.getZ() - view.z());
 			ms.translate(0, yShift + .2f, 0);
 			mirror.applyModelTransform(ms);
-			BakedModel model = mirror.getModel()
-				.get();
-			VertexConsumer builder = buffer.getBuffer(RenderTypes.solidMovingBlock());
 
-			mc.getBlockRenderer()
-				.getModelRenderer()
-				.tesselateBlock(player.level(), model, Blocks.AIR.defaultBlockState(), pos, ms, builder, true,
-					random, Mth.getSeed(pos), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, RenderTypes.solidMovingBlock());
+			CachedBuffers.partial(mirror.getModel(), Blocks.AIR.defaultBlockState())
+				.light(LightCoordsUtil.FULL_BRIGHT)
+				.submit(ms, RenderTypes.solidMovingBlock(), queue);
 
 			ms.popPose();
-			buffer.endBatch();
 		}
 	}
 

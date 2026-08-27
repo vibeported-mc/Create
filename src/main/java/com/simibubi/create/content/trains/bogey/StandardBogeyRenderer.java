@@ -1,62 +1,70 @@
 package com.simibubi.create.content.trains.bogey;
 
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import java.util.List;
+
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
 
+import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.AngleHelper;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 
 public class StandardBogeyRenderer implements BogeyRenderer {
-	@Override
-	public void render(CompoundTag bogeyData, float wheelAngle, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay, boolean inContraption) {
-		VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.cutoutMovingBlock());
 
-		SuperByteBuffer shaft = CachedBuffers.block(AllBlocks.SHAFT.getDefaultState()
-				.setValue(ShaftBlock.AXIS, Direction.Axis.Z));
+	private static final RenderType RENDER_TYPE = RenderTypes.cutoutMovingBlock();
+
+	/**
+	 * Each piece carries its own transform, so a buffer that used to be reused across a loop is
+	 * fetched fresh per iteration - one extracted state holds exactly one transform.
+	 */
+	protected static void add(List<Part> out, SuperByteBuffer buffer, int light) {
+		out.add(new Part(buffer.light(light)
+			.extractRenderState(), RENDER_TYPE));
+	}
+
+	@Override
+	public void extract(CompoundTag bogeyData, float wheelAngle, float partialTick, int light, boolean inContraption,
+		List<Part> out) {
 		for (int i : Iterate.zeroAndOne) {
-			shaft.translate(-.5f, .25f, i * -1)
-					.center()
-					.rotateZDegrees(wheelAngle)
-					.uncenter()
-					.light(light)
-					.overlay(overlay)
-					.renderInto(poseStack, buffer);
+			SuperByteBuffer shaft = CachedBuffers.block(AllBlocks.SHAFT.getDefaultState()
+				.setValue(ShaftBlock.AXIS, Direction.Axis.Z));
+			TransformStack.of(shaft.getTransforms())
+				.translate(-.5f, .25f, i * -1)
+				.center()
+				.rotateZDegrees(wheelAngle)
+				.uncenter();
+			add(out, shaft, light);
 		}
 	}
 
 	public static class Small extends StandardBogeyRenderer {
 		@Override
-		public void render(CompoundTag bogeyData, float wheelAngle, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay, boolean inContraption) {
-			super.render(bogeyData, wheelAngle, partialTick, poseStack, bufferSource, light, overlay, inContraption);
+		public void extract(CompoundTag bogeyData, float wheelAngle, float partialTick, int light,
+			boolean inContraption, List<Part> out) {
+			super.extract(bogeyData, wheelAngle, partialTick, light, inContraption, out);
 
-			VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.cutoutMovingBlock());
+			SuperByteBuffer frame = CachedBuffers.partial(AllPartialModels.BOGEY_FRAME, Blocks.AIR.defaultBlockState());
+			TransformStack.of(frame.getTransforms())
+				.scale(1 - 1 / 512f);
+			add(out, frame, light);
 
-			CachedBuffers.partial(AllPartialModels.BOGEY_FRAME, Blocks.AIR.defaultBlockState())
-					.scale(1 - 1 / 512f)
-					.light(light)
-					.overlay(overlay)
-					.renderInto(poseStack, buffer);
-
-			SuperByteBuffer wheels = CachedBuffers.partial(AllPartialModels.SMALL_BOGEY_WHEELS, Blocks.AIR.defaultBlockState());
 			for (int side : Iterate.positiveAndNegative) {
-				wheels.translate(0, 12 / 16f, side)
-					.rotateXDegrees(wheelAngle)
-					.light(light)
-					.overlay(overlay)
-					.renderInto(poseStack, buffer);
+				SuperByteBuffer wheels =
+					CachedBuffers.partial(AllPartialModels.SMALL_BOGEY_WHEELS, Blocks.AIR.defaultBlockState());
+				TransformStack.of(wheels.getTransforms())
+					.translate(0, 12 / 16f, side)
+					.rotateXDegrees(wheelAngle);
+				add(out, wheels, light);
 			}
 		}
 	}
@@ -66,66 +74,61 @@ public class StandardBogeyRenderer implements BogeyRenderer {
 		public static final float BELT_RADIUS_IN_UV_SPACE = BELT_RADIUS_PX / 16f;
 
 		@Override
-		public void render(CompoundTag bogeyData, float wheelAngle, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay, boolean inContraption) {
-			super.render(bogeyData, wheelAngle, partialTick, poseStack, bufferSource, light, overlay, inContraption);
+		public void extract(CompoundTag bogeyData, float wheelAngle, float partialTick, int light,
+			boolean inContraption, List<Part> out) {
+			super.extract(bogeyData, wheelAngle, partialTick, light, inContraption, out);
 
-			VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.cutoutMovingBlock());
-
-			SuperByteBuffer secondaryShaft = CachedBuffers.block(AllBlocks.SHAFT.getDefaultState()
-					.setValue(ShaftBlock.AXIS, Direction.Axis.X));
 			for (int i : Iterate.zeroAndOne) {
-				secondaryShaft.translate(-.5f, .25f, .5f + i * -2)
-						.center()
-						.rotateXDegrees(wheelAngle)
-						.uncenter()
-						.light(light)
-						.overlay(overlay)
-						.renderInto(poseStack, buffer);
+				SuperByteBuffer secondaryShaft = CachedBuffers.block(AllBlocks.SHAFT.getDefaultState()
+					.setValue(ShaftBlock.AXIS, Direction.Axis.X));
+				TransformStack.of(secondaryShaft.getTransforms())
+					.translate(-.5f, .25f, .5f + i * -2)
+					.center()
+					.rotateXDegrees(wheelAngle)
+					.uncenter();
+				add(out, secondaryShaft, light);
 			}
 
-			CachedBuffers.partial(AllPartialModels.BOGEY_DRIVE, Blocks.AIR.defaultBlockState())
-					.scale(1 - 1 / 512f)
-					.light(light)
-					.overlay(overlay)
-					.renderInto(poseStack, buffer);
+			SuperByteBuffer drive = CachedBuffers.partial(AllPartialModels.BOGEY_DRIVE, Blocks.AIR.defaultBlockState());
+			TransformStack.of(drive.getTransforms())
+				.scale(1 - 1 / 512f);
+			add(out, drive, light);
 
 			float spriteSize = AllSpriteShifts.BOGEY_BELT.getTarget()
 				.getV1()
 				- AllSpriteShifts.BOGEY_BELT.getTarget()
-				.getV0();
+					.getV0();
 
 			float scroll = BELT_RADIUS_IN_UV_SPACE * Mth.DEG_TO_RAD * wheelAngle;
 			scroll = scroll - Mth.floor(scroll);
 			scroll = scroll * spriteSize * 0.5f;
 
-			CachedBuffers.partial(AllPartialModels.BOGEY_DRIVE_BELT, Blocks.AIR.defaultBlockState())
-					.scale(1 - 1 / 512f)
-					.light(light)
-					.overlay(overlay)
-					.shiftUVScrolling(AllSpriteShifts.BOGEY_BELT, scroll)
-					.renderInto(poseStack, buffer);
+			SuperByteBuffer belt =
+				CachedBuffers.partial(AllPartialModels.BOGEY_DRIVE_BELT, Blocks.AIR.defaultBlockState());
+			TransformStack.of(belt.getTransforms())
+				.scale(1 - 1 / 512f);
+			add(out, belt.shiftUVScrolling(AllSpriteShifts.BOGEY_BELT, scroll), light);
 
-			CachedBuffers.partial(AllPartialModels.BOGEY_PISTON, Blocks.AIR.defaultBlockState())
-					.translate(0, 0, 1 / 4f * Math.sin(AngleHelper.rad(wheelAngle)))
-					.light(light)
-					.overlay(overlay)
-					.renderInto(poseStack, buffer);
+			SuperByteBuffer piston =
+				CachedBuffers.partial(AllPartialModels.BOGEY_PISTON, Blocks.AIR.defaultBlockState());
+			TransformStack.of(piston.getTransforms())
+				.translate(0, 0, 1 / 4f * Math.sin(AngleHelper.rad(wheelAngle)));
+			add(out, piston, light);
 
-			CachedBuffers.partial(AllPartialModels.LARGE_BOGEY_WHEELS, Blocks.AIR.defaultBlockState())
-					.translate(0, 1, 0)
-					.rotateXDegrees(wheelAngle)
-					.light(light)
-					.overlay(overlay)
-					.renderInto(poseStack, buffer);
+			SuperByteBuffer wheels =
+				CachedBuffers.partial(AllPartialModels.LARGE_BOGEY_WHEELS, Blocks.AIR.defaultBlockState());
+			TransformStack.of(wheels.getTransforms())
+				.translate(0, 1, 0)
+				.rotateXDegrees(wheelAngle);
+			add(out, wheels, light);
 
-			CachedBuffers.partial(AllPartialModels.BOGEY_PIN, Blocks.AIR.defaultBlockState())
-					.translate(0, 1, 0)
-					.rotateXDegrees(wheelAngle)
-					.translate(0, 1 / 4f, 0)
-					.rotateXDegrees(-wheelAngle)
-					.light(light)
-					.overlay(overlay)
-					.renderInto(poseStack, buffer);
+			SuperByteBuffer pin = CachedBuffers.partial(AllPartialModels.BOGEY_PIN, Blocks.AIR.defaultBlockState());
+			TransformStack.of(pin.getTransforms())
+				.translate(0, 1, 0)
+				.rotateXDegrees(wheelAngle)
+				.translate(0, 1 / 4f, 0)
+				.rotateXDegrees(-wheelAngle);
+			add(out, pin, light);
 		}
 	}
 }

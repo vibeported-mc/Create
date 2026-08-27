@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.track;
 
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import com.google.common.base.Objects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllDataComponents;
@@ -11,7 +12,6 @@ import com.simibubi.create.content.trains.track.TrackTargetingBehaviour.Rendered
 import com.simibubi.create.content.trains.track.TrackTargetingBlockItem.OverlapResult;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -110,7 +110,7 @@ public class TrackTargetingClient {
 			});
 	}
 
-	public static void render(PoseStack ms, SuperRenderTypeBuffer buffer, Vec3 camera) {
+	public static void submit(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
 		if (lastLocation == null || lastResult.feedback != null)
 			return;
 

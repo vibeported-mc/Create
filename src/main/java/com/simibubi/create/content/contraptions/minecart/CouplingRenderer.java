@@ -1,10 +1,11 @@
 package com.simibubi.create.content.contraptions.minecart;
 
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import static net.minecraft.util.Mth.lerp;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.contraptions.minecart.capability.MinecartController;
 import com.simibubi.create.content.kinetics.KineticDebugger;
@@ -19,8 +20,6 @@ import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,12 +31,12 @@ import net.minecraft.world.phys.Vec3;
 
 public class CouplingRenderer {
 
-	public static void renderAll(PoseStack ms, MultiBufferSource buffer, Vec3 camera) {
+	public static void submitAll(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
 		CouplingHandler.forEachLoadedCoupling(Minecraft.getInstance().level, c -> {
 			if (c.getFirst()
 				.hasContraptionCoupling(true))
 				return;
-			CouplingRenderer.renderCoupling(ms, buffer, camera, c.map(MinecartController::cart));
+			CouplingRenderer.submitCoupling(ms, queue, camera, c.map(MinecartController::cart));
 		});
 	}
 
@@ -46,14 +45,14 @@ public class CouplingRenderer {
 			CouplingHandler.forEachLoadedCoupling(Minecraft.getInstance().level, CouplingRenderer::doDebugRender);
 	}
 
-	public static void renderCoupling(PoseStack ms, MultiBufferSource buffer, Vec3 camera, Couple<AbstractMinecart> carts) {
+	public static void submitCoupling(PoseStack ms, SubmitNodeCollector queue, Vec3 camera, Couple<AbstractMinecart> carts) {
 		ClientLevel world = Minecraft.getInstance().level;
 
 		if (carts.getFirst() == null || carts.getSecond() == null)
 			return;
 
 		Couple<Integer> lightValues =
-			carts.map(c -> LevelRenderer.getLightColor(world, BlockPos.containing(c.getBoundingBox()
+			carts.map(c -> LightCoordsUtil.getLightCoords(world, BlockPos.containing(c.getBoundingBox()
 				.getCenter())));
 
 		Vec3 center = carts.getFirst()
@@ -65,7 +64,6 @@ public class CouplingRenderer {
 		Couple<CartEndpoint> transforms = carts.map(c -> getSuitableCartEndpoint(c, center));
 
 		BlockState renderState = Blocks.AIR.defaultBlockState();
-		VertexConsumer builder = buffer.getBuffer(RenderTypes.solidMovingBlock());
 		SuperByteBuffer attachment = CachedBuffers.partial(AllPartialModels.COUPLING_ATTACHMENT, renderState);
 		SuperByteBuffer ring = CachedBuffers.partial(AllPartialModels.COUPLING_RING, renderState);
 		SuperByteBuffer connector = CachedBuffers.partial(AllPartialModels.COUPLING_CONNECTOR, renderState);
