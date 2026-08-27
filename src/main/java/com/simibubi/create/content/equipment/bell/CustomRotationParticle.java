@@ -65,7 +65,7 @@ public class CustomRotationParticle extends SimpleAnimatedParticle {
 		float maxU = mirror ? getU0() : getU1();
 		float minV = getV0();
 		float maxV = getV1();
-		int brightness = ShadersModHelper.isShaderPackInUse() ? LightCoordsUtil.pack(12, 15) : getLightColor(partialTicks);
+		int brightness = ShadersModHelper.isShaderPackInUse() ? LightCoordsUtil.pack(12, 15) : getLightCoords(partialTicks);
 		builder.addVertex(vertices[0].x(), vertices[0].y(), vertices[0].z()).setUv(maxU, maxV).setColor(rCol, gCol, bCol, alpha).setLight(brightness);
 		builder.addVertex(vertices[1].x(), vertices[1].y(), vertices[1].z()).setUv(maxU, minV).setColor(rCol, gCol, bCol, alpha).setLight(brightness);
 		builder.addVertex(vertices[2].x(), vertices[2].y(), vertices[2].z()).setUv(minU, minV).setColor(rCol, gCol, bCol, alpha).setLight(brightness);

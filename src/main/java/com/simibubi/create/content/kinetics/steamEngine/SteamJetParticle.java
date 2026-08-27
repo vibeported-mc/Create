@@ -1,20 +1,19 @@
 package com.simibubi.create.content.kinetics.steamEngine;
 
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.util.RandomSource;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SimpleAnimatedParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -39,65 +38,38 @@ public class SteamJetParticle extends SimpleAnimatedParticle {
 		this.setSpriteFromAge(sprite);
 	}
 
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+	@Override
+	public SingleQuadParticle.Layer getLayer() {
+		return SingleQuadParticle.Layer.OPAQUE;
 	}
 
-	public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
-		Vec3 vec3 = pRenderInfo.getPosition();
-		float f = (float) (x - vec3.x);
-		float f1 = (float) (y - vec3.y);
-		float f2 = (float) (z - vec3.z);
-		float f3 = Mth.lerp(pPartialTicks, this.oRoll, this.roll);
-		float f7 = this.getU0();
-		float f8 = this.getU1();
-		float f5 = this.getV0();
-		float f6 = this.getV1();
-		float f4 = this.getQuadSize(pPartialTicks);
+	/**
+	 * The jet is four quads fanned around its own axis rather than one facing the camera.
+	 * <p>
+	 * 26.2 collects particles into a render state instead of writing them to a buffer, and a quad's
+	 * orientation travels as a rotation, so the four are handed over one at a time with the axis and
+	 * spin baked into each rotation.
+	 */
+	@Override
+	public void extract(QuadParticleRenderState particleTypeRenderState, Camera camera, float partialTickTime) {
+		Vec3 cameraPos = camera.position();
+		float x = (float) (Mth.lerp(partialTickTime, this.xo, this.x) - cameraPos.x());
+		float y = (float) (Mth.lerp(partialTickTime, this.yo, this.y) - cameraPos.y());
+		float z = (float) (Mth.lerp(partialTickTime, this.zo, this.z) - cameraPos.z());
+		float spin = Mth.lerp(partialTickTime, this.oRoll, this.roll);
 
 		for (int i = 0; i < 4; i++) {
-			Quaternionf quaternion = Axis.YP.rotation(yaw);
-			quaternion.mul(Axis.XP.rotation(pitch));
-			quaternion.mul(Axis.YP.rotation(f3 + Mth.PI / 2 * i + roll));
-			Vector3f vector3f1 = new Vector3f(-1.0F, -1.0F, 0.0F);
-			vector3f1.rotate(quaternion);
-
-			Vector3f[] avector3f = new Vector3f[] { new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F),
-				new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F) };
-
-			for (int j = 0; j < 4; ++j) {
-				Vector3f vector3f = avector3f[j];
-				vector3f.add(0, 1, 0);
-				vector3f.rotate(quaternion);
-				vector3f.mul(f4);
-				vector3f.add(f, f1, f2);
-			}
-
-			int j = this.getLightColor(pPartialTicks);
-			pBuffer.addVertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z())
-				.setUv(f8, f6)
-				.setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-				.setLight(j);
-			pBuffer.addVertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z())
-				.setUv(f8, f5)
-				.setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-				.setLight(j);
-			pBuffer.addVertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z())
-				.setUv(f7, f5)
-				.setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-				.setLight(j);
-			pBuffer.addVertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z())
-				.setUv(f7, f6)
-				.setColor(this.rCol, this.gCol, this.bCol, this.alpha)
-				.setLight(j);
-
+			Quaternionf rotation = Axis.YP.rotation(yaw);
+			rotation.mul(Axis.XP.rotation(pitch));
+			rotation.mul(Axis.YP.rotation(spin + Mth.PI / 2 * i + roll));
+			extractRotatedQuad(particleTypeRenderState, rotation, x, y, z, partialTickTime);
 		}
 	}
 
 	@Override
-	public int getLightColor(float partialTick) {
+	public int getLightCoords(float partialTick) {
 		BlockPos blockpos = BlockPos.containing(this.x, this.y, this.z);
-		return this.level.isLoaded(blockpos) ? LevelRenderer.getLightColor(level, blockpos) : 0;
+		return this.level.hasChunkAt(blockpos) ? LightCoordsUtil.getLightCoords(level, blockpos) : 0;
 	}
 
 	public static class Factory implements ParticleProvider<SteamJetParticleData> {

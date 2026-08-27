@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.particle;
 
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import net.minecraft.client.particle.SingleQuadParticle;
 import com.simibubi.create.Create;
@@ -10,7 +11,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SimpleAnimatedParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
@@ -56,7 +56,7 @@ public class AirParticle extends SimpleAnimatedParticle {
 		}
 	}
 
-	protected SingleQuadParticle.Layer getLayer() {
+	public SingleQuadParticle.Layer getLayer() {
 		return SingleQuadParticle.Layer.TRANSLUCENT;
 	}
 
@@ -86,9 +86,9 @@ public class AirParticle extends SimpleAnimatedParticle {
 		this.move(this.xd, this.yd, this.zd);
 	}
 
-	public int getLightColor(float partialTick) {
+	public int getLightCoords(float partialTick) {
 		BlockPos blockpos = BlockPos.containing(this.x, this.y, this.z);
-		return this.level.isLoaded(blockpos) ? LevelRenderer.getLightColor(level, blockpos) : 0;
+		return this.level.hasChunkAt(blockpos) ? LightCoordsUtil.getLightCoords(level, blockpos) : 0;
 	}
 
 	private void selectSprite(int index) {

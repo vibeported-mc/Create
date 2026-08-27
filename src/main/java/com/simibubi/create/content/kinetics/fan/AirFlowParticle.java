@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.fan;
 
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,10 +11,9 @@ import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SimpleAnimatedParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.Mth;
@@ -43,8 +43,8 @@ public class AirFlowParticle extends SimpleAnimatedParticle {
 	}
 
 	@NotNull
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+	public SingleQuadParticle.Layer getLayer() {
+		return SingleQuadParticle.Layer.TRANSLUCENT;
 	}
 
 	@Override
@@ -108,9 +108,9 @@ public class AirFlowParticle extends SimpleAnimatedParticle {
 		return source.getAirCurrent().getTypeAt((float) distance);
 	}
 
-	public int getLightColor(float partialTick) {
+	public int getLightCoords(float partialTick) {
 		BlockPos blockpos = BlockPos.containing(this.x, this.y, this.z);
-		return this.level.isLoaded(blockpos) ? LevelRenderer.getLightColor(level, blockpos) : 0;
+		return this.level.hasChunkAt(blockpos) ? LightCoordsUtil.getLightCoords(level, blockpos) : 0;
 	}
 
 	private void selectSprite(int index) {
