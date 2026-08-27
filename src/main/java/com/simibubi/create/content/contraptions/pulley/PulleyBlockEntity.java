@@ -363,7 +363,7 @@ public class PulleyBlockEntity extends LinearActuatorBlockEntity implements Thre
 	@Override
 	protected int getExtensionRange() {
 		return Math.max(0, Math.min(AllConfigs.server().kinetics.maxRopeLength.get(),
-			(worldPosition.getY() - 1) - level.getMinBuildHeight()));
+			(worldPosition.getY() - 1) - level.getMinY()));
 	}
 
 	@Override
@@ -406,7 +406,7 @@ public class PulleyBlockEntity extends LinearActuatorBlockEntity implements Thre
 
 	@Override
 	public int getMinValue() {
-		return level.getMinBuildHeight();
+		return level.getMinY();
 	}
 
 	@Override

@@ -116,7 +116,7 @@ public class ControllerRailBlock extends BaseRailBlock implements IWrenchable {
 
 	private static boolean isStableWith(BlockState testState, BlockGetter world, BlockPos pos) {
 		return canSupportRigidBlock(world, pos.below()) && (!testState.getValue(SHAPE)
-			.isAscending() || canSupportRigidBlock(world, pos.relative(getPointingTowards(testState))));
+			.isSlope() || canSupportRigidBlock(world, pos.relative(getPointingTowards(testState))));
 	}
 
 	@Override
@@ -232,7 +232,7 @@ public class ControllerRailBlock extends BaseRailBlock implements IWrenchable {
 		world.setBlock(pos, state, Block.UPDATE_ALL);
 		world.updateNeighborsAt(pos.below(), this);
 		if (state.getValue(SHAPE)
-			.isAscending())
+			.isSlope())
 			world.updateNeighborsAt(pos.above(), this);
 	}
 
@@ -245,7 +245,7 @@ public class ControllerRailBlock extends BaseRailBlock implements IWrenchable {
 		BlockPos baseTestPos = reversed ? from.subtract(accelerationVec) : from.offset(accelerationVec);
 		for (BlockPos testPos : Iterate.hereBelowAndAbove(baseTestPos)) {
 			if (testPos.getY() > from.getY() && !current.getValue(SHAPE)
-				.isAscending())
+				.isSlope())
 				continue;
 			BlockState testState = world.getBlockState(testPos);
 			if (testState.getBlock() instanceof ControllerRailBlock

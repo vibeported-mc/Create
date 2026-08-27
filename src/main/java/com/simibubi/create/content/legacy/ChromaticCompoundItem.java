@@ -87,7 +87,7 @@ public class ChromaticCompoundItem extends Item {
 
 		double y = entity.getY();
 		double yMotion = entity.getDeltaMovement().y;
-		int minHeight = world.getMinBuildHeight();
+		int minHeight = world.getMinY();
 		CompoundTag data = entity.getPersistentData();
 
 		// Convert to Shadow steel if in void

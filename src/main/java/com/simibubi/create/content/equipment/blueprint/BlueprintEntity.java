@@ -1,5 +1,8 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
@@ -79,6 +82,12 @@ public class BlueprintEntity extends HangingEntity
 	protected int size;
 	protected Direction verticalOrientation;
 
+	/**
+	 * Blueprints hang on all six faces, which {@link HangingEntity#setDirection} rejects, so the
+	 * facing is kept here and handed back through {@link #getDirection()}.
+	 */
+	protected Direction direction;
+
 	@SuppressWarnings("unchecked")
 	public BlueprintEntity(EntityType<?> p_i50221_1_, Level p_i50221_2_) {
 		super((EntityType<? extends HangingEntity>) p_i50221_1_, p_i50221_2_);
@@ -103,7 +112,14 @@ public class BlueprintEntity extends HangingEntity
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {}
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+	}
+
+	@Override
+	public Direction getDirection() {
+		return direction;
+	}
 
 	@Override
 	public void addAdditionalSaveData(ValueOutput output) {
@@ -118,8 +134,11 @@ public class BlueprintEntity extends HangingEntity
 	@Override
 	public void readAdditionalSaveData(ValueInput input) {
 		super.readAdditionalSaveData(input);
-		CompoundTag p_70037_1_ = NbtValueIO.read(input);
-		if (p_70037_1_.contains("Facing", Tag.TAG_ANY_NUMERIC)) {
+		readFacing(NbtValueIO.read(input));
+	}
+
+	protected void readFacing(CompoundTag p_70037_1_) {
+		if (p_70037_1_.contains("Facing")) {
 			this.direction = Direction.from3DDataValue(p_70037_1_.getByteOr("Facing", (byte) 0));
 			this.verticalOrientation = Direction.from3DDataValue(p_70037_1_.getByteOr("Orientation", (byte) 0));
 			this.size = p_70037_1_.getIntOr("Size", 0);
@@ -250,8 +269,7 @@ public class BlueprintEntity extends HangingEntity
 			}
 		}
 
-		return this.level().getEntities(this, this.getBoundingBox(), HANGING_ENTITY)
-			.isEmpty();
+		return this.canCoexist(false);
 	}
 
 	public int getWidth() {
@@ -291,9 +309,9 @@ public class BlueprintEntity extends HangingEntity
 	}
 
 	@Override
-	public void dropItem(@Nullable Entity p_110128_1_) {
-		if (!level().getGameRules()
-			.getBooleanOr(GameRules.RULE_DOENTITYDROPS, false))
+	public void dropItem(ServerLevel serverLevel, @Nullable Entity p_110128_1_) {
+		if (!serverLevel.getGameRules()
+			.get(GameRules.ENTITY_DROPS))
 			return;
 
 		playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F);
@@ -302,12 +320,11 @@ public class BlueprintEntity extends HangingEntity
 				return;
 		}
 
-		if (level() instanceof ServerLevel serverLevel)
-			spawnAtLocation(serverLevel, AllItems.CRAFTING_BLUEPRINT.asStack());
+		spawnAtLocation(serverLevel, AllItems.CRAFTING_BLUEPRINT.asStack());
 	}
 
 	@Override
-	public ItemStack getPickedResult(HitResult target) {
+	public ItemStack getPickResult() {
 		return AllItems.CRAFTING_BLUEPRINT.asStack();
 	}
 
@@ -322,34 +339,28 @@ public class BlueprintEntity extends HangingEntity
 	}
 
 	@Override
-	public void moveTo(double p_70012_1_, double p_70012_3_, double p_70012_5_, float p_70012_7_, float p_70012_8_) {
+	public void snapTo(double p_70012_1_, double p_70012_3_, double p_70012_5_, float p_70012_7_, float p_70012_8_) {
 		this.setPos(p_70012_1_, p_70012_3_, p_70012_5_);
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void lerpTo(double pX, double pY, double pZ, float pYRot, float pXRot, int pSteps) {
-		BlockPos blockpos =
-				this.pos.offset(BlockPos.containing(pX - this.getX(), pY - this.getY(), pZ - this.getZ()));
-		this.setPos(blockpos.getX(), blockpos.getY(), blockpos.getZ());
 	}
 
 	@Override
 	public void writeSpawnData(RegistryFriendlyByteBuf registryFriendlyByteBuf) {
 		CompoundTag compound = new CompoundTag();
-		addAdditionalSaveData(compound);
+		compound.putByte("Facing", (byte) this.direction.get3DDataValue());
+		compound.putByte("Orientation", (byte) this.verticalOrientation.get3DDataValue());
+		compound.putInt("Size", size);
 		registryFriendlyByteBuf.writeNbt(compound);
 		registryFriendlyByteBuf.writeNbt(getPersistentData());
 	}
 
 	@Override
 	public void readSpawnData(RegistryFriendlyByteBuf registryFriendlyByteBuf) {
-		readAdditionalSaveData(registryFriendlyByteBuf.readNbt());
+		readFacing(registryFriendlyByteBuf.readNbt());
 		getPersistentData().merge(registryFriendlyByteBuf.readNbt());
 	}
 
 	@Override
-	public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
+	public InteractionResult interact(Player player, InteractionHand hand, Vec3 vec) {
 		if (player instanceof FakePlayer)
 			return InteractionResult.PASS;
 
@@ -360,7 +371,7 @@ public class BlueprintEntity extends HangingEntity
 		if (!holdingWrench && !level().isClientSide() && !ItemHandlerHelpers.getStackInSlot(items, 9)
 			.isEmpty()) {
 
-			ModifiableItemHandler playerInv = VanillaContainerWrapper.of(player.getInventory());
+			ResourceHandler<ItemResource> playerInv = PlayerInventoryWrapper.of(player.getInventory());
 			boolean firstPass = true;
 			int amountCrafted = 0;
 			CommonHooks.setCraftingPlayer(player);
@@ -400,10 +411,10 @@ public class BlueprintEntity extends HangingEntity
 					CraftingContainer craftingInventory = new BlueprintCraftingInventory(craftingGrid);
 
 					if (!recipe.isPresent())
-						recipe = level().getRecipeManager()
+						recipe = ((ServerLevel) level()).recipeAccess()
 							.getRecipeFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), level());
 					ItemStack result = recipe.filter(r -> r.value().matches(craftingInventory.asCraftInput(), level()))
-						.map(r -> r.value().assemble(craftingInventory.asCraftInput(), registryAccess()))
+						.map(r -> r.value().assemble(craftingInventory.asCraftInput()))
 						.orElse(ItemStack.EMPTY);
 
 					if (result.isEmpty()) {
@@ -412,10 +423,11 @@ public class BlueprintEntity extends HangingEntity
 						success = false;
 					} else {
 						amountCrafted += result.getCount();
-						result.onCraftedBy(player.level(), player, 1);
+						result.onCraftedBy(player, 1);
 						EventHooks.firePlayerCraftingEvent(player, result, craftingInventory);
-						NonNullList<ItemStack> nonnulllist = level().getRecipeManager()
-							.getRemainingItemsFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), level());
+						NonNullList<ItemStack> nonnulllist = recipe
+							.map(r -> r.value().getRemainingItems(craftingInventory.asCraftInput()))
+							.orElseGet(() -> NonNullList.withSize(9, ItemStack.EMPTY));
 
 						if (firstPass)
 							level().playSound(null, player.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS,
@@ -556,8 +568,8 @@ public class BlueprintEntity extends HangingEntity
 
 		@Override
 		public Component getDisplayName() {
-			return AllItems.CRAFTING_BLUEPRINT.get()
-				.getDescription();
+			return AllItems.CRAFTING_BLUEPRINT.asStack()
+				.getHoverName();
 		}
 
 		@Override
@@ -574,7 +586,7 @@ public class BlueprintEntity extends HangingEntity
 
 	@Override
 	public boolean canPlayerUse(Player player) {
-		return player.canInteractWithEntity(this, 8);
+		return player.isWithinEntityInteractionRange(this, 8);
 	}
 
 }

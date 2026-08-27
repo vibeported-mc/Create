@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.item;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
@@ -379,6 +380,24 @@ public class ItemHelper {
 	public static ItemStack parseOptional(HolderLookup.Provider registries, Tag tag) {
 		return CatnipCodecUtils.decode(ItemStack.OPTIONAL_CODEC, registries, tag)
 			.orElse(ItemStack.EMPTY);
+	}
+
+	/**
+	 * The stack a recipe leaves behind when this one is consumed - an empty bucket for a filled one,
+	 * and so on.
+	 * <p>
+	 * 26.2 moved this off ItemStack: it is a template on the Item now, so it has to be instantiated.
+	 */
+	public static ItemStack getCraftingRemainder(ItemStack stack) {
+		ItemStackTemplate remainder = stack.getItem()
+			.getCraftingRemainder();
+		return remainder.isEmpty() ? ItemStack.EMPTY : remainder.create();
+	}
+
+	public static boolean hasCraftingRemainder(ItemStack stack) {
+		return !stack.getItem()
+			.getCraftingRemainder()
+			.isEmpty();
 	}
 
 }

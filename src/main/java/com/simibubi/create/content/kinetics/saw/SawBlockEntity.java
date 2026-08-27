@@ -373,8 +373,8 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 			for (ItemStack stack : results) {
 				ItemHelper.addToList(stack, list);
 			}
-			if (input.hasCraftingRemainingItem())
-				ItemHelper.addToList(input.getCraftingRemainingItem(), list);
+			if (ItemHelper.hasCraftingRemainder(input))
+				ItemHelper.addToList(ItemHelper.getCraftingRemainder(input), list);
 		}
 
 		for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++)

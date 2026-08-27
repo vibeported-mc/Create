@@ -91,7 +91,7 @@ public class ElevatorColumn {
 	}
 
 	public void gatherAll() {
-		BlockPos.betweenClosedStream(contactAt(level.getMinBuildHeight()), contactAt(level.getMaxBuildHeight()))
+		BlockPos.betweenClosedStream(contactAt(level.getMinY()), contactAt(level.getMaxY()))
 			.filter(p -> coords.equals(ElevatorContactBlock.getColumnCoords(level, p)))
 			.forEach(p -> level.setBlock(p,
 				BlockHelper.copyProperties(level.getBlockState(p), AllBlocks.ELEVATOR_CONTACT.getDefaultState()), 3));

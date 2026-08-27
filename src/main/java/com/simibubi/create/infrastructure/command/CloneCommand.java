@@ -61,7 +61,7 @@ public class CloneCommand {
 		ServerLevel world = source.getLevel();
 
 		int i = sourceArea.getXSpan() * sourceArea.getYSpan() * sourceArea.getZSpan();
-		int limit = world.getGameRules().getIntOr(GameRules.RULE_COMMAND_MODIFICATION_BLOCK_LIMIT, 0);
+		int limit = world.getGameRules().get(GameRules.MAX_BLOCK_MODIFICATIONS);
 		if (i > limit)
 			throw CLONE_TOO_BIG_EXCEPTION.create(limit, i);
 

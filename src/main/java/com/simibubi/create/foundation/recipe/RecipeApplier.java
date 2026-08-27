@@ -53,8 +53,8 @@ public class RecipeApplier {
 
 					stacks.add(stack);
 				}
-				if (returnProcessingRemainder && stackIn.hasCraftingRemainingItem()) {
-					ItemHelper.addToList(stackIn.getCraftingRemainingItem(), stacks);
+				if (returnProcessingRemainder && ItemHelper.hasCraftingRemainder(stackIn)) {
+					ItemHelper.addToList(ItemHelper.getCraftingRemainder(stackIn), stacks);
 				}
 
 			}

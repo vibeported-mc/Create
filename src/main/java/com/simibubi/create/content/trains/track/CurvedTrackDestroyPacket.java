@@ -40,7 +40,7 @@ public class CurvedTrackDestroyPacket extends BlockEntityConfigurationPacket<Tra
 	@Override
 	protected void applySettings(ServerPlayer player, TrackBlockEntity be) {
 		int verifyDistance = AllConfigs.server().trains.maxTrackPlacementLength.get() * 4;
-		if (!player.canInteractWithBlock(be.getBlockPos(), verifyDistance)) {
+		if (!player.isWithinBlockInteractionRange(be.getBlockPos(), verifyDistance)) {
 			Create.LOGGER.warn("{} too far away from destroyed Curve track", player.getScoreboardName());
 			return;
 		}

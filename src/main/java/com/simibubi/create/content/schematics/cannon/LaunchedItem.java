@@ -121,7 +121,7 @@ public abstract class LaunchedItem {
 		void readNBT(CompoundTag nbt, HolderLookup.Provider registries, HolderGetter<Block> holderGetter) {
 			super.readNBT(nbt, registries, holderGetter);
 			state = NbtUtils.readBlockState(holderGetter, nbt.getCompoundOrEmpty("BlockState"));
-			if (nbt.contains("Data", Tag.TAG_COMPOUND)) {
+			if (nbt.contains("Data")) {
 				data = nbt.getCompoundOrEmpty("Data");
 			}
 		}

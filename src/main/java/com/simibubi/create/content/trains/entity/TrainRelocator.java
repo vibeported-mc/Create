@@ -83,7 +83,7 @@ public class TrainRelocator {
 		if (player.isSpectator())
 			return;
 
-		if (!player.canInteractWithBlock(relocatingOrigin, 24) || player.isShiftKeyDown()) {
+		if (!player.isWithinBlockInteractionRange(relocatingOrigin, 24) || player.isShiftKeyDown()) {
 			relocatingTrain = null;
 			player.sendOverlayMessage(CreateLang.translateDirect("train.relocate.abort")
 				.withStyle(ChatFormatting.RED));
@@ -312,7 +312,7 @@ public class TrainRelocator {
 				return;
 			}
 
-			if (!player.canInteractWithBlock(relocatingOrigin, 24)) {
+			if (!player.isWithinBlockInteractionRange(relocatingOrigin, 24)) {
 				player.sendOverlayMessage(CreateLang.translateDirect("train.relocate.too_far")
 					.withStyle(ChatFormatting.RED));
 				return;

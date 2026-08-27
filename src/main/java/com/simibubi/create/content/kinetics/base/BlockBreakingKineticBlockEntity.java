@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.base;
 
+import net.minecraft.server.level.ServerLevel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.simibubi.create.AllTags.AllBlockTags;
@@ -141,8 +142,8 @@ public abstract class BlockBreakingKineticBlockEntity extends KineticBlockEntity
 		BlockHelper.destroyBlock(level, breakingPos, 1f, (stack) -> {
 			if (stack.isEmpty())
 				return;
-			if (!level.getGameRules()
-				.getBooleanOr(GameRules.RULE_DOBLOCKDROPS, false))
+			if (!(level instanceof ServerLevel serverLevel) || !serverLevel.getGameRules()
+				.get(GameRules.BLOCK_DROPS))
 				return;
 			if (level.restoringBlockSnapshots)
 				return;

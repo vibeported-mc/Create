@@ -23,7 +23,7 @@ public record SuperGlueSelectionPacket(BlockPos from, BlockPos to) implements Se
 
 	@Override
 	public void handle(ServerPlayer player) {
-		if (!player.canInteractWithBlock(to, 2))
+		if (!player.isWithinBlockInteractionRange(to, 2))
 			return;
 		if (!to.closerThan(from, 25))
 			return;

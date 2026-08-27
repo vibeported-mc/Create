@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 public class CreateNBTProcessors {
 	public static void register() {
 		NBTProcessors.addProcessor(BlockEntityTypes.LECTERN, data -> {
-			if (!data.contains("Book", Tag.TAG_COMPOUND))
+			if (!data.contains("Book"))
 				return data;
 			CompoundTag book = data.getCompoundOrEmpty("Book");
 

@@ -46,7 +46,7 @@ public class ControllerRailGenerator extends SpecialBlockStateGen {
 		RailShape shape = state.getValue(ControllerRailBlock.SHAPE);
 		boolean backwards = ControllerRailBlock.isStateBackwards(state);
 
-		String model = shape.isAscending() ? backwards ? "ascending_south" : "ascending_north" : "north_south";
+		String model = shape.isSlope() ? backwards ? "ascending_south" : "ascending_north" : "north_south";
 		return AssetLookup.partialBaseModel(ctx, prov, model);
 	}
 

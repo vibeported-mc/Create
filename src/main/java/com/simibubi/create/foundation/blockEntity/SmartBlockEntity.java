@@ -236,7 +236,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	@Override
 	public boolean canPlayerUse(Player player) {
 		if (level != null && level.getBlockEntity(worldPosition) == this) {
-			return player.canInteractWithBlock(worldPosition, 8);
+			return player.isWithinBlockInteractionRange(worldPosition, 8);
 		}
 
 		return false;

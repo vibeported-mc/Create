@@ -732,7 +732,7 @@ public class TrainMapManager {
 	}
 
 	private static int mapYtoAlpha(double y) {
-		int minY = Minecraft.getInstance().level.getMinBuildHeight();
+		int minY = Minecraft.getInstance().level.getMinY();
 		return Mth.clamp(32 + Mth.floor((y - minY) / 4.0), 0, 255);
 	}
 

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.box;
 
+import com.simibubi.create.foundation.mixin.accessor.ItemEntityAccessor;
+import net.minecraft.world.entity.InterpolationHandler;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import com.simibubi.create.foundation.utility.NbtValueIO;
@@ -88,7 +90,7 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 
 	public static PackageEntity fromDroppedItem(Level world, Entity originalEntity, ItemStack itemstack) {
 		PackageEntity packageEntity = AllEntityTypes.PACKAGE.get()
-			.create(world);
+			.create(world, EntitySpawnReason.LOAD);
 
 		Vec3 position = originalEntity.position();
 		packageEntity.setPos(position);
@@ -106,14 +108,14 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 
 	public static PackageEntity fromItemStack(Level world, Vec3 position, ItemStack itemstack) {
 		PackageEntity packageEntity = AllEntityTypes.PACKAGE.get()
-			.create(world);
+			.create(world, EntitySpawnReason.LOAD);
 		packageEntity.setPos(position);
 		packageEntity.setBox(itemstack);
 		return packageEntity;
 	}
 
 	@Override
-	public ItemStack getPickedResult(HitResult target) {
+	public ItemStack getPickResult() {
 		return box.copy();
 	}
 
@@ -147,17 +149,18 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 		motion = collideBoundingBox(this, motion, bb, level(), entityStream);
 
 		Vec3 clientPos = position().add(motion);
-		if (lerpSteps != 0)
-			clientPos = VecHelper.lerp(Math.min(1, tickCount / 20f), clientPos, new Vec3(lerpX, lerpY, lerpZ));
+		InterpolationHandler interpolation = getInterpolation();
+		if (interpolation != null && interpolation.hasActiveInterpolation())
+			clientPos = VecHelper.lerp(Math.min(1, tickCount / 20f), clientPos, interpolation.position());
 		if (tickCount < 5)
 			setPos(clientPos.x, clientPos.y, clientPos.z);
 		if (tickCount < 20)
-			lerpTo(clientPos.x, clientPos.y, clientPos.z, getYRot(), getXRot(), lerpSteps == 0 ? 3 : lerpSteps);
+			moveOrInterpolateTo(clientPos, getYRot(), getXRot());
 	}
 
 	@Override
-	public void lerpMotion(double x, double y, double z) {
-		setDeltaMovement(getDeltaMovement().add(x, y, z)
+	public void lerpMotion(Vec3 movement) {
+		setDeltaMovement(getDeltaMovement().add(movement)
 			.scale(.5f));
 	}
 
@@ -193,9 +196,7 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 	protected void verifyInitialEntity() {
 		if (!(originalEntity instanceof ItemEntity itemEntity))
 			return;
-		CompoundTag nbt = new CompoundTag();
-		itemEntity.addAdditionalSaveData(nbt);
-		if (nbt.getIntOr("PickupDelay", 0) != 32767) // See: ItemEntity#makeFakeItem
+		if (((ItemEntityAccessor) itemEntity).create$getPickupDelay() != 32767) // See: ItemEntity#makeFakeItem
 			return;
 		discard();
 	}
@@ -247,15 +248,15 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 	}
 
 	@Override
-	public boolean canBeCollidedWith() {
+	public boolean canBeCollidedWith(@Nullable Entity other) {
 		return false;
 	}
 
 	@Override
-	public InteractionResult interact(Player pPlayer, InteractionHand pHand) {
+	public InteractionResult interact(Player pPlayer, InteractionHand pHand, Vec3 location) {
 		if (!pPlayer.getItemInHand(pHand)
 			.isEmpty())
-			return super.interact(pPlayer, pHand);
+			return super.interact(pPlayer, pHand, location);
 		if (pPlayer.level().isClientSide())
 			return InteractionResult.SUCCESS;
 		pPlayer.setItemInHand(pHand, box);
@@ -303,11 +304,16 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 	}
 
 	@Override
-	public boolean hurt(DamageSource source, float amount) {
+	public boolean hurtClient(DamageSource source) {
+		return false;
+	}
+
+	@Override
+	public boolean hurtServer(ServerLevel serverLevel, DamageSource source, float amount) {
 		if (source.getEntity() instanceof Player player && !CommonHooks.onPlayerAttackTarget(player, this))
 			return false;
 
-		if (level().isClientSide() || !this.isAlive())
+		if (!this.isAlive())
 			return false;
 
 		if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
@@ -324,7 +330,7 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 		if (source.is(DamageTypeTags.IS_FALL))
 			return false;
 
-		if (this.isInvulnerableTo(source))
+		if (this.isInvulnerableTo(serverLevel, source))
 			return false;
 
 		if (source.is(DamageTypeTags.IS_EXPLOSION)) {
@@ -381,7 +387,7 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 			if (itemstack.getItem() instanceof SpawnEggItem sei) {
 				EntityType<?> entitytype = sei.getType(itemstack);
 				Entity entity =
-					entitytype.spawn(level, itemstack, null, blockPosition(), EntitySpawnReason.SPAWN_EGG, false, false);
+					entitytype.spawn(level, itemstack, null, blockPosition(), EntitySpawnReason.SPAWN_ITEM_USE, false, false);
 				if (entity != null)
 					itemstack.shrink(1);
 			}
@@ -407,11 +413,6 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 		CompoundTag compound = new CompoundTag();
 		compound.put("Box", ItemHelper.saveOptional(box, level().registryAccess()));
 		NbtValueIO.store(output, compound);
-	}
-
-	@Override
-	public Iterable<ItemStack> getArmorSlots() {
-		return Collections.emptyList();
 	}
 
 	@Override
@@ -479,6 +480,6 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 
 	@Override
 	public boolean fireImmune() {
-		return box.has(DataComponents.FIRE_RESISTANT) || super.fireImmune();
+		return box.has(DataComponents.DAMAGE_RESISTANT) || super.fireImmune();
 	}
 }

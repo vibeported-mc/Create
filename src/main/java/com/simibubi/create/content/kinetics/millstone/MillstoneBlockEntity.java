@@ -160,7 +160,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 		}
 
 		ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inputInv, 0);
-		ItemStack craftingRemainingItem = stackInSlot.getCraftingRemainingItem();
+		ItemStack craftingRemainingItem = ItemHelper.getCraftingRemainder(stackInSlot);
 		stackInSlot.shrink(1);
 		ItemHandlerHelpers.setStackInSlot(inputInv, 0, stackInSlot);
 		lastRecipe.rollResults(level.getRandom())

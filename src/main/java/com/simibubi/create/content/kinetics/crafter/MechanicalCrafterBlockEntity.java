@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.CommitCallback;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -300,8 +301,8 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 					List<ItemStack> containers = new ArrayList<>();
 					groupedItems.grid.values()
 						.forEach(stack -> {
-							if (stack.hasCraftingRemainingItem())
-								containers.add(stack.getCraftingRemainingItem()
+							if (ItemHelper.hasCraftingRemainder(stack))
+								containers.add(ItemHelper.getCraftingRemainder(stack)
 									.copy());
 						});
 

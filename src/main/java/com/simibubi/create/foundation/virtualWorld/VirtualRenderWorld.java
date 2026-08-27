@@ -1,5 +1,17 @@
 package com.simibubi.create.foundation.virtualWorld;
 
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ExplosionParticleInfo;
+import net.neoforged.neoforge.entity.PartEntity;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.block.entity.FuelValues;
+import net.minecraft.world.item.crafting.RecipeAccess;
+import net.minecraft.world.clock.ClockManager;
+import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,8 +91,8 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 	private int externalPackedLight = 0;
 
 	public VirtualRenderWorld(Level level, int minBuildHeight, int height, Vec3i biomeOffset, Runnable onBlockUpdated) {
-		super((WritableLevelData) level.getLevelData(), level.dimension(), level.registryAccess(), level.dimensionTypeRegistration(), level.getProfilerSupplier(),
-			true, false, 0, 0);
+		super((WritableLevelData) level.getLevelData(), level.dimension(), level.registryAccess(),
+			level.dimensionTypeRegistration(), true, false, 0, 0);
 		this.level = level;
 		this.minBuildHeight = nextMultipleOf16(minBuildHeight);
 		this.height = nextMultipleOf16(height);
@@ -196,7 +208,7 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 		blockStates.put(pos, newState);
 
 		SectionPos sectionPos = SectionPos.of(pos);
-		short nonEmptyBlockCount = nonEmptyBlockCounts.getShortOr(sectionPos, (short) 0);
+		short nonEmptyBlockCount = nonEmptyBlockCounts.getOrDefault(sectionPos, (short) 0);
 		boolean prevEmpty = nonEmptyBlockCount == 0;
 		if (!oldState.isAir()) {
 			--nonEmptyBlockCount;
@@ -292,7 +304,7 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 	}
 
 	@Override
-	public int getMinBuildHeight() {
+	public int getMinY() {
 		return minBuildHeight;
 	}
 
@@ -329,7 +341,6 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 		return 15;
 	}
 
-	@Override
 	public float getShade(Direction direction, boolean shade) {
 		return 1f;
 	}
@@ -342,8 +353,32 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 	}
 
 	@Override
-	public RecipeManager getRecipeManager() {
-		return level.getRecipeManager();
+	public RecipeAccess recipeAccess() {
+		return level.recipeAccess();
+	}
+
+	@Override
+	public ClockManager clockManager() {
+		return level.clockManager();
+	}
+
+	@Override
+	public EnvironmentAttributeSystem environmentAttributes() {
+		return level.environmentAttributes();
+	}
+
+	@Override
+	public FuelValues fuelValues() {
+		return level.fuelValues();
+	}
+
+	@Override
+	public LevelData.RespawnData getRespawnData() {
+		return level.getRespawnData();
+	}
+
+	@Override
+	public void setRespawnData(LevelData.RespawnData respawnData) {
 	}
 
 	@Override
@@ -371,24 +406,23 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 		return level.potionBrewing();
 	}
 
+
+
+
+
 	@Override
-	public void setDayTimeFraction(float v) {
-		level.setDayTimeFraction(v);
+	public WorldBorder getWorldBorder() {
+		return level.getWorldBorder();
 	}
 
 	@Override
-	public void setDayTimePerTick(float v) {
-		level.setDayTimePerTick(v);
+	public int getSeaLevel() {
+		return level.getSeaLevel();
 	}
 
 	@Override
-	public float getDayTimeFraction() {
-		return level.getDayTimeFraction();
-	}
-
-	@Override
-	public float getDayTimePerTick() {
-		return level.getDayTimePerTick();
+	public Collection<? extends PartEntity<?>> dragonParts() {
+		return List.of();
 	}
 
 	// ADDITIONAL OVERRRIDES
@@ -410,13 +444,24 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 	// UNIMPORTANT IMPLEMENTATIONS
 
 	@Override
-	public void playSeededSound(Player player, double x, double y, double z, Holder<SoundEvent> soundEvent,
-								SoundSource soundSource, float volume, float pitch, long seed) {
+	public void playSeededSound(Entity source, double x, double y, double z, Holder<SoundEvent> soundEvent,
+		SoundSource soundSource, float volume, float pitch, long seed) {
 	}
 
 	@Override
-	public void playSeededSound(Player player, Entity entity, Holder<SoundEvent> soundEvent, SoundSource soundSource,
-								float volume, float pitch, long seed) {
+	public void playSeededSound(Entity source, Entity entity, Holder<SoundEvent> soundEvent, SoundSource soundSource,
+		float volume, float pitch, long seed) {
+	}
+
+	/**
+	 * Nothing detonates in a contraption's render level.
+	 */
+	@Override
+	public void explode(@Nullable Entity source, @Nullable DamageSource damageSource,
+		@Nullable ExplosionDamageCalculator damageCalculator, double x, double y, double z, float radius,
+		boolean fire, ExplosionInteraction explosionInteraction, ParticleOptions smallExplosionParticles,
+		ParticleOptions largeExplosionParticles, WeightedList<ExplosionParticleInfo> particles,
+		Holder<SoundEvent> explosionSound) {
 	}
 
 	@Override
@@ -441,12 +486,10 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 		return null;
 	}
 
-	@Override
 	public void setMapData(MapId mapId, MapItemSavedData mapItemSavedData) {
 	}
 
 	@NotNull
-	@Override
 	public MapId getFreeMapId() {
 		return new MapId(0);
 	}
@@ -456,7 +499,7 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 	}
 
 	@Override
-	public void levelEvent(@Nullable Player player, int type, BlockPos pos, int data) {
+	public void levelEvent(@Nullable Entity source, int type, BlockPos pos, int data) {
 	}
 
 	@Override
@@ -480,24 +523,20 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 
 	// Intentionally copied from LevelHeightAccessor. Lithium overrides these methods so we need to, too.
 
-	@Override
 	public int getMaxBuildHeight() {
-		return this.getMinBuildHeight() + this.getHeight();
+		return this.getMinY() + this.getHeight();
 	}
 
-	@Override
 	public int getSectionsCount() {
 		return this.getMaxSection() - this.getMinSection();
 	}
 
-	@Override
 	public int getMinSection() {
-		return SectionPos.blockToSectionCoord(this.getMinBuildHeight());
+		return SectionPos.blockToSectionCoord(this.getMinY());
 	}
 
-	@Override
 	public int getMaxSection() {
-		return SectionPos.blockToSectionCoord(this.getMaxBuildHeight() - 1) + 1;
+		return SectionPos.blockToSectionCoord(this.getMaxY() - 1) + 1;
 	}
 
 	@Override
@@ -507,7 +546,7 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 
 	@Override
 	public boolean isOutsideBuildHeight(int y) {
-		return y < this.getMinBuildHeight() || y >= this.getMaxBuildHeight();
+		return y < this.getMinY() || y >= this.getMaxY();
 	}
 
 	@Override

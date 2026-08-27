@@ -1,5 +1,9 @@
 package com.simibubi.create.content.contraptions.minecart.capability;
 
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.createmod.catnip.api.network.NetworkHelper;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -41,16 +45,16 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 /**
  * Extended code for Minecarts, this allows for handling stalled carts and
  * coupled trains
  */
-public class MinecartController implements INBTSerializable<CompoundTag> {
+public class MinecartController implements ValueIOSerializable {
 	public static final MinecartController EMPTY = new MinecartController.Empty();
 
-	public static final IAttachmentSerializer<CompoundTag, MinecartController> SERIALIZER = Type.SERIALIZER;
+	public static final IAttachmentSerializer<MinecartController> SERIALIZER = Type.SERIALIZER;
 
 	private boolean needsEntryRefresh;
 	private WeakReference<AbstractMinecart> weakRef;
@@ -130,7 +134,7 @@ public class MinecartController implements INBTSerializable<CompoundTag> {
 		}
 		BlockPos blockpos = new BlockPos(i, j, k);
 		BlockState blockstate = world.getBlockState(blockpos);
-		if (cart.canUseRail() && blockstate.is(BlockTags.RAILS)
+		if (blockstate.is(BlockTags.RAILS)
 			&& blockstate.getBlock() instanceof PoweredRailBlock
 			&& ((PoweredRailBlock) blockstate.getBlock())
 			.isActivatorRail()) {
@@ -321,7 +325,6 @@ public class MinecartController implements INBTSerializable<CompoundTag> {
 		NetworkHelper.INSTANCE.sendToClientsTrackingEntity(this.cart(), new MinecartControllerUpdatePacket(this, getWorld().registryAccess()));
 	}
 
-	@Override
 	public CompoundTag serializeNBT(@NotNull HolderLookup.Provider provider) {
 		CompoundTag compoundNBT = new CompoundTag();
 
@@ -334,6 +337,15 @@ public class MinecartController implements INBTSerializable<CompoundTag> {
 	}
 
 	@Override
+	public void serialize(ValueOutput output) {
+		NbtValueIO.store(output, serializeNBT(getWorld() == null ? null : getWorld().registryAccess()));
+	}
+
+	@Override
+	public void deserialize(ValueInput input) {
+		deserializeNBT(getWorld() == null ? null : getWorld().registryAccess(), NbtValueIO.read(input));
+	}
+
 	public void deserializeNBT(@NotNull HolderLookup.Provider provider, CompoundTag nbt) {
 		Optional<StallData> internalSD = Optional.empty();
 		Optional<StallData> externalSD = Optional.empty();
@@ -390,16 +402,16 @@ public class MinecartController implements INBTSerializable<CompoundTag> {
 
 		CompoundTag serialize() {
 			CompoundTag nbt = new CompoundTag();
-			nbt.put("Main", NbtUtils.createUUID(mainCartID));
-			nbt.put("Connected", NbtUtils.createUUID(connectedCartID));
+			nbt.putIntArray("Main", UUIDUtil.uuidToIntArray(mainCartID));
+			nbt.putIntArray("Connected", UUIDUtil.uuidToIntArray(connectedCartID));
 			nbt.putFloat("Length", length);
 			nbt.putBoolean("Contraption", contraption);
 			return nbt;
 		}
 
 		static CouplingData read(CompoundTag nbt) {
-			UUID mainCartID = NbtUtils.loadUUID(NBTHelper.getINBT(nbt, "Main"));
-			UUID connectedCartID = NbtUtils.loadUUID(NBTHelper.getINBT(nbt, "Connected"));
+			UUID mainCartID = UUIDUtil.uuidFromIntArray(nbt.getIntArray("Main").orElseGet(() -> new int[4]));
+			UUID connectedCartID = UUIDUtil.uuidFromIntArray(nbt.getIntArray("Connected").orElseGet(() -> new int[4]));
 			float length = nbt.getFloatOr("Length", 0);
 			boolean contraption = nbt.getBooleanOr("Contraption", false);
 			return new CouplingData(mainCartID, connectedCartID, length, contraption);
@@ -572,6 +584,14 @@ public class MinecartController implements INBTSerializable<CompoundTag> {
 		}
 
 		@Override
+		public void serialize(ValueOutput output) {
+		}
+
+		@Override
+		public void deserialize(ValueInput input) {
+		}
+
+		@Override
 		public boolean isPresent() {
 			return super.isPresent();
 		}
@@ -585,54 +605,57 @@ public class MinecartController implements INBTSerializable<CompoundTag> {
 	protected enum Type implements StringRepresentable {
 		EMPTY(new IAttachmentSerializer<>() {
 			@Override
-			public @NotNull MinecartController read(@NotNull IAttachmentHolder holder, @NotNull CompoundTag tag, @NotNull HolderLookup.Provider provider) {
+			public @NotNull MinecartController read(@NotNull IAttachmentHolder holder, @NotNull ValueInput input) {
 				return MinecartController.EMPTY;
 			}
 
 			@Override
-			public CompoundTag write(@NotNull MinecartController attachment, @NotNull HolderLookup.Provider provider) {
-				return attachment.serializeNBT(provider);
+			public boolean write(@NotNull MinecartController attachment, @NotNull ValueOutput output) {
+				return false;
 			}
 		}),
 		NORMAL(new IAttachmentSerializer<>() {
 			@Override
-			public @NotNull MinecartController read(@NotNull IAttachmentHolder holder, @NotNull CompoundTag tag, @NotNull HolderLookup.Provider provider) {
+			public @NotNull MinecartController read(@NotNull IAttachmentHolder holder, @NotNull ValueInput input) {
 				MinecartController controller = new MinecartController(null);
-				controller.deserializeNBT(provider, tag);
+				controller.deserialize(input);
 				return controller;
 			}
 
 			@Override
-			public @Nullable CompoundTag write(@NotNull MinecartController attachment, @NotNull HolderLookup.Provider provider) {
-				return attachment.serializeNBT(provider);
+			public boolean write(@NotNull MinecartController attachment, @NotNull ValueOutput output) {
+				attachment.serialize(output);
+				return true;
 			}
 		});
 
 		public static final Codec<Type> CODEC = StringRepresentable.fromValues(Type::values);
 
-		private final IAttachmentSerializer<CompoundTag, MinecartController> serializer;
+		private final IAttachmentSerializer<MinecartController> serializer;
 
-		private static final IAttachmentSerializer<CompoundTag, MinecartController> SERIALIZER = new IAttachmentSerializer<>() {
+		private static final IAttachmentSerializer<MinecartController> SERIALIZER = new IAttachmentSerializer<>() {
 			@Override
-			public @NotNull MinecartController read(@NotNull IAttachmentHolder holder, @NotNull CompoundTag tag, @NotNull HolderLookup.Provider provider) {
-				return Type.valueOf(tag.getStringOr("Type", "")).getSerializer().read(holder, tag, provider);
+			public @NotNull MinecartController read(@NotNull IAttachmentHolder holder, @NotNull ValueInput input) {
+				return Type.valueOf(input.getStringOr("Type", EMPTY.name()))
+					.getSerializer()
+					.read(holder, input);
 			}
 
 			@Override
-			public @Nullable CompoundTag write(MinecartController attachment, @NotNull HolderLookup.Provider provider) {
-				CompoundTag tag = attachment.serializeNBT(provider);
-				if (tag != null) {
-					tag.putString("Type", attachment.getType().name());
-				}
-				return tag;
+			public boolean write(MinecartController attachment, @NotNull ValueOutput output) {
+				Type type = attachment.getType();
+				if (!type.getSerializer().write(attachment, output))
+					return false;
+				output.putString("Type", type.name());
+				return true;
 			}
 		};
 
-		Type(IAttachmentSerializer<CompoundTag, MinecartController> serializer) {
+		Type(IAttachmentSerializer<MinecartController> serializer) {
 			this.serializer = serializer;
 		}
 
-		public IAttachmentSerializer<CompoundTag, MinecartController> getSerializer() {
+		public IAttachmentSerializer<MinecartController> getSerializer() {
 			return serializer;
 		}
 

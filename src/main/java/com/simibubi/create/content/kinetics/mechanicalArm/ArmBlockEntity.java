@@ -443,7 +443,7 @@ public class ArmBlockEntity extends KineticBlockEntity implements TransformableB
 		if (level.isClientSide()) {
 			int minY = center.getY() - range;
 			int maxY = center.getY() + range;
-			if (maxY < level.getMinBuildHeight() || minY >= level.getMaxBuildHeight()) {
+			if (maxY < level.getMinY() || minY >= level.getMaxY()) {
 				return false;
 			}
 

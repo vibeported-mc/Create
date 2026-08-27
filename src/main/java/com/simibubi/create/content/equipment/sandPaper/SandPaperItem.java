@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.sandPaper;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.util.TriState;
 import org.jspecify.annotations.NullMarked;
@@ -129,8 +130,8 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 				playerInv.placeItemBackInInventory(polished);
 			}
 
-			if (toPolish.hasCraftingRemainingItem()) {
-				playerInv.placeItemBackInInventory(toPolish.getCraftingRemainingItem());
+			if (ItemHelper.hasCraftingRemainder(toPolish)) {
+				playerInv.placeItemBackInInventory(ItemHelper.getCraftingRemainder(toPolish));
 			}
 
 			stack.remove(AllDataComponents.SAND_PAPER_POLISHING);

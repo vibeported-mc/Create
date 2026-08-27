@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.potion;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -45,7 +46,7 @@ public class PotionFluidHandler {
 
 	public static boolean isPotionItem(ItemStack stack) {
 		return stack.getItem() instanceof PotionItem
-			&& !(stack.getCraftingRemainingItem().getItem() instanceof BucketItem)
+			&& !(ItemHelper.getCraftingRemainder(stack).getItem() instanceof BucketItem)
 			&& !AllItemTags.NOT_POTION.matches(stack);
 	}
 

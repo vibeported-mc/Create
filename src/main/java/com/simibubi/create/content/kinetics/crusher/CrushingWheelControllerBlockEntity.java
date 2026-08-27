@@ -316,8 +316,8 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 					ItemHelper.addToList(stack, list);
 				}
 			}
-			if (input.hasCraftingRemainingItem()) {
-				ItemHelper.addToList(input.getCraftingRemainingItem(), list);
+			if (ItemHelper.hasCraftingRemainder(input)) {
+				ItemHelper.addToList(ItemHelper.getCraftingRemainder(input), list);
 			}
 			for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++)
 				ItemHandlerHelpers.setStackInSlot(inventory, slot + 1, list.get(slot));

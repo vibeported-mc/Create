@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.entity;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.utility.ComponentJson;
 import net.createmod.catnip.api.network.NetworkHelper;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
@@ -1133,7 +1134,7 @@ public class Train {
 
 				stack = ItemHandlerHelpers.extractItem(fuelItems, slot, 1, false);
 				fuelTicks += burnTime * stack.getCount();
-				ItemStack containerItem = stack.getCraftingRemainingItem();
+				ItemStack containerItem = ItemHelper.getCraftingRemainder(stack);
 				if (!containerItem.isEmpty())
 					ItemHandlerHelpers.insertItemStacked(fuelItems, containerItem, false);
 				return;

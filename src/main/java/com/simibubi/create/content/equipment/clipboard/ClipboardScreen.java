@@ -157,7 +157,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		frameTick++;
 
 		if (targetedBlock != null) {
-			if (!minecraft.player.canInteractWithBlock(targetedBlock, 10)) {
+			if (!minecraft.player.isWithinBlockInteractionRange(targetedBlock, 10)) {
 				minecraft.setScreen(null);
 				return;
 			}

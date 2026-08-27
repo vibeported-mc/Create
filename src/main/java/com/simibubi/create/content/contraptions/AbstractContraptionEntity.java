@@ -337,7 +337,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 	public boolean canInteractWithBlock(Player player, Vec3 localPos, double distance) {
 		BlockPos pos = BlockPos.containing(toGlobalVector(localPos, 0));
-		return player.canInteractWithBlock(pos, distance);
+		return player.isWithinBlockInteractionRange(pos, distance);
 	}
 
 	public Vec3 toGlobalVector(Vec3 localVec, float partialTicks) {

@@ -739,7 +739,7 @@ public abstract class Contraption {
 		capturedMultiblocks.clear();
 		nbt.getListOrEmpty("CapturedMultiblocks").forEach(c -> {
 			CompoundTag tag = (CompoundTag) c;
-			if (!tag.contains("Controller", Tag.TAG_COMPOUND) && !tag.contains("Parts", Tag.TAG_LIST))
+			if (!tag.contains("Controller") && !tag.contains("Parts"))
 				return;
 
 			BlockPos controllerPos = NBTHelper.readBlockPos(tag, "Controller");
@@ -984,7 +984,7 @@ public abstract class Contraption {
 
 			this.blocks.put(info.pos(), info);
 
-			if (c.contains("UpdateTag", Tag.TAG_COMPOUND)) {
+			if (c.contains("UpdateTag")) {
 				CompoundTag updateTag = c.getCompoundOrEmpty("UpdateTag");
 				// it's very important that empty tags are read here. see writeBlocksCompound
 				this.updateTags.put(info.pos(), updateTag);
@@ -1133,7 +1133,7 @@ public abstract class Contraption {
 					.isEmpty()
 					&& !blockState.getCollisionShape(world, targetPos)
 					.isEmpty())) {
-					if (targetPos.getY() == world.getMinBuildHeight())
+					if (targetPos.getY() == world.getMinY())
 						targetPos = targetPos.above();
 					world.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, targetPos, Block.getId(state));
 					if (shouldDropBlocks) {
