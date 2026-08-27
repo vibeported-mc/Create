@@ -88,7 +88,7 @@ public class DebugInformation {
 				.put("Flywheel Backend", () -> Backend.REGISTRY.getIdOrThrow(BackendManager.currentBackend()).toString())
 				.put("OpenGL Renderer", GlUtil::getRenderer)
 				.put("OpenGL Version", GlUtil::getOpenGLVersion)
-				.put("Graphics Mode", () -> Minecraft.getInstance().options.graphicsMode().get().name().toLowerCase(Locale.ROOT))
+				.put("Graphics Mode", () -> Minecraft.getInstance().options.graphicsPreset().get().name().toLowerCase(Locale.ROOT))
 				.put("PojavLauncher Detected", () -> String.valueOf(PojavChecker.IS_PRESENT))
 				.buildTo(DebugInformation::registerClientInfo);
 		});

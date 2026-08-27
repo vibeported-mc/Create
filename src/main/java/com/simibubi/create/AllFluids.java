@@ -1,5 +1,16 @@
 package com.simibubi.create;
 
+import net.neoforged.neoforge.client.fluid.FluidTintSource;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
+import java.util.List;
+import net.minecraft.client.renderer.fog.environment.FogEnvironment;
+import net.minecraft.client.renderer.fog.FogData;
+import org.joml.Vector4f;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -7,8 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import com.mojang.blaze3d.shaders.FogShape;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.simibubi.create.AllTags.AllFluidTags;
 import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.content.decoration.palettes.AllPaletteStoneTypes;
@@ -117,6 +126,36 @@ public class AllFluids {
 	public static void register() {
 	}
 
+	/**
+	 * The models Create's own fluids are drawn from.
+	 * <p>
+	 * The textures follow the same naming the fluid builders use, and the tint is whatever the fluid
+	 * type reports.
+	 */
+	@OnlyIn(Dist.CLIENT)
+	public static void registerFluidModels(RegisterFluidModelsEvent event) {
+		for (FluidEntry<?> entry : List.of(POTION, TEA, HONEY, CHOCOLATE)) {
+			Fluid source = entry.get();
+			if (!(source.getFluidType() instanceof TintedFluidType tinted))
+				continue;
+			Identifier id = RegisteredObjectsHelper.getKeyOrThrow(source);
+			event.register(new FluidModel.Unbaked(
+				new Material(id.withPath(path -> "fluid/" + path + "_still")),
+				new Material(id.withPath(path -> "fluid/" + path + "_flow")), null,
+				new FluidTintSource() {
+					@Override
+					public int color(FluidState state) {
+						return tinted.getTintColor(new FluidStack(state.getType(), 1));
+					}
+
+					@Override
+					public int colorAsStack(FluidStack stack) {
+						return tinted.getTintColor(stack);
+					}
+				}), source);
+		}
+	}
+
 	public static void registerFluidInteractions() {
 		FluidInteractionRegistry.addInteraction(NeoForgeMod.LAVA_TYPE.value(), new InteractionInformation(
 			HONEY.get().getFluidType(),
@@ -177,63 +216,50 @@ public class AllFluids {
 		DispenserBlock.registerBehavior(bucket, DISPENSE_FLUID);
 	}
 
+	/**
+	 * A fluid Create tints itself.
+	 * <p>
+	 * 26.2 moved a fluid's textures and tint into a baked model held by the model manager, so the
+	 * type no longer carries them; {@link AllFluids#registerFluidModels} builds the model from the
+	 * fluid's name and hands the tint back through it.
+	 */
 	public static abstract class TintedFluidType extends FluidType {
 
 		protected static final int NO_TINT = 0xffffffff;
-		private final Identifier stillTexture;
-		private final Identifier flowingTexture;
-
-		public TintedFluidType(Properties properties, Identifier stillTexture, Identifier flowingTexture) {
+		public TintedFluidType(Properties properties) {
 			super(properties);
-			this.stillTexture = stillTexture;
-			this.flowingTexture = flowingTexture;
 		}
 
-		@Override
-		public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
-			consumer.accept(new IClientFluidTypeExtensions() {
+		/**
+		 * The fluid's own textures and tint live in its baked model in 26.2; only the fog is still a
+		 * client extension.
+		 */
+		public IClientFluidTypeExtensions clientExtensions() {
+			return new IClientFluidTypeExtensions() {
 
 				@Override
-				public Identifier getStillTexture() {
-					return stillTexture;
-				}
-
-				@Override
-				public Identifier getFlowingTexture() {
-					return flowingTexture;
-				}
-
-				@Override
-				public int getTintColor(FluidStack stack) {
-					return TintedFluidType.this.getTintColor(stack);
-				}
-
-				@Override
-				public int getTintColor(FluidState state, BlockAndTintGetter getter, BlockPos pos) {
-					return TintedFluidType.this.getTintColor(state, getter, pos);
-				}
-
-				@Override
-				public @NotNull Vector3f modifyFogColor(Camera camera, float partialTick, ClientLevel level,
-														int renderDistance, float darkenWorldAmount, Vector3f fluidFogColor) {
+				public void modifyFogColor(Camera camera, float partialTick, ClientLevel level, int renderDistance,
+					float darkenWorldAmount, Vector4f fluidFogColor) {
 					Vector3f customFogColor = TintedFluidType.this.getCustomFogColor();
-					return customFogColor == null ? fluidFogColor : customFogColor;
+					if (customFogColor != null)
+						fluidFogColor.set(customFogColor.x, customFogColor.y, customFogColor.z, fluidFogColor.w);
 				}
 
 				@Override
-				public void modifyFogRender(Camera camera, FogMode mode, float renderDistance, float partialTick,
-											float nearDistance, float farDistance, FogShape shape) {
+				public void modifyFogRender(Camera camera, @Nullable FogEnvironment environment, float renderDistance,
+					float partialTick, FogData fogData) {
 					float modifier = TintedFluidType.this.getFogDistanceModifier();
 					float baseWaterFog = 96.0f;
 					if (modifier != 1f) {
-						RenderSystem.setShaderFogShape(FogShape.CYLINDER);
-						RenderSystem.setShaderFogStart(-8);
-						RenderSystem.setShaderFogEnd(baseWaterFog * modifier);
+						fogData.environmentalStart = -8;
+						fogData.environmentalEnd = baseWaterFog * modifier;
 					}
 				}
 
-			});
+			};
 		}
+
+
 
 		protected abstract int getTintColor(FluidStack stack);
 
@@ -255,17 +281,16 @@ public class AllFluids {
 		private Supplier<Float> fogDistance;
 
 		public static FluidTypeFactory create(int fogColor, Supplier<Float> fogDistance) {
-			return (p, s, f) -> {
-				SolidRenderedPlaceableFluidType fluidType = new SolidRenderedPlaceableFluidType(p, s, f);
+			return p -> {
+				SolidRenderedPlaceableFluidType fluidType = new SolidRenderedPlaceableFluidType(p);
 				fluidType.fogColor = new Color(fogColor, false).asVectorF();
 				fluidType.fogDistance = fogDistance;
 				return fluidType;
 			};
 		}
 
-		private SolidRenderedPlaceableFluidType(Properties properties, Identifier stillTexture,
-												Identifier flowingTexture) {
-			super(properties, stillTexture, flowingTexture);
+		private SolidRenderedPlaceableFluidType(Properties properties) {
+			super(properties);
 		}
 
 		@Override

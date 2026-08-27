@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import com.simibubi.create.AllFluids;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import net.createmod.catnip.api.client.event.LevelRenderCallback;
 import com.simibubi.create.foundation.events.ClientEvents;
@@ -34,7 +35,7 @@ import com.simibubi.create.infrastructure.gui.CreateMainMenuScreen;
 import net.createmod.catnip.api.client.render.SuperByteBufferCache;
 import net.createmod.ponder.api.client.PonderIndex;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.GraphicsStatus;
+import net.minecraft.client.GraphicsPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
@@ -78,6 +79,7 @@ public class CreateClient {
 		modEventBus.addListener(CreateClient::clientInit);
 		modEventBus.addListener(AllParticleTypes::registerFactories);
 		modEventBus.addListener(AllParticleTypes::registerGroups);
+		modEventBus.addListener(AllFluids::registerFluidModels);
 
 		AllInstanceTypes.init();
 
@@ -154,7 +156,7 @@ public class CreateClient {
 		if (mc.player == null)
 			return;
 
-		if (mc.options.graphicsMode().get() != GraphicsStatus.FABULOUS)
+		if (mc.options.graphicsPreset().get() != GraphicsPreset.FABULOUS)
 			return;
 
 		if (AllConfigs.client().ignoreFabulousWarning.get())
@@ -165,9 +167,8 @@ public class CreateClient {
 			.append(Component.literal(" Some of Create's visual features will not be available while Fabulous graphics are enabled!"))
 			.withStyle(style -> {
                 return style
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/create dismissFabulousWarning"))
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            Component.literal("Click here to disable this warning")));
+                    .withClickEvent(new ClickEvent.RunCommand("/create dismissFabulousWarning"))
+                    .withHoverEvent(new HoverEvent.ShowText(Component.literal("Click here to disable this warning")));
             });
 
 		mc.player.sendSystemMessage(text);

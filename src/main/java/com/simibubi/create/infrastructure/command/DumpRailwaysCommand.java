@@ -168,8 +168,8 @@ public class DumpRailwaysCommand {
 			).withStyle(style -> {
 					return style
 						.withColor(blue)
-						.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/c train remove " + train.id.toString()))
-						.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to remove ").append(train.name)));
+						.withClickEvent(new ClickEvent.RunCommand("/c train remove " + train.id.toString()))
+						.withHoverEvent(new HoverEvent.ShowText(Component.literal("Click to remove ").append(train.name)));
 				}
 			)
 		);
@@ -182,8 +182,8 @@ public class DumpRailwaysCommand {
 			).withStyle(style -> {
 					return style
 						.withColor(darkBlue)
-						.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/c train tp " + train.id.toString()))
-						.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to teleport to ").append(train.name)));
+						.withClickEvent(new ClickEvent.RunCommand("/c train tp " + train.id.toString()))
+						.withHoverEvent(new HoverEvent.ShowText(Component.literal("Click to teleport to ").append(train.name)));
 				}
 			)
 		);

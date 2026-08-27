@@ -240,7 +240,7 @@ public class MaterialChecklist {
         MutableComponent tc = Component.empty();
 		tc.append(Component.translatable(item.getDescriptionId())
 			.setStyle(Style.EMPTY
-				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackInfo(item)))));
+				.withHoverEvent(new HoverEvent.ShowItem(item.getTemplate()))));
 
 		if (!unfinished && forBook)
 			tc.append(" \u2714");
