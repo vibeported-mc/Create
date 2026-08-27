@@ -28,7 +28,7 @@ public record MinecartControllerUpdatePacket(int entityId, @Nullable CompoundTag
 	);
 
 	public MinecartControllerUpdatePacket(MinecartController controller, @NotNull HolderLookup.Provider registries) {
-		this(controller.cart().getId(), controller.isEmpty() ? null : ItemHandlerHelpers.serializeNBT(controller, registries));
+		this(controller.cart().getId(), controller.isEmpty() ? null : controller.serializeNBT(registries));
 	}
 
 	@OnlyIn(Dist.CLIENT)

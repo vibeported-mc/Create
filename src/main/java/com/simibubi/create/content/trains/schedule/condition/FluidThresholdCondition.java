@@ -64,7 +64,7 @@ public class FluidThresholdCondition extends CargoThresholdCondition {
 	@Override
 	protected void writeAdditional(HolderLookup.Provider registries, CompoundTag tag) {
 		super.writeAdditional(registries, tag);
-		tag.put("Bucket", ItemHandlerHelpers.serializeNBT(compareStack, registries));
+		tag.put("Bucket", compareStack.serializeNBT(registries));
 	}
 
 	@Override

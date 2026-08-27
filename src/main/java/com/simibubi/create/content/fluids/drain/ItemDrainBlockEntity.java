@@ -293,7 +293,7 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		compound.putInt("ProcessingTicks", processingTicks);
 		if (heldItem != null)
-			compound.put("HeldItem", ItemHandlerHelpers.serializeNBT(heldItem, registries));
+			compound.put("HeldItem", heldItem.serializeNBT(registries));
 		super.write(compound, registries, clientPacket);
 	}
 

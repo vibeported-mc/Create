@@ -424,10 +424,10 @@ public class BeltInventory {
 		}
 		CompoundTag nbt = new CompoundTag();
 		ListTag itemsNBT = new ListTag();
-		items.forEach(stack -> itemsNBT.add(ItemHandlerHelpers.serializeNBT(stack, registries)));
+		items.forEach(stack -> itemsNBT.add(stack.serializeNBT(registries)));
 		nbt.put("Items", itemsNBT);
 		if (lazyClientItem != null)
-			nbt.put("LazyItem", ItemHandlerHelpers.serializeNBT(lazyClientItem, registries));
+			nbt.put("LazyItem", lazyClientItem.serializeNBT(registries));
 		nbt.putBoolean("PositiveOrder", beltMovementPositive);
 		return nbt;
 	}

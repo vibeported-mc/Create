@@ -225,10 +225,10 @@ public class DepotBehaviour extends BlockEntityBehaviour implements Clearable {
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (heldItem != null)
-			compound.put("HeldItem", ItemHandlerHelpers.serializeNBT(heldItem, registries));
+			compound.put("HeldItem", heldItem.serializeNBT(registries));
 		compound.put("OutputBuffer", ItemHandlerHelpers.serializeNBT(processingOutputBuffer, registries));
 		if (canMergeItems() && !incoming.isEmpty())
-			compound.put("Incoming", NBTHelper.writeCompoundList(incoming, stack -> ItemHandlerHelpers.serializeNBT(stack, registries)));
+			compound.put("Incoming", NBTHelper.writeCompoundList(incoming, stack -> stack.serializeNBT(registries)));
 	}
 
 	@Override
