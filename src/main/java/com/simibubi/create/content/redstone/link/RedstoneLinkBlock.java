@@ -66,9 +66,9 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 		Direction attachedFace = state.getValue(RedstoneLinkBlock.FACING)
 			.getOpposite();
 		BlockPos attachedPos = pos.relative(attachedFace);
-		level.blockUpdated(pos, level.getBlockState(pos)
+		level.updateNeighborsAt(pos, level.getBlockState(pos)
 			.getBlock());
-		level.blockUpdated(attachedPos, level.getBlockState(attachedPos)
+		level.updateNeighborsAt(attachedPos, level.getBlockState(attachedPos)
 			.getBlock());
 	}
 

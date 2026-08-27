@@ -16,7 +16,7 @@ public class DebugValueCommand {
 			.requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
 			.then(Commands.argument("value", FloatArgumentType.floatArg())
 				.executes((ctx) -> {
-					value = FloatArgumentType.getFloatOr(ctx, "value", 0);
+					value = FloatArgumentType.getFloat(ctx, "value");
 					ctx.getSource().sendSuccess(() -> {
 						return Component.literal("Set value to: " + value);
 					}, true);

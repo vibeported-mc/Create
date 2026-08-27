@@ -158,7 +158,7 @@ public class CloneCommand {
 		}
 
 		for (StructureTemplate.StructureBlockInfo info : reverse) {
-			world.blockUpdated(info.pos(), info.state().getBlock());
+			world.updateNeighborsAt(info.pos(), info.state().getBlock());
 		}
 
 		world.getBlockTicks()

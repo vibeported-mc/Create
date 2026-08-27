@@ -20,7 +20,7 @@ public class CameraAngleCommand {
 				.then(Commands.literal("yaw")
 					.then(Commands.argument("degrees", FloatArgumentType.floatArg())
 						.executes(ctx -> {
-							float angleTarget = FloatArgumentType.getFloatOr(ctx, "degrees", 0);
+							float angleTarget = FloatArgumentType.getFloat(ctx, "degrees");
 							CameraAngleAnimationService.setYawTarget(angleTarget);
 
 							return Command.SINGLE_SUCCESS;
@@ -29,7 +29,7 @@ public class CameraAngleCommand {
 				).then(Commands.literal("pitch")
 					.then(Commands.argument("degrees", FloatArgumentType.floatArg())
 						.executes(ctx -> {
-							float angleTarget = FloatArgumentType.getFloatOr(ctx, "degrees", 0);
+							float angleTarget = FloatArgumentType.getFloat(ctx, "degrees");
 							CameraAngleAnimationService.setPitchTarget(angleTarget);
 
 							return Command.SINGLE_SUCCESS;
@@ -47,7 +47,7 @@ public class CameraAngleCommand {
 						.then(Commands.argument("speed", FloatArgumentType.floatArg(0))
 							.executes(ctx -> {
 								Mode mode = ctx.getArgument("mode", Mode.class);
-								float speed = FloatArgumentType.getFloatOr(ctx, "speed", 0);
+								float speed = FloatArgumentType.getFloat(ctx, "speed");
 
 								CameraAngleAnimationService.setAnimationMode(mode);
 								CameraAngleAnimationService.setAnimationSpeed(speed);

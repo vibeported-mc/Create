@@ -337,7 +337,7 @@ public class ThresholdSwitchBlockEntity extends SmartBlockEntity implements Clea
 
 	public void updatePowerAfterDelay() {
 		poweredAfterDelay = shouldBePowered();
-		level.blockUpdated(worldPosition, getBlockState().getBlock());
+		level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
 		sendData();
 	}
 

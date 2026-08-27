@@ -131,9 +131,9 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity {
 		Direction attachedFace = blockState.getValue(RedstoneLinkBlock.FACING)
 			.getOpposite();
 		BlockPos attachedPos = worldPosition.relative(attachedFace);
-		level.blockUpdated(worldPosition, level.getBlockState(worldPosition)
+		level.updateNeighborsAt(worldPosition, level.getBlockState(worldPosition)
 			.getBlock());
-		level.blockUpdated(attachedPos, level.getBlockState(attachedPos)
+		level.updateNeighborsAt(attachedPos, level.getBlockState(attachedPos)
 			.getBlock());
 		receivedSignalChanged = false;
 		panelSupport.notifyPanels();
