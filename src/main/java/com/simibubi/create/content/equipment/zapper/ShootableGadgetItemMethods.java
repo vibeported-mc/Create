@@ -25,7 +25,7 @@ public class ShootableGadgetItemMethods {
 		boolean gunInOtherHand =
 			predicate.test(player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND));
 		player.getCooldowns()
-			.addCooldown(item.getItem(), gunInOtherHand ? cooldown * 2 / 3 : cooldown);
+			.addCooldown(item, gunInOtherHand ? cooldown * 2 / 3 : cooldown);
 	}
 
 	public static void sendPackets(Player player, Function<Boolean, ? extends ShootGadgetPacket> factory) {

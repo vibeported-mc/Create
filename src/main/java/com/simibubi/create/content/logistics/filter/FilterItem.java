@@ -89,7 +89,7 @@ public abstract class FilterItem extends Item implements MenuProvider, SupportsI
 
 	@Override
 	public Component getDisplayName() {
-		return getDescription();
+		return Component.translatable(getDescriptionId());
 	}
 
 	public static boolean testDirect(ItemStack filter, ItemStack stack, boolean matchNBT) {

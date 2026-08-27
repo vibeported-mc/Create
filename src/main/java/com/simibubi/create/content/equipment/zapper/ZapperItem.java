@@ -84,8 +84,7 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem {
 				});
 				context.getPlayer()
 					.getCooldowns()
-					.addCooldown(context.getItemInHand()
-						.getItem(), 10);
+					.addCooldown(context.getItemInHand(), 10);
 			}
 			return InteractionResult.SUCCESS;
 		}
@@ -104,7 +103,7 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem {
 					openHandgunGUI(item, hand);
 				});
 				player.getCooldowns()
-					.addCooldown(item.getItem(), 10);
+					.addCooldown(item, 10);
 			}
 			return InteractionResult.SUCCESS.heldItemTransformedTo(item);
 		}

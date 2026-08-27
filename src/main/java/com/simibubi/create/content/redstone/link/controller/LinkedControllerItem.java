@@ -62,7 +62,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 					if (world.isClientSide())
 						PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> this.toggleBindMode(ctx.getClickedPos()));
 					player.getCooldowns()
-						.addCooldown(this, 2);
+						.addCooldown(ctx.getItemInHand(), 2);
 					return InteractionResult.SUCCESS;
 				}
 
@@ -98,7 +98,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 			if (world.isClientSide())
 				PlatformHelper.INSTANCE.executeOnClientOnly(() -> this::toggleActive);
 			player.getCooldowns()
-				.addCooldown(this, 2);
+				.addCooldown(player.getItemInHand(hand), 2);
 		}
 
 		return InteractionResult.PASS;
@@ -138,7 +138,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 
 	@Override
 	public Component getDisplayName() {
-		return getDescription();
+		return Component.translatable(getDescriptionId());
 	}
 
 }

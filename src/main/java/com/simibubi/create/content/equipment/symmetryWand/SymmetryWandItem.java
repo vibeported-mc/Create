@@ -62,9 +62,9 @@ public class SymmetryWandItem extends Item {
 		BlockPos pos = context.getClickedPos();
 		if (player == null)
 			return InteractionResult.PASS;
-		player.getCooldowns()
-			.addCooldown(this, 5);
 		ItemStack wand = player.getItemInHand(context.getHand());
+		player.getCooldowns()
+			.addCooldown(wand, 5);
 		checkComponents(wand);
 
 		// Shift -> open GUI
@@ -74,7 +74,7 @@ public class SymmetryWandItem extends Item {
 					openWandGUI(wand, context.getHand());
 				});
 				player.getCooldowns()
-					.addCooldown(this, 5);
+					.addCooldown(wand, 5);
 			}
 			return InteractionResult.SUCCESS;
 		}
@@ -136,7 +136,7 @@ public class SymmetryWandItem extends Item {
 					openWandGUI(playerIn.getItemInHand(handIn), handIn);
 				});
 				playerIn.getCooldowns()
-					.addCooldown(this, 5);
+					.addCooldown(wand, 5);
 			}
 			return InteractionResult.SUCCESS.heldItemTransformedTo(wand);
 		}

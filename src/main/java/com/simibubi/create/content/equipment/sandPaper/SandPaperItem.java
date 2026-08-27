@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.sandPaper;
 
+import net.minecraft.world.item.ItemInstance;
 import com.simibubi.create.foundation.item.ItemHelper;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.util.TriState;
@@ -8,7 +9,6 @@ import java.util.function.Consumer;
 
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllSoundEvents;
-import com.simibubi.create.foundation.item.CustomUseEffectsItem;
 import com.simibubi.create.foundation.mixin.accessor.LivingEntityAccessor;
 
 import net.createmod.catnip.api.math.VecHelper;
@@ -42,10 +42,12 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 
 @NullMarked
-public class SandPaperItem extends Item implements CustomUseEffectsItem {
+public class SandPaperItem extends Item {
 
 	public SandPaperItem(Properties properties) {
-		super(properties.durability(8));
+		// Enchantability is a component in 26.2 rather than an override.
+		super(properties.durability(8)
+			.enchantable(1));
 	}
 
 	@Override
@@ -134,7 +136,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 			}
 
 			stack.remove(AllDataComponents.SAND_PAPER_POLISHING);
-			stack.hurtAndBreak(1, entityLiving, LivingEntity.getSlotForHand(entityLiving.getUsedItemHand()));
+			stack.hurtAndBreak(1, entityLiving, entityLiving.getUsedItemHand());
 		}
 
 		return stack;
@@ -149,9 +151,9 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 	}
 
 	@Override
-	public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
+	public boolean releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
 		if (!(entityLiving instanceof Player player))
-			return;
+			return false;
 		if (stack.has(AllDataComponents.SAND_PAPER_POLISHING)) {
 			ItemStack toPolish = stack.get(AllDataComponents.SAND_PAPER_POLISHING).item();
 			//noinspection DataFlowIssue - toPolish won't be null as we do call .has before calling .get
@@ -159,6 +161,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 				.placeItemBackInInventory(toPolish);
 			stack.remove(AllDataComponents.SAND_PAPER_POLISHING);
 		}
+		return true;
 	}
 
 	@Override
@@ -185,26 +188,26 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 		if (newState != null) {
 			level.setBlockAndUpdate(pos, newState);
 			if (player != null)
-				stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
-			return InteractionResult.sidedSuccess(level.isClientSide());
+				stack.hurtAndBreak(1, player, player.getUsedItemHand());
+			return InteractionResult.SUCCESS;
 		}
 
 		return InteractionResult.PASS;
 	}
 
 	@Override
-	public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
+	public boolean canPerformAction(ItemInstance stack, ItemAbility itemAbility) {
 		return itemAbility == ItemAbilities.AXE_SCRAPE || itemAbility == ItemAbilities.AXE_WAX_OFF;
 	}
 
+	/**
+	 * The shavings and the sanding sound, once per tick while polishing.
+	 * <p>
+	 * 26.2 drives eating effects from the consumable component, which fires on its own schedule and
+	 * carries one sound. Sanding wants finer control than that, so it runs off the use tick instead.
+	 */
 	@Override
-	public TriState shouldTriggerUseEffects(ItemStack stack, LivingEntity entity) {
-		// Trigger every tick so that we have more fine grain control over the animation
-		return TriState.TRUE;
-	}
-
-	@Override
-	public boolean triggerUseEffects(ItemStack stack, LivingEntity entity, int count, RandomSource random) {
+	public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int ticksRemaining) {
 		if (stack.has(AllDataComponents.SAND_PAPER_POLISHING)) {
 			ItemStack polishing = stack.get(AllDataComponents.SAND_PAPER_POLISHING).item();
 			if (!polishing.isEmpty())
@@ -212,16 +215,10 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 		}
 
 		// After 6 ticks play the sound every 7th
+		RandomSource random = entity.getRandom();
 		if ((entity.getTicksUsingItem() - 6) % 7 == 0)
-			entity.playSound(entity.getEatingSound(stack), 0.9F + 0.2F * random.nextFloat(),
+			entity.playSound(AllSoundEvents.SANDING_SHORT.getMainEvent(), 0.9F + 0.2F * random.nextFloat(),
 				random.nextFloat() * 0.2F + 0.9F);
-
-		return true;
-	}
-
-	@Override
-	public SoundEvent getEatingSound() {
-		return AllSoundEvents.SANDING_SHORT.getMainEvent();
 	}
 
 	@Override
@@ -232,11 +229,6 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 	@Override
 	public int getUseDuration(ItemStack stack, LivingEntity entity) {
 		return 32;
-	}
-
-	@Override
-	public int getEnchantmentValue() {
-		return 1;
 	}
 
 }

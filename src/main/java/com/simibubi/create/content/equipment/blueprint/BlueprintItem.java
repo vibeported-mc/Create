@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import net.minecraft.tags.TagKey;
+import java.util.Optional;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
@@ -26,12 +28,9 @@ import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Ingredient.ItemValue;
-import net.minecraft.world.item.crafting.Ingredient.TagValue;
-import net.minecraft.world.item.crafting.Ingredient.Value;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
@@ -57,10 +56,11 @@ public class BlueprintItem extends Item {
 		Level world = ctx.getLevel();
 		HangingEntity hangingentity = new BlueprintEntity(world, pos, face, face.getAxis()
 			.isHorizontal() ? Direction.DOWN : ctx.getHorizontalDirection());
-		CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+		// The tag an item carries for the entity it places is typed in 26.2.
+		TypedEntityData<EntityType<?>> entityData = stack.get(DataComponents.ENTITY_DATA);
 
-		if (customData != null)
-			EntityType.updateCustomEntityTag(world, player, hangingentity, customData);
+		if (entityData != null)
+			EntityType.updateCustomEntityTag(world, player, hangingentity, entityData);
 		if (!hangingentity.survives())
 			return InteractionResult.CONSUME;
 		if (!world.isClientSide()) {
@@ -69,11 +69,11 @@ public class BlueprintItem extends Item {
 		}
 
 		stack.shrink(1);
-		return InteractionResult.sidedSuccess(world.isClientSide());
+		return InteractionResult.SUCCESS;
 	}
 
 	public static void assignCompleteRecipe(Level level, ItemStacksResourceHandler inv, Recipe<?> recipe) {
-		NonNullList<Ingredient> ingredients = RecipeAccessors.ingredients(recipe);
+		List<Ingredient> ingredients = RecipeAccessors.ingredients(recipe);
 
 		for (int i = 0; i < 9; i++)
 			ItemHandlerHelpers.setStackInSlot(inv, i, ItemStack.EMPTY);
@@ -90,56 +90,47 @@ public class BlueprintItem extends Item {
 		}
 	}
 
+	/**
+	 * The filter that stands for one of a recipe's ingredients.
+	 * <p>
+	 * 26.2 flattened ingredients into a single {@link HolderSet} of items: there is no longer a list
+	 * of values to walk, each of which was either one item or a tag. A tag-backed ingredient is still
+	 * recognisable, because its holder set is unresolved, and everything else is simply its items.
+	 */
 	private static ItemStack convertIngredientToFilter(Ingredient ingredient) {
 		boolean isCompoundIngredient = ingredient.getCustomIngredient() instanceof CompoundIngredient;
-		Value[] acceptedItems = ingredient.values;
-		if (acceptedItems == null || acceptedItems.length > 18)
+
+		Optional<TagKey<Item>> tag = ingredient.values.unwrapKey();
+		if (tag.isPresent())
+			return tagFilter(tag.get());
+
+		List<ItemStack> stacks = ingredient.items()
+			.map(ItemStack::new)
+			.toList();
+		if (stacks.isEmpty() || stacks.size() > 18)
 			return ItemStack.EMPTY;
-		if (acceptedItems.length == 0)
-			return ItemStack.EMPTY;
-		if (acceptedItems.length == 1)
-			return convertIItemListToFilter(acceptedItems[0], isCompoundIngredient);
+		if (stacks.size() == 1)
+			return stacks.get(0);
 
 		ItemStack result = AllItems.FILTER.asStack();
 		ItemStacksResourceHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
-		for (int i = 0; i < acceptedItems.length; i++)
-			ItemHandlerHelpers.setStackInSlot(filterItems, i, convertIItemListToFilter(acceptedItems[i], isCompoundIngredient));
+		for (int i = 0; i < stacks.size(); i++)
+			ItemHandlerHelpers.setStackInSlot(filterItems, i, stacks.get(i));
 		result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));
+		// A compound ingredient's members were matched exactly, so the filter it becomes does too.
+		if (isCompoundIngredient)
+			result.set(AllDataComponents.FILTER_ITEMS_RESPECT_NBT, true);
 		return result;
 	}
 
-	private static ItemStack convertIItemListToFilter(Value itemList, boolean isCompoundIngredient) {
-		Collection<ItemStack> stacks = itemList.getItems();
-		if (itemList instanceof ItemValue) {
-			for (ItemStack itemStack : stacks)
-				return itemStack;
-		}
-
-		if (itemList instanceof TagValue tagValue) {
-			ItemStack filterItem = AllItems.ATTRIBUTE_FILTER.asStack();
-			filterItem.set(AllDataComponents.ATTRIBUTE_FILTER_WHITELIST_MODE, AttributeFilterWhitelistMode.WHITELIST_DISJ);
-			List<ItemAttributeEntry> attributes = new ArrayList<>();
-			ItemAttribute at = new InTagAttribute(ItemTags.create(tagValue.tag().identifier()));
-			attributes.add(new ItemAttribute.ItemAttributeEntry(at, false));
-			filterItem.set(AllDataComponents.ATTRIBUTE_FILTER_MATCHED_ATTRIBUTES, attributes);
-			return filterItem;
-		}
-
-		if (isCompoundIngredient) {
-			ItemStack result = AllItems.FILTER.asStack();
-			ItemStacksResourceHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
-			int i = 0;
-			for (ItemStack itemStack : stacks) {
-				if (i >= 18)
-					break;
-				ItemHandlerHelpers.setStackInSlot(filterItems, i++, itemStack);
-			}
-			result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));
-			result.set(AllDataComponents.FILTER_ITEMS_RESPECT_NBT, true);
-			return result;
-		}
-
-		return ItemStack.EMPTY;
+	private static ItemStack tagFilter(TagKey<Item> tag) {
+		ItemStack filterItem = AllItems.ATTRIBUTE_FILTER.asStack();
+		filterItem.set(AllDataComponents.ATTRIBUTE_FILTER_WHITELIST_MODE, AttributeFilterWhitelistMode.WHITELIST_DISJ);
+		List<ItemAttributeEntry> attributes = new ArrayList<>();
+		ItemAttribute at = new InTagAttribute(tag);
+		attributes.add(new ItemAttribute.ItemAttributeEntry(at, false));
+		filterItem.set(AllDataComponents.ATTRIBUTE_FILTER_MATCHED_ATTRIBUTES, attributes);
+		return filterItem;
 	}
 
 }

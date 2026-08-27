@@ -93,14 +93,14 @@ public class BeltConnectorItem extends BlockItem {
 				.isEmpty()) {
 				heldStack.remove(AllDataComponents.BELT_FIRST_SHAFT);
 				playerEntity.getCooldowns()
-					.addCooldown(this, 5);
+					.addCooldown(heldStack, 5);
 			}
 			return InteractionResult.SUCCESS;
 		}
 
 		heldStack.set(AllDataComponents.BELT_FIRST_SHAFT, pos);
 		playerEntity.getCooldowns()
-			.addCooldown(this, 5);
+			.addCooldown(heldStack, 5);
 		return InteractionResult.SUCCESS;
 	}
 
