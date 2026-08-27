@@ -11,7 +11,6 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler;
 import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
 import com.simibubi.create.foundation.item.ItemHelper;
-import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 
 import net.createmod.catnip.api.data.Couple;
 import net.minecraft.core.BlockPos;
@@ -142,9 +141,4 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 		return getDescription();
 	}
 
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(SimpleCustomRenderer.create(this, new LinkedControllerItemRenderer()));
-	}
 }

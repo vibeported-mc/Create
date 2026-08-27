@@ -5,6 +5,8 @@ import java.util.function.Function;
 
 import com.simibubi.create.foundation.block.render.CustomBlockModels;
 import com.simibubi.create.foundation.item.render.CustomItemModels;
+import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
+import com.simibubi.create.foundation.item.render.CustomRenderedItems;
 
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -45,6 +47,8 @@ public class ModelSwapper {
 
 		customBlockModels.forEach((block, modelFunc) -> swapBlockModels(blockStateModels, block, modelFunc));
 		customItemModels.forEach((item, modelFunc) -> swapItemModel(itemModels, item, modelFunc));
+		CustomRenderedItems.forEach(
+			(item, renderer) -> swapItemModel(itemModels, item, model -> new CustomRenderedItemModel(model, renderer)));
 	}
 
 	public void registerListeners(IEventBus modEventBus) {

@@ -20,7 +20,7 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.world.item.ItemStack;
 
@@ -38,7 +38,7 @@ public class OpenCreateMenuButton extends Button {
 	@Override
 	public void renderString(GuiGraphicsExtractor graphics, Font pFont, int pColor) {
 		ItemStack icon = AllItems.GOGGLES.asStack();
-		BakedModel bakedmodel = Minecraft.getInstance()
+		BlockStateModel bakedmodel = Minecraft.getInstance()
 			.getItemRenderer()
 			.getModel(icon, Minecraft.getInstance().level, Minecraft.getInstance().player, 0);
 		if (bakedmodel == null)

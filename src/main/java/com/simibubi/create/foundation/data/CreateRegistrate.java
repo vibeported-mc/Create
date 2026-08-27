@@ -37,7 +37,7 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -280,12 +280,12 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	}
 
 	public static <T extends Block> NonNullConsumer<? super T> blockModel(
-		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		Supplier<NonNullFunction<BlockStateModel, ? extends BlockStateModel>> func) {
 		return entry -> PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> registerBlockModel(entry, func));
 	}
 
 	public static <T extends Item> NonNullConsumer<? super T> itemModel(
-		Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+		Supplier<NonNullFunction<BlockStateModel, ? extends BlockStateModel>> func) {
 		return entry -> PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> registerItemModel(entry, func));
 	}
 
@@ -302,14 +302,14 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 
 	@OnlyIn(Dist.CLIENT)
 	private static void registerBlockModel(Block entry,
-										   Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+										   Supplier<NonNullFunction<BlockStateModel, ? extends BlockStateModel>> func) {
 		CreateClient.MODEL_SWAPPER.getCustomBlockModels()
 			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), func.get());
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	private static void registerItemModel(Item entry,
-										  Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> func) {
+										  Supplier<NonNullFunction<BlockStateModel, ? extends BlockStateModel>> func) {
 		CreateClient.MODEL_SWAPPER.getCustomItemModels()
 			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), func.get());
 	}

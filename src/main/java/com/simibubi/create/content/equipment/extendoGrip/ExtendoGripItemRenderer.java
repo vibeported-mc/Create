@@ -3,14 +3,13 @@ package com.simibubi.create.content.equipment.extendoGrip;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.Create;
-import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -28,8 +27,8 @@ public class ExtendoGripItemRenderer extends CustomRenderedItemModelRenderer {
 	private static final Vec3 COG_ROTATION_OFFSET = new Vec3(0, 1 / 16f, 0);
 
 	@Override
-	protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer, ItemDisplayContext transformType,
-		PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+	protected void render(ItemStack stack, PartialItemModelRenderer renderer, ItemDisplayContext transformType,
+		PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
 		var stacker = TransformStack.of(ms);
 		float animation = 0.25f;
 		boolean leftHand = transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
@@ -45,7 +44,7 @@ public class ExtendoGripItemRenderer extends CustomRenderedItemModelRenderer {
 		float oppositeAngle = 180 - extensionAngle;
 
 		// grip
-		renderer.renderSolid(model.getOriginalModel(), light);
+		renderer.renderBase(light);
 
 		// bits
 		ms.pushPose();

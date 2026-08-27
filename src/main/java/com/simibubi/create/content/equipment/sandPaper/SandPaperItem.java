@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.item.CustomUseEffectsItem;
-import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import com.simibubi.create.foundation.mixin.accessor.LivingEntityAccessor;
 
 import net.createmod.catnip.api.math.VecHelper;
@@ -240,9 +239,4 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 		return 1;
 	}
 
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(SimpleCustomRenderer.create(this, new SandPaperItemRenderer()));
-	}
 }

@@ -35,7 +35,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -358,7 +358,7 @@ public class FrogAndConveyorScenes {
 			poseStack.mulPose(Axis.ZP.rotationDegrees(90));
 			poseStack.scale(1.5f, 1.5f);
 			poseStack.translate(-0.1, 0.2);
-			BakedModel bakedmodel = Minecraft.getInstance()
+			BlockStateModel bakedmodel = Minecraft.getInstance()
 				.getItemRenderer()
 				.getModel(wrench.getItem(), world, null, 0);
 			Minecraft.getInstance()

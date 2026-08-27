@@ -3,14 +3,13 @@ package com.simibubi.create.content.equipment.symmetryWand;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.Create;
-import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.minecraft.util.LightCoordsUtil;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -22,12 +21,12 @@ public class SymmetryWandItemRenderer extends CustomRenderedItemModelRenderer {
 	protected static final PartialModel CORE_GLOW = PartialModel.of(Create.asResource("item/wand_of_symmetry/core_glow"));
 
 	@Override
-	protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer, ItemDisplayContext transformType,
-		PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+	protected void render(ItemStack stack, PartialItemModelRenderer renderer, ItemDisplayContext transformType,
+		PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
 		float worldTime = AnimationTickHolder.getRenderTime() / 20;
 		int maxLight = LightCoordsUtil.FULL_BRIGHT;
 
-		renderer.render(model.getOriginalModel(), light);
+		renderer.renderBase(light);
 		renderer.renderSolidGlowing(CORE.get(), maxLight);
 		renderer.renderGlowing(CORE_GLOW.get(), maxLight);
 

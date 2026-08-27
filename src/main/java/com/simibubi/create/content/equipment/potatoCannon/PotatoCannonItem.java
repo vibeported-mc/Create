@@ -12,7 +12,6 @@ import com.simibubi.create.api.equipment.potatoCannon.PotatoCannonProjectileType
 import com.simibubi.create.content.equipment.armor.BacktankUtil;
 import com.simibubi.create.content.equipment.zapper.ShootableGadgetItemMethods;
 import com.simibubi.create.foundation.item.CustomArmPoseItem;
-import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
 import com.simibubi.create.infrastructure.config.AllConfigs;
@@ -286,12 +285,6 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 			return ArmPose.CROSSBOW_HOLD;
 		}
 		return null;
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(SimpleCustomRenderer.create(this, new PotatoCannonItemRenderer()));
 	}
 
 	public record Ammo(ItemStack stack, PotatoCannonProjectileType type) {

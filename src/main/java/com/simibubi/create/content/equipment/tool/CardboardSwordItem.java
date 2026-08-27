@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
-import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -121,9 +120,4 @@ public class CardboardSwordItem extends Item {
 		target.knockback(knockbackStrength * 0.5F, Mth.sin(yRot * Mth.DEG_TO_RAD), -Mth.cos(yRot * Mth.DEG_TO_RAD));
 	}
 
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(SimpleCustomRenderer.create(this, new CardboardSwordItemRenderer()));
-	}
 }

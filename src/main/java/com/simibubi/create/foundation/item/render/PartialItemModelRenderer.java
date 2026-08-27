@@ -1,97 +1,116 @@
 package com.simibubi.create.foundation.item.render;
 
+import com.mojang.blaze3d.vertex.QuadInstance;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.simibubi.create.foundation.model.BakedModelHelper;
 import com.simibubi.create.foundation.render.RenderTypes;
 
-import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.neoforged.neoforge.model.data.ModelData;
 
+/**
+ * Draws pieces of an item's model, one partial at a time.
+ * <p>
+ * 26.2 builds a frame by submitting to a queue rather than writing into a buffer source, so each
+ * piece is submitted as custom geometry; the item's own base model goes through the item render
+ * state the way vanilla draws it.
+ */
 public class PartialItemModelRenderer {
 
 	private static final PartialItemModelRenderer INSTANCE = new PartialItemModelRenderer();
 
 	private final RandomSource random = RandomSource.create();
+	private final ItemStackRenderState scratchState = new ItemStackRenderState();
 
-	private ItemStack stack;
-	private ItemDisplayContext transformType;
+	private CustomItemRenderContext context;
 	private PoseStack ms;
-	private MultiBufferSource buffer;
+	private SubmitNodeCollector collector;
 	private int overlay;
 
-	public static PartialItemModelRenderer of(ItemStack stack, ItemDisplayContext transformType,
-		PoseStack ms, MultiBufferSource buffer, int overlay) {
+	public static PartialItemModelRenderer of(CustomItemRenderContext context, PoseStack ms,
+		SubmitNodeCollector collector, int overlay) {
 		PartialItemModelRenderer instance = INSTANCE;
-		instance.stack = stack;
-		instance.transformType = transformType;
+		instance.context = context;
 		instance.ms = ms;
-		instance.buffer = buffer;
+		instance.collector = collector;
 		instance.overlay = overlay;
 		return instance;
 	}
 
-	public void render(BakedModel model, int light) {
-		render(model, Sheets.translucentCullBlockSheet(), light);
+	public void render(BlockStateModel model, int light) {
+		render(model, Sheets.translucentBlockItemSheet(), light);
 	}
 
-	public void renderSolid(BakedModel model, int light) {
-		render(model, Sheets.solidBlockSheet(), light);
+	public void renderSolid(BlockStateModel model, int light) {
+		render(model, Sheets.cutoutBlockItemSheet(), light);
 	}
 
-	public void renderGlowing(BakedModel model, int light) {
+	public void renderGlowing(BlockStateModel model, int light) {
 		render(model, RenderTypes.itemGlowingTranslucent(), light);
 	}
 
-	public void renderSolidGlowing(BakedModel model, int light) {
+	public void renderSolidGlowing(BlockStateModel model, int light) {
 		render(model, RenderTypes.itemGlowingSolid(), light);
 	}
 
-	public void render(BakedModel model, RenderType type, int light) {
+	public void render(BlockStateModel model, RenderType type, int light) {
+		ItemStack stack = context.stack();
 		if (stack.isEmpty())
+			return;
+
+		random.setSeed(42L);
+		List<BlockStateModelPart> parts = new ArrayList<>();
+		model.collectParts(random, parts);
+		List<BakedQuad> quads = collectQuads(parts);
+		if (quads.isEmpty())
 			return;
 
 		ms.pushPose();
 		ms.translate(-0.5D, -0.5D, -0.5D);
-
-		if (!model.isCustomRenderer()) {
-			VertexConsumer vc = ItemRenderer.getFoilBufferDirect(buffer, type, true, stack.hasFoil());
-			for (BakedModel pass : model.getRenderPasses(stack, false)) {
-				renderBakedItemModel(pass, light, ms, vc);
-			}
-		} else
-			IClientItemExtensions.of(stack)
-				.getCustomRenderer()
-				.renderByItem(stack, transformType, ms, buffer, light, overlay);
-
+		QuadInstance instance = new QuadInstance();
+		instance.setLightCoords(light);
+		instance.setOverlayCoords(overlay);
+		collector.submitCustomGeometry(ms, type, (pose, buffer) -> {
+			for (BakedQuad quad : quads)
+				buffer.putBakedQuad(pose, quad, instance);
+		});
 		ms.popPose();
 	}
 
-	private void renderBakedItemModel(BakedModel model, int light, PoseStack ms, VertexConsumer buffer) {
-		ItemRenderer ir = Minecraft.getInstance()
-			.getItemRenderer();
-		ModelData data = ModelData.EMPTY;
+	/**
+	 * Draws the item's own model, the one Create's wrapper took the place of.
+	 */
+	public void renderBase(int light) {
+		ItemModel base = context.baseModel();
+		if (base == null)
+			return;
 
-		for (RenderType renderType : model.getRenderTypes(stack, false)) {
-			for (Direction direction : Iterate.directions) {
-				random.setSeed(42L);
-				ir.renderQuadList(ms, buffer, model.getQuads(null, direction, random, data, renderType), stack, light,
-					overlay);
-			}
+		ms.pushPose();
+		ms.translate(-0.5D, -0.5D, -0.5D);
+		scratchState.clear();
+		base.update(scratchState, context.stack(), Minecraft.getInstance()
+			.getItemModelResolver(), context.displayContext(), context.level(), context.owner(), context.seed());
+		scratchState.submit(ms, collector, light, overlay, 0);
+		ms.popPose();
+	}
 
-			random.setSeed(42L);
-			ir.renderQuadList(ms, buffer, model.getQuads(null, null, random, data, renderType), stack, light, overlay);
-		}
+	private static List<BakedQuad> collectQuads(List<BlockStateModelPart> parts) {
+		List<BakedQuad> quads = new ArrayList<>(BakedModelHelper.quadsOf(parts, null));
+		for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values())
+			quads.addAll(BakedModelHelper.quadsOf(parts, direction));
+		return quads;
 	}
 
 }

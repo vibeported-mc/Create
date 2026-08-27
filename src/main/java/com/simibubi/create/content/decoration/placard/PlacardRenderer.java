@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -34,7 +34,7 @@ public class PlacardRenderer extends SafeBlockEntityRenderer<PlacardBlockEntity>
 
 		ItemRenderer itemRenderer = Minecraft.getInstance()
 			.getItemRenderer();
-		BakedModel bakedModel = itemRenderer.getModel(heldItem, null, null, 0);
+		BlockStateModel bakedModel = itemRenderer.getModel(heldItem, null, null, 0);
 		boolean blockItem = bakedModel.isGui3d();
 
 		ms.pushPose();

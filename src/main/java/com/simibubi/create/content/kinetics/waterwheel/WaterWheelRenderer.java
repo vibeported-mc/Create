@@ -23,7 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.core.Holder;
@@ -64,7 +64,7 @@ public class WaterWheelRenderer<T extends WaterWheelBlockEntity> extends Kinetic
 	protected SuperByteBuffer getRotatedModel(T be, BlockState state) {
 		ModelKey key = new ModelKey(large, state, be.material);
 		return SuperByteBufferCache.getInstance().get(WATER_WHEEL, key, () -> {
-			BakedModel model = generateModel(key);
+			BlockStateModel model = generateModel(key);
 			BlockState state1 = key.state();
 			Direction dir;
 			if (key.large()) {
@@ -77,15 +77,15 @@ public class WaterWheelRenderer<T extends WaterWheelBlockEntity> extends Kinetic
 		});
 	}
 
-	public static BakedModel generateModel(ModelKey key) {
+	public static BlockStateModel generateModel(ModelKey key) {
 		return generateModel(Variant.of(key.large(), key.state()), key.material());
 	}
 
-	public static BakedModel generateModel(Variant variant, BlockState material) {
+	public static BlockStateModel generateModel(Variant variant, BlockState material) {
 		return generateModel(variant.model(), material);
 	}
 
-	public static BakedModel generateModel(BakedModel template, BlockState planksBlockState) {
+	public static BlockStateModel generateModel(BlockStateModel template, BlockState planksBlockState) {
 		Block planksBlock = planksBlockState.getBlock();
 		Identifier id = RegisteredObjectsHelper.getKeyOrThrow(planksBlock);
 		String wood = plankStateToWoodName(planksBlockState);
@@ -139,7 +139,7 @@ public class WaterWheelRenderer<T extends WaterWheelBlockEntity> extends Kinetic
 	}
 
 	private static TextureAtlasSprite getSpriteOnSide(BlockState state, Direction side) {
-		BakedModel model = Minecraft.getInstance()
+		BlockStateModel model = Minecraft.getInstance()
 			.getBlockRenderer()
 			.getBlockModel(state);
 		if (model == null)
@@ -175,7 +175,7 @@ public class WaterWheelRenderer<T extends WaterWheelBlockEntity> extends Kinetic
 			this.partial = partial;
 		}
 
-		public BakedModel model() {
+		public BlockStateModel model() {
 			return partial.get();
 		}
 

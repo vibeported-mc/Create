@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerClientHandler.Mode;
-import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 
@@ -17,8 +16,8 @@ import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -67,27 +66,25 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 	}
 
 	@Override
-	protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer,
-						  ItemDisplayContext transformType, PoseStack ms, MultiBufferSource buffer, int light,
-						  int overlay) {
-		renderNormal(stack, model, renderer, transformType, ms, light);
+	protected void render(ItemStack stack, PartialItemModelRenderer renderer, ItemDisplayContext transformType,
+		PoseStack ms, SubmitNodeCollector buffer, int light, int overlay) {
+		renderNormal(stack, renderer, transformType, ms, light);
 	}
 
-	protected static void renderNormal(ItemStack stack, CustomRenderedItemModel model,
-									   PartialItemModelRenderer renderer, ItemDisplayContext transformType, PoseStack ms,
-									   int light) {
-		render(stack, model, renderer, transformType, ms, light, RenderType.NORMAL, false, false);
+	protected static void renderNormal(ItemStack stack, PartialItemModelRenderer renderer,
+									   ItemDisplayContext transformType, PoseStack ms, int light) {
+		render(stack, renderer, transformType, ms, light, RenderType.NORMAL, false, false);
 	}
 
-	public static void renderInLectern(ItemStack stack, CustomRenderedItemModel model,
-									   PartialItemModelRenderer renderer, ItemDisplayContext transformType, PoseStack ms,
-									   int light, boolean active, boolean renderDepression) {
-		render(stack, model, renderer, transformType, ms, light, RenderType.LECTERN, active, renderDepression);
+	public static void renderInLectern(ItemStack stack, PartialItemModelRenderer renderer,
+									   ItemDisplayContext transformType, PoseStack ms, int light, boolean active,
+									   boolean renderDepression) {
+		render(stack, renderer, transformType, ms, light, RenderType.LECTERN, active, renderDepression);
 	}
 
-	protected static void render(ItemStack stack, CustomRenderedItemModel model,
-								 PartialItemModelRenderer renderer, ItemDisplayContext transformType, PoseStack ms,
-								 int light, RenderType renderType, boolean active, boolean renderDepression) {
+	protected static void render(ItemStack stack, PartialItemModelRenderer renderer,
+								 ItemDisplayContext transformType, PoseStack ms, int light, RenderType renderType,
+								 boolean active, boolean renderDepression) {
 		float pt = AnimationTickHolder.getPartialTicks();
 		var msr = TransformStack.of(ms);
 
@@ -125,14 +122,17 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 			renderDepression = true;
 		}
 
-		renderer.render(active ? POWERED.get() : model.getOriginalModel(), light);
+		if (active)
+			renderer.render(POWERED.get(), light);
+		else
+			renderer.renderBase(light);
 
 		if (!active) {
 			ms.popPose();
 			return;
 		}
 
-		BakedModel button = BUTTON.get();
+		BlockStateModel button = BUTTON.get();
 		float s = 1 / 16f;
 		float b = s * -.75f;
 		int index = 0;
@@ -163,7 +163,7 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 		ms.popPose();
 	}
 
-	protected static void renderButton(PartialItemModelRenderer renderer, PoseStack ms, int light, float pt, BakedModel button,
+	protected static void renderButton(PartialItemModelRenderer renderer, PoseStack ms, int light, float pt, BlockStateModel button,
 									   float b, int index, boolean renderDepression) {
 		ms.pushPose();
 		if (renderDepression) {
