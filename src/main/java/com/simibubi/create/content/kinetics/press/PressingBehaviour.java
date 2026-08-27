@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.press;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -277,7 +278,7 @@ public class PressingBehaviour extends BeltProcessingBehaviour {
 			Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, level.getRandom(), .125f)
 				.multiply(1, 0, 1);
 			motion = motion.add(0, amount != 1 ? 0.125f : 1 / 16f, 0);
-			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), pos.x, pos.y - .25f, pos.z, motion.x,
+			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stack)), pos.x, pos.y - .25f, pos.z, motion.x,
 				motion.y, motion.z);
 		}
 	}
@@ -289,7 +290,7 @@ public class PressingBehaviour extends BeltProcessingBehaviour {
 		for (int i = 0; i < 20; i++) {
 			Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, level.getRandom(), .175f)
 				.multiply(1, 0, 1);
-			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), pos.x, pos.y, pos.z, motion.x,
+			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stack)), pos.x, pos.y, pos.z, motion.x,
 				motion.y + .25f, motion.z);
 		}
 	}

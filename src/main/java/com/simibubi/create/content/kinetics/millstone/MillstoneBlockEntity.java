@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.millstone;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
@@ -178,7 +179,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements Clearabl
 		if (stackInSlot.isEmpty())
 			return;
 
-		ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, stackInSlot);
+		ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stackInSlot));
 		float angle = level.getRandom().nextFloat() * 360;
 		Vec3 offset = new Vec3(0, 0, 0.5f);
 		offset = VecHelper.rotate(offset, angle, Axis.Y);

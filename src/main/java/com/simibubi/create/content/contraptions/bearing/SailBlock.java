@@ -56,7 +56,7 @@ public class SailBlock extends WrenchableDirectionalBlock {
 		return new SailBlock(properties, false, color);
 	}
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	protected final boolean frame;
 	protected final DyeColor color;
@@ -77,7 +77,7 @@ public class SailBlock extends WrenchableDirectionalBlock {
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper placementHelper = placementHelper;
 		if (!player.isShiftKeyDown() && player.mayBuild()) {
 			if (placementHelper.matchesItem(stack)) {
 				placementHelper.getOffset(player, level, state, pos, hitResult)

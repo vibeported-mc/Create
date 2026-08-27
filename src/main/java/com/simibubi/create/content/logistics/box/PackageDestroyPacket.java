@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.box;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 
@@ -35,7 +36,7 @@ public record PackageDestroyPacket(Vec3 location, ItemStack box) implements Cust
 		ClientLevel level = Minecraft.getInstance().level;
 		Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, level.getRandom(), .125f);
 		Vec3 pos = location.add(motion.scale(4));
-		level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, box), pos.x, pos.y,
+		level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(box)), pos.x, pos.y,
 			pos.z, motion.x, motion.y, motion.z);
 	}
 }

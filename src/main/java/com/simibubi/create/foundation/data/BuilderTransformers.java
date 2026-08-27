@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.data;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
 import static com.simibubi.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
 import static com.simibubi.create.foundation.data.BlockStateGen.axisBlock;
@@ -607,7 +608,7 @@ public class BuilderTransformers {
 			
 			
 			.tag(AllBlockTags.WRENCH_PICKUP.tag)
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(Tags.Items.INGOTS_IRON), RecipeCategory.BUILDING_BLOCKS,
+			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.INGOTS_IRON)), RecipeCategory.BUILDING_BLOCKS,
 				c::get, 2))
 			.simpleItem();
 	}

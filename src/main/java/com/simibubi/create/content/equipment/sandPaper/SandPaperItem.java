@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.sandPaper;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.util.TriState;
 import org.jspecify.annotations.NullMarked;
 import java.util.function.Consumer;
@@ -143,7 +144,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 	public static void spawnParticles(Vec3 location, ItemStack polishedStack, Level world) {
 		for (int i = 0; i < 20; i++) {
 			Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, world.getRandom(), 1 / 8f);
-			world.addParticle(new ItemParticleOption(ParticleTypes.ITEM, polishedStack), location.x, location.y,
+			world.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(polishedStack)), location.x, location.y,
 				location.z, motion.x, motion.y, motion.z);
 		}
 	}

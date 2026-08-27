@@ -412,18 +412,18 @@ public class TrackPlacement {
 				int foundPavement = 0;
 
 				Inventory inv = player.getInventory();
-				int size = inv.items.size();
+				int size = inv.getNonEquipmentItems().size();
 				for (int j = 0; j <= size + 1; j++) {
 					int i = j;
 					boolean offhand = j == size + 1;
 					if (j == size)
-						i = inv.selected;
+						i = inv.getSelectedSlot();
 					else if (offhand)
 						i = 0;
-					else if (j == inv.selected)
+					else if (j == inv.getSelectedSlot())
 						continue;
 
-					ItemStack stackInSlot = (offhand ? inv.offhand : inv.items).get(i);
+					ItemStack stackInSlot = (offhand ? inv.offhand : inv.getNonEquipmentItems()).get(i);
 					boolean isTrack = AllTags.AllBlockTags.TRACKS.matches(stackInSlot) && stackInSlot.is(stack.getItem());
 					if (!isTrack && (!shouldPave || offhandItem.getItem() != stackInSlot.getItem()))
 						continue;
@@ -435,7 +435,7 @@ public class TrackPlacement {
 					if (!simulate) {
 						int remainingItems =
 							count - Math.min(isTrack ? tracks - foundTracks : pavement - foundPavement, count);
-						if (i == inv.selected)
+						if (i == inv.getSelectedSlot())
 							stackInSlot.remove(AllDataComponents.TRACK_CONNECTING_FROM);
 						ItemStack newItem = stackInSlot.copyWithCount(remainingItems);
 						if (offhand)

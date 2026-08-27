@@ -99,7 +99,7 @@ public class ElevatorContactBlock extends WrenchableDirectionalBlock
 	}
 
 	@Nullable
-	public static ColumnCoords getColumnCoords(LevelAccessor level, BlockPos pos) {
+	public static ColumnCoords getColumnCoords(LevelReader level, BlockPos pos) {
 		BlockState blockState = level.getBlockState(pos);
 		if (!AllBlocks.ELEVATOR_CONTACT.has(blockState) && !AllBlocks.REDSTONE_CONTACT.has(blockState))
 			return null;
@@ -152,10 +152,13 @@ public class ElevatorContactBlock extends WrenchableDirectionalBlock
 		elevatorColumn.markDirty();
 	}
 
-	public void scheduleActivation(LevelAccessor pLevel, BlockPos pPos) {
-		if (!pLevel.getBlockTicks()
+	/**
+	 * 26.2 hands scheduling out separately from the level, so both are passed here.
+	 */
+	public void scheduleActivation(ScheduledTickAccess ticks, BlockPos pPos) {
+		if (!ticks.getBlockTicks()
 			.hasScheduledTick(pPos, this))
-			pLevel.scheduleTick(pPos, this, 1);
+			ticks.scheduleTick(pPos, this, 1);
 	}
 
 	@Override
@@ -186,7 +189,7 @@ public class ElevatorContactBlock extends WrenchableDirectionalBlock
 			return stateIn;
 		boolean hasValidContact = RedstoneContactBlock.hasValidContact(worldIn, currentPos, facing);
 		if (stateIn.getValue(POWERING) != hasValidContact)
-			scheduleActivation(worldIn, currentPos);
+			scheduleActivation(ticks, currentPos);
 		return stateIn;
 	}
 

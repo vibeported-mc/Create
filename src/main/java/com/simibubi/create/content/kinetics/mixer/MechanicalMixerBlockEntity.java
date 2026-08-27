@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.mixer;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -196,7 +197,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 				ItemStack stackInSlot = inv.getItem(slot);
 				if (stackInSlot.isEmpty())
 					continue;
-				ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, stackInSlot);
+				ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stackInSlot));
 				spillParticle(data);
 			}
 		}

@@ -154,7 +154,7 @@ public class StockTickerInteractionHandler {
 			InventorySummary tally = paymentEntries.copy();
 			List<ItemStack> toTransfer = new ArrayList<>();
 
-			for (int i = 0; i < player.getInventory().items.size(); i++) {
+			for (int i = 0; i < player.getInventory().getNonEquipmentItems().size(); i++) {
 				ItemStack item = player.getInventory()
 					.getItem(i);
 				if (item.isEmpty())

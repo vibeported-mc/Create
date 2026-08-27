@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.glue;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.util.TriState;
 import com.simibubi.create.content.contraptions.chassis.AbstractChassisBlock;
 
@@ -70,7 +71,7 @@ public class SuperGlueItem extends Item {
 				offset =
 					new Vec3(Mth.clamp(offset.x, -.5, .5), Mth.clamp(offset.y, -.5, .5), Mth.clamp(offset.z, -.5, .5));
 			Vec3 particlePos = facePos.add(offset);
-			world.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), particlePos.x, particlePos.y,
+			world.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stack)), particlePos.x, particlePos.y,
 				particlePos.z, motion.x, motion.y, motion.z);
 		}
 

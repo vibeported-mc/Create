@@ -35,7 +35,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @NullMarked
 public class ShaftBlock extends AbstractSimpleShaftBlock implements EncasableBlock {
 
-	public static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	public static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public ShaftBlock(Properties properties) {
 		super(properties);
@@ -93,7 +93,7 @@ public class ShaftBlock extends AbstractSimpleShaftBlock implements EncasableBlo
 			return InteractionResult.SUCCESS;
 		}
 
-		IPlacementHelper helper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper helper = placementHelper;
 		if (helper.matchesItem(stack))
 			return helper.getOffset(player, level, state, pos, hitResult)
 				.placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);

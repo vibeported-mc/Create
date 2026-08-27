@@ -37,7 +37,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @NullMarked
 public class SpeedControllerBlock extends HorizontalAxisKineticBlock implements IBE<SpeedControllerBlockEntity> {
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public SpeedControllerBlock(Properties properties) {
 		super(properties);
@@ -62,7 +62,7 @@ public class SpeedControllerBlock extends HorizontalAxisKineticBlock implements 
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		IPlacementHelper helper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper helper = placementHelper;
 		if (helper.matchesItem(stack))
 			return helper.getOffset(player, level, state, pos, hitResult).placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);
 

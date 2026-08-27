@@ -43,7 +43,7 @@ public class CopycatStepBlock extends WaterloggedCopycatBlock {
 	public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public CopycatStepBlock(Properties pProperties) {
 		super(pProperties);
@@ -54,7 +54,7 @@ public class CopycatStepBlock extends WaterloggedCopycatBlock {
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (!player.isShiftKeyDown() && player.mayBuild()) {
-			IPlacementHelper helper = PlacementHelpers.get(placementHelperId);
+			IPlacementHelper helper = placementHelper;
 			if (helper.matchesItem(stack))
 				return helper.getOffset(player, level, state, pos, hitResult)
 					.placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);

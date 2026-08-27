@@ -45,7 +45,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @NullMarked
 public class DeployerBlock extends DirectionalAxisKineticBlock implements IBE<DeployerBlockEntity> {
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public DeployerBlock(Properties properties) {
 		super(properties);
@@ -101,7 +101,7 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements IBE<De
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		ItemStack heldByPlayer = stack.copy();
 
-		IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper placementHelper = placementHelper;
 		if (!player.isShiftKeyDown() && player.mayBuild()) {
 			if (placementHelper.matchesItem(heldByPlayer) && placementHelper.getOffset(player, level, state, pos, hitResult)
 				.placeInWorld(level, (BlockItem) heldByPlayer.getItem(), player, hand, hitResult)

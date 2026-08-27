@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.api.behaviour.display.DisplaySource.displaySource;
 import static com.simibubi.create.api.behaviour.display.DisplayTarget.displayTarget;
 import static com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.interactionBehaviour;
@@ -2416,7 +2417,7 @@ public class AllBlocks {
 			.transform(BuilderTransformers.tableCloth("brass", SharedProperties::softMetal, false))
 			.properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW)
 				.requiresCorrectToolForDrops())
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(CommonMetal.BRASS.ingots),
+			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.BRASS.ingots)),
 				RecipeCategory.DECORATIONS, c::get, 2))
 			.transform(pickaxeOnly())
 			.lang("Brass Table Cover")
@@ -2426,7 +2427,7 @@ public class AllBlocks {
 		REGISTRATE.block("copper_table_cloth", p -> new TableClothBlock(p, "copper"))
 			.transform(BuilderTransformers.tableCloth("copper", SharedProperties::copperMetal, false))
 			.properties(p -> p.requiresCorrectToolForDrops())
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(CommonMetal.COPPER.ingots),
+			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.COPPER.ingots)),
 				RecipeCategory.DECORATIONS, c::get, 2))
 			.transform(pickaxeOnly())
 			.lang("Copper Table Cover")
@@ -2754,21 +2755,21 @@ public class AllBlocks {
 	public static final BlockEntry<MetalLadderBlock> BRASS_LADDER =
 		REGISTRATE.block("brass_ladder", MetalLadderBlock::new)
 			.transform(BuilderTransformers.ladder("brass",
-				() -> DataIngredient.tag(CommonMetal.BRASS.ingots), MapColor.TERRACOTTA_YELLOW))
+				() -> DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.BRASS.ingots)), MapColor.TERRACOTTA_YELLOW))
 			.register();
 
 	public static final BlockEntry<MetalLadderBlock> COPPER_LADDER =
 		REGISTRATE.block("copper_ladder", MetalLadderBlock::new)
 			.transform(BuilderTransformers.ladder("copper",
-				() -> DataIngredient.tag(CommonMetal.COPPER.ingots), MapColor.COLOR_ORANGE))
+				() -> DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.COPPER.ingots)), MapColor.COLOR_ORANGE))
 			.register();
 
 	public static final BlockEntry<IronBarsBlock> ANDESITE_BARS = MetalBarsGen.createBars("andesite", true,
 		() -> DataIngredient.items(AllItems.ANDESITE_ALLOY.get()), MapColor.STONE);
 	public static final BlockEntry<IronBarsBlock> BRASS_BARS = MetalBarsGen.createBars("brass", true,
-		() -> DataIngredient.tag(CommonMetal.BRASS.ingots), MapColor.TERRACOTTA_YELLOW);
+		() -> DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.BRASS.ingots)), MapColor.TERRACOTTA_YELLOW);
 	public static final BlockEntry<IronBarsBlock> COPPER_BARS = MetalBarsGen.createBars("copper", true,
-		() -> DataIngredient.tag(CommonMetal.COPPER.ingots), MapColor.COLOR_ORANGE);
+		() -> DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.COPPER.ingots)), MapColor.COLOR_ORANGE);
 
 	public static final BlockEntry<MetalScaffoldingBlock> ANDESITE_SCAFFOLD = REGISTRATE
 		.block("andesite_scaffolding", MetalScaffoldingBlock::new)
@@ -2780,14 +2781,14 @@ public class AllBlocks {
 	public static final BlockEntry<MetalScaffoldingBlock> BRASS_SCAFFOLD =
 		REGISTRATE.block("brass_scaffolding", MetalScaffoldingBlock::new)
 			.transform(BuilderTransformers.scaffold("brass",
-				() -> DataIngredient.tag(CommonMetal.BRASS.ingots), MapColor.TERRACOTTA_YELLOW,
+				() -> DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.BRASS.ingots)), MapColor.TERRACOTTA_YELLOW,
 				AllSpriteShifts.BRASS_SCAFFOLD, AllSpriteShifts.BRASS_SCAFFOLD_INSIDE, AllSpriteShifts.BRASS_CASING))
 			.register();
 
 	public static final BlockEntry<MetalScaffoldingBlock> COPPER_SCAFFOLD =
 		REGISTRATE.block("copper_scaffolding", MetalScaffoldingBlock::new)
 			.transform(BuilderTransformers.scaffold("copper",
-				() -> DataIngredient.tag(CommonMetal.COPPER.ingots), MapColor.COLOR_ORANGE,
+				() -> DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.COPPER.ingots)), MapColor.COLOR_ORANGE,
 				AllSpriteShifts.COPPER_SCAFFOLD, AllSpriteShifts.COPPER_SCAFFOLD_INSIDE, AllSpriteShifts.COPPER_CASING))
 			.register();
 
@@ -2841,7 +2842,7 @@ public class AllBlocks {
 			.transform(BuilderTransformers.copycat())
 			.onRegister(CreateRegistrate.blockModel(() -> CopycatStepModel::new))
 			.item()
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(CommonMetal.ZINC.ingots),
+			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.ZINC.ingots)),
 				RecipeCategory.BUILDING_BLOCKS, c::get, 4))
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("copycat_base", "step"))
@@ -2853,7 +2854,7 @@ public class AllBlocks {
 			.transform(BuilderTransformers.copycat())
 			.onRegister(CreateRegistrate.blockModel(() -> CopycatPanelModel::new))
 			.item()
-			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(CommonMetal.ZINC.ingots),
+			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.ZINC.ingots)),
 				RecipeCategory.BUILDING_BLOCKS, c::get, 4))
 			// TODO 26.2: port datagen to RegistrateItemModelGenerator
 			// .transform(customItemModel("copycat_base", "panel"))
@@ -3199,14 +3200,14 @@ public class AllBlocks {
 
 	public static final CopperBlockSet COPPER_SHINGLES = new CopperBlockSet(REGISTRATE, "copper_shingles",
 		"copper_roof_top", CopperBlockSet.DEFAULT_VARIANTS, (c, p) -> {
-		p.stonecutting(DataIngredient.tag(CommonMetal.COPPER.ingots), RecipeCategory.BUILDING_BLOCKS,
+		p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.COPPER.ingots)), RecipeCategory.BUILDING_BLOCKS,
 			c::get, 2);
 	}, (ws, block) -> connectedTextures(() -> new RoofBlockCTBehaviour(AllSpriteShifts.COPPER_SHINGLES.get(ws)))
 		.accept(block));
 
 	public static final CopperBlockSet COPPER_TILES =
 		new CopperBlockSet(REGISTRATE, "copper_tiles", "copper_roof_top", CopperBlockSet.DEFAULT_VARIANTS, (c, p) -> {
-			p.stonecutting(DataIngredient.tag(CommonMetal.COPPER.ingots), RecipeCategory.BUILDING_BLOCKS,
+			p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(CommonMetal.COPPER.ingots)), RecipeCategory.BUILDING_BLOCKS,
 				c::get, 2);
 		}, (ws, block) -> connectedTextures(() -> new RoofBlockCTBehaviour(AllSpriteShifts.COPPER_TILES.get(ws)))
 			.accept(block));

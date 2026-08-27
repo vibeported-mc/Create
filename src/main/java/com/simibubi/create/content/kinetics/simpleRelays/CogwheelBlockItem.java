@@ -33,15 +33,15 @@ public class CogwheelBlockItem extends BlockItem {
 
 	boolean large;
 
-	private final int placementHelperId;
-	private final int integratedCogHelperId;
+	private final IPlacementHelper placementHelper;
+	private final IPlacementHelper integratedCogHelper;
 
 	public CogwheelBlockItem(CogWheelBlock block, Properties builder) {
 		super(block, builder);
 		large = block.isLarge;
 
-		placementHelperId = PlacementHelpers.register(large ? new LargeCogHelper() : new SmallCogHelper());
-		integratedCogHelperId =
+		placementHelper = PlacementHelpers.register(large ? new LargeCogHelper() : new SmallCogHelper());
+		integratedCogHelper =
 			PlacementHelpers.register(large ? new IntegratedLargeCogHelper() : new IntegratedSmallCogHelper());
 	}
 
@@ -51,7 +51,7 @@ public class CogwheelBlockItem extends BlockItem {
 		BlockPos pos = context.getClickedPos();
 		BlockState state = world.getBlockState(pos);
 
-		IPlacementHelper helper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper helper = placementHelper;
 		Player player = context.getPlayer();
 		BlockHitResult ray = new BlockHitResult(context.getClickLocation(), context.getClickedFace(), pos, true);
 		if (helper.matchesState(state) && player != null && !player.isShiftKeyDown()) {
@@ -59,8 +59,8 @@ public class CogwheelBlockItem extends BlockItem {
 				.placeInWorld(world, this, player, context.getHand(), ray).result();
 		}
 
-		if (integratedCogHelperId != -1) {
-			helper = PlacementHelpers.get(integratedCogHelperId);
+		{
+			helper = integratedCogHelper;
 
 			if (helper.matchesState(state) && player != null && !player.isShiftKeyDown()) {
 				return helper.getOffset(player, world, state, pos, ray)

@@ -35,7 +35,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 public class RollerBlock extends AttachedActorBlock implements IBE<RollerBlockEntity> {
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public static final MapCodec<RollerBlock> CODEC = simpleCodec(RollerBlock::new);
 
@@ -77,7 +77,7 @@ public class RollerBlock extends AttachedActorBlock implements IBE<RollerBlockEn
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper placementHelper = placementHelper;
 		if (!player.isShiftKeyDown() && player.mayBuild()) {
 			if (placementHelper.matchesItem(stack)) {
 				placementHelper.getOffset(player, level, state, pos, hitResult)

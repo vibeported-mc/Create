@@ -46,7 +46,7 @@ public class CurvedTrackSelectionPacket extends BlockEntityConfigurationPacket<T
 
 	@Override
 	protected void applySettings(ServerPlayer player, TrackBlockEntity be) {
-		if (player.getInventory().selected != slot)
+		if (player.getInventory().getSelectedSlot() != slot)
 			return;
 		ItemStack stack = player.getInventory()
 			.getItem(slot);

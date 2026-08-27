@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.potatoCannon;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.entity.EntityTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -314,7 +315,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 		if (!stack.isEmpty()) {
 			for (int i = 0; i < 7; i++) {
 				Vec3 m = VecHelper.offsetRandomly(Vec3.ZERO, this.random, .25f);
-				level().addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), hit.x, hit.y, hit.z, m.x, m.y,
+				level().addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stack)), hit.x, hit.y, hit.z, m.x, m.y,
 					m.z);
 			}
 		}

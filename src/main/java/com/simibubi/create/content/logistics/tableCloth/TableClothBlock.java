@@ -46,7 +46,7 @@ public class TableClothBlock extends Block implements IHaveBigOutline, IWrenchab
 
 	public static final BooleanProperty HAS_BE = BooleanProperty.create("entity");
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	private DyeColor colour;
 
@@ -97,7 +97,7 @@ public class TableClothBlock extends Block implements IHaveBigOutline, IWrenchab
 		if (!player.mayBuild())
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
-		IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper placementHelper = placementHelper;
 		if (placementHelper.matchesItem(heldItem)) {
 			if (shiftKeyDown)
 				return InteractionResult.TRY_WITH_EMPTY_HAND;

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.box;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.lang.ref.WeakReference;
@@ -323,7 +324,7 @@ public class PackageItem extends Item {
 					.add(playerIn.getLookAngle()
 						.scale(.5))
 					.add(motion.scale(4));
-				worldIn.addParticle(new ItemParticleOption(ParticleTypes.ITEM, particle), pos.x, pos.y, pos.z, motion.x,
+				worldIn.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(particle)), pos.x, pos.y, pos.z, motion.x,
 					motion.y, motion.z);
 			}
 		}

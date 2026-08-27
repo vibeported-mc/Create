@@ -172,7 +172,7 @@ public class BlueprintOverlayRenderer {
 
 	private static boolean canAfford(Player player, BigItemStack entry) {
 		int itemsPresent = 0;
-		for (int i = 0; i < player.getInventory().items.size(); i++) {
+		for (int i = 0; i < player.getInventory().getNonEquipmentItems().size(); i++) {
 			ItemStack item = player.getInventory()
 				.getItem(i);
 			if (item.isEmpty() || !ItemStack.isSameItemSameComponents(item, entry.stack))

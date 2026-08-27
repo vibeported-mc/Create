@@ -41,7 +41,11 @@ public interface ProperWaterloggedBlock extends SimpleWaterloggedBlock {
 		return withWater(ctx.getLevel(), placementState, ctx.getClickedPos());
 	}
 
-	static BlockState withWater(LevelAccessor level, BlockState placementState, BlockPos pos) {
+	/**
+	 * Only reads the fluid at the position, so a LevelReader is enough - which is all updateShape
+	 * hands out in 26.2.
+	 */
+	static BlockState withWater(LevelReader level, BlockState placementState, BlockPos pos) {
 		if (placementState == null)
 			return null;
 		FluidState ifluidstate = level.getFluidState(pos);

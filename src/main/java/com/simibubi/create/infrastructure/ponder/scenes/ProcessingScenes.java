@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.ponder.scenes;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.world.entity.EntityTypes;
 import com.google.common.collect.ImmutableList;
@@ -214,7 +215,7 @@ public class ProcessingScenes {
 		scene.idle(18);
 		scene.world().modifyEntity(entity1, Entity::discard);
 		ParticleEmitter blockSpace =
-				scene.effects().particleEmitterWithinBlockSpace(new ItemParticleOption(ParticleTypes.ITEM, input), util.vector().of(0, 0, 0));
+				scene.effects().particleEmitterWithinBlockSpace(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(input)), util.vector().of(0, 0, 0));
 		scene.effects().emitParticles(util.vector().centerOf(center)
 			.add(0, -0.2, 0), blockSpace, 3, 40);
 		scene.idle(10);

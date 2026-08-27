@@ -111,7 +111,11 @@ public class RedstoneContactBlock extends WrenchableDirectionalBlock {
 			worldIn.setBlockAndUpdate(pos, state.setValue(POWERED, hasValidContact));
 	}
 
-	public static boolean hasValidContact(LevelAccessor world, BlockPos pos, Direction direction) {
+	/**
+	 * Only reads the neighbouring state, so a LevelReader is enough - which is all updateShape hands
+	 * out in 26.2.
+	 */
+	public static boolean hasValidContact(LevelReader world, BlockPos pos, Direction direction) {
 		BlockState blockState = world.getBlockState(pos.relative(direction));
 		return (AllBlocks.REDSTONE_CONTACT.has(blockState) || AllBlocks.ELEVATOR_CONTACT.has(blockState))
 			&& blockState.getValue(FACING) == direction.getOpposite();

@@ -69,7 +69,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class GirderBlock extends Block implements SimpleWaterloggedBlock, IWrenchable {
 
-	private static final int placementHelperId = PlacementHelpers.register(new GirderPlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new GirderPlacementHelper());
 
 	public static final BooleanProperty X = BooleanProperty.create("x");
 	public static final BooleanProperty Z = BooleanProperty.create("z");
@@ -127,7 +127,7 @@ public class GirderBlock extends Block implements SimpleWaterloggedBlock, IWrenc
 			return InteractionResult.FAIL;
 		}
 
-		IPlacementHelper helper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper helper = placementHelper;
 		if (helper.matchesItem(stack))
 			return helper.getOffset(player, level, state, pos, hitResult)
 				.placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);
@@ -200,7 +200,7 @@ public class GirderBlock extends Block implements SimpleWaterloggedBlock, IWrenc
 		return state.setValue(WATERLOGGED, ifluidstate.getType() == Fluids.WATER);
 	}
 
-	public static BlockState updateState(LevelAccessor level, BlockPos pos, BlockState state, Direction d) {
+	public static BlockState updateState(LevelReader level, BlockPos pos, BlockState state, Direction d) {
 		Axis axis = d.getAxis();
 		Property<Boolean> updateProperty = axis == Axis.X ? X : axis == Axis.Z ? Z : d == Direction.UP ? TOP : BOTTOM;
 		BlockState sideState = level.getBlockState(pos.relative(d));
@@ -235,7 +235,7 @@ public class GirderBlock extends Block implements SimpleWaterloggedBlock, IWrenc
 		return state;
 	}
 
-	public static boolean isFacingBracket(BlockAndTintGetter level, BlockPos pos, Direction d) {
+	public static boolean isFacingBracket(BlockGetter level, BlockPos pos, Direction d) {
 		BlockEntity blockEntity = level.getBlockEntity(pos.relative(d));
 		if (!(blockEntity instanceof SmartBlockEntity sbe))
 			return false;
@@ -248,7 +248,7 @@ public class GirderBlock extends Block implements SimpleWaterloggedBlock, IWrenc
 		return bracket.getValue(BracketBlock.FACING) == d;
 	}
 
-	public static BlockState updateVerticalProperty(LevelAccessor level, BlockPos pos, BlockState state,
+	public static BlockState updateVerticalProperty(LevelReader level, BlockPos pos, BlockState state,
 		Property<Boolean> updateProperty, BlockState sideState, Direction d) {
 		boolean canAttach = false;
 
@@ -313,7 +313,7 @@ public class GirderBlock extends Block implements SimpleWaterloggedBlock, IWrenc
 		return false;
 	}
 
-	public static boolean isConnected(BlockAndTintGetter world, BlockPos pos, BlockState state, Direction side) {
+	public static boolean isConnected(BlockGetter world, BlockPos pos, BlockState state, Direction side) {
 		Axis axis = side.getAxis();
 		if (state.getBlock() instanceof GirderBlock && !state.getValue(axis == Axis.X ? X : Z))
 			return false;

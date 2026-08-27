@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.palettes;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.foundation.data.CreateRegistrate.connectedTextures;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 
@@ -59,7 +60,7 @@ public class PalettesVariantEntry {
 				.ifPresent(b -> builder.onRegister(connectedTextures(b)));
 
 			builder.recipe((c, p) -> {
-				p.stonecutting(DataIngredient.tag(paletteStoneVariants.materialTag), RecipeCategory.BUILDING_BLOCKS, c);
+				p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(paletteStoneVariants.materialTag)), RecipeCategory.BUILDING_BLOCKS, c);
 				pattern.addRecipes(baseBlock, c, p);
 			});
 
@@ -73,7 +74,7 @@ public class PalettesVariantEntry {
 		}
 
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE,
-			p -> p.stonecutting(DataIngredient.tag(paletteStoneVariants.materialTag), RecipeCategory.BUILDING_BLOCKS,
+			p -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(paletteStoneVariants.materialTag)), RecipeCategory.BUILDING_BLOCKS,
 				baseBlock));
 		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, p -> p.addTag(paletteStoneVariants.materialTag)
 			.add(baseBlock.get()

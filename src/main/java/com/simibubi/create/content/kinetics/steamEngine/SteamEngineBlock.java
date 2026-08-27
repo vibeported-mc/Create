@@ -57,7 +57,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class SteamEngineBlock extends FaceAttachedHorizontalDirectionalBlock
 	implements SimpleWaterloggedBlock, IWrenchable, IBE<SteamEngineBlockEntity> {
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public static final MapCodec<SteamEngineBlock> CODEC = simpleCodec(SteamEngineBlock::new);
 
@@ -95,7 +95,7 @@ public class SteamEngineBlock extends FaceAttachedHorizontalDirectionalBlock
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper placementHelper = placementHelper;
 		if (placementHelper.matchesItem(stack))
 			return placementHelper.getOffset(player, level, state, pos, hitResult)
 				.placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);

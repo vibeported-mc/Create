@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.palettes;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 
 import java.util.Arrays;
@@ -138,7 +139,7 @@ public abstract class PaletteBlockPartial<B extends Block> {
 									 DataGenContext<Block, ? extends Block> c, RegistrateRecipeProvider p) {
 			RecipeCategory category = RecipeCategory.BUILDING_BLOCKS;
 			p.stairs(DataIngredient.items(patternBlock.get()), category, c::get, c.getName(), false);
-			p.stonecutting(DataIngredient.tag(type.materialTag), category, c::get, 1);
+			p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(type.materialTag)), category, c::get, 1);
 		}
 
 	}
@@ -201,7 +202,7 @@ public abstract class PaletteBlockPartial<B extends Block> {
 									 DataGenContext<Block, ? extends Block> c, RegistrateRecipeProvider p) {
 			RecipeCategory category = RecipeCategory.BUILDING_BLOCKS;
 			p.slab(DataIngredient.items(patternBlock.get()), category, c::get, c.getName(), false);
-			p.stonecutting(DataIngredient.tag(type.materialTag), category, c::get, 2);
+			p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(type.materialTag)), category, c::get, 2);
 			DataIngredient ingredient = DataIngredient.items(c.get());
 			ShapelessRecipeBuilder.shapeless(category, patternBlock.get())
 				.requires(ingredient.toVanilla())
@@ -258,7 +259,7 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		protected void createRecipes(AllPaletteStoneTypes type, BlockEntry<? extends Block> patternBlock,
 									 DataGenContext<Block, ? extends Block> c, RegistrateRecipeProvider p) {
 			RecipeCategory category = RecipeCategory.BUILDING_BLOCKS;
-			p.stonecutting(DataIngredient.tag(type.materialTag), category, c::get, 1);
+			p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(type.materialTag)), category, c::get, 1);
 			DataIngredient ingredient = DataIngredient.items(patternBlock.get());
 			ShapedRecipeBuilder.shaped(category, c.get(), 6)
 				.pattern("XXX")

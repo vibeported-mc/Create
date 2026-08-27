@@ -119,10 +119,10 @@ public class ItemHatchBlock extends HorizontalDirectionalBlock
 		if (!depositItemInHand && stack.is(Items.TOOLS_WRENCH))
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
-		for (int i = 0; i < inventory.items.size(); i++) {
+		for (int i = 0; i < inventory.getNonEquipmentItems().size(); i++) {
 			if (Inventory.isHotbarSlot(i) != depositItemInHand)
 				continue;
-			if (depositItemInHand && i != inventory.selected)
+			if (depositItemInHand && i != inventory.getSelectedSlot())
 				continue;
 			ItemStack item = inventory.getItem(i);
 			if (item.isEmpty())

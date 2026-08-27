@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.CommitCallback;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.minecraft.world.level.block.Block;
@@ -386,7 +387,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 								.scale(.25f);
 							Vec3 offset2 = randVec.add(vec);
 							randVec = randVec.scale(.35f);
-							level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), offset2.x, offset2.y,
+							level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stack)), offset2.x, offset2.y,
 								offset2.z, randVec.x, randVec.y, randVec.z);
 						}
 					}

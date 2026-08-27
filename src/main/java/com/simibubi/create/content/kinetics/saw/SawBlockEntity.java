@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jspecify.annotations.NullMarked;
@@ -291,7 +292,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 			particleData = new BlockParticleOption(ParticleTypes.BLOCK, ((BlockItem) stack.getItem()).getBlock()
 				.defaultBlockState());
 		else
-			particleData = new ItemParticleOption(ParticleTypes.ITEM, stack);
+			particleData = new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stack));
 
 		RandomSource r = level.getRandom();
 		Vec3 v = VecHelper.getCenterOf(this.worldPosition)
@@ -312,7 +313,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 			particleData = new BlockParticleOption(ParticleTypes.BLOCK, ((BlockItem) stack.getItem()).getBlock()
 				.defaultBlockState());
 		else {
-			particleData = new ItemParticleOption(ParticleTypes.ITEM, stack);
+			particleData = new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(stack));
 			speed = .125f;
 		}
 

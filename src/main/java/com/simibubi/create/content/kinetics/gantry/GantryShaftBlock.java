@@ -57,7 +57,7 @@ public class GantryShaftBlock extends DirectionalKineticBlock implements IBE<Gan
 	public static final Property<Part> PART = EnumProperty.create("part", Part.class);
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public enum Part implements StringRepresentable {
 		START, MIDDLE, END, SINGLE;
@@ -75,7 +75,7 @@ public class GantryShaftBlock extends DirectionalKineticBlock implements IBE<Gan
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper placementHelper = placementHelper;
 		if (!placementHelper.matchesItem(stack))
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 

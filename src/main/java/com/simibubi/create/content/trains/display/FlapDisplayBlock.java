@@ -122,7 +122,7 @@ public class FlapDisplayBlock extends HorizontalKineticBlock
 		if (player.isShiftKeyDown())
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
-		IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper placementHelper = placementHelper;
 		if (placementHelper.matchesItem(stack))
 			return placementHelper.getOffset(player, level, state, pos, hitResult)
 				.placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);
@@ -335,7 +335,7 @@ public class FlapDisplayBlock extends HorizontalKineticBlock
 		}
 	}
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	private static class PlacementHelper implements IPlacementHelper {
 		@Override

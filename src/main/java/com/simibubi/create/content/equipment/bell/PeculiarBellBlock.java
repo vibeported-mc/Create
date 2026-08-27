@@ -61,7 +61,7 @@ public class PeculiarBellBlock extends AbstractBellBlock<PeculiarBellBlockEntity
 		return tryConvert(world, currentPos, newState, facingState);
 	}
 
-	protected BlockState tryConvert(LevelAccessor world, BlockPos pos, BlockState state, BlockState underState) {
+	protected BlockState tryConvert(LevelReader world, BlockPos pos, BlockState state, BlockState underState) {
 		if (!AllBlocks.PECULIAR_BELL.has(state))
 			return state;
 
@@ -69,10 +69,12 @@ public class PeculiarBellBlock extends AbstractBellBlock<PeculiarBellBlockEntity
 		if (!(Blocks.SOUL_FIRE.equals(underBlock) || Blocks.SOUL_CAMPFIRE.equals(underBlock)))
 			return state;
 
-		if (world.isClientSide()) {
-			spawnConversionParticles(world, pos);
-		} else if (world instanceof Level) {
-			AllSoundEvents.HAUNTED_BELL_CONVERT.playOnServer((Level) world, pos);
+		// updateShape only hands out a LevelReader; particles and sounds both need the level itself.
+		if (world instanceof Level level) {
+			if (level.isClientSide())
+				spawnConversionParticles(level, pos);
+			else
+				AllSoundEvents.HAUNTED_BELL_CONVERT.playOnServer(level, pos);
 		}
 
 		return AllBlocks.HAUNTED_BELL.getDefaultState()
@@ -81,7 +83,7 @@ public class PeculiarBellBlock extends AbstractBellBlock<PeculiarBellBlockEntity
 				.setValue(HauntedBellBlock.POWERED, state.getValue(POWERED));
 	}
 
-	public void spawnConversionParticles(LevelAccessor world, BlockPos blockPos) {
+	public void spawnConversionParticles(Level world, BlockPos blockPos) {
 		RandomSource random = world.getRandom();
 		int num = random.nextInt(10) + 15;
 		for (int i = 0; i < num; i++) {

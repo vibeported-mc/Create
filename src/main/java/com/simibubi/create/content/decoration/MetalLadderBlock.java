@@ -39,7 +39,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 @NullMarked
 public class MetalLadderBlock extends LadderBlock implements IWrenchable {
 
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public MetalLadderBlock(Properties p_54345_) {
 		super(p_54345_);
@@ -85,7 +85,7 @@ public class MetalLadderBlock extends LadderBlock implements IWrenchable {
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (player.isShiftKeyDown() || !player.mayBuild())
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
-		IPlacementHelper helper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper helper = placementHelper;
 		if (helper.matchesItem(stack))
 			return helper.getOffset(player, level, state, pos, hitResult)
 				.placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);

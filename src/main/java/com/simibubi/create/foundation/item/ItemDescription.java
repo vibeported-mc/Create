@@ -244,7 +244,7 @@ public record ItemDescription(ImmutableList<Component> lines, ImmutableList<Comp
 		protected boolean checkLocale() {
 			String currentLanguage = Minecraft.getInstance()
 				.getLanguageManager()
-				.getSelected();
+				.getSelectedItem();
 			if (!currentLanguage.equals(cachedLanguage)) {
 				cachedLanguage = currentLanguage;
 				return true;

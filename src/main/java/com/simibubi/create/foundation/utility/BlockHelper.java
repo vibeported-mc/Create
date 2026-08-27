@@ -153,7 +153,7 @@ public class BlockHelper {
 
 		{
 			// Try held Item first
-			int preferredSlot = player.getInventory().selected;
+			int preferredSlot = player.getInventory().getSelectedSlot();
 			ItemStack itemstack = player.getInventory()
 				.getItem(preferredSlot);
 			int count = itemstack.getCount();

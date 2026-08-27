@@ -1,5 +1,6 @@
 package com.simibubi.create.content.decoration.palettes;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.foundation.data.WindowGen.customWindowBlock;
 import static com.simibubi.create.foundation.data.WindowGen.customWindowPane;
 import static com.simibubi.create.foundation.data.WindowGen.framedGlass;
@@ -42,7 +43,7 @@ public class AllPaletteBlocks {
 
 	public static final BlockEntry<TransparentBlock> TILED_GLASS = REGISTRATE.block("tiled_glass", TransparentBlock::new)
 		.initialProperties(() -> Blocks.GLASS)
-		.recipe((c, p) -> p.stonecutting(DataIngredient.tag(Tags.Items.GLASS_BLOCKS_COLORLESS), RecipeCategory.BUILDING_BLOCKS, c))
+		.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)), RecipeCategory.BUILDING_BLOCKS, c))
 		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 		// .blockstate((c, p) -> BlockStateGen.cubeAll(c, p, "palettes/"))
 		

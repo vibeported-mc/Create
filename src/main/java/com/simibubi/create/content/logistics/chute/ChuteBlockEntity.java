@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.chute;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -573,7 +574,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 			Vec3 p = VecHelper.getCenterOf(worldPosition);
 			p = VecHelper.offsetRandomly(p, level.getRandom(), .5f);
 			Vec3 m = Vec3.ZERO;
-			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, item), p.x, p.y, p.z, m.x, m.y, m.z);
+			level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(item)), p.x, p.y, p.z, m.x, m.y, m.z);
 		}
 	}
 

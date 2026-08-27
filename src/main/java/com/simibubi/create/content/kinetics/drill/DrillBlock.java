@@ -53,7 +53,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 @NullMarked
 public class DrillBlock extends DirectionalKineticBlock implements IBE<DrillBlockEntity>, SimpleWaterloggedBlock {
-	private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
+	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
 
 	public DrillBlock(Properties properties) {
 		super(properties);
@@ -153,7 +153,7 @@ public class DrillBlock extends DirectionalKineticBlock implements IBE<DrillBloc
 
 	@Override
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
+		IPlacementHelper placementHelper = placementHelper;
 		if (!player.isShiftKeyDown() && player.mayBuild()) {
 			if (placementHelper.matchesItem(stack)) {
 				placementHelper.getOffset(player, level, state, pos, hitResult)

@@ -52,7 +52,7 @@ public class PoweredShaftBlock extends AbstractShaftBlock {
 		if (player.isShiftKeyDown() || !player.mayBuild())
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 
-		IPlacementHelper helper = PlacementHelpers.get(ShaftBlock.placementHelperId);
+		IPlacementHelper helper = ShaftBlock.placementHelper;
 		if (helper.matchesItem(stack))
 			return helper.getOffset(player, level, state, pos, hitResult)
 				.placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);

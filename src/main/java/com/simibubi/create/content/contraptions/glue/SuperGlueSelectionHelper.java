@@ -69,9 +69,9 @@ public class SuperGlueSelectionHelper {
 		if (requiredAmount == 0)
 			return true;
 
-		NonNullList<ItemStack> items = player.getInventory().items;
+		NonNullList<ItemStack> items = player.getInventory().getNonEquipmentItems();
 		for (int i = -1; i < items.size(); i++) {
-			int slot = i == -1 ? player.getInventory().selected : i;
+			int slot = i == -1 ? player.getInventory().getSelectedSlot() : i;
 			ItemStack stack = items.get(slot);
 			if (stack.isEmpty())
 				continue;

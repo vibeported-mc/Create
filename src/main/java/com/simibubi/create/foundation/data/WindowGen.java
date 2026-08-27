@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.data;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.foundation.data.CreateRegistrate.connectedTextures;
 
 import java.util.function.Function;
@@ -128,7 +129,7 @@ public class WindowGen {
 				.pattern(" # ")
 				.pattern("#X#")
 				.define('#', ingredient.get())
-					.define('X', DataIngredient.tag(Tags.Items.GLASS_BLOCKS_COLORLESS).toVanilla())
+					.define('X', DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)).toVanilla())
 				.unlockedBy("has_ingredient", RegistrateRecipeProvider.has(ingredient.get()))
 				.save(p))
 			.initialProperties(() -> Blocks.GLASS)
@@ -151,7 +152,7 @@ public class WindowGen {
 			.initialProperties(() -> Blocks.GLASS)
 			.properties(WindowGen::glassProperties)
 			.loot((t, g) -> t.dropWhenSilkTouch(g))
-				.recipe((c, p) -> p.stonecutting(DataIngredient.tag(Tags.Items.GLASS_BLOCKS_COLORLESS),
+				.recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)),
 				RecipeCategory.BUILDING_BLOCKS, c::get))
 			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
 			// .blockstate((c, p) -> BlockStateGen.cubeAll(c, p, "palettes/", "framed_glass"))
@@ -233,7 +234,7 @@ public class WindowGen {
 					.unlockedBy("has_ingredient", RegistrateRecipeProvider.has(parent.get()))
 					.save(p);
 				if (colorless)
-					p.stonecutting(DataIngredient.tag(Tags.Items.GLASS_PANES_COLORLESS), RecipeCategory.BUILDING_BLOCKS,
+					p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_PANES_COLORLESS)), RecipeCategory.BUILDING_BLOCKS,
 						c::get);
 			})
 			.loot((t, g) -> t.dropWhenSilkTouch(g))
