@@ -153,7 +153,7 @@ public class TrainMapSync {
 		boolean sendImmediately = requestingPlayers.getIfPresent(sender.getUUID()) == null;
 		requestingPlayers.put(sender.getUUID(), new WeakReference<>(sender));
 		if (sendImmediately)
-			send(sender.server, false);
+			send(sender.level().getServer(), false);
 	}
 
 	public static void serverTick(ServerTickEvent event) {

@@ -259,7 +259,7 @@ public class Navigation {
 			return;
 		}
 
-		train.burnFuel();
+		train.burnFuel(level);
 
 		double topSpeed = train.maxSpeed();
 

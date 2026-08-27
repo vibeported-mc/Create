@@ -5,9 +5,9 @@ import com.simibubi.create.foundation.utility.ComponentJson;
 import net.createmod.catnip.api.network.NetworkHelper;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -245,7 +245,7 @@ public class Train {
 				if (shouldActivate)
 					break;
 
-				ModifiableItemHandler inv = carriage.storage.getAllItems();
+				ResourceHandler<ItemResource> inv = carriage.storage.getAllItems();
 				if (inv != null) {
 					for (int slot = 0; slot < inv.size(); slot++) {
 						if (shouldActivate)
@@ -1110,7 +1110,7 @@ public class Train {
 		return Penalties.ANY_TRAIN;
 	}
 
-	public void burnFuel() {
+	public void burnFuel(Level level) {
 		if (fuelTicks > 0) {
 			fuelTicks--;
 			return;
@@ -1122,13 +1122,13 @@ public class Train {
 		for (int index = 0; index < carriageCount; index++) {
 			int i = iterateFromBack ? carriageCount - 1 - index : index;
 			Carriage carriage = carriages.get(i);
-			ModifiableItemHandler fuelItems = carriage.storage.getFuelItems();
+			ResourceHandler<ItemResource> fuelItems = carriage.storage.getFuelItems();
 			if (fuelItems == null)
 				continue;
 
 			for (int slot = 0; slot < fuelItems.size(); slot++) {
 				ItemStack stack = ItemHandlerHelpers.extractItem(fuelItems, slot, 1, true);
-				int burnTime = stack.getBurnTime(null);
+				int burnTime = stack.getBurnTime(null, level.fuelValues());
 				if (burnTime <= 0)
 					continue;
 
@@ -1165,7 +1165,9 @@ public class Train {
 		if (graph != null)
 			tag.store("Graph", UUIDUtil.CODEC, graph.id);
 		tag.put("Carriages", NBTHelper.writeCompoundList(carriages, c -> c.write(dimensions, registries)));
-		tag.putIntArray("CarriageSpacing", carriageSpacing);
+		tag.putIntArray("CarriageSpacing", carriageSpacing.stream()
+			.mapToInt(Integer::intValue)
+			.toArray());
 		tag.putBoolean("DoubleEnded", doubleEnded);
 		tag.putDouble("Speed", speed);
 		tag.putDouble("Throttle", throttle);
@@ -1215,7 +1217,7 @@ public class Train {
 		NBTHelper.iterateCompoundList(tag.getListOrEmpty("Carriages"),
 			c -> carriages.add(Carriage.read(c, registries, graph, dimensions)));
 		List<Integer> carriageSpacing = new ArrayList<>();
-		for (int i : tag.getIntArray("CarriageSpacing"))
+		for (int i : tag.getIntArray("CarriageSpacing").orElseGet(() -> new int[0]))
 			carriageSpacing.add(i);
 		boolean doubleEnded = tag.getBooleanOr("DoubleEnded", false);
 		int mapColorIndex = tag.getIntOr("MapColorIndex", 0);

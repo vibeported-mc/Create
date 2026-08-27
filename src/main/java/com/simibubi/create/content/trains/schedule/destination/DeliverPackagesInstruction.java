@@ -1,7 +1,8 @@
 package com.simibubi.create.content.trains.schedule.destination;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -80,7 +81,7 @@ public class DeliverPackagesInstruction extends ScheduleInstruction {
 		}
 
 		for (Carriage carriage : train.carriages) {
-			ModifiableItemHandler carriageInventory = carriage.storage.getAllItems();
+			ResourceHandler<ItemResource> carriageInventory = carriage.storage.getAllItems();
 			if (carriageInventory == null)
 				continue;
 

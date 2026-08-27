@@ -1,5 +1,8 @@
 package com.simibubi.create.content.kinetics.waterwheel;
 
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import com.simibubi.create.foundation.model.BakedQuadHelper;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,9 +39,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.neoforge.model.data.ModelData;
 
-public class WaterWheelRenderer<T extends WaterWheelBlockEntity> extends KineticBlockEntityRenderer<T> {
+public class WaterWheelRenderer<T extends WaterWheelBlockEntity>
+	extends KineticBlockEntityRenderer<T, KineticBlockEntityRenderer.KineticRenderState> {
 	public static final SuperByteBufferCache.Compartment<ModelKey> WATER_WHEEL = new SuperByteBufferCache.Compartment<>();
 
 	public static final StitchedSprite OAK_PLANKS_TEMPLATE = new StitchedSprite(Identifier.withDefaultNamespace("block/oak_planks"));
@@ -129,7 +132,9 @@ public class WaterWheelRenderer<T extends WaterWheelBlockEntity> extends Kinetic
 	private static BlockState getLogBlockState(String namespace, String wood) {
 		for (String location : LOG_LOCATIONS) {
 			Optional<BlockState> state =
-				BuiltInRegistries.BLOCK.getHolder(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(namespace, location.replace("x", wood))))
+				BuiltInRegistries.BLOCK
+					.get(ResourceKey.create(Registries.BLOCK,
+						Identifier.fromNamespaceAndPath(namespace, location.replace("x", wood))))
 					.map(Holder::value)
 					.map(Block::defaultBlockState);
 			if (state.isPresent())
@@ -138,29 +143,30 @@ public class WaterWheelRenderer<T extends WaterWheelBlockEntity> extends Kinetic
 		return Blocks.OAK_LOG.defaultBlockState();
 	}
 
-	private static TextureAtlasSprite getSpriteOnSide(BlockState state, Direction side) {
+	private static @Nullable TextureAtlasSprite getSpriteOnSide(BlockState state, Direction side) {
 		BlockStateModel model = Minecraft.getInstance()
-			.getBlockRenderer()
-			.getBlockModel(state);
+			.getModelManager()
+			.getBlockStateModelSet()
+			.get(state);
 		if (model == null)
 			return null;
+
 		RandomSource random = RandomSource.create();
 		random.setSeed(42L);
-		List<BakedQuad> quads = model.getQuads(state, side, random, ModelData.EMPTY, null);
-		if (!quads.isEmpty()) {
-			return quads.get(0)
-				.getSprite();
-		}
-		random.setSeed(42L);
-		quads = model.getQuads(state, null, random, ModelData.EMPTY, null);
-		if (!quads.isEmpty()) {
-			for (BakedQuad quad : quads) {
-				if (quad.getDirection() == side) {
-					return quad.getSprite();
-				}
-			}
-		}
-		return model.getParticleIcon(ModelData.EMPTY);
+		List<BlockStateModelPart> parts = new ArrayList<>();
+		model.collectParts(random, parts);
+
+		List<BakedQuad> quads = BakedModelHelper.quadsOf(parts, side);
+		if (!quads.isEmpty())
+			return BakedQuadHelper.getSprite(quads.get(0));
+
+		for (BakedQuad quad : BakedModelHelper.quadsOf(parts, null))
+			if (quad.direction() == side)
+				return BakedQuadHelper.getSprite(quad);
+
+		return parts.isEmpty() ? null : parts.get(0)
+			.particleMaterial()
+			.sprite();
 	}
 
 	public enum Variant {

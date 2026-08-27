@@ -27,6 +27,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class SignalVisual extends AbstractBlockEntityVisual<SignalBlockEntity> implements SimpleTickableVisual {
+
+	// LightTexture.FULL_BLOCK is gone from LightCoordsUtil; the lit lamp still wants maximum block
+	// light with no sky contribution.
+	private static final int FULL_BLOCK_LIGHT = LightCoordsUtil.pack(15, 0);
 	private final TransformedInstance signalLight;
 	private final TransformedInstance signalOverlay;
 
@@ -86,7 +90,7 @@ public class SignalVisual extends AbstractBlockEntityVisual<SignalBlockEntity> i
 				.translate(getVisualPosition());
 
 			if (isRedLight)
-				signalLight.light(LightCoordsUtil.FULL_BLOCK);
+				signalLight.light(FULL_BLOCK_LIGHT);
 
 			signalLight.setChanged();
 

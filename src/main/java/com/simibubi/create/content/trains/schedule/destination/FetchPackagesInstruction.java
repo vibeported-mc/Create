@@ -1,13 +1,13 @@
 package com.simibubi.create.content.trains.schedule.destination;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.Create;
@@ -84,7 +84,11 @@ public class FetchPackagesInstruction extends TextScheduleInstruction {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	protected void modifyEditBox(EditBox box) {
-		box.setFilter(s -> StringUtils.countMatches(s, '*') <= 3);
+		// TODO 26.2: cap the address at three '*' wildcards again. EditBox lost setFilter and has no
+		// replacement validator; the one remaining hook, setResponder, is claimed by ScheduleScreen
+		// for destination suggestions, so a filter has to come from a Create-owned EditBox subclass
+		// in ModularGuiLineBuilder. Until then a very wildcard-heavy filter is accepted and simply
+		// matches more stations than intended.
 	}
 
 	@Override
@@ -123,7 +127,7 @@ public class FetchPackagesInstruction extends TextScheduleInstruction {
 				GlobalPackagePort port = entry.getValue();
 				BlockPos pos = entry.getKey();
 
-				ModifiableItemHandler postboxInventory = port.offlineBuffer;
+				ResourceHandler<ItemResource> postboxInventory = port.offlineBuffer;
 				if (dimLevel.isLoaded(pos) && dimLevel.getBlockEntity(pos) instanceof PostboxBlockEntity ppbe)
 					postboxInventory = ppbe.inventory;
 

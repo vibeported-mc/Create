@@ -2,6 +2,7 @@ package com.simibubi.create.content.trains.entity;
 
 import net.createmod.catnip.api.network.NetworkHelper;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.UUID;
 
 import com.simibubi.create.AllPackets;
@@ -36,8 +37,9 @@ public record TrainRelocationPacket(UUID trainId, BlockPos pos, Vec3 lookAngle, 
 	        TrainRelocationPacket::new
 	);
 
-	public PacketTypeProvider getTypeProvider() {
-		return AllPackets.RELOCATE_TRAIN;
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return AllPackets.RELOCATE_TRAIN.getType();
 	}
 
 	@Override

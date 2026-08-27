@@ -2,10 +2,10 @@ package com.simibubi.create.compat.jei.category;
 
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import com.simibubi.create.foundation.fluid.ItemFluidAccess;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.NullMarked;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -28,10 +28,13 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.runtime.IIngredientManager;
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -62,7 +65,7 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 					.withFluidIngredients(fluidIngredient)
 						.withSingleItemOutput(stack)
 						.build();
-				consumer.accept(new RecipeHolder<>(id, recipe));
+				consumer.accept(new RecipeHolder<>(recipeKey(id), recipe));
 				continue;
 			}
 
@@ -80,20 +83,25 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 					continue;
 
 				ItemStack copy = stack.copy();
-				ResourceHandler<FluidResource> fhi = Capabilities.Fluid.ITEM.getCapability(copy, ItemAccess.forStack(copy));
+				// Filling a bucket swaps the item out from under the handler, which an access over a bare
+				// stack refuses to do; the filled item is read back out of the access afterwards rather
+				// than being handed over as a container.
+				ItemFluidAccess access = new ItemFluidAccess(copy);
+				ResourceHandler<FluidResource> fhi = access.handler();
 				if (fhi != null) {
 					if (!GenericItemFilling.isFluidHandlerValid(copy, fhi))
 						continue;
 					FluidStack fluidCopy = fluidStack.copy();
 					fluidCopy.setAmount(1000);
 					FluidHandlerHelpers.fill(fhi, fluidCopy, false);
-					ItemStack container = fhi.getContainer();
+					ItemStack container = access.result();
 					if (ItemHelper.sameItem(container, copy))
 						continue;
 					if (container.isEmpty())
 						continue;
 
-					Ingredient bucket = Ingredient.of(stack);
+					// An ingredient is a flat set of items now, so it can only name the container's item.
+					Ingredient bucket = Ingredient.of(stack.getItem());
 					Identifier itemName = RegisteredObjectsHelper.getKeyOrThrow(stack.getItem());
 					Identifier fluidName = RegisteredObjectsHelper.getKeyOrThrow(fluidCopy.getFluid());
 					Identifier id = Create.asResource("fill_" + itemName.getNamespace() + "_" + itemName.getPath()
@@ -105,10 +113,18 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 						.withFluidIngredients(fluidIngredient)
 							.withSingleItemOutput(container)
 							.build();
-					consumer.accept(new RecipeHolder<>(id, recipe));
+					consumer.accept(new RecipeHolder<>(recipeKey(id), recipe));
 				}
 			}
 		}
+	}
+
+	/**
+	 * A recipe is held under a registry key rather than a bare id in 26.2. These recipes only exist
+	 * in JEI, so the key names something the recipe manager has never heard of.
+	 */
+	private static ResourceKey<Recipe<?>> recipeKey(Identifier id) {
+		return ResourceKey.create(Registries.RECIPE, id);
 	}
 
 	@Override
@@ -130,8 +146,7 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 	public void draw(FillingRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		AllGuiTextures.JEI_SHADOW.render(graphics, 62, 57);
 		AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 126, 29);
-		spout.withFluids(Arrays.asList(recipe.getRequiredFluid()
-				.getFluids()))
+		spout.withFluids(fluidsOf(recipe.getRequiredFluid()))
 			.draw(graphics, getWidth() / 2 - 13, 22);
 	}
 

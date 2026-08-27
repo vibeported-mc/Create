@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.component.Consumables;
@@ -36,7 +37,6 @@ import com.simibubi.create.content.equipment.armor.DivingHelmetItem;
 import com.simibubi.create.content.equipment.blueprint.BlueprintItem;
 import com.simibubi.create.content.equipment.extendoGrip.ExtendoGripItem;
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
-import com.simibubi.create.content.equipment.goggles.GogglesModel;
 import com.simibubi.create.content.equipment.potatoCannon.PotatoCannonItem;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperItem;
 import com.simibubi.create.content.equipment.symmetryWand.SymmetryWandItem;
@@ -265,8 +265,13 @@ public class AllItems {
 			.register();
 
 	public static final ItemEntry<GogglesItem> GOGGLES = REGISTRATE.item("goggles", GogglesItem::new)
-		.properties(p -> p.stacksTo(1))
-		.onRegister(CreateRegistrate.itemModel(() -> GogglesModel::new))
+		// Wearing is a component in 26.2 rather than something the item class declares.
+		.properties(p -> p.stacksTo(1)
+			.equippable(EquipmentSlot.HEAD))
+		// TODO 26.2: the head-worn goggles used a model that swapped itself out for
+		// AllPartialModels.GOGGLES under ItemDisplayContext.HEAD. A model can no longer choose per
+		// display context in code - that is a "select" item model keyed on display_context - so it
+		// comes back with datagen.
 		.lang("Engineer's Goggles")
 		.register();
 

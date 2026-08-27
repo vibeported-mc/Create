@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.block;
 
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockItemTags;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -14,7 +15,6 @@ import com.simibubi.create.foundation.data.TagGen;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.generators.RegistrateRecipeProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.DataIngredient;
@@ -25,11 +25,8 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.lang.Lang;
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
@@ -39,19 +36,14 @@ import net.minecraft.world.level.block.WeatheringCopperFullBlock;
 import net.minecraft.world.level.block.WeatheringCopperSlabBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
-import net.neoforged.neoforge.client.model.generators.ModelProvider;
 
 public class CopperBlockSet {
 	protected static final WeatherState[] WEATHER_STATES = WeatherState.values();
 	protected static final int WEATHER_STATE_COUNT = WEATHER_STATES.length;
 
-	protected static final Map<WeatherState, Supplier<Block>> BASE_BLOCKS = new EnumMap<>(WeatherState.class);
-
-	static {
-		BASE_BLOCKS.put(WeatherState.UNAFFECTED, () -> Blocks.COPPER_BLOCK);
-		BASE_BLOCKS.put(WeatherState.EXPOSED, () -> Blocks.EXPOSED_COPPER);
-		BASE_BLOCKS.put(WeatherState.WEATHERED, () -> Blocks.WEATHERED_COPPER);
-		BASE_BLOCKS.put(WeatherState.OXIDIZED, () -> Blocks.OXIDIZED_COPPER);
+	protected static Supplier<Block> baseBlock(WeatherState state) {
+		return () -> Blocks.COPPER_BLOCK.weathering()
+			.pick(state);
 	}
 
 	public static final Variant<?>[] DEFAULT_VARIANTS =
@@ -126,7 +118,7 @@ public class CopperBlockSet {
 
 		name += suffix;
 
-		Supplier<Block> baseBlock = BASE_BLOCKS.get(state);
+		Supplier<Block> baseBlock = baseBlock(state);
 		BlockBuilder<T, ?> builder = registrate.block(name, variant.getFactory(this, state, waxed))
 			.initialProperties(() -> baseBlock.get())
 			// TODO 26.2: port datagen to the new recipe/loot builders
@@ -141,23 +133,13 @@ public class CopperBlockSet {
 			.tag(BlockTags.NEEDS_STONE_TOOL)
 			.simpleItem();
 
-		if (variant == BlockVariant.INSTANCE && state == WeatherState.UNAFFECTED && !waxed) {
-			builder.recipe(mainBlockRecipe::accept);
-		} else {
-			builder.recipe((ctx, prov) -> {
-				if (waxed) {
-					Block unwaxed = get(variant, state, false).get();
-					ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-						.requires(unwaxed)
-						.requires(Items.HONEYCOMB)
-						.unlockedBy("has_unwaxed", RegistrateRecipeProvider.has(unwaxed))
-						.save(prov, Identifier.fromNamespaceAndPath(ctx.getId()
-							.getNamespace(), "crafting/" + generalDirectory + ctx.getName() + "_from_honeycomb"));
-				}
-
-				variant.generateRecipes(get(BlockVariant.INSTANCE, state, waxed), ctx, prov);
-			});
-		}
+		// TODO 26.2: port datagen to the new recipe builders. This registered the block's own recipe
+		// and, for a waxed variant, the honeycomb recipe that produces it from the unwaxed one.
+		// if (variant == BlockVariant.INSTANCE && state == WeatherState.UNAFFECTED && !waxed) {
+		// 	builder.recipe(mainBlockRecipe::accept);
+		// } else {
+		// 	builder.recipe((ctx, prov) -> { ... });
+		// }
 
 		if (variant == StairVariant.INSTANCE)
 			builder.tag(BlockItemTags.STAIRS.block());

@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.compat.Mods;
 import com.simibubi.create.compat.trainmap.TrainMapSync.SignalState;
@@ -76,9 +73,6 @@ public class TrainMapManager {
 		TrainMapRenderer.INSTANCE.render(graphics, linearFiltering, bounds);
 		hoveredElement = drawTrains(graphics, mouseX, mouseY, hoveredElement, bounds);
 		hoveredElement = drawPoints(graphics, mouseX, mouseY, hoveredElement, bounds);
-
-		graphics.bufferSource()
-			.endBatch();
 
 		if (hoveredElement instanceof GlobalStation station) {
             return List.of(Component.literal(station.name));
@@ -283,9 +277,9 @@ public class TrainMapManager {
 				pose.pushMatrix();
 				pose.translate((float) (x - 2), (float) (y - 2));
 
-				pose.translate(sprite.getWidth() / 2.0, sprite.getHeight() / 2.0, 0);
-				pose.mulPose(Axis.ZP.rotationDegrees(90 * (rotation / 2)));
-				pose.translate(-sprite.getWidth() / 2.0, -sprite.getHeight() / 2.0, 0);
+				pose.translate(sprite.getWidth() / 2.0F, sprite.getHeight() / 2.0F);
+				pose.rotate(Mth.DEG_TO_RAD * 90 * (rotation / 2));
+				pose.translate(-sprite.getWidth() / 2.0F, -sprite.getHeight() / 2.0F);
 
 				sprite.render(graphics, 0, 0);
 				sprite.render(graphics, 0, 0);
@@ -326,15 +320,6 @@ public class TrainMapManager {
 			Vec3 frontPos = Vec3.ZERO;
 			List<Carriage> carriages = train.carriages;
 			boolean otherDim = true;
-			double avgY = 0;
-
-			for (int i = 0; i < carriages.size(); i++) {
-				for (boolean firstBogey : Iterate.trueAndFalse)
-					avgY += trainEntry.getPosition(i, firstBogey, time)
-						.y();
-			}
-
-			avgY /= carriages.size() * 2;
 
 			for (int i = 0; i < carriages.size(); i++) {
 				Carriage carriage = carriages.get(i);
@@ -396,8 +381,11 @@ public class TrainMapManager {
 
 				float pivotX = 7.5f + (slices - 3) * sliceXShiftByRotationIndex[rotation] / 2.0f;
 				float pivotY = 6.5f + (slices - 3) * sliceYShiftByRotationIndex[rotation] / 2.0f;
-				// Ysort at home
-				pose.translate(pX - pivotX, pY - pivotY, 10 + (avgY / 512.0) + (1024.0 + center.z() % 8192.0) / 1024.0);
+				// TODO 26.2: the third argument used to be a depth offset derived from the train's average
+				// height and its world Z, which sorted overlapping trains front to back. The GUI pose is
+				// two-dimensional now and elements layer purely by the order they are submitted in, so
+				// overlapping trains stack in map iteration order instead.
+				pose.translate((float) (pX - pivotX), (float) (pY - pivotY));
 
 				int trainColorIndex = train.mapColorIndex;
 				int colorRow = trainColorIndex / 4;
@@ -433,7 +421,7 @@ public class TrainMapManager {
 
 			if (trainEntry.signalState != SignalState.NOT_WAITING) {
 				pose.pushMatrix();
-				pose.translate(frontPos.x - 0.5, frontPos.z - 0.5, 20 + (1024.0 + frontPos.z() % 8192.0) / 1024.0);
+				pose.translate((float) (frontPos.x - 0.5), (float) (frontPos.z - 0.5));
 				AllGuiTextures.TRAINMAP_SIGNAL.render(graphics, 0, -3);
 				pose.popMatrix();
 			}
@@ -714,9 +702,9 @@ public class TrainMapManager {
 					if (map.alphaAt(xi, zi) >= a)
 						continue;
 					if (map.is(xi, zi, mainColor))
-						map.setPixel(xi, zi, FastColor.ABGR32.color(a, mainColorShadow));
+						map.setPixel(xi, zi, ARGB.color(a, mainColorShadow));
 					else if (map.is(xi, zi, darkerColor))
-						map.setPixel(xi, zi, FastColor.ABGR32.color(a, darkerColorShadow));
+						map.setPixel(xi, zi, ARGB.color(a, darkerColorShadow));
 				}
 			}
 		}
@@ -728,7 +716,7 @@ public class TrainMapManager {
 	}
 
 	private static int markY(int color, double y) {
-		return FastColor.ABGR32.color(mapYtoAlpha(y), color);
+		return ARGB.color(mapYtoAlpha(y), color);
 	}
 
 }

@@ -1,5 +1,8 @@
 package com.simibubi.create.foundation.utility;
 
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.util.ProblemReporter;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -250,7 +253,8 @@ public class BlockHelper {
 			// entities as a side-effect
 			Registry<Enchantment> enchantmentRegistry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
 			if (state.getBlock() instanceof IceBlock && usedTool.getEnchantmentLevel(enchantmentRegistry.getOrThrow(Enchantments.SILK_TOUCH)) == 0) {
-				if (!level.dimensionType().ultraWarm()) {
+				if (!level.environmentAttributes()
+					.getValue(EnvironmentAttributes.WATER_EVAPORATES, pos)) {
 					BlockState below = level.getBlockState(pos.below());
 					if (below.blocksMotion() || below.liquid()) {
 						fluidState = IceBlock.meltsInto().getFluidState();
@@ -280,18 +284,17 @@ public class BlockHelper {
 		int idx = chunk.getSectionIndex(target.getY());
 		LevelChunkSection chunksection = chunk.getSection(idx);
 		if (chunksection == null) {
-			chunksection = new LevelChunkSection(world.registryAccess()
-				.lookupOrThrow(Registries.BIOME));
+			chunksection = new LevelChunkSection(world.palettedContainerFactory());
 			chunk.getSections()[idx] = chunksection;
 		}
 		BlockState old = chunksection.setBlockState(SectionPos.sectionRelative(target.getX()),
 			SectionPos.sectionRelative(target.getY()), SectionPos.sectionRelative(target.getZ()), state);
-		chunk.setUnsaved(true);
+		chunk.markUnsaved();
 		world.markAndNotifyBlock(target, chunk, old, state, 82, 512);
 
 		world.setBlock(target, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
 		world.neighborChanged(target, world.getBlockState(target.below())
-			.getBlock(), target.below());
+			.getBlock(), null);
 	}
 
 	public static CompoundTag prepareBlockEntityData(Level level, BlockState blockState, BlockEntity blockEntity) {
@@ -344,8 +347,8 @@ public class BlockHelper {
 			state = Blocks.CAULDRON.defaultBlockState();
 		}
 
-		if (world.dimensionType()
-			.ultraWarm() && state.getFluidState().is(FluidTags.WATER)) {
+		if (world.environmentAttributes()
+			.getValue(EnvironmentAttributes.WATER_EVAPORATES, target) && state.getFluidState().is(FluidTags.WATER)) {
 			int i = target.getX();
 			int j = target.getY();
 			int k = target.getZ();
@@ -392,7 +395,8 @@ public class BlockHelper {
 				if (blockEntity instanceof IMultiBlockEntityContainer imbe)
 					if (!imbe.isController())
 						data.store("Controller", BlockPos.CODEC, imbe.getController());
-				blockEntity.loadWithComponents(data, world.registryAccess());
+				blockEntity.loadWithComponents(
+				TagValueInput.create(ProblemReporter.DISCARDING, world.registryAccess(), data));
 			}
 		}
 
@@ -459,7 +463,7 @@ public class BlockHelper {
 				player.getItemInHand(hand), level, player, hand, ray
 		);
 		if (iteminteractionresult.consumesAction()) {
-			return iteminteractionresult.result();
+			return iteminteractionresult;
 		}
 
 		if (iteminteractionresult == InteractionResult.TRY_WITH_EMPTY_HAND && hand == InteractionHand.MAIN_HAND) {

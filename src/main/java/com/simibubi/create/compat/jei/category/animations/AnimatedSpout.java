@@ -3,13 +3,12 @@ package com.simibubi.create.compat.jei.category.animations;
 import org.joml.Matrix3x2fStack;
 import java.util.List;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.createmod.catnip.api.client.gui.UIRenderHelper;
+import net.createmod.catnip.api.client.gui.ILightingSettings;
+import net.createmod.catnip.api.client.render.FluidRenderHelper;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
@@ -63,26 +62,26 @@ public class AnimatedSpout extends AnimatedKinetics {
 			.scale(scale)
 			.submit(graphics);
 
-		AnimatedKinetics.DEFAULT_LIGHTING.applyLighting();
-		matrixStack.pushMatrix();
-		UIRenderHelper.flipForGuiRender(matrixStack);
-		matrixStack.scale((float) (16), (float) (16));
+		AnimatedKinetics.DEFAULT_LIGHTING.apply();
+
+		// Both fluid boxes used to ride the same pose stack as the blocks above, flipped and scaled
+		// to block units by hand. A picture-in-picture pass does that part itself, so what is left to
+		// hand over is the pixels-per-block the boxes were drawn at and, for the falling stream, the
+		// offset it used to be translated by - converted from pixels into blocks on the same axes.
+		FluidStack fluidStack = fluids.get(0);
 		float from = 3f / 16f;
 		float to = 17f / 16f;
-		FluidStack fluidStack = fluids.get(0);
-		NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, from, from, from, to, to, to, graphics.bufferSource(), matrixStack, LightCoordsUtil.FULL_BRIGHT, false, true);
-		matrixStack.popMatrix();
+		sceneGeometry(graphics, 16, 0, 0, 0, (poseStack, queue) -> FluidRenderHelper.submitFluidBox(queue, fluidStack,
+			from, from, from, to, to, to, poseStack, LightCoordsUtil.FULL_BRIGHT, false, true));
 
 		float width = 1 / 128f * squeeze;
-		matrixStack.translate((float) (scale / 2f), (float) (scale * 1.5f));
-		UIRenderHelper.flipForGuiRender(matrixStack);
-		matrixStack.scale((float) (16), (float) (16));
-		matrixStack.translate((float) (-0.5f), (float) (0));
-		from = -width / 2 + 0.5f;
-		to = width / 2 + 0.5f;
-		NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, from, 0, from, to, 2, to, graphics.bufferSource(), matrixStack, LightCoordsUtil.FULL_BRIGHT, false, true);
-		graphics.flush();
-		Lighting.setupFor3DItems();
+		float streamFrom = -width / 2 + 0.5f;
+		float streamTo = width / 2 + 0.5f;
+		sceneGeometry(graphics, 16, scale / 2f / 16 - 0.5f, scale * -1.5f / 16, scale / 2f / 16 - 0.5f,
+			(poseStack, queue) -> FluidRenderHelper.submitFluidBox(queue, fluidStack, streamFrom, 0, streamFrom,
+				streamTo, 2, streamTo, poseStack, LightCoordsUtil.FULL_BRIGHT, false, true));
+
+		ILightingSettings.ITEMS_3D.apply();
 
 		matrixStack.popMatrix();
 	}

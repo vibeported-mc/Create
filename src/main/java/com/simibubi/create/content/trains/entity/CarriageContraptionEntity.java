@@ -604,7 +604,7 @@ public class CarriageContraptionEntity extends OrientedContraptionEntity {
 		}
 
 		if (targetSpeed != 0)
-			carriage.train.burnFuel();
+			carriage.train.burnFuel(level());
 
 		boolean slow = inverted ^ targetSpeed < 0;
 		boolean spaceDown = heldControls.contains(4);

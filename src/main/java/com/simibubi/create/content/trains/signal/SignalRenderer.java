@@ -31,6 +31,10 @@ import net.minecraft.world.phys.Vec3;
 
 public class SignalRenderer extends SafeBlockEntityRenderer<SignalBlockEntity, SignalRenderer.SignalRenderState> {
 
+	// LightTexture.FULL_BLOCK is gone from LightCoordsUtil; the lit lamp still wants maximum block
+	// light with no sky contribution.
+	private static final int FULL_BLOCK_LIGHT = LightCoordsUtil.pack(15, 0);
+
 	public static class SignalRenderState extends SafeRenderState {
 		public @Nullable SuperByteBufferRenderState lamp;
 		public @Nullable Level level;
@@ -67,7 +71,7 @@ public class SignalRenderer extends SafeBlockEntityRenderer<SignalBlockEntity, S
 		float renderTime = AnimationTickHolder.getRenderTime(be.getLevel());
 		if (signalState.isRedLight(renderTime))
 			state.lamp = CachedBufferer.partial(AllPartialModels.SIGNAL_ON, blockState)
-				.light(LightCoordsUtil.FULL_BLOCK)
+				.light(FULL_BLOCK_LIGHT)
 				.extractRenderState();
 		else
 			state.lamp = CachedBufferer.partial(AllPartialModels.SIGNAL_OFF, blockState)

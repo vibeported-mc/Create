@@ -12,9 +12,10 @@ import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 
+import net.minecraft.tags.TagEntry;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.Holder;
-import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.data.tags.TagsProvider.TagAppender;
+import net.minecraft.data.tags.TagAppender;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagBuilder;
@@ -61,15 +62,14 @@ public class TagGen {
 		};
 	}
 
-	public static <T extends TagAppender<?>> T addOptional(T appender, Mods mod, String id) {
-		appender.addOptional(mod.asResource(id));
+	public static <T> TagAppender<T> addOptional(TagAppender<T> appender, Mods mod, String id) {
+		appender.add(TagEntry.optionalElement(mod.asResource(id)));
 		return appender;
 	}
 
-	public static <T extends TagAppender<?>> T addOptional(T appender, Mods mod, List<String> ids) {
-		for (String id : ids) {
-			appender.addOptional(mod.asResource(id));
-		}
+	public static <T> TagAppender<T> addOptional(TagAppender<T> appender, Mods mod, List<String> ids) {
+		for (String id : ids)
+			appender.add(TagEntry.optionalElement(mod.asResource(id)));
 		return appender;
 	}
 
@@ -83,26 +83,36 @@ public class TagGen {
 		}
 
 		public CreateTagAppender<T> tag(TagKey<T> tag) {
-			TagBuilder tagbuilder = getOrCreateRawBuilder(tag);
-			return new CreateTagAppender<>(tagbuilder, keyExtractor);
+			// Registrate's provider interface exposes the raw builder rather than an appender.
+			return new CreateTagAppender<>(TagAppender.forBuilder(getOrCreateRawBuilder(tag)), keyExtractor);
 		}
 
 		public TagBuilder getOrCreateRawBuilder(TagKey<T> tag) {
-			return provider.addTag(tag).getInternalBuilder();
+			return provider.rawBuilder(tag);
 		}
 	}
 
-	public static class CreateTagAppender<T> extends TagsProvider.TagAppender<T> {
+	public static class CreateTagAppender<T> {
 
+		private final TagAppender<T> delegate;
 		private final Function<T, ResourceKey<T>> keyExtractor;
 
-		public CreateTagAppender(TagBuilder pBuilder, Function<T, ResourceKey<T>> pKeyExtractor) {
-			super(pBuilder);
-			this.keyExtractor = pKeyExtractor;
+		public CreateTagAppender(TagAppender<T> delegate, Function<T, ResourceKey<T>> keyExtractor) {
+			this.delegate = delegate;
+			this.keyExtractor = keyExtractor;
+		}
+
+		public TagAppender<T> delegate() {
+			return delegate;
+		}
+
+		public CreateTagAppender<T> add(ResourceKey<T> key) {
+			delegate.add(key);
+			return this;
 		}
 
 		public CreateTagAppender<T> add(T entry) {
-			this.add(this.keyExtractor.apply(entry));
+			delegate.add(this.keyExtractor.apply(entry));
 			return this;
 		}
 
@@ -110,7 +120,22 @@ public class TagGen {
 		public final CreateTagAppender<T> add(T... entries) {
 			Stream.<T>of(entries)
 				.map(this.keyExtractor)
-				.forEach(this::add);
+				.forEach(delegate::add);
+			return this;
+		}
+
+		public CreateTagAppender<T> addOptional(Identifier id) {
+			delegate.add(TagEntry.optionalElement(id));
+			return this;
+		}
+
+		public CreateTagAppender<T> addTag(TagKey<T> tag) {
+			delegate.addTag(tag);
+			return this;
+		}
+
+		public CreateTagAppender<T> addOptionalTag(TagKey<T> tag) {
+			delegate.addOptionalTag(tag);
 			return this;
 		}
 

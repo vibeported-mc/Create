@@ -1,9 +1,7 @@
 package com.simibubi.create.compat.jei.category.sequencedAssembly;
 
 import org.joml.Matrix3x2fStack;
-import java.util.Arrays;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.compat.jei.category.CreateRecipeCategory;
 import com.simibubi.create.compat.jei.category.animations.AnimatedDeployer;
 import com.simibubi.create.compat.jei.category.animations.AnimatedPress;
@@ -85,10 +83,9 @@ public abstract class SequencedAssemblySubCategory {
 			ms.pushMatrix();
 			ms.translate((float) (-7), (float) (50));
 			ms.scale((float) (.75f), (float) (.75f));
-			spout.withFluids(Arrays.asList(recipe.getRecipe()
+			spout.withFluids(CreateRecipeCategory.fluidsOf(recipe.getRecipe()
 					.getFluidIngredients()
-					.get(0)
-					.getFluids()))
+					.get(0)))
 				.draw(graphics, getWidth() / 2, 0);
 			ms.popMatrix();
 		}
@@ -112,8 +109,10 @@ public abstract class SequencedAssemblySubCategory {
 					.addIngredients(recipe.getRecipe().getIngredients().get(1));
 
 			if (recipe.getAsAssemblyRecipe() instanceof DeployerApplicationRecipe deployerRecipe && deployerRecipe.shouldKeepHeldItem()) {
-				slot.addTooltipCallback(
-						(recipeSlotView, tooltip) -> tooltip.add(1, CreateLang.translateDirect("recipe.deploying.not_consumed").withStyle(ChatFormatting.GOLD))
+				// The rich tooltip builder only appends, so the note lands at the end of the tooltip
+				// instead of straight after the item name the way the old indexed insert placed it.
+				slot.addRichTooltipCallback(
+						(recipeSlotView, tooltip) -> tooltip.add(CreateLang.translateDirect("recipe.deploying.not_consumed").withStyle(ChatFormatting.GOLD))
 				);
 			}
 		}

@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
-import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllBlocks;
@@ -72,7 +71,11 @@ public class DestinationInstruction extends TextScheduleInstruction {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	protected void modifyEditBox(EditBox box) {
-		box.setFilter(s -> StringUtils.countMatches(s, '*') <= 3);
+		// TODO 26.2: cap the address at three '*' wildcards again. EditBox lost setFilter and has no
+		// replacement validator; the one remaining hook, setResponder, is claimed by ScheduleScreen
+		// for destination suggestions, so a filter has to come from a Create-owned EditBox subclass
+		// in ModularGuiLineBuilder. Until then a very wildcard-heavy filter is accepted and simply
+		// matches more stations than intended.
 	}
 
 	@Override

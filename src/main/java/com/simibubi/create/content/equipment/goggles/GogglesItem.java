@@ -6,17 +6,17 @@ import java.util.function.Predicate;
 
 import com.simibubi.create.AllItems;
 
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.DispenserBlock;
 
-public class GogglesItem extends Item implements Equipable {
+/**
+ * Minecraft 26.2 made wearing an item a matter of its {@code EQUIPPABLE} component: the item no
+ * longer implements an interface, override its use, or register a dispenser behaviour of its own.
+ * The goggles declare the head slot in their properties (see {@code AllItems}); what is left here is
+ * Create's own question of whether the player is wearing a pair.
+ */
+public class GogglesItem extends Item {
 	private static final List<Predicate<Player>> IS_WEARING_PREDICATES = new ArrayList<>();
 
 	static {
@@ -25,16 +25,6 @@ public class GogglesItem extends Item implements Equipable {
 
 	public GogglesItem(Properties properties) {
 		super(properties);
-		DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
-	}
-
-	@Override
-	public EquipmentSlot getEquipmentSlot() {
-		return EquipmentSlot.HEAD;
-	}
-
-	public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn) {
-		return swapWithEquipmentSlot(this, worldIn, playerIn, handIn);
 	}
 
 	public static boolean isWearingGoggles(Player player) {

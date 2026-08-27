@@ -1,7 +1,7 @@
 package com.simibubi.create.compat.jei.category;
 
-import net.neoforged.neoforge.transfer.access.ItemAccess;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import com.simibubi.create.foundation.fluid.ItemFluidAccess;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.NullMarked;
@@ -26,14 +26,16 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.runtime.IIngredientManager;
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 @NullMarked
 public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
@@ -49,25 +51,28 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 		for (ItemStack stack : ingredientManager.getAllIngredients(VanillaTypes.ITEM_STACK)) {
 			if (PotionFluidHandler.isPotionItem(stack)) {
 				FluidStack fluidFromPotionItem = PotionFluidHandler.getFluidFromPotionItem(stack);
-				Ingredient potion = Ingredient.of(stack);
+				// An ingredient is a flat set of items now and cannot carry the potion's components,
+				// so every potion collapses onto one entry keyed by the bottle item.
+				Ingredient potion = Ingredient.of(stack.getItem());
 				Identifier id = Create.asResource("potions");
 				EmptyingRecipe recipe = new StandardProcessingRecipe.Builder<>(EmptyingRecipe::new, id)
 						.withItemIngredients(potion)
 						.withFluidOutputs(fluidFromPotionItem)
 						.withSingleItemOutput(new ItemStack(Items.GLASS_BOTTLE))
 						.build();
-				consumer.accept(new RecipeHolder<>(id, recipe));
+				consumer.accept(new RecipeHolder<>(recipeKey(id), recipe));
 				continue;
 			}
 
-			ResourceHandler<FluidResource> capability = Capabilities.Fluid.ITEM.getCapability(stack, ItemAccess.forStack(stack));
+			// A fluid handler no longer hands back a container item of its own; it writes the emptied
+			// item through the access it was opened on, which is read back once the drain is done.
+			ItemFluidAccess access = new ItemFluidAccess(stack.copy());
+			ResourceHandler<FluidResource> capability = access.handler();
 			if (capability == null)
 				continue;
 
-			ItemStack copy = stack.copy();
-			capability = Capabilities.Fluid.ITEM.getCapability(copy, ItemAccess.forStack(copy));
 			FluidStack extracted = FluidHandlerHelpers.drain(capability, 1000, false);
-			ItemStack result = capability.getContainer();
+			ItemStack result = access.result();
 			if (extracted.isEmpty())
 				continue;
 			if (result.isEmpty())
@@ -78,7 +83,7 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 			// instead of the copy.
 			result = ItemHelper.sameItem(stack, result) ? stack : emptiedItems.addOrGet(result);
 
-			Ingredient ingredient = Ingredient.of(stack);
+			Ingredient ingredient = Ingredient.of(stack.getItem());
 			Identifier itemName = RegisteredObjectsHelper.getKeyOrThrow(stack.getItem());
 			Identifier fluidName = RegisteredObjectsHelper.getKeyOrThrow(extracted.getFluid());
 
@@ -89,8 +94,16 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 					.withFluidOutputs(extracted)
 					.withSingleItemOutput(result)
 					.build();
-			consumer.accept(new RecipeHolder<>(id, recipe));
+			consumer.accept(new RecipeHolder<>(recipeKey(id), recipe));
 		}
+	}
+
+	/**
+	 * A recipe is held under a registry key rather than a bare id in 26.2. These recipes only exist
+	 * in JEI, so the key names something the recipe manager has never heard of.
+	 */
+	private static ResourceKey<Recipe<?>> recipeKey(Identifier id) {
+		return ResourceKey.create(Registries.RECIPE, id);
 	}
 
 	@Override

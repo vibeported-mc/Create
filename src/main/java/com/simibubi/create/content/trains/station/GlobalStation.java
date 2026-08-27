@@ -3,7 +3,6 @@ package com.simibubi.create.content.trains.station;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
@@ -173,7 +172,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 		Level level = server.getLevel(getBlockEntityDimension());
 
 		for (Carriage carriage : train.carriages) {
-			ModifiableItemHandler carriageInventory = carriage.storage.getAllItems();
+			ResourceHandler<ItemResource> carriageInventory = carriage.storage.getAllItems();
 			if (carriageInventory == null)
 				continue;
 
@@ -183,7 +182,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 				BlockPos pos = entry.getKey();
 				PostboxBlockEntity box = null;
 
-				ModifiableItemHandler postboxInventory = port.offlineBuffer;
+				ResourceHandler<ItemResource> postboxInventory = port.offlineBuffer;
 				if (level != null && level.isLoaded(pos)
 					&& level.getBlockEntity(pos) instanceof PostboxBlockEntity ppbe) {
 					postboxInventory = ppbe.inventory;

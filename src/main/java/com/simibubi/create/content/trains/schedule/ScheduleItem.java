@@ -1,5 +1,6 @@
 package com.simibubi.create.content.trains.schedule;
 
+import java.util.function.Consumer;
 import java.util.List;
 
 import com.simibubi.create.AllDataComponents;
@@ -33,6 +34,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
@@ -127,7 +129,8 @@ public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopy
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+		Consumer<Component> tooltip, TooltipFlag flagIn) {
 		Schedule schedule = getSchedule(context.registries(), stack);
 		if (schedule == null || schedule.entries.isEmpty())
 			return;
@@ -143,7 +146,7 @@ public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopy
 				continue;
 			ChatFormatting format = current ? ChatFormatting.YELLOW : ChatFormatting.GOLD;
 			MutableComponent prefix = current ? arrow : caret;
-			tooltip.add(prefix.copy()
+			tooltip.accept(prefix.copy()
 				.append(Component.literal(destination.getFilter()).withStyle(format)));
 		}
 	}

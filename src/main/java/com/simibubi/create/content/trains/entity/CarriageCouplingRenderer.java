@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.CreateClient;
 
@@ -15,7 +14,6 @@ import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.LightCoordsUtil;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +27,6 @@ public class CarriageCouplingRenderer {
 
 	public static void submitAll(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
 		Collection<Train> trains = CreateClient.RAILWAYS.trains.values();
-		VertexConsumer vb = buffer.getBuffer(RenderTypes.solidMovingBlock());
 		BlockState air = Blocks.AIR.defaultBlockState();
 		float partialTicks = AnimationTickHolder.getPartialTicks();
 		Level level = Minecraft.getInstance().level;
@@ -76,7 +73,7 @@ public class CarriageCouplingRenderer {
 						.rotateYDegrees(-yRot)
 						.rotateXDegrees(xRot)
 						.light(lightCoords)
-						.renderInto(ms, vb);
+						.submit(ms, RenderTypes.solidMovingBlock(), queue);
 
 					float margin = 3 / 16f;
 					double couplingDistance = train.carriageSpacing.get(i) - 2 * margin
@@ -91,7 +88,7 @@ public class CarriageCouplingRenderer {
 							.scale(1, 1, (float) stretch)
 							.translate(0, 0, j / 4f)
 							.light(lightCoords)
-							.renderInto(ms, vb);
+							.submit(ms, RenderTypes.solidMovingBlock(), queue);
 					}
 					ms.popPose();
 				}
@@ -106,7 +103,7 @@ public class CarriageCouplingRenderer {
 						.rotateYDegrees(-yRot + 180)
 						.rotateXDegrees(-xRot)
 						.light(lightCoords2)
-						.renderInto(ms, vb);
+						.submit(ms, RenderTypes.solidMovingBlock(), queue);
 					ms.popPose();
 				}
 

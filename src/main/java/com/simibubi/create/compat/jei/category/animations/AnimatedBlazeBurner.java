@@ -3,7 +3,6 @@ package com.simibubi.create.compat.jei.category.animations;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.AllSpriteShifts;
@@ -15,7 +14,6 @@ import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.LightCoordsUtil;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 
@@ -55,9 +53,6 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 			.scale(scale)
 			.submit(graphics);
 
-		matrixStack.scale((float) (scale), (float) (-scale));
-		matrixStack.translate((float) (0), (float) (-1.8));
-
 		SpriteShiftEntry spriteShift =
 			heatLevel == HeatLevel.SEETHING ? AllSpriteShifts.SUPER_BURNER_FLAME : AllSpriteShifts.BURNER_FLAME;
 
@@ -82,10 +77,17 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 		uScroll = uScroll - Math.floor(uScroll);
 		uScroll = uScroll * spriteWidth / 2;
 
-		CachedBufferer.partial(AllPartialModels.BLAZE_BURNER_FLAME, Blocks.AIR.defaultBlockState())
-		.shiftUVScrolling(spriteShift, (float) uScroll, (float) vScroll)
-		.light(LightCoordsUtil.FULL_BRIGHT)
-			.renderInto(matrixStack, graphics.bufferSource().getBuffer(RenderTypes.cutoutMovingBlock()));
+		// The flame is a partial model rather than a block state, so it goes through a
+		// picture-in-picture pass of its own; the flip and the scale to block units that used to be
+		// pushed onto the pose stack are part of that pass, leaving the offset to be handed over.
+		float uScrollF = (float) uScroll;
+		float vScrollF = (float) vScroll;
+		sceneGeometry(graphics, scale, 0, -1.8, 0, (poseStack, queue) -> CachedBufferer
+			.partial(AllPartialModels.BLAZE_BURNER_FLAME, Blocks.AIR.defaultBlockState())
+			.shiftUVScrolling(spriteShift, uScrollF, vScrollF)
+			.light(LightCoordsUtil.FULL_BRIGHT)
+			.submit(poseStack, RenderTypes.cutoutMovingBlock(), queue));
+
 		matrixStack.popMatrix();
 	}
 

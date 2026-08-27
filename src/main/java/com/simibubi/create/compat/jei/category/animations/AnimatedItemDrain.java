@@ -1,10 +1,10 @@
 package com.simibubi.create.compat.jei.category.animations;
 
 import org.joml.Matrix3x2fStack;
-import com.mojang.blaze3d.vertex.PoseStack;
+
 import com.simibubi.create.AllBlocks;
 
-import net.createmod.catnip.api.client.gui.UIRenderHelper;
+import net.createmod.catnip.api.client.render.FluidRenderHelper;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.LightCoordsUtil;
 
@@ -31,12 +31,12 @@ public class AnimatedItemDrain extends AnimatedKinetics {
 			.scale(scale)
 			.submit(graphics);
 
-		UIRenderHelper.flipForGuiRender(matrixStack);
-		matrixStack.scale((float) (scale), (float) (scale));
+		// The flip and the scale to block units are what a picture-in-picture pass already does for
+		// the geometry it draws, so only the widget's pixels-per-block is left to hand over.
 		float from = 2 / 16f;
 		float to = 1f - from;
-		NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluid, from, from, from, to, 3 / 4f, to, graphics.bufferSource(), matrixStack, LightCoordsUtil.FULL_BRIGHT, false, true);
-		graphics.flush();
+		sceneGeometry(graphics, scale, 0, 0, 0, (poseStack, queue) -> FluidRenderHelper.submitFluidBox(queue, fluid,
+			from, from, from, to, 3 / 4f, to, poseStack, LightCoordsUtil.FULL_BRIGHT, false, true));
 
 		matrixStack.popMatrix();
 	}
