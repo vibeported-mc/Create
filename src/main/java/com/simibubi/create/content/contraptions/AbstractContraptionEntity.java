@@ -820,7 +820,12 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	}
 
 	@Override
-	public boolean hurt(DamageSource source, float amount) {
+	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+		return false;
+	}
+
+	@Override
+	public boolean hurtClient(DamageSource source) {
 		return false;
 	}
 

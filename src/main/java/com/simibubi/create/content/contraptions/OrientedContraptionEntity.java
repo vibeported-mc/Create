@@ -1,5 +1,8 @@
 package com.simibubi.create.content.contraptions;
 
+import net.minecraft.world.entity.vehicle.minecart.OldMinecartBehavior;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.core.UUIDUtil;
 import static net.createmod.catnip.api.math.AngleHelper.angleLerp;
 
@@ -62,8 +65,11 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 
 	private static final Ingredient FUEL_ITEMS = Ingredient.of(Items.COAL, Items.CHARCOAL);
 
+	private static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID =
+		EntityDataSerializer.forValueType(UUIDUtil.STREAM_CODEC.apply(ByteBufCodecs::optional));
+
 	private static final EntityDataAccessor<Optional<UUID>> COUPLING =
-		SynchedEntityData.defineId(OrientedContraptionEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+		SynchedEntityData.defineId(OrientedContraptionEntity.class, OPTIONAL_UUID);
 	private static final EntityDataAccessor<Direction> INITIAL_ORIENTATION =
 		SynchedEntityData.defineId(OrientedContraptionEntity.class, EntityDataSerializers.DIRECTION);
 
@@ -166,7 +172,7 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 		if (compound.contains("ForceYaw"))
 			startAtYaw(compound.getFloatOr("ForceYaw", 0));
 
-		ListTag vecNBT = compound.getListOrEmpty("CachedMotion", 6);
+		ListTag vecNBT = compound.getListOrEmpty("CachedMotion");
 		if (!vecNBT.isEmpty()) {
 			motionBeforeStall = new Vec3(vecNBT.getDoubleOr(0, 0), vecNBT.getDoubleOr(1, 0), vecNBT.getDoubleOr(2, 0));
 			if (!motionBeforeStall.equals(Vec3.ZERO))
@@ -182,7 +188,7 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 		super.writeAdditional(compound, registries, spawnPacket);
 
 		if (motionBeforeStall != null)
-			compound.put("CachedMotion", newDoubleList(motionBeforeStall.x, motionBeforeStall.y, motionBeforeStall.z));
+			compound.put("CachedMotion", VecHelper.writeNBT(motionBeforeStall));
 
 		Direction optional = entityData.get(INITIAL_ORIENTATION);
 		if (optional.getAxis()
@@ -368,7 +374,7 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 
 		if (!rotationLock) {
 			if (riding instanceof AbstractMinecart minecartEntity) {
-				BlockPos railPosition = minecartEntity.getCurrentRailPosition();
+				BlockPos railPosition = minecartEntity.getCurrentBlockPosOrRailBelow();
 				BlockState blockState = level().getBlockState(railPosition);
 				if (blockState.getBlock() instanceof BaseRailBlock abstractRailBlock) {
 					RailShape railDirection =
@@ -407,8 +413,8 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 
 		int fuel = furnaceCartAccessor.create$getFuel();
 		int fuelBefore = fuel;
-		double pushX = furnaceCart.xPush;
-		double pushZ = furnaceCart.zPush;
+		// 26.2 keeps the furnace cart's push as one vector rather than two components.
+		Vec3 push = furnaceCart.push;
 
 		int i = Mth.floor(furnaceCart.getX());
 		int j = Mth.floor(furnaceCart.getY());
@@ -419,7 +425,7 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 
 		BlockPos blockpos = new BlockPos(i, j, k);
 		BlockState blockstate = this.level().getBlockState(blockpos);
-		if (furnaceCart.canUseRail() && blockstate.is(BlockTags.RAILS))
+		if (blockstate.is(BlockTags.RAILS))
 			if (fuel > 1)
 				riding.setDeltaMovement(riding.getDeltaMovement()
 					.normalize()
@@ -433,9 +439,8 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 			}
 		}
 
-		if (fuel != fuelBefore || pushX != 0 || pushZ != 0) {
-			furnaceCart.xPush = pushX;
-			furnaceCart.zPush = pushZ;
+		if (fuel != fuelBefore || push.horizontalDistanceSqr() != 0) {
+			furnaceCart.push = push;
 			furnaceCartAccessor.create$setFuel(fuel);
 		}
 	}
@@ -578,11 +583,14 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 		double cartX = Mth.lerp(partialTicks, cart.xOld, cart.getX());
 		double cartY = Mth.lerp(partialTicks, cart.yOld, cart.getY());
 		double cartZ = Mth.lerp(partialTicks, cart.zOld, cart.getZ());
-		Vec3 cartPos = cart.getPos(cartX, cartY, cartZ);
+		// The rail-following maths moved onto the cart's behaviour; only the old one has it.
+		if (!(cart.getBehavior() instanceof OldMinecartBehavior behavior))
+			return Vec3.ZERO;
+		Vec3 cartPos = behavior.getPos(cartX, cartY, cartZ);
 
 		if (cartPos != null) {
-			Vec3 cartPosFront = cart.getPosOffs(cartX, cartY, cartZ, (double) 0.3F);
-			Vec3 cartPosBack = cart.getPosOffs(cartX, cartY, cartZ, (double) -0.3F);
+			Vec3 cartPosFront = behavior.getPosOffs(cartX, cartY, cartZ, (double) 0.3F);
+			Vec3 cartPosBack = behavior.getPosOffs(cartX, cartY, cartZ, (double) -0.3F);
 			if (cartPosFront == null)
 				cartPosFront = cartPos;
 			if (cartPosBack == null)
