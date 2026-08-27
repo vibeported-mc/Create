@@ -217,4 +217,15 @@ public class MinecartSim2020 {
 		}
 	}
 
+
+	/**
+	 * How fast a cart may travel.
+	 * <p>
+	 * NeoForge's per-rail speed hook is gone in 26.2; a cart's own limit is what remains, and it is only
+	 * defined on the server, so the vanilla ground speed stands in elsewhere.
+	 */
+	public static float maxSpeed(AbstractMinecart cart) {
+		return cart.level() instanceof ServerLevel serverLevel ? (float) cart.getMaxSpeed(serverLevel) : 0.4f;
+	}
+
 }

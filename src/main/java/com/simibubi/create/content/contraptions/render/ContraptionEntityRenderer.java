@@ -140,7 +140,7 @@ public class ContraptionEntityRenderer<C extends AbstractContraptionEntity, S ex
 			SuperByteBuffer sbb = getBuffer(contraption, renderWorld);
 			if (!sbb.isEmpty())
 				state.structure = sbb.transform(matrices.getModel())
-					.useLevelLight(level, matrices.getWorld())
+					.useLevelLight(renderWorld, matrices.getWorld())
 					.extractRenderState();
 		}
 
@@ -148,7 +148,7 @@ public class ContraptionEntityRenderer<C extends AbstractContraptionEntity, S ex
 		clientContraption.scratchErroredBlockEntities.clear();
 		state.blockEntities = BlockEntityRenderHelper.extractBlockEntities(clientContraption.renderedBlockEntityView,
 			adjustRenderedBlockEntities, clientContraption.scratchErroredBlockEntities, renderWorld, level,
-			matrices.getLight(), entity.toLocalVector(entityRenderDispatcher.camera.getPosition(), partialTicks),
+			matrices.getLight(), entity.toLocalVector(entityRenderDispatcher.camera.position(), partialTicks),
 			partialTicks);
 		clientContraption.shouldRenderBlockEntities.andNot(clientContraption.scratchErroredBlockEntities);
 
@@ -197,7 +197,7 @@ public class ContraptionEntityRenderer<C extends AbstractContraptionEntity, S ex
 
 	private static class ThreadLocalObjects {
 		public final PoseStack poseStack = new PoseStack();
-		public final RandomSource random = RandomSource.createNewThreadLocalInstance();
+		public final RandomSource random = RandomSource.createThreadLocalInstance();
 		public final ShadedBlockSbbBuilder sbbBuilder = ShadedBlockSbbBuilder.create();
 	}
 }

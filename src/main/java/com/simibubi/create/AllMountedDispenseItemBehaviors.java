@@ -23,7 +23,8 @@ import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
-import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownLingeringPotion;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
@@ -131,12 +132,19 @@ public class AllMountedDispenseItemBehaviors {
 			return stack;
 		}
 	};
-	private static final MountedDispenseBehavior POTIONS = new MountedProjectileDispenseBehavior() {
+	private static final MountedDispenseBehavior SPLASH_POTIONS = new PotionDispenseBehavior(ThrownSplashPotion::new);
+	private static final MountedDispenseBehavior LINGERING_POTIONS = new PotionDispenseBehavior(ThrownLingeringPotion::new);
+
+	private static class PotionDispenseBehavior extends MountedProjectileDispenseBehavior {
+		private final PotionFactory factory;
+
+		PotionDispenseBehavior(PotionFactory factory) {
+			this.factory = factory;
+		}
+
 		@Override
 		protected Projectile getProjectile(Level level, double x, double y, double z, ItemStack stack, Direction facing) {
-			ThrownPotion potion = new ThrownPotion(level, x, y, z);
-			potion.setItem(stack); // copies item
-			return potion;
+			return factory.create(level, x, y, z, stack.copy());
 		}
 
 		@Override
@@ -148,7 +156,13 @@ public class AllMountedDispenseItemBehaviors {
 		protected float getPower() {
 			return super.getPower() * 1.25f;
 		}
-	};
+	}
+
+	@FunctionalInterface
+	private interface PotionFactory {
+		Projectile create(Level level, double x, double y, double z, ItemStack stack);
+	}
+
 	private static final MountedDispenseBehavior BOTTLE = new OptionalMountedDispenseBehavior() {
 		@Override
 		@Nullable
@@ -183,7 +197,7 @@ public class AllMountedDispenseItemBehaviors {
 		MountedDispenseBehavior.REGISTRY.register(Items.GLASS_BOTTLE, BOTTLE);
 
 		// potions can't be automatically converted since they use a weird wrapper thing
-		MountedDispenseBehavior.REGISTRY.register(Items.SPLASH_POTION, POTIONS);
-		MountedDispenseBehavior.REGISTRY.register(Items.LINGERING_POTION, POTIONS);
+		MountedDispenseBehavior.REGISTRY.register(Items.SPLASH_POTION, SPLASH_POTIONS);
+		MountedDispenseBehavior.REGISTRY.register(Items.LINGERING_POTION, LINGERING_POTIONS);
 	}
 }

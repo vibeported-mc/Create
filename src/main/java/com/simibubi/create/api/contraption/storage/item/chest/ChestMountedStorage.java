@@ -4,6 +4,8 @@ import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import com.simibubi.create.foundation.item.CombinedItemHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +50,10 @@ public class ChestMountedStorage extends SimpleMountedStorage {
 	public void unmount(Level level, BlockState state, BlockPos pos, @Nullable BlockEntity be) {
 		// the capability will include both sides of chests, but mounted storage is 1:1
 		if (be instanceof Container container && this.size() == container.getContainerSize()) {
-			ItemHelper.copyContents(this, VanillaContainerWrapper.of(container));
+			for (int slot = 0; slot < this.size(); slot++)
+				container.setItem(slot, ItemHandlerHelpers.getStackInSlot(this, slot)
+					.copy());
+			container.setChanged();
 		}
 	}
 
@@ -68,9 +73,9 @@ public class ChestMountedStorage extends SimpleMountedStorage {
 			return this;
 
 		if (type == ChestType.RIGHT) {
-			return new CombinedResourceHandler<>(this, otherHalf);
+			return new CombinedItemHandler(this, otherHalf);
 		} else {
-			return new CombinedResourceHandler<>(otherHalf, this);
+			return new CombinedItemHandler(otherHalf, this);
 		}
 	}
 

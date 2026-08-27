@@ -45,7 +45,7 @@ public class CouplingPhysics {
 			carts = carts.swap();
 
 		Couple<Vec3> corrections = Couple.create(null, null);
-		Couple<Float> maxSpeed = carts.map(AbstractMinecart::getMaxCartSpeedOnRail);
+		Couple<Float> maxSpeed = carts.map(MinecartSim2020::maxSpeed);
 		boolean firstLoop = true;
 		for (boolean current : new boolean[]{true, false, true}) {
 			AbstractMinecart cart = carts.get(current);
@@ -58,8 +58,8 @@ public class CouplingPhysics {
 				continue;
 
 			RailShape shape = null;
-			BlockPos railPosition = cart.getCurrentRailPosition();
-			BlockState railState = world.getBlockState(railPosition.above());
+			BlockPos railPosition = cart.getCurrentBlockPosOrRailBelow();
+			BlockState railState = world.getBlockState(railPosition);
 
 			if (railState.getBlock() instanceof BaseRailBlock block) {
 				shape = block.getRailDirection(railState, world, railPosition, cart);
@@ -97,7 +97,7 @@ public class CouplingPhysics {
 	}
 
 	public static void softCollisionStep(Level world, Couple<AbstractMinecart> carts, double couplingLength) {
-		Couple<Float> maxSpeed = carts.map(AbstractMinecart::getMaxCartSpeedOnRail);
+		Couple<Float> maxSpeed = carts.map(MinecartSim2020::maxSpeed);
 		Couple<Boolean> canAddmotion = carts.map(MinecartSim2020::canAddMotion);
 
 		// Assuming Minecarts will never move faster than 1 block/tick
@@ -110,10 +110,14 @@ public class CouplingPhysics {
 			int x = Mth.floor(vec.x());
 			int y = Mth.floor(vec.y());
 			int z = Mth.floor(vec.z());
-			BlockPos pos = new BlockPos(x, y - 1, z);
-			if (minecart.level().getBlockState(pos).is(BlockTags.RAILS)) pos = pos.below();
+			// The rail the cart will be on: the block it is in, or the one below it, matching
+			// AbstractMinecart#getCurrentBlockPosOrRailBelow.
+			BlockPos pos = new BlockPos(x, y, z);
+			if (!world.getBlockState(pos)
+				.is(BlockTags.RAILS))
+				pos = pos.below();
 			BlockPos railPosition = pos;
-			BlockState railState = world.getBlockState(railPosition.above());
+			BlockState railState = world.getBlockState(railPosition);
 			if (!(railState.getBlock() instanceof BaseRailBlock block))
 				return null;
 			return block.getRailDirection(railState, world, railPosition, minecart);
