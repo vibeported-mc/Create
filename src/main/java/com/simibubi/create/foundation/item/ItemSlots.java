@@ -76,7 +76,7 @@ public class ItemSlots {
 
 	public <T extends ModifiableItemHandler> T toHandler(IntFunction<T> factory) {
 		T handler = factory.apply(this.size);
-		this.forEach(handler::setStackInSlot);
+		this.forEach((slot, stack) -> ItemHandlerHelpers.setStackInSlot(handler, slot, stack));
 		return handler;
 	}
 

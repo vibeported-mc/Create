@@ -185,7 +185,7 @@ public class FluidNetwork {
 		Map<ResourceHandler<FluidResource>, Integer> accumulatedFill = new IdentityHashMap<>();
 
 		for (boolean simulate : Iterate.trueAndFalse) {
-			FluidAction action = simulate;
+			boolean action = simulate;
 
 			if (source == null)
 				return;

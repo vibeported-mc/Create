@@ -49,7 +49,7 @@ public abstract class FlowSource {
 				continue;
 			FluidStack toExtract = contained.copy();
 			toExtract.setAmount(1);
-			return tank.drain(toExtract, true);
+			return FluidHandlerHelpers.drain(tank, toExtract, true);
 		}
 
 		return FluidStack.EMPTY;

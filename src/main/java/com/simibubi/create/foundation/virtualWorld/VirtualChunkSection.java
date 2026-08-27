@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.virtualWorld;
 
-import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.chunk.PalettedContainerFactory;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.FluidState;
@@ -13,8 +13,8 @@ public class VirtualChunkSection extends LevelChunkSection {
 	public final int zStart;
 
 	public VirtualChunkSection(VirtualChunk owner, int yBase) {
-		super(owner.world.registryAccess()
-			.lookupOrThrow(Registries.BIOME));
+		// A section is built from a container factory in 26.2, which is what carries the biome registry.
+		super(PalettedContainerFactory.create(owner.world.registryAccess()));
 		this.owner = owner;
 		this.xStart = owner.getPos()
 			.getMinBlockX();

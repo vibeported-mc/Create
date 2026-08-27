@@ -98,26 +98,8 @@ public class ProcessingOutput {
 		}
 	}
 
-	@ScheduledForRemoval(inVersion = "1.21.1+ Port")
-	@Deprecated(since = "6.0.3", forRemoval = true)
-	private static final Codec<Either<ItemStack, Pair<Identifier, Integer>>> ITEM_CODEC_OLD = Codec.either(
-		ItemStack.SINGLE_ITEM_CODEC,
-		Identifier.CODEC.comapFlatMap(
-			loc -> DataResult.error(() -> "Compat cannot be deserialized"),
-			Pair::getFirst
-		)
-	);
-
-	@ScheduledForRemoval(inVersion = "1.21.1+ Port")
-	@Deprecated(since = "6.0.3", forRemoval = true)
-	public static final Codec<ProcessingOutput> CODEC_OLD = RecordCodecBuilder.create(i -> i.group(
-		ITEM_CODEC_OLD.fieldOf("item").forGetter(s -> s.datagenOutput != null ? Either.right(Pair.of(s.datagenOutput, s.count)) : Either.left(s.item.getDefaultInstance())),
-		ExtraCodecs.intRange(1, 99).optionalFieldOf("count", 1).forGetter(s -> s.count),
-		ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf("chance", 1F).forGetter(s -> s.chance)
-	).apply(i, (item, count, chance) -> item.map(
-		stack -> new ProcessingOutput(stack.getItem(), count, stack.getComponentsPatch(), chance),
-		compat -> new ProcessingOutput(compat.getFirst(), compat.getSecond(), chance)
-	)));
+	// The pre-1.21.1 "item" spelling was scheduled for removal in this port, and the single-item codec
+	// it read through is gone in 26.2, so only the current form is read.
 
 	private static final Codec<Either<Item, Identifier>> ITEM_CODEC = Codec.either(
 		BuiltInRegistries.ITEM.byNameCodec(),
@@ -140,6 +122,6 @@ public class ProcessingOutput {
 
 	@ScheduledForRemoval(inVersion = "1.21.1+ Port")
 	@Deprecated(since = "6.0.3", forRemoval = true)
-	public static final Codec<ProcessingOutput> CODEC = Codec.withAlternative(CODEC_NEW, CODEC_OLD);
+	public static final Codec<ProcessingOutput> CODEC = CODEC_NEW;
 
 }
