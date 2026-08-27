@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 		builder
 				.addSlot(RecipeIngredientRole.INPUT, 27 + xOffset, 91)
 				.setBackground(getRenderedSlot(), -1, -1)
-				.addItemStacks(List.of(recipe.getIngredient().getItems()));
+				.addItemStacks(List.of(ItemHelper.getItems(recipe.getIngredient())));
 		builder
 				.addSlot(RecipeIngredientRole.OUTPUT, 132 + xOffset, 91)
 				.setBackground(getRenderedSlot(recipe.getOutputChance()), -1 , -1)

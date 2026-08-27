@@ -1201,7 +1201,7 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 		.viaShapeless(b -> b.requires(I.wheatFlour())
 			.requires(Items.WATER_BUCKET)),
 
-	CHAIN_FROM_ZINC = create(() -> Items.CHAIN).withSuffix("_from_zinc")
+	CHAIN_FROM_ZINC = create(() -> Items.IRON_CHAIN).withSuffix("_from_zinc")
 		.unlockedByTag(I::zinc)
 		.viaShaped(b -> b.define('C', I.zinc())
 			.define('S', I.zincNugget())

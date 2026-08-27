@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import java.util.List;
 import java.util.Set;
@@ -57,13 +58,12 @@ public class DeployerApplicationRecipe extends ItemApplicationRecipe implements 
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public Component getDescriptionForAssembly() {
-		ItemStack[] matchingStacks = ingredients.get(1)
-			.getItems();
+		ItemStack[] matchingStacks = ItemHelper.getItems(ingredients.get(1));
 		if (matchingStacks.length == 0) {
             return Component.literal("Invalid");
         }
 		return CreateLang.translateDirect("recipe.assembly.deploying_item",
-			Component.translatable(matchingStacks[0].getDescriptionId()).getString());
+			matchingStacks[0].getHoverName().getString());
 	}
 
 	@Override

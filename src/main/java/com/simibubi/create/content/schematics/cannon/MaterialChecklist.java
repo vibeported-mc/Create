@@ -238,7 +238,7 @@ public class MaterialChecklist {
 		int stacks = amount / 64;
 		int remainder = amount % 64;
         MutableComponent tc = Component.empty();
-		tc.append(Component.translatable(item.getDescriptionId())
+		tc.append(item.getHoverName()
 			.setStyle(Style.EMPTY
 				.withHoverEvent(new HoverEvent.ShowItem(item.getTemplate()))));
 

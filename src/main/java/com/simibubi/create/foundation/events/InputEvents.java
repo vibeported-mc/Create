@@ -119,7 +119,7 @@ public class InputEvents {
 			ItemStack itemInHand = mc.player.getItemInHand(event.getHand());
 			if (itemInHand.is(Tags.Items.TOOLS_WRENCH))
 				return;
-			if (itemInHand.is(Items.CHAIN) || AllBlocks.PACKAGE_FROGPORT.isIn(itemInHand))
+			if (itemInHand.is(Items.IRON_CHAIN) || AllBlocks.PACKAGE_FROGPORT.isIn(itemInHand))
 				return;
 		}
 

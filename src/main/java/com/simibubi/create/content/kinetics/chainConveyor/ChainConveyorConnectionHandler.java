@@ -105,7 +105,7 @@ public class ChainConveyorConnectionHandler {
 			return;
 		}
 
-		SoundType soundtype = Blocks.CHAIN.defaultBlockState()
+		SoundType soundtype = Blocks.IRON_CHAIN.defaultBlockState()
 			.getSoundType();
 		if (soundtype != null)
 			level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS,
@@ -113,7 +113,7 @@ public class ChainConveyorConnectionHandler {
 	}
 
 	private static boolean isChain(ItemStack itemStack) {
-		return itemStack.is(Items.CHAIN); // Replace with tag? generic renderer?
+		return itemStack.is(Items.IRON_CHAIN); // Replace with tag? generic renderer?
 	}
 
 	public static void clientTick() {

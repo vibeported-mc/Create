@@ -801,7 +801,7 @@ public class BrassTunnelBlockEntity extends BeltTunnelBlockEntity implements IHa
 		CreateLang.translate("tooltip.brass_tunnel.contains").style(ChatFormatting.WHITE).forGoggles(tooltip);
 		for (ItemStack item : allStacks) {
 			CreateLang.translate("tooltip.brass_tunnel.contains_entry",
-					Component.translatable(item.getDescriptionId()).getString(), item.getCount())
+					item.getHoverName().getString(), item.getCount())
 				.style(ChatFormatting.GRAY).forGoggles(tooltip);
 		}
 		CreateLang.translate("tooltip.brass_tunnel.retrieve").style(ChatFormatting.DARK_GRAY).forGoggles(tooltip);

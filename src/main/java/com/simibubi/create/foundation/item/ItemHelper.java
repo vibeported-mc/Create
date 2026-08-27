@@ -128,9 +128,8 @@ public class ItemHelper {
 		Ingredients:
 		for (Ingredient igd : recipeIngredients) {
 			for (Pair<Ingredient, MutableInt> pair : actualIngredients) {
-				ItemStack[] stacks1 = pair.getFirst()
-					.getItems();
-				ItemStack[] stacks2 = igd.getItems();
+				ItemStack[] stacks1 = getItems(pair.getFirst());
+				ItemStack[] stacks2 = getItems(igd);
 				if (stacks1.length != stacks2.length)
 					continue;
 				for (int i = 0; i <= stacks1.length; i++) {
@@ -151,8 +150,8 @@ public class ItemHelper {
 	public static boolean matchIngredients(Ingredient i1, Ingredient i2) {
 		if (i1 == i2)
 			return true;
-		ItemStack[] stacks1 = i1.getItems();
-		ItemStack[] stacks2 = i2.getItems();
+		ItemStack[] stacks1 = getItems(i1);
+		ItemStack[] stacks2 = getItems(i2);
 		if (stacks1 == stacks2)
 			return true;
 		if (stacks1.length == stacks2.length) {
@@ -388,6 +387,17 @@ public class ItemHelper {
 	 * <p>
 	 * 26.2 moved this off ItemStack: it is a template on the Item now, so it has to be instantiated.
 	 */
+	/**
+	 * One stack per item an ingredient accepts.
+	 * <p>
+	 * 26.2 replaced Ingredient#getItems with a stream of the item holders it matches.
+	 */
+	public static ItemStack[] getItems(Ingredient ingredient) {
+		return ingredient.items()
+			.map(holder -> new ItemStack(holder.value()))
+			.toArray(ItemStack[]::new);
+	}
+
 	public static ItemStack getCraftingRemainder(ItemStack stack) {
 		ItemStackTemplate remainder = stack.getItem()
 			.getCraftingRemainder();

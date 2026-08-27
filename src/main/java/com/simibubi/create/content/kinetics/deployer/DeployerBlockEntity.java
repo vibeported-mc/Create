@@ -514,7 +514,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 			.forGoggles(tooltip);
 
 		if (!heldItem.isEmpty())
-			CreateLang.translate("tooltip.deployer.contains", Component.translatable(heldItem.getDescriptionId())
+			CreateLang.translate("tooltip.deployer.contains", heldItem.getHoverName()
 					.getString(), heldItem.getCount())
 				.style(ChatFormatting.GREEN)
 				.forGoggles(tooltip);

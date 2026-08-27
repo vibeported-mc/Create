@@ -531,9 +531,9 @@ public class ChainConveyorBlockEntity extends KineticBlockEntity implements Tran
 			return;
 
 		if (!forPointsAlongChains(target, chainCount,
-			vec -> level.addFreshEntity(new ItemEntity(level, vec.x, vec.y, vec.z, new ItemStack(Items.CHAIN))))) {
+			vec -> level.addFreshEntity(new ItemEntity(level, vec.x, vec.y, vec.z, new ItemStack(Items.IRON_CHAIN))))) {
 			while (chainCount > 0) {
-				Block.popResource(level, worldPosition, new ItemStack(Blocks.CHAIN.asItem(), Math.min(chainCount, 64)));
+				Block.popResource(level, worldPosition, new ItemStack(Blocks.IRON_CHAIN.asItem(), Math.min(chainCount, 64)));
 				chainCount -= 64;
 			}
 		}
@@ -589,7 +589,7 @@ public class ChainConveyorBlockEntity extends KineticBlockEntity implements Tran
 	private void spawnDestroyParticles(BlockPos blockPos) {
 		forPointsAlongChains(blockPos, (int) Math.round(Vec3.atLowerCornerOf(blockPos)
 				.length() * 8),
-			vec -> level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.CHAIN.defaultBlockState()),
+			vec -> level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.IRON_CHAIN.defaultBlockState()),
 				vec.x, vec.y, vec.z, 0, 0, 0));
 	}
 
@@ -787,7 +787,7 @@ public class ChainConveyorBlockEntity extends KineticBlockEntity implements Tran
 //		for (BlockPos pos : connections)
 //			totalCost += getChainCost(pos);
 //		if (totalCost > 0)
-//			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(Items.CHAIN, Mth.ceil(totalCost / 2.0)));
+//			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(Items.IRON_CHAIN, Mth.ceil(totalCost / 2.0)));
 		return super.getRequiredItems(state);
 	}
 

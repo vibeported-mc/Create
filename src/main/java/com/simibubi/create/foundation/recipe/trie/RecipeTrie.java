@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.recipe.trie;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -197,7 +198,7 @@ public class RecipeTrie<R extends Recipe<?>> {
 				}
 
 				Set<AbstractVariant> variants = new HashSet<>();
-				for (ItemStack stack : ingredient.getItems()) {
+				for (ItemStack stack : ItemHelper.getItems(ingredient)) {
 					variants.add(getOrAssignVariant(stack.getItem()));
 				}
 

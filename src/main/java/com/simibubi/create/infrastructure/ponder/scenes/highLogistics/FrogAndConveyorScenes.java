@@ -118,7 +118,7 @@ public class FrogAndConveyorScenes {
 			.showSection(conv2S, Direction.DOWN);
 		scene.idle(20);
 
-		ItemStack chainItem = new ItemStack(Items.CHAIN);
+		ItemStack chainItem = new ItemStack(Items.IRON_CHAIN);
 		scene.overlay()
 			.showControls(util.vector()
 				.topOf(conv1), Pointing.DOWN, 117)

@@ -763,7 +763,7 @@ public class BasinBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 			if (stackInSlot.isEmpty())
 				continue;
 			CreateLang.text("")
-				.add(Component.translatable(stackInSlot.getDescriptionId())
+				.add(stackInSlot.getHoverName()
 					.withStyle(ChatFormatting.GRAY))
 				.add(CreateLang.text(" x" + stackInSlot.getCount())
 					.style(ChatFormatting.GREEN))

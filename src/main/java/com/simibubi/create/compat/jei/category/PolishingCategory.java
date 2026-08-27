@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.foundation.item.ItemHelper;
 import org.jspecify.annotations.NullMarked;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
@@ -50,8 +51,7 @@ public class PolishingCategory extends CreateRecipeCategory<SandPaperPolishingRe
 		AllGuiTextures.JEI_LONG_ARROW.render(graphics, 52, 32);
 
 		NonNullList<Ingredient> ingredients = recipe.getIngredients();
-		ItemStack[] matchingStacks = ingredients.get(0)
-			.getItems();
+		ItemStack[] matchingStacks = ItemHelper.getItems(ingredients.get(0));
 		if (matchingStacks.length == 0)
 			return;
 
