@@ -37,7 +37,7 @@ public class DebugHatsCommand {
 							level.setBlockAndUpdate(pos, AllBlocks.SEATS.get(DyeColor.RED).getDefaultState());
 							level.setBlockAndUpdate(pos.east(), AllBlocks.STOCK_TICKER.getDefaultState().setValue(StockTickerBlock.FACING, Direction.EAST));
 
-							entity.moveTo(Vec3.atCenterOf(pos));
+							entity.snapTo(Vec3.atCenterOf(pos));
 
 							if (entity instanceof Mob mob)
 								mob.setNoAi(true);

@@ -69,8 +69,12 @@ public class EncasedCogwheelBlock extends RotatedPillarKineticBlock
 	@Override
 	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state,
 		boolean includeData, Player player) {
-		if (target instanceof BlockHitResult)
-			return ((BlockHitResult) target).getDirection()
+		// The picked face used to arrive with the call; 26.2 drops it, so it is traced from the player
+		// who is picking.
+		if (player != null && player.pick(player.blockInteractionRange(), 0, false) instanceof BlockHitResult hit
+			&& hit.getBlockPos()
+				.equals(pos))
+			return hit.getDirection()
 					.getAxis() != getRotationAxis(state)
 				? isLarge ? AllBlocks.LARGE_COGWHEEL.asStack() : AllBlocks.COGWHEEL.asStack()
 				: getCasing().asItem().getDefaultInstance();

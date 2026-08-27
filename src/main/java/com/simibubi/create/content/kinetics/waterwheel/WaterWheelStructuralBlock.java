@@ -124,7 +124,7 @@ public class WaterWheelStructuralBlock extends DirectionalBlock implements IWren
 		BlockPos pCurrentPos, Direction pFacing, BlockPos pFacingPos, BlockState pFacingState, RandomSource random) {
 		if (stillValid(pLevel, pCurrentPos, pState, false)) {
 			BlockPos masterPos = getMaster(pLevel, pCurrentPos, pState);
-			if (!pLevel.getBlockTicks()
+			if (!ticks.getBlockTicks()
 				.hasScheduledTick(masterPos, AllBlocks.LARGE_WATER_WHEEL.get()))
 				ticks.scheduleTick(masterPos, AllBlocks.LARGE_WATER_WHEEL.get(), 1);
 			return pState;
@@ -184,8 +184,10 @@ public class WaterWheelStructuralBlock extends DirectionalBlock implements IWren
 			if (target instanceof BlockHitResult bhr) {
 				BlockPos targetPos = bhr.getBlockPos();
 				WaterWheelStructuralBlock waterWheelStructuralBlock = AllBlocks.WATER_WHEEL_STRUCTURAL.get();
-				if (waterWheelStructuralBlock.stillValid(level, targetPos, state, false))
-					manager.crack(WaterWheelStructuralBlock.getMaster(level, targetPos, state), bhr.getDirection());
+				if (waterWheelStructuralBlock.stillValid(level, targetPos, state, false)
+					&& level instanceof ClientLevel clientLevel)
+					clientLevel.addBreakingBlockEffect(WaterWheelStructuralBlock.getMaster(level, targetPos, state),
+						bhr.getDirection());
 				return true;
 			}
 			return IClientBlockExtensions.super.addHitEffects(state, level, target, manager);
