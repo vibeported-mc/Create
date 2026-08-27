@@ -141,7 +141,7 @@ public class WhistleBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 
 		float f = (float) Math.pow(2, -pitch / 12.0);
 		boolean particle = level.getGameTime() % 8 == 0;
-		Vec3 eyePosition = Minecraft.getInstance().cameraEntity.getEyePosition();
+		Vec3 eyePosition = Minecraft.getInstance().getCameraEntity().getEyePosition();
 		float maxVolume = (float) Mth.clamp((64 - eyePosition.distanceTo(Vec3.atCenterOf(worldPosition))) / 64, 0, 1);
 
 		if (soundInstance == null || soundInstance.isStopped() || soundInstance.getOctave() != size) {

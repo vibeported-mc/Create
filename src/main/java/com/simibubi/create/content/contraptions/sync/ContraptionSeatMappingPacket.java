@@ -38,7 +38,7 @@ public record ContraptionSeatMappingPacket(int entityId, Map<UUID, Integer> mapp
 
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
-		Entity entityByID = player.clientLevel.getEntity(entityId);
+		Entity entityByID = player.level().getEntity(entityId);
 		if (!(entityByID instanceof AbstractContraptionEntity contraptionEntity))
 			return;
 

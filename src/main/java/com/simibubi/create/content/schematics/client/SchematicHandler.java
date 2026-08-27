@@ -256,7 +256,7 @@ public class SchematicHandler implements LayeredDraw.Layer {
 	@Override
 	public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.hideGui || !active)
+		if (mc.gui.hud.isHidden() || !active)
 			return;
 		if (activeSchematicItem != null)
 			this.overlay.renderOn(guiGraphics, activeHotbarSlot);

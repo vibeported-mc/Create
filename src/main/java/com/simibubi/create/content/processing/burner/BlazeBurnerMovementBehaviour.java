@@ -84,7 +84,7 @@ public class BlazeBurnerMovementBehaviour implements MovementBehaviour {
 				.getAxis() == Axis.X ? angle + 180 : angle;
 		}
 
-		Entity player = Minecraft.getInstance().cameraEntity;
+		Entity player = Minecraft.getInstance().getCameraEntity();
 		if (player != null && !player.isInvisible() && context.position != null) {
 			Vec3 applyRotation = context.contraption.entity.reverseRotation(player.position()
 				.subtract(context.position), 1);

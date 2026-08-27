@@ -52,7 +52,7 @@ public class TrackBlockOutline {
 
 	public static void pickCurves() {
 		Minecraft mc = Minecraft.getInstance();
-		if (!(mc.cameraEntity instanceof LocalPlayer player))
+		if (!(mc.getCameraEntity() instanceof LocalPlayer player))
 			return;
 		if (mc.level == null)
 			return;
@@ -145,7 +145,7 @@ public class TrackBlockOutline {
 
 	public static void submitCurveSelection(PoseStack ms, SubmitNodeCollector queue, Vec3 camera) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.hideGui || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
+		if (mc.gui.hud.isHidden() || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
 			return;
 
 		BezierPointSelection result = TrackBlockOutline.result;

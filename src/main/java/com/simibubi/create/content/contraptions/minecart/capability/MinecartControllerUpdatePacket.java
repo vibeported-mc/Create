@@ -32,7 +32,7 @@ public record MinecartControllerUpdatePacket(int entityId, @Nullable CompoundTag
 
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
-		Entity entityByID = player.clientLevel.getEntity(entityId);
+		Entity entityByID = player.level().getEntity(entityId);
 		if (entityByID == null)
 			return;
 		if (entityByID.hasData(AllAttachmentTypes.MINECART_CONTROLLER)) {

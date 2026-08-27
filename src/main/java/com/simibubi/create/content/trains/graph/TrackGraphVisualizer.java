@@ -26,7 +26,7 @@ public class TrackGraphVisualizer {
 
 	public static void visualiseSignalEdgeGroups(TrackGraph graph) {
 		Minecraft mc = Minecraft.getInstance();
-		Entity cameraEntity = mc.cameraEntity;
+		Entity cameraEntity = mc.getCameraEntity();
 		if (cameraEntity == null)
 			return;
 		AABB box = graph.getBounds(mc.level).box;
@@ -213,7 +213,7 @@ public class TrackGraphVisualizer {
 
 	public static void debugViewGraph(TrackGraph graph, boolean extended) {
 		Minecraft mc = Minecraft.getInstance();
-		Entity cameraEntity = mc.cameraEntity;
+		Entity cameraEntity = mc.getCameraEntity();
 		if (cameraEntity == null)
 			return;
 		AABB box = graph.getBounds(mc.level).box;

@@ -23,7 +23,7 @@ public record GlueEffectPacket(BlockPos pos, Direction direction, boolean fullBl
 	public void handle(LocalPlayer player) {
 		if (!player.blockPosition().closerThan(pos, 100))
 			return;
-		SuperGlueItem.spawnParticles(player.clientLevel, pos, direction, fullBlock);
+		SuperGlueItem.spawnParticles(player.level(), pos, direction, fullBlock);
 	}
 
 	@Override

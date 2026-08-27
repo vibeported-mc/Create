@@ -33,7 +33,7 @@ public record ElevatorFloorListPacket(int entityId, List<IntAttached<Couple<Stri
 
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
-		Entity entityByID = player.clientLevel.getEntity(entityId);
+		Entity entityByID = player.level().getEntity(entityId);
 		if (!(entityByID instanceof AbstractContraptionEntity ace))
 			return;
 		if (!(ace.getContraption() instanceof ElevatorContraption ec))

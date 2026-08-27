@@ -25,7 +25,7 @@ public record LimbSwingUpdatePacket(int entityId, Vec3 position, float limbSwing
 
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
-		Entity entity = player.clientLevel.getEntity(entityId);
+		Entity entity = player.level().getEntity(entityId);
 		if (entity == null)
 			return;
 		CompoundTag data = entity.getPersistentData();

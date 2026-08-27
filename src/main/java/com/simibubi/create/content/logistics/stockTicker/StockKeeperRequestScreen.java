@@ -477,7 +477,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 
 	@Override
 	protected void renderBg(GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
-		if (this != minecraft.screen)
+		if (this != minecraft.gui.screen())
 			return; // stencil buffer does not cooperate with ponders gui fade out
 
 		Matrix3x2fStack ms = graphics.pose();

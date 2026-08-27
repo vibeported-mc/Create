@@ -47,7 +47,7 @@ public class JourneyTrainMap implements IClientPlugin {
 	}
 
 	public static void tick() {
-		if (!AllConfigs.client().showTrainMapOverlay.get() || !(Minecraft.getInstance().screen instanceof Fullscreen)) {
+		if (!AllConfigs.client().showTrainMapOverlay.get() || !(Minecraft.getInstance().gui.screen() instanceof Fullscreen)) {
 			if (requesting)
 				TrainMapSyncClient.stopRequesting();
 			requesting = false;
@@ -60,7 +60,7 @@ public class JourneyTrainMap implements IClientPlugin {
 
 	public static void mouseClick(Pre event) {
 		Minecraft mc = Minecraft.getInstance();
-		if (!(mc.screen instanceof Fullscreen screen))
+		if (!(mc.gui.screen() instanceof Fullscreen screen))
 			return;
 
 		Window window = mc.getWindow();

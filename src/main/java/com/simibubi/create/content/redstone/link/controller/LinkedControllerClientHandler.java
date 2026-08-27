@@ -138,7 +138,7 @@ public class LinkedControllerClientHandler {
 			return;
 		}
 
-		if (mc.screen != null) {
+		if (mc.gui.screen() != null) {
 			MODE = Mode.IDLE;
 			onReset();
 			return;
@@ -217,7 +217,7 @@ public class LinkedControllerClientHandler {
 		int width1 = guiGraphics.guiWidth();
 									 int height1 = guiGraphics.guiHeight();
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.hideGui)
+		if (mc.gui.hud.isHidden())
 			return;
 
 		if (MODE != Mode.BIND)

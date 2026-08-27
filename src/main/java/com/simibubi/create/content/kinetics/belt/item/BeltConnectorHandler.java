@@ -31,7 +31,7 @@ public class BeltConnectorHandler {
 
 		if (player == null || level == null)
 			return;
-		if (Minecraft.getInstance().screen != null)
+		if (Minecraft.getInstance().gui.screen() != null)
 			return;
 
 		RandomSource random = level.getRandom();

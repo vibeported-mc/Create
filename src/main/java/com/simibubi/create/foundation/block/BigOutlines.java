@@ -25,7 +25,7 @@ public class BigOutlines {
 
 	public static void pick() {
 		Minecraft mc = Minecraft.getInstance();
-		if (!(mc.cameraEntity instanceof LocalPlayer player))
+		if (!(mc.getCameraEntity() instanceof LocalPlayer player))
 			return;
 		if (mc.level == null)
 			return;

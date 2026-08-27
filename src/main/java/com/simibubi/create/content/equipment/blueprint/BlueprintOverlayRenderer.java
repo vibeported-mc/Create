@@ -318,7 +318,7 @@ public class BlueprintOverlayRenderer {
 
 	public static void renderOverlay(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.hideGui || mc.screen != null)
+		if (mc.gui.hud.isHidden() || mc.gui.screen() != null)
 			return;
 
 		if (!active || empty)

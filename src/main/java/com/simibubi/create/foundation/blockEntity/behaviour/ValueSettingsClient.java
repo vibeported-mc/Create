@@ -104,7 +104,7 @@ public class ValueSettingsClient implements LayeredDraw.Layer {
 	}
 
 	public void showHoverTip(List<MutableComponent> tip) {
-		if (mc.screen != null)
+		if (mc.gui.screen() != null)
 			return;
 		if (hoverWarmup < 6) {
 			hoverWarmup += 2;
@@ -118,7 +118,7 @@ public class ValueSettingsClient implements LayeredDraw.Layer {
 	@Override
 	public void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.hideGui || !ValueSettingsInputHandler.canInteract(mc.player))
+		if (mc.gui.hud.isHidden() || !ValueSettingsInputHandler.canInteract(mc.player))
 			return;
 		if (hoverTicks == 0 || lastHoverTip == null)
 			return;

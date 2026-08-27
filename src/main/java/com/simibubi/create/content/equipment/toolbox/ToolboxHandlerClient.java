@@ -159,7 +159,7 @@ public class ToolboxHandlerClient {
 		int width = guiGraphics.guiWidth();
 		int height = guiGraphics.guiHeight();
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.options.hideGui || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
+		if (mc.gui.hud.isHidden() || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
 			return;
 
 		int x = width / 2 - 90;

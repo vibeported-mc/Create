@@ -82,7 +82,7 @@ class SoundScape {
 	}
 
 	public float getVolume() {
-		Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
+		Entity renderViewEntity = Minecraft.getInstance().getCameraEntity();
 		float distanceMultiplier = 0;
 		if (renderViewEntity != null) {
 			double distanceTo = renderViewEntity.position()

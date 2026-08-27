@@ -32,7 +32,7 @@ public class CarriageParticles {
 
 	public void tick(DimensionalCarriageEntity dce) {
 		Minecraft mc = Minecraft.getInstance();
-		Entity camEntity = mc.cameraEntity;
+		Entity camEntity = mc.getCameraEntity();
 		if (camEntity == null)
 			return;
 		Vec3 leadingAnchor = dce.leadingAnchor();

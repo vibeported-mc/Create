@@ -51,7 +51,7 @@ public enum DoorControl {
 		DoorControl initial) {
 
 		DoorControl playerFacing = NONE;
-		Entity cameraEntity = Minecraft.getInstance().cameraEntity;
+		Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
 		if (cameraEntity != null) {
 			Direction direction = cameraEntity.getDirection();
 			if (direction == Direction.EAST)

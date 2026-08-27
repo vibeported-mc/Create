@@ -21,7 +21,7 @@ public abstract class BlockEntityDataPacket<BE extends SyncedBlockEntity> implem
 
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
-		BlockEntity blockEntity = player.clientLevel.getBlockEntity(pos);
+		BlockEntity blockEntity = player.level().getBlockEntity(pos);
 
 		if (blockEntity instanceof SyncedBlockEntity) {
 			handlePacket((BE) blockEntity);

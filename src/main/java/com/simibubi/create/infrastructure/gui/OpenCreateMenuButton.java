@@ -48,7 +48,7 @@ public class OpenCreateMenuButton extends Button {
 	}
 
 	public static void click(Button b) {
-		ScreenOpener.open(new CreateMainMenuScreen(Minecraft.getInstance().screen));
+		ScreenOpener.open(new CreateMainMenuScreen(Minecraft.getInstance().gui.screen()));
 	}
 
 	public record SingleMenuRow(String leftTextKey, String rightTextKey) {

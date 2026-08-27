@@ -26,7 +26,7 @@ public record ContraptionDisableActorPacket(int entityId, ItemStack filter, bool
 
 	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
-		Entity entityByID = player.clientLevel.getEntity(entityId);
+		Entity entityByID = player.level().getEntity(entityId);
 		if (!(entityByID instanceof AbstractContraptionEntity ace))
 			return;
 
