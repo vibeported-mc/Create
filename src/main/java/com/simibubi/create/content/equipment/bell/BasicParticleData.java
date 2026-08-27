@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.bell;
 
+import net.minecraft.client.particle.ParticleResources;
 import org.jspecify.annotations.NullMarked;
 import com.mojang.brigadier.StringReader;
 import com.mojang.serialization.Codec;
@@ -46,7 +47,7 @@ public abstract class BasicParticleData<T extends Particle> implements ParticleO
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public ParticleEngine.SpriteParticleRegistration<BasicParticleData<T>> getMetaFactory() {
+	public ParticleResources.SpriteParticleRegistration<BasicParticleData<T>> getMetaFactory() {
 		return animatedSprite -> (data, worldIn, x, y, z, vx, vy, vz) ->
 			getBasicFactory().makeParticle(worldIn, x, y, z, vx, vy, vz, animatedSprite);
 	}

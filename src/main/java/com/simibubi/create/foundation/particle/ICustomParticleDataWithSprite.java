@@ -1,8 +1,9 @@
 package com.simibubi.create.foundation.particle;
 
+import net.minecraft.client.particle.ParticleResources;
 import com.mojang.serialization.MapCodec;
 
-import net.minecraft.client.particle.ParticleEngine.SpriteParticleRegistration;
+import net.minecraft.client.particle.ParticleResources.SpriteParticleRegistration;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;

@@ -37,7 +37,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.model.data.ModelData;
-import net.neoforged.neoforge.event.level.BlockEvent.BreakEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.BlockEvent.EntityPlaceEvent;
 
 @EventBusSubscriber
@@ -60,7 +60,7 @@ public class SymmetryHandler {
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onBlockDestroyed(BreakEvent event) {
+	public static void onBlockDestroyed(BreakBlockEvent event) {
 		if (event.getLevel()
 			.isClientSide())
 			return;

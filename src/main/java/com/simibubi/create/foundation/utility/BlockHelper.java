@@ -1,5 +1,6 @@
 package com.simibubi.create.foundation.utility;
 
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -220,7 +221,7 @@ public class BlockHelper {
 		BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
 
 		if (player != null) {
-			BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
+			BreakBlockEvent event = new BreakBlockEvent(level, pos, state, player);
 			NeoForge.EVENT_BUS.post(event);
 			if (event.isCanceled())
 				return;
