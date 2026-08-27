@@ -186,7 +186,7 @@ public class CopycatBlockEntity extends SmartBlockEntity
 	public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
 		super.writeSafe(tag, registries);
 
-		ItemStack stackWithoutComponents = new ItemStack(consumedItem.getItemHolder(), consumedItem.getCount(), DataComponentPatch.EMPTY);
+		ItemStack stackWithoutComponents = new ItemStack(consumedItem.typeHolder(), consumedItem.getCount(), DataComponentPatch.EMPTY);
 
 		write(tag, registries, stackWithoutComponents, material);
 	}

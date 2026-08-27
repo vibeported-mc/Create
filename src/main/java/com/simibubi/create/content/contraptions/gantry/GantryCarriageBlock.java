@@ -83,8 +83,10 @@ public class GantryCarriageBlock extends DirectionalAxisKineticBlock implements 
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block p_220069_4_, @Nullable Orientation orientation,
 								boolean p_220069_6_) {
-		if (updatePos.equals(pos.relative(state.getValue(FACING)
-			.getOpposite())) && !canSurvive(state, world, pos))
+		// The neighbour's position used to arrive with the call, narrowing this to the block behind;
+		// 26.2 hands over an orientation instead, so survivability - which asks about that same block -
+		// is checked directly.
+		if (!canSurvive(state, world, pos))
 			world.destroyBlock(pos, true);
 	}
 

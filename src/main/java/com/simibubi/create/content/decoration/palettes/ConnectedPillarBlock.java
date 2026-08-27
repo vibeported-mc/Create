@@ -86,7 +86,7 @@ public class ConnectedPillarBlock extends LayeredBlock {
 			return;
 		LevelTickAccess<Block> blockTicks = pLevel.getBlockTicks();
 		if (!blockTicks.hasScheduledTick(pPos, this))
-			ticks.scheduleTick(pPos, this, 1);
+			pLevel.scheduleTick(pPos, this, 1);
 	}
 
 	@Override

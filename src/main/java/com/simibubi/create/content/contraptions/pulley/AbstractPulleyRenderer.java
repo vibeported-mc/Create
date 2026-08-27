@@ -15,6 +15,7 @@ import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.client.render.SuperByteBufferRenderState;
+import net.minecraft.world.level.BlockAndLightGetter;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -105,10 +106,10 @@ public abstract class AbstractPulleyRenderer<T extends KineticBlockEntity, S ext
 			part.submit(ms, RenderTypes.solidMovingBlock(), queue);
 	}
 
-	public static SuperByteBufferRenderState extractAt(LevelAccessor world, SuperByteBuffer partial, float offset,
+	public static SuperByteBufferRenderState extractAt(BlockAndLightGetter world, SuperByteBuffer partial, float offset,
 		BlockPos pulleyPos) {
 		BlockPos actualPos = pulleyPos.below((int) offset);
-		int light = LightCoordsUtil.getLightCoords(world, world.getBlockState(actualPos), actualPos);
+		int light = LightCoordsUtil.getLightCoords(world, actualPos);
 		TransformStack.of(partial.getTransforms())
 			.translate(0, -offset, 0);
 		return partial.light(light)

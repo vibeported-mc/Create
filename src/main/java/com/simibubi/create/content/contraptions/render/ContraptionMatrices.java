@@ -88,7 +88,7 @@ public class ContraptionMatrices {
 	}
 
 	public static void clearStack(PoseStack ms) {
-		while (!ms.clear()) {
+		while (!ms.isEmpty()) {
 			ms.popPose();
 		}
 	}

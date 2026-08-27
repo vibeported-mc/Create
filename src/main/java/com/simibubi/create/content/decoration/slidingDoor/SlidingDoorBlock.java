@@ -247,7 +247,7 @@ public class SlidingDoorBlock extends DoorBlock implements IWrenchable, IBE<Slid
 			level.gameEvent(player, GameEvent.BLOCK_OPEN, pos);
 		}
 
-		return InteractionResult.sidedSuccess(level.isClientSide());
+		return InteractionResult.SUCCESS;
 	}
 
 	public void deferUpdate(LevelAccessor level, BlockPos pos) {
