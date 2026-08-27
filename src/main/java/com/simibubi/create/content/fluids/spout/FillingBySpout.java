@@ -1,5 +1,6 @@
 package com.simibubi.create.content.fluids.spout;
 
+import com.simibubi.create.foundation.recipe.RecipeFinder;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -46,8 +47,8 @@ public class FillingBySpout {
 				return requiredFluid.amount();
 		}
 
-		for (RecipeHolder<Recipe<SingleRecipeInput>> recipe : world.getRecipeManager()
-			.getRecipesFor(AllRecipeTypes.FILLING.getType(), input, world)) {
+		for (RecipeHolder<Recipe<SingleRecipeInput>> recipe : RecipeFinder
+			.matching(AllRecipeTypes.FILLING.getType(), input, world)) {
 			FillingRecipe fillingRecipe = (FillingRecipe) recipe.value();
 			SizedFluidIngredient requiredFluid = fillingRecipe.getRequiredFluid();
 			if (requiredFluid.ingredient().test(availableFluid))
@@ -68,8 +69,8 @@ public class FillingBySpout {
 			.filter(fr -> fr.value().getRequiredFluid()
 					.test(toFill))
 				.orElseGet(() -> {
-					for (RecipeHolder<Recipe<SingleRecipeInput>> recipe : level.getRecipeManager()
-						.getRecipesFor(AllRecipeTypes.FILLING.getType(), input, level)) {
+					for (RecipeHolder<Recipe<SingleRecipeInput>> recipe : RecipeFinder
+						.matching(AllRecipeTypes.FILLING.getType(), input, level)) {
 						FillingRecipe fr = (FillingRecipe) recipe.value();
 						SizedFluidIngredient requiredFluid = fr.getRequiredFluid();
 						if (requiredFluid.test(toFill))

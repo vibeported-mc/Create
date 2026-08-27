@@ -429,8 +429,6 @@ public class CreateJEI implements IModPlugin {
 	public static void consumeAllRecipes(Consumer<? super RecipeHolder<?>> consumer) {
 		Minecraft.getInstance()
 			.getConnection()
-			.getRecipeManager()
-			.getRecipes()
 			.forEach(consumer);
 	}
 
@@ -438,7 +436,7 @@ public class CreateJEI implements IModPlugin {
 	public static <T extends Recipe<?>> void consumeTypedRecipes(Consumer<RecipeHolder<?>> consumer, RecipeType<?> type) {
 		List<? extends RecipeHolder<?>> map = Minecraft.getInstance()
 			.getConnection()
-			.getRecipeManager().getAllRecipesFor((RecipeType) type);
+			.getAllRecipesFor((RecipeType) type);
 		if (!map.isEmpty())
 			map.forEach(consumer);
 	}

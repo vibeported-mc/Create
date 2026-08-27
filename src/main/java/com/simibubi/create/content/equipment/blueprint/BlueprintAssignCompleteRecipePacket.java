@@ -18,8 +18,7 @@ public record BlueprintAssignCompleteRecipePacket(Identifier recipeId) implement
 	public void handle(ServerPlayer player) {
 		if (player.containerMenu instanceof BlueprintMenu c) {
 			player.level()
-					.getRecipeManager()
-					.byKey(recipeId)
+					.byKeyThroughFinder(recipeId)
 					.ifPresent(r -> BlueprintItem.assignCompleteRecipe(c.player.level(), c.ghostInventory, r.value()));
 		}
 	}

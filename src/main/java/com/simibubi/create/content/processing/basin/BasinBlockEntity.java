@@ -206,8 +206,8 @@ public class BasinBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		if (!clientPacket)
 			return;
 
-		compound.put("VisualizedItems", NBTHelper.writeCompoundList(visualizedOutputItems, ia -> (CompoundTag) ia.getValue().saveOptional(registries)));
-		compound.put("VisualizedFluids", NBTHelper.writeCompoundList(visualizedOutputFluids, ia -> (CompoundTag) ia.getValue().saveOptional(registries)));
+		compound.put("VisualizedItems", NBTHelper.writeCompoundList(visualizedOutputItems, ia -> (CompoundTag) ItemHelper.saveOptional(ia.getValue(), registries)));
+		compound.put("VisualizedFluids", NBTHelper.writeCompoundList(visualizedOutputFluids, ia -> (CompoundTag) ItemHelper.saveOptional(ia.getValue(), registries)));
 		visualizedOutputItems.clear();
 		visualizedOutputFluids.clear();
 	}

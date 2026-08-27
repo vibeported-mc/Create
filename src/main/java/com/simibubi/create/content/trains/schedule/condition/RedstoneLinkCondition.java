@@ -98,7 +98,7 @@ public class RedstoneLinkCondition extends ScheduleWaitCondition {
 
 	@Override
 	protected void writeAdditional(HolderLookup.Provider registries, CompoundTag tag) {
-		tag.put("Frequency", freq.serializeEach(f -> (CompoundTag) f.getStack().saveOptional(registries)));
+		tag.put("Frequency", freq.serializeEach(f -> (CompoundTag) ItemHelper.saveOptional(f.getStack(), registries)));
 	}
 
 	public boolean lowActivation() {

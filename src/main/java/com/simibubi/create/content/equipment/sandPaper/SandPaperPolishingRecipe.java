@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.sandPaper;
 
+import com.simibubi.create.foundation.recipe.RecipeFinder;
 import org.jspecify.annotations.NullMarked;
 import java.util.List;
 
@@ -52,7 +53,6 @@ public class SandPaperPolishingRecipe extends StandardProcessingRecipe<SingleRec
 	}
 
 	public static List<RecipeHolder<Recipe<SingleRecipeInput>>> getMatchingRecipes(Level world, ItemStack stack) {
-		return world.getRecipeManager()
-			.getRecipesFor(AllRecipeTypes.SANDPAPER_POLISHING.getType(), new SingleRecipeInput(stack), world);
+		return RecipeFinder.matching(AllRecipeTypes.SANDPAPER_POLISHING.getType(), new SingleRecipeInput(stack), world);
 	}
 }

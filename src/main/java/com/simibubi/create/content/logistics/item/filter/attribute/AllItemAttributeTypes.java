@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.item.filter.attribute;
 
+import com.simibubi.create.foundation.recipe.RecipeFinder;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -75,8 +76,7 @@ public class AllItemAttributeTypes {
 		BOOK_COPY = register("book_copy", new BookCopyAttribute.Type());
 
 	private static <T extends Recipe<SingleRecipeInput>> boolean testRecipe(ItemStack s, Level w, RecipeType<T> type) {
-		return w.getRecipeManager()
-				.getRecipeFor(type, new SingleRecipeInput(s.copy()), w)
+		return RecipeFinder.find(type, new SingleRecipeInput(s.copy()), w)
 				.isPresent();
 	}
 

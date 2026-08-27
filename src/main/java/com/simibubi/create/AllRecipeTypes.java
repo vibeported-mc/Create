@@ -1,5 +1,7 @@
 package com.simibubi.create;
 
+import java.util.List;
+import java.util.ArrayList;
 import com.simibubi.create.content.processing.recipe.ProcessingSerializer;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -162,6 +164,23 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 
 	public <I extends RecipeInput, R extends Recipe<I>> Optional<RecipeHolder<R>> find(I inv, Level world) {
 		return RecipeFinder.find(getType(), inv, world);
+	}
+
+	/**
+	 * The recipe types Create asks the server to send to clients.
+	 * <p>
+	 * 26.2 no longer syncs the loaded recipes; NeoForge sends back the types a mod names on datapack
+	 * sync. Anything Create looks up client-side has to be in here.
+	 */
+	public static List<RecipeType<?>> syncedTypes() {
+		List<RecipeType<?>> types = new ArrayList<>(List.of(RecipeType.CRAFTING, RecipeType.SMELTING,
+			RecipeType.BLASTING, RecipeType.SMOKING, RecipeType.STONECUTTING));
+		for (AllRecipeTypes type : values()) {
+			RecipeType<?> recipeType = type.getType();
+			if (!types.contains(recipeType))
+				types.add(recipeType);
+		}
+		return types;
 	}
 
 	public static boolean shouldIgnoreInAutomation(RecipeHolder<?> recipe) {

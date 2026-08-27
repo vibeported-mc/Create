@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.recipe.RecipeFinder;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -73,9 +74,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 		ServerPlayer serverplayerentity = (ServerPlayer) player;
 		CraftingContainer craftingInventory = new BlueprintCraftingInventory(this, ghostInventory);
-		Optional<RecipeHolder<CraftingRecipe>> optional = player.getServer()
-			.getRecipeManager()
-			.getRecipeFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), player.level());
+		Optional<RecipeHolder<CraftingRecipe>> optional = RecipeFinder.find(RecipeType.CRAFTING, craftingInventory.asCraftInput(), player.level());
 
 		if (!optional.isPresent()) {
 			if (ItemHandlerHelpers.getStackInSlot(ghostInventory, 9)

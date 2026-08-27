@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.events;
 
+import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
+import com.simibubi.create.foundation.recipe.ClientRecipes;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import com.simibubi.create.content.equipment.symmetryWand.SymmetryHandler;
@@ -209,6 +211,16 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void onLeave(ClientPlayerNetworkEvent.LoggingOut event) {
 		CreateClient.RAILWAYS.cleanUp();
+		ClientRecipes.clear();
+	}
+
+	/**
+	 * 26.2 no longer sends the loaded recipes to clients; NeoForge sends back the types a mod asked
+	 * for on datapack sync, and this is where Create's arrive.
+	 */
+	@SubscribeEvent
+	public static void onRecipesReceived(RecipesReceivedEvent event) {
+		ClientRecipes.receive(event.getRecipeMap());
 	}
 
 	@SubscribeEvent

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import com.simibubi.create.foundation.recipe.RecipeFinder;
 import static com.simibubi.create.content.kinetics.base.HorizontalKineticBlock.HORIZONTAL_FACING;
 
 import java.util.ArrayList;
@@ -145,8 +146,7 @@ public class RecipeGridHandler {
 		ItemStack result = null;
 		RegistryAccess registryAccess = world.registryAccess();
 		if (AllConfigs.server().recipes.allowRegularCraftingInCrafter.get())
-			result = world.getRecipeManager()
-				.getRecipeFor(RecipeType.CRAFTING, craftingInput, world)
+			result = RecipeFinder.find(RecipeType.CRAFTING, craftingInput, world)
 				.filter(r -> isRecipeAllowed(r, craftingInput))
 				.map(r -> r.value().assemble(craftingInput, registryAccess))
 				.orElse(null);

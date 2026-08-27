@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import com.simibubi.create.foundation.recipe.RecipeFinder;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -683,8 +684,7 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 
 		ClientLevel level = Minecraft.getInstance().level;
 
-		availableCraftingRecipe = level.getRecipeManager()
-			.getAllRecipesFor(RecipeType.CRAFTING)
+		availableCraftingRecipe = RecipeFinder.all(RecipeType.CRAFTING)
 			.parallelStream()
 			.filter(r -> output.getItem() == r.value().getResultItem(level.registryAccess())
 				.getItem())

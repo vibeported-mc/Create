@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.recipe.RecipeFinder;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
@@ -258,8 +259,7 @@ public class BlueprintOverlayRenderer {
 			if (success) {
 				CraftingContainer craftingInventory = new BlueprintCraftingInventory(craftingGrid);
 				if (!recipe.isPresent())
-					recipe = mc.level.getRecipeManager()
-						.getRecipeFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), mc.level);
+					recipe = RecipeFinder.find(RecipeType.CRAFTING, craftingInventory.asCraftInput(), mc.level);
 				ItemStack resultFromRecipe = recipe.filter(r -> r.value().matches(craftingInventory.asCraftInput(), mc.level))
 					.map(r -> r.value().assemble(craftingInventory.asCraftInput(), mc.level.registryAccess()))
 					.orElse(ItemStack.EMPTY);

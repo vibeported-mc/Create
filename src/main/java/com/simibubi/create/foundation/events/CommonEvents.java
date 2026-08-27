@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.events;
 
+import com.simibubi.create.AllRecipeTypes;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import com.simibubi.create.AllMapDecorationTypes;
 import com.simibubi.create.Create;
 import com.simibubi.create.compat.trainmap.TrainMapSync;
@@ -108,6 +110,16 @@ public class CommonEvents {
 		TrainMapSync.serverTick(event);
 		ServerChainConveyorHandler.tick();
 		TickBasedCache.tick();
+	}
+
+	/**
+	 * 26.2 no longer sends the loaded recipes to clients. Create looks its own up client-side - for
+	 * JEI, the blueprint overlay, the factory panel's crafting preview - so it asks for those types
+	 * back.
+	 */
+	@SubscribeEvent
+	public static void onDatapackSync(OnDatapackSyncEvent event) {
+		event.sendRecipes(AllRecipeTypes.syncedTypes());
 	}
 
 	@SubscribeEvent
