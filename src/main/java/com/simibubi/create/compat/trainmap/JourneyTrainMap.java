@@ -12,8 +12,8 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import journeymap.api.v2.client.IClientAPI;
 import journeymap.api.v2.client.IClientPlugin;
-import journeymap.api.v2.client.JourneyMapPlugin;
-import journeymap.api.v2.client.display.Context.UI;
+import journeymap.api.v2.common.Context.UI;
+import journeymap.api.v2.common.JourneyMapPlugin;
 import journeymap.api.v2.client.event.FullscreenRenderEvent;
 import journeymap.api.v2.client.fullscreen.IFullscreen;
 import journeymap.api.v2.client.util.UIState;
@@ -104,7 +104,7 @@ public class JourneyTrainMap implements IClientPlugin {
 		pose.pushMatrix();
 
 		pose.translate((float) (screen.width / 2.0f), (float) (screen.height / 2.0f));
-		pose.scale((float) scale, (float) scale, 1);
+		pose.scale((float) scale, (float) scale);
 		pose.translate((float) (-x), (float) (-z));
 
 		float mouseX = mX - screen.width / 2.0f;

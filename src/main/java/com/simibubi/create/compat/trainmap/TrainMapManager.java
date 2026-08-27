@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.trainmap;
 
+import java.util.Comparator;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Matrix3x2fStack;
 import java.util.ArrayList;
@@ -312,6 +313,12 @@ public class TrainMapManager {
 		int[] sliceXShiftByRotationIndex = new int[] { 0, 1, 2, 2, 3, -2, -2, -1 };
 		int[] sliceYShiftByRotationIndex = new int[] { 3, 2, 2, 1, 0, 1, 2, 2 };
 
+		// The GUI pose is two-dimensional in 26.2, so what used to be a depth offset per carriage
+		// cannot be given to the pose any more. Elements layer by the order they are submitted in
+		// instead, so the draws are collected with the depth they had and replayed back to front -
+		// which lands them in the same order on screen.
+		List<DepthSortedDraw> draws = new ArrayList<>();
+
 		for (Train train : CreateClient.RAILWAYS.trains.values()) {
 			TrainMapSyncEntry trainEntry = TrainMapSyncClient.currentData.get(train.id);
 			if (trainEntry == null)
@@ -320,6 +327,14 @@ public class TrainMapManager {
 			Vec3 frontPos = Vec3.ZERO;
 			List<Carriage> carriages = train.carriages;
 			boolean otherDim = true;
+			double avgY = 0;
+
+			for (int i = 0; i < carriages.size(); i++)
+				for (boolean firstBogey : Iterate.trueAndFalse)
+					avgY += trainEntry.getPosition(i, firstBogey, time)
+						.y();
+
+			avgY /= carriages.size() * 2;
 
 			for (int i = 0; i < carriages.size(); i++) {
 				Carriage carriage = carriages.get(i);
@@ -376,35 +391,37 @@ public class TrainMapManager {
 
 				slices = Math.max(2, slices);
 
-				sprite.bind();
-				pose.pushMatrix();
-
 				float pivotX = 7.5f + (slices - 3) * sliceXShiftByRotationIndex[rotation] / 2.0f;
 				float pivotY = 6.5f + (slices - 3) * sliceYShiftByRotationIndex[rotation] / 2.0f;
-				// TODO 26.2: the third argument used to be a depth offset derived from the train's average
-				// height and its world Z, which sorted overlapping trains front to back. The GUI pose is
-				// two-dimensional now and elements layer purely by the order they are submitted in, so
-				// overlapping trains stack in map iteration order instead.
-				pose.translate((float) (pX - pivotX), (float) (pY - pivotY));
 
 				int trainColorIndex = train.mapColorIndex;
 				int colorRow = trainColorIndex / 4;
 				int colorCol = trainColorIndex % 4;
+				int sliceCount = slices;
+				int rotationIndex = rotation;
 
-				for (int slice = 0; slice < slices; slice++) {
-					int row = slice == 0 ? 1 : slice == slices - 1 ? 2 : 3;
-					int sliceShifts = slice == 0 ? 0 : slice == slices - 1 ? slice - 2 : slice - 1;
-					int col = rotation;
+				double depth = 10 + (avgY / 512.0) + (1024.0 + center.z() % 8192.0) / 1024.0;
+				draws.add(new DepthSortedDraw(depth, () -> {
+					sprite.bind();
+					pose.pushMatrix();
+					pose.translate((float) (pX - pivotX), (float) (pY - pivotY));
 
-					int positionX = sliceShifts * sliceXShiftByRotationIndex[rotation];
-					int positionY = sliceShifts * sliceYShiftByRotationIndex[rotation] + spriteYOffset;
-					int sheetX = col * 16 + colorCol * 128;
-					int sheetY = row * 16 + colorRow * 64;
+					for (int slice = 0; slice < sliceCount; slice++) {
+						int row = slice == 0 ? 1 : slice == sliceCount - 1 ? 2 : 3;
+						int sliceShifts = slice == 0 ? 0 : slice == sliceCount - 1 ? slice - 2 : slice - 1;
+						int col = rotationIndex;
 
-					graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.location, positionX, positionY, sheetX, sheetY, 16, 16, sprite.getWidth(), sprite.getHeight());
-				}
+						int positionX = sliceShifts * sliceXShiftByRotationIndex[rotationIndex];
+						int positionY = sliceShifts * sliceYShiftByRotationIndex[rotationIndex] + spriteYOffset;
+						int sheetX = col * 16 + colorCol * 128;
+						int sheetY = row * 16 + colorRow * 64;
 
-				pose.popMatrix();
+						graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.location, positionX, positionY, sheetX,
+							sheetY, 16, 16, sprite.getWidth(), sprite.getHeight());
+					}
+
+					pose.popMatrix();
+				}));
 
 				int margin = 1;
 				int sizeX = 8 + (slices - 3) * sliceXShiftByRotationIndex[rotation];
@@ -420,14 +437,29 @@ public class TrainMapManager {
 				continue;
 
 			if (trainEntry.signalState != SignalState.NOT_WAITING) {
-				pose.pushMatrix();
-				pose.translate((float) (frontPos.x - 0.5), (float) (frontPos.z - 0.5));
-				AllGuiTextures.TRAINMAP_SIGNAL.render(graphics, 0, -3);
-				pose.popMatrix();
+				Vec3 signalPos = frontPos;
+				double depth = 20 + (1024.0 + signalPos.z() % 8192.0) / 1024.0;
+				draws.add(new DepthSortedDraw(depth, () -> {
+					pose.pushMatrix();
+					pose.translate((float) (signalPos.x - 0.5), (float) (signalPos.z - 0.5));
+					AllGuiTextures.TRAINMAP_SIGNAL.render(graphics, 0, -3);
+					pose.popMatrix();
+				}));
 			}
 		}
 
+		draws.sort(Comparator.comparingDouble(DepthSortedDraw::depth));
+		for (DepthSortedDraw draw : draws)
+			draw.draw()
+				.run();
+
 		return hoveredElement;
+	}
+
+	/**
+	 * One thing to draw on the map, and how far back it used to sit.
+	 */
+	private record DepthSortedDraw(double depth, Runnable draw) {
 	}
 
 	// Background first so we can mindlessly paint over it

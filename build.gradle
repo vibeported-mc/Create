@@ -169,8 +169,13 @@ dependencies {
         localRuntimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge:$cc_tweaked_version")
     }
 
-    // Farmer's Delight, FTB, JourneyMap, Xaero and Architectury have no 26.2 builds, so their
-    // integrations are compiled out for now (see sourceSets below and farmers_delight_enable).
+    localImplementation("maven.modrinth:journeymap:$journeymap_version")
+    localImplementation("info.journeymap:journeymap-api-neoforge:$journeymap_api_version") {
+        exclude(group: "curse.maven") // Pulls in an old version of JourneyMap which is for Forge
+    }
+
+    // Farmer's Delight, FTB, Xaero and Architectury have no 26.2 builds, so their integrations are
+    // compiled out for now (see sourceSets below and farmers_delight_enable).
 }
 
 // ModDevGradle 2.0.144 does not know Minecraft 26.2, so its version capability table falls back to
@@ -216,12 +221,11 @@ sourceSets.main {
         exclude("**/*RecipeProvider.java")
         exclude("com/simibubi/create/api/data/recipe/MechanicalCraftingRecipeBuilder.java")
 
-        // FTB Chunks, JourneyMap and Xaero have no 26.2 builds, so their APIs are not on the
+        // FTB Chunks and Xaero have no 26.2 builds, so their APIs are not on the
         // classpath and these adapters cannot compile. Create's own train map - the sync, the
         // manager and the renderer - is unaffected.
         // TODO: restore these once the minimap mods update.
         exclude("com/simibubi/create/compat/trainmap/FTBChunksTrainMap.java")
-        exclude("com/simibubi/create/compat/trainmap/JourneyTrainMap.java")
         exclude("com/simibubi/create/compat/trainmap/XaeroTrainMap.java")
         exclude("com/simibubi/create/foundation/mixin/compat/xaeros/**")
 
