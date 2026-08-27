@@ -146,7 +146,7 @@ public class AllPotatoProjectileEntityHitActions {
 		@Override
 		public boolean execute(ItemStack projectile, EntityHitResult ray, Type type) {
 			Entity entity = ray.getEntity();
-			Level level = entity.getCommandSenderWorld();
+			Level level = entity.level();
 			if (level.isClientSide())
 				return true;
 			if (!(entity instanceof LivingEntity livingEntity))

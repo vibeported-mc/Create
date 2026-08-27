@@ -22,7 +22,7 @@ import net.minecraft.world.item.DyeColor;
 public class DebugHatsCommand {
 	public static ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal("debugHats")
-			.requires(cs -> cs.hasPermission(4))
+			.requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
 			.then(Commands.argument("pos", BlockPosArgument.blockPos())
 				.executes((ctx) -> {
 					BlockPos origin = BlockPosArgument.getLoadedBlockPos(ctx, "pos");

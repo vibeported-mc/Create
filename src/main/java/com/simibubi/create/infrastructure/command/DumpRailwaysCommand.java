@@ -43,7 +43,7 @@ public class DumpRailwaysCommand {
 
 	static ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal("trains")
-			.requires(cs -> cs.hasPermission(2))
+			.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 			.executes(ctx -> {
 				CommandSourceStack source = ctx.getSource();
 				fillReport(source.getLevel(), source.getPosition(),

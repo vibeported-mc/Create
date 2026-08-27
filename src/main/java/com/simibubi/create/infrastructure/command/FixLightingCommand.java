@@ -13,7 +13,7 @@ import net.neoforged.neoforge.common.NeoForgeConfig;
 public class FixLightingCommand {
 	static ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal("fixLighting")
-			.requires(cs -> cs.hasPermission(0))
+			.requires(Commands.hasPermission(Commands.LEVEL_ALL))
 			.executes(ctx -> {
 				NeoForgeConfig.CLIENT.experimentalForgeLightPipelineEnabled.set(true);
 				Minecraft.getInstance().levelRenderer.allChanged();

@@ -102,7 +102,7 @@ public class BlueprintItem extends Item {
 		ItemStack result = AllItems.FILTER.asStack();
 		ItemStacksResourceHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
 		for (int i = 0; i < acceptedItems.length; i++)
-			filterItems.setStackInSlot(i, convertIItemListToFilter(acceptedItems[i], isCompoundIngredient));
+			ItemHandlerHelpers.setStackInSlot(filterItems, i, convertIItemListToFilter(acceptedItems[i], isCompoundIngredient));
 		result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));
 		return result;
 	}

@@ -12,7 +12,7 @@ public class KillTPSCommand {
 
 	public static ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal("killtps")
-			.requires(cs -> cs.hasPermission(2))
+			.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 			.executes(ctx -> {
 				// killtps no arguments
 				ctx.getSource()

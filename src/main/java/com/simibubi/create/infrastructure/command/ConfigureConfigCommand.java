@@ -17,7 +17,7 @@ public abstract class ConfigureConfigCommand {
 
 	ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal(this.commandLiteral)
-			.requires(cs -> cs.hasPermission(0))
+			.requires(Commands.hasPermission(Commands.LEVEL_ALL))
 			.then(Commands.literal("on")
 				.executes(ctx -> {
 					ServerPlayer player = ctx.getSource()

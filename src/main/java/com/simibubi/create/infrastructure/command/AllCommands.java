@@ -16,7 +16,7 @@ public class AllCommands {
 		LiteralCommandNode<CommandSourceStack> util = buildClientUtilityCommands();
 
 		LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("create")
-			.requires(cs -> cs.hasPermission(0))
+			.requires(Commands.hasPermission(Commands.LEVEL_ALL))
 			// general purpose
 			.then(ToggleDebugCommand.register())
 			.then(FabulousWarningCommand.register())
@@ -45,7 +45,7 @@ public class AllCommands {
 		LiteralCommandNode<CommandSourceStack> util = buildUtilityCommands();
 
 		LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("create")
-			.requires(cs -> cs.hasPermission(0))
+			.requires(Commands.hasPermission(Commands.LEVEL_ALL))
 			// general purpose
 			.then(DumpRailwaysCommand.register())
 			.then(DebugInfoCommand.register())

@@ -215,7 +215,7 @@ public class BlueprintOverlayRenderer {
 		ItemStacksResourceHandler playerInv = new ItemStacksResourceHandler(mc.player.getInventory()
 			.getContainerSize());
 		for (int i = 0; i < playerInv.size(); i++)
-			playerInv.setStackInSlot(i, mc.player.getInventory()
+			ItemHandlerHelpers.setStackInSlot(playerInv, i, mc.player.getInventory()
 				.getItem(i)
 				.copy());
 

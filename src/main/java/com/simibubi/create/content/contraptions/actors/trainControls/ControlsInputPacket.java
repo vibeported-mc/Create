@@ -35,7 +35,7 @@ public record ControlsInputPacket(List<Integer> activatedButtons, boolean press,
 
 	@Override
 	public void handle(ServerPlayer player) {
-		Level world = player.getCommandSenderWorld();
+		Level world = player.level();
 		UUID uniqueID = player.getUUID();
 
 		if (player.isSpectator() && press)

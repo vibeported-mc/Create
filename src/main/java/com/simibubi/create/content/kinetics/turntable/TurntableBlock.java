@@ -57,7 +57,7 @@ public class TurntableBlock extends KineticBlock implements IBE<TurntableBlockEn
 			if (speed == 0)
 				return;
 
-			Level world = e.getCommandSenderWorld();
+			Level world = e.level();
 			if (world.isClientSide() && (e instanceof Player)) {
 				if (worldIn.getBlockState(e.blockPosition()) != state) {
 					Vec3 origin = VecHelper.getCenterOf(pos);

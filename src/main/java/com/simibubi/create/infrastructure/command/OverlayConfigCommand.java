@@ -13,7 +13,7 @@ import net.minecraft.network.chat.Component;
 public class OverlayConfigCommand {
 	public static ArgumentBuilder<CommandSourceStack, ?> register() {
 		return Commands.literal("overlay")
-			.requires(cs -> cs.hasPermission(0))
+			.requires(Commands.hasPermission(Commands.LEVEL_ALL))
 			.then(Commands.literal("reset")
 				.executes(ctx -> {
 					AllConfigs.client().overlayOffsetX.set(0);

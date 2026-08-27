@@ -75,7 +75,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 		CraftingContainer craftingInventory = new BlueprintCraftingInventory(this, ghostInventory);
 		Optional<RecipeHolder<CraftingRecipe>> optional = player.getServer()
 			.getRecipeManager()
-			.getRecipeFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), player.getCommandSenderWorld());
+			.getRecipeFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), player.level());
 
 		if (!optional.isPresent()) {
 			if (ItemHandlerHelpers.getStackInSlot(ghostInventory, 9)

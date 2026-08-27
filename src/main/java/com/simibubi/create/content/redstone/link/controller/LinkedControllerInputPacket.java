@@ -47,7 +47,7 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 
 	@Override
 	protected void handleItem(ServerPlayer player, ItemStack heldItem) {
-		Level world = player.getCommandSenderWorld();
+		Level world = player.level();
 		UUID uniqueID = player.getUUID();
 		BlockPos pos = player.blockPosition();
 

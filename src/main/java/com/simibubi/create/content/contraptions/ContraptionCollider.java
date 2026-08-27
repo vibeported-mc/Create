@@ -76,7 +76,7 @@ public class ContraptionCollider {
 	private static Map<AbstractContraptionEntity, Map<Player, Double>> remoteSafetyLocks = new WeakHashMap<>();
 
 	static void collideEntities(AbstractContraptionEntity contraptionEntity) {
-		Level world = contraptionEntity.getCommandSenderWorld();
+		Level world = contraptionEntity.level();
 		Contraption contraption = contraptionEntity.getContraption();
 		AABB bounds = contraptionEntity.getBoundingBox();
 
@@ -612,7 +612,7 @@ public class ContraptionCollider {
 		if (!contraptionEntity.supportsTerrainCollision())
 			return false;
 
-		Level world = contraptionEntity.getCommandSenderWorld();
+		Level world = contraptionEntity.level();
 		Vec3 motion = contraptionEntity.getDeltaMovement();
 		TranslatingContraption contraption = (TranslatingContraption) contraptionEntity.getContraption();
 		AABB bounds = contraptionEntity.getBoundingBox();
