@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category.animations;
 
+import org.joml.Matrix3x2fStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
@@ -13,9 +14,9 @@ public class AnimatedMixer extends AnimatedKinetics {
 
 	@Override
 	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
-		PoseStack matrixStack = graphics.pose();
-		matrixStack.pushPose();
-		matrixStack.translate(xOffset, yOffset, 200);
+		Matrix3x2fStack matrixStack = graphics.pose();
+		matrixStack.pushMatrix();
+		matrixStack.translate(xOffset, yOffset);
 		matrixStack.mulPose(Axis.XP.rotationDegrees(-15.5f));
 		matrixStack.mulPose(Axis.YP.rotationDegrees(22.5f));
 		int scale = 23;
@@ -49,7 +50,7 @@ public class AnimatedMixer extends AnimatedKinetics {
 			.scale(scale)
 			.render(graphics);
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 }

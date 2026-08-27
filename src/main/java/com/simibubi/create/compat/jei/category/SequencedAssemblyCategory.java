@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,11 +111,11 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 	public void draw(SequencedAssemblyRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		Font font = Minecraft.getInstance().font;
 
-		PoseStack matrixStack = graphics.pose();
-		matrixStack.pushPose();
+		Matrix3x2fStack matrixStack = graphics.pose();
+		matrixStack.pushMatrix();
 
-		matrixStack.pushPose();
-		matrixStack.translate(0, 15, 0);
+		matrixStack.pushMatrix();
+		matrixStack.translate(0, 15);
 		boolean singleOutput = recipe.getOutputChance() == 1;
 		int xOffset = singleOutput ? 0 : -7;
 		AllGuiTextures.JEI_LONG_ARROW.render(graphics, 52 + xOffset, 79);
@@ -126,15 +127,15 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 		}
 
 		if (recipe.getLoops() > 1) {
-			matrixStack.pushPose();
-			matrixStack.translate(15, 9, 0);
+			matrixStack.pushMatrix();
+			matrixStack.translate(15, 9);
 			AllIcons.I_SEQ_REPEAT.render(graphics, 50 + xOffset, 75);
             Component repeat = Component.literal("x" + recipe.getLoops());
 			graphics.text(font, repeat, 66 + xOffset, 80, 0x888888, false);
-			matrixStack.popPose();
+			matrixStack.popMatrix();
 		}
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 
 		int width = 0;
 		int margin = 3;
@@ -143,7 +144,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 		width -= margin;
 		matrixStack.translate(width / -2 + getBackground().getWidth() / 2, 0, 0);
 
-		matrixStack.pushPose();
+		matrixStack.pushMatrix();
 		List<SequencedRecipe<?>> sequence = recipe.getSequence();
 		for (int i = 0; i < sequence.size(); i++) {
 			SequencedRecipe<?> sequencedRecipe = sequence.get(i);
@@ -152,11 +153,11 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
             MutableComponent component = Component.literal("" + romans[Math.min(i, 6)]);
 			graphics.text(font, component, font.width(component) / -2 + subWidth / 2, 2, 0x888888, false);
 			subCategory.draw(sequencedRecipe, graphics, mouseX, mouseY, i);
-			matrixStack.translate(subWidth + margin, 0, 0);
+			matrixStack.translate(subWidth + margin, 0);
 		}
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 	@Override

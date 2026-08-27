@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category.animations;
 
+import org.joml.Matrix3x2fStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
@@ -12,11 +13,11 @@ public class AnimatedSaw extends AnimatedKinetics {
 
 	@Override
 	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
-		PoseStack matrixStack = graphics.pose();
-		matrixStack.pushPose();
-		matrixStack.translate(xOffset, yOffset, 0);
-		matrixStack.translate(0, 0, 200);
-		matrixStack.translate(2, 22, 0);
+		Matrix3x2fStack matrixStack = graphics.pose();
+		matrixStack.pushMatrix();
+		matrixStack.translate(xOffset, yOffset);
+		matrixStack.translate(0, 0);
+		matrixStack.translate(2, 22);
 		matrixStack.mulPose(Axis.XP.rotationDegrees(-15.5f));
 		matrixStack.mulPose(Axis.YP.rotationDegrees(22.5f + 90));
 		int scale = 25;
@@ -37,7 +38,7 @@ public class AnimatedSaw extends AnimatedKinetics {
 			.scale(scale)
 			.render(graphics);
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 }

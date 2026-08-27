@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,8 +99,8 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 	@Override
 	public void draw(CraftingRecipe recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphicsExtractor graphics, double mouseX,
 		double mouseY) {
-		PoseStack matrixStack = graphics.pose();
-		matrixStack.pushPose();
+		Matrix3x2fStack matrixStack = graphics.pose();
+		matrixStack.pushMatrix();
 		float scale = getScale(recipe);
 		matrixStack.translate(getXPadding(recipe), getYPadding(recipe), 0);
 
@@ -113,21 +114,21 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 					.get(pIndex)
 					.isEmpty())
 					continue;
-				matrixStack.pushPose();
-				matrixStack.translate(col * 19 * scale, row * 19 * scale, 0);
-				matrixStack.scale(scale, scale, scale);
+				matrixStack.pushMatrix();
+				matrixStack.translate(col * 19 * scale, row * 19 * scale);
+				matrixStack.scale(scale, scale);
 				AllGuiTextures.JEI_SLOT.render(graphics, 0, 0);
-				matrixStack.popPose();
+				matrixStack.popMatrix();
 			}
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 
 		AllGuiTextures.JEI_SLOT.render(graphics, 133, 80);
 		AllGuiTextures.JEI_DOWN_ARROW.render(graphics, 128, 59);
 		crafter.draw(graphics, 129, 25);
 
-		matrixStack.pushPose();
-		matrixStack.translate(0, 0, 300);
+		matrixStack.pushMatrix();
+		matrixStack.translate(0, 0);
 
 		int amount = 0;
 		for (Ingredient ingredient : recipe.getIngredients()) {
@@ -137,7 +138,7 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		}
 
 		graphics.text(Minecraft.getInstance().font, amount + "", 142, 39, 0xFFFFFF);
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 	private static final class CrafterIngredientRenderer implements IIngredientRenderer<ItemStack> {
@@ -152,10 +153,10 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 
 		@Override
 		public void render(GuiGraphicsExtractor graphics, @NotNull ItemStack ingredient) {
-			PoseStack matrixStack = graphics.pose();
-			matrixStack.pushPose();
+			Matrix3x2fStack matrixStack = graphics.pose();
+			matrixStack.pushMatrix();
 			float scale = getScale(recipe);
-			matrixStack.scale(scale, scale, scale);
+			matrixStack.scale(scale, scale);
 
 			if (ingredient != null) {
 				Matrix4fStack modelViewStack = RenderSystem.getModelViewStack();
@@ -171,7 +172,7 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 				RenderSystem.applyModelViewMatrix();
 			}
 
-			matrixStack.popPose();
+			matrixStack.popMatrix();
 		}
 
 		@Override

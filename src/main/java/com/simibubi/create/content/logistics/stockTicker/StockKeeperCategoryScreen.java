@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
@@ -180,7 +181,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 	}
 
 	protected void renderCategories(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-		PoseStack matrixStack = graphics.pose();
+		Matrix3x2fStack matrixStack = graphics.pose();
 
 		int yOffset = 25;
 		List<ItemStack> entries = schedule;
@@ -192,12 +193,12 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		);
 
 		for (int i = 0; i <= entries.size(); i++) {
-			matrixStack.pushPose();
-			matrixStack.translate(0, scrollOffset, 0);
+			matrixStack.pushMatrix();
+			matrixStack.translate(0, scrollOffset);
 
 			if (i == entries.size()) {
 				AllGuiTextures.STOCK_KEEPER_CATEGORY_NEW.render(graphics, leftPos + 7, topPos + yOffset);
-				matrixStack.popPose();
+				matrixStack.popMatrix();
 				break;
 			}
 
@@ -206,7 +207,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 			int cardHeight = renderScheduleEntry(graphics, i, scheduleEntry, cardY, mouseX, mouseY, partialTicks);
 			yOffset += cardHeight;
 
-			matrixStack.popPose();
+			matrixStack.popMatrix();
 		}
 
 		graphics.disableScissor();
@@ -218,9 +219,9 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		int cardHeader = CARD_HEADER;
 		int cardHeight = cardHeader;
 
-		PoseStack matrixStack = graphics.pose();
-		matrixStack.pushPose();
-		matrixStack.translate(leftPos + 7, topPos + yOffset, 0);
+		Matrix3x2fStack matrixStack = graphics.pose();
+		matrixStack.pushMatrix();
+		matrixStack.translate(leftPos + 7, topPos + yOffset);
 
 		AllGuiTextures.STOCK_KEEPER_CATEGORY_ENTRY.render(graphics, 0, 0);
 
@@ -241,7 +242,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 				.length() > 20 ? "..." : ""),
 			35, 5, 0x656565, false);
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 		return cardHeight;
 	}
 

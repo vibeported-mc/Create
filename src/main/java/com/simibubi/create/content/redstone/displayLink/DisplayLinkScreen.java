@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink;
 
+import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.Collections;
 import java.util.List;
@@ -268,17 +269,17 @@ public class DisplayLinkScreen extends AbstractSimiScreen {
 		if (target == null)
 			graphics.text(font, CreateLang.translateDirect("display_link.no_target"), x + 65, y + 109, 0xD3D3D3);
 
-		PoseStack ms = graphics.pose();
-		ms.pushPose();
-		ms.translate(0, guiTop + 46, 0);
+		Matrix3x2fStack ms = graphics.pose();
+		ms.pushMatrix();
+		ms.translate(0, guiTop + 46);
 		configWidgets.getFirst()
 			.renderWidgetBG(guiLeft, graphics);
-		ms.translate(0, 21, 0);
+		ms.translate(0, 21);
 		configWidgets.getSecond()
 			.renderWidgetBG(guiLeft, graphics);
-		ms.popPose();
+		ms.popMatrix();
 
-		ms.pushPose();
+		ms.pushMatrix();
 		TransformStack.of(ms)
 			.pushPose()
 			.translate(x + background.getWidth() + 4, y + background.getHeight() + 4, 100)
@@ -288,7 +289,7 @@ public class DisplayLinkScreen extends AbstractSimiScreen {
 		GuiGameElement.of(blockEntity.getBlockState()
 				.setValue(DisplayLinkBlock.FACING, Direction.UP))
 			.render(graphics);
-		ms.popPose();
+		ms.popMatrix();
 	}
 
 	@Override

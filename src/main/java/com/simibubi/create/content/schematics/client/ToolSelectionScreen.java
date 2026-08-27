@@ -1,5 +1,6 @@
 package com.simibubi.create.content.schematics.client;
 
+import org.joml.Matrix3x2fStack;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -60,7 +61,7 @@ public class ToolSelectionScreen extends Screen {
 	}
 
 	private void draw(GuiGraphicsExtractor graphics, float partialTicks) {
-		PoseStack matrixStack = graphics.pose();
+		Matrix3x2fStack matrixStack = graphics.pose();
 		Window mainWindow = minecraft.getWindow();
 		if (!initialized)
 			init(minecraft, mainWindow.getGuiScaledWidth(), mainWindow.getGuiScaledHeight());
@@ -68,8 +69,8 @@ public class ToolSelectionScreen extends Screen {
 		int x = (mainWindow.getGuiScaledWidth() - w) / 2 + 15;
 		int y = mainWindow.getGuiScaledHeight() - h - 75;
 
-		matrixStack.pushPose();
-		matrixStack.translate(0, -yOffset, focused ? 100 : 0);
+		matrixStack.pushMatrix();
+		matrixStack.translate(0, -yOffset);
 
 		AllGuiTextures gray = AllGuiTextures.HUD_BACKGROUND;
 		RenderSystem.enableBlend();
@@ -114,11 +115,11 @@ public class ToolSelectionScreen extends Screen {
 
 		for (int i = 0; i < tools.size(); i++) {
 			RenderSystem.enableBlend();
-			matrixStack.pushPose();
+			matrixStack.pushMatrix();
 
 			float alpha = focused ? 1 : .2f;
 			if (i == selection) {
-				matrixStack.translate(0, -10, 0);
+				matrixStack.translate(0, -10);
 				RenderSystem.setShaderColor(1, 1, 1, 1);
 				graphics.centeredText(minecraft.font, tools.get(i)
 					.getDisplayName()
@@ -134,12 +135,12 @@ public class ToolSelectionScreen extends Screen {
 				.getIcon()
 				.render(graphics, x + i * 50 + 16, y + 11);
 
-			matrixStack.popPose();
+			matrixStack.popMatrix();
 		}
 
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		RenderSystem.disableBlend();
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 	public void update() {

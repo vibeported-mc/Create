@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.Collections;
 import java.util.List;
@@ -91,7 +92,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 
 		renderToolbox(graphics, x + BG.getWidth() + 50, y + BG.getHeight() + 12, partialTicks);
 
-		PoseStack ms = graphics.pose();
+		Matrix3x2fStack ms = graphics.pose();
 
 		hoveredToolboxSlot = null;
 		for (int compartment = 0; compartment < 8; compartment++) {
@@ -107,12 +108,12 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 			if (!itemstack.isEmpty()) {
 				int count = menu.totalCountInCompartment(compartment);
 				String s = String.valueOf(count);
-				ms.pushPose();
-				ms.translate(0, 0, 100);
+				ms.pushMatrix();
+				ms.translate(0, 0);
 				RenderSystem.enableDepthTest();
 				graphics.item(minecraft.player, itemstack, i, j, 0);
 				graphics.itemDecorations(font, itemstack, i, j, s);
-				ms.popPose();
+				ms.popMatrix();
 			}
 
 			if (isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY)) {
@@ -128,7 +129,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 	}
 
 	private void renderToolbox(GuiGraphicsExtractor graphics, int x, int y, float partialTicks) {
-        PoseStack ms = graphics.pose();
+        Matrix3x2fStack ms = graphics.pose();
 		TransformStack.of(ms)
 			.pushPose()
 			.translate(x, y, 100)
@@ -147,17 +148,17 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 			.translate(0, 6 / 16f, -12 / 16f);
 		GuiGameElement.of(AllPartialModels.TOOLBOX_LIDS.get(color))
 			.render(graphics);
-		ms.popPose();
+		ms.popMatrix();
 
 		for (int offset : Iterate.zeroAndOne) {
-			ms.pushPose();
+			ms.pushMatrix();
 			ms.translate(0, -offset * 1 / 8f,
 				menu.contentHolder.drawers.getValue(partialTicks) * -.175f * (2 - offset));
 			GuiGameElement.of(AllPartialModels.TOOLBOX_DRAWER)
 				.render(graphics);
-			ms.popPose();
+			ms.popMatrix();
 		}
-		ms.popPose();
+		ms.popMatrix();
 	}
 
 	@Override

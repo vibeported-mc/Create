@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.trainmap;
 
+import org.joml.Matrix3x2fStack;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -99,13 +100,13 @@ public class TrainMapManager {
 		if (CreateClient.RAILWAYS.trackNetworks.isEmpty())
 			return;
 		RenderSystem.enableBlend();
-		PoseStack pose = graphics.pose();
-		pose.pushPose();
-		pose.translate(0, 0, 300);
+		Matrix3x2fStack pose = graphics.pose();
+		pose.pushMatrix();
+		pose.translate(0, 0);
 		AllGuiTextures.TRAINMAP_TOGGLE_PANEL.render(graphics, x, y);
 		(enabled ? AllGuiTextures.TRAINMAP_TOGGLE_ON : AllGuiTextures.TRAINMAP_TOGGLE_OFF).render(graphics, x + 18,
 			y + 3);
-		pose.popPose();
+		pose.popMatrix();
 	}
 
 	public static boolean handleToggleWidgetClick(int mouseX, int mouseY, int x, int y) {
@@ -243,7 +244,7 @@ public class TrainMapManager {
 
 	private static Object drawPoints(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Object hoveredElement,
 		Rect2i bounds) {
-		PoseStack pose = graphics.pose();
+		Matrix3x2fStack pose = graphics.pose();
 		RenderSystem.enableDepthTest();
 
 		for (TrackGraph graph : CreateClient.RAILWAYS.trackNetworks.values()) {
@@ -286,8 +287,8 @@ public class TrainMapManager {
 
 				boolean highlight = hoveredElement == null && Math.max(Math.abs(mouseX - x), Math.abs(mouseY - y)) < 3;
 
-				pose.pushPose();
-				pose.translate(x - 2, y - 2, 5);
+				pose.pushMatrix();
+				pose.translate(x - 2, y - 2);
 
 				pose.translate(sprite.getWidth() / 2.0, sprite.getHeight() / 2.0, 0);
 				pose.mulPose(Axis.ZP.rotationDegrees(90 * (rotation / 2)));
@@ -297,12 +298,12 @@ public class TrainMapManager {
 				sprite.render(graphics, 0, 0);
 
 				if (highlight) {
-					pose.translate(0, 0, 5);
+					pose.translate(0, 0);
 					highlightSprite.render(graphics, -1, -1);
 					hoveredElement = station;
 				}
 
-				pose.popPose();
+				pose.popMatrix();
 			}
 		}
 
@@ -311,7 +312,7 @@ public class TrainMapManager {
 
 	private static Object drawTrains(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Object hoveredElement,
 		Rect2i bounds) {
-		PoseStack pose = graphics.pose();
+		Matrix3x2fStack pose = graphics.pose();
 		RenderSystem.enableDepthTest();
 		RenderSystem.enableBlend();
 
@@ -400,7 +401,7 @@ public class TrainMapManager {
 				slices = Math.max(2, slices);
 
 				sprite.bind();
-				pose.pushPose();
+				pose.pushMatrix();
 
 				float pivotX = 7.5f + (slices - 3) * sliceXShiftByRotationIndex[rotation] / 2.0f;
 				float pivotY = 6.5f + (slices - 3) * sliceYShiftByRotationIndex[rotation] / 2.0f;
@@ -425,7 +426,7 @@ public class TrainMapManager {
 						sprite.getHeight());
 				}
 
-				pose.popPose();
+				pose.popMatrix();
 
 				int margin = 1;
 				int sizeX = 8 + (slices - 3) * sliceXShiftByRotationIndex[rotation];
@@ -441,10 +442,10 @@ public class TrainMapManager {
 				continue;
 
 			if (trainEntry.signalState != SignalState.NOT_WAITING) {
-				pose.pushPose();
+				pose.pushMatrix();
 				pose.translate(frontPos.x - 0.5, frontPos.z - 0.5, 20 + (1024.0 + frontPos.z() % 8192.0) / 1024.0);
 				AllGuiTextures.TRAINMAP_SIGNAL.render(graphics, 0, -3);
-				pose.popPose();
+				pose.popMatrix();
 			}
 		}
 

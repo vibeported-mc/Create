@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.trainmap;
 
+import org.joml.Matrix3x2fStack;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -132,16 +133,16 @@ public class TrainMapRenderer implements AutoCloseable {
 
 	public void render(GuiGraphicsExtractor graphics, boolean linearFiltering, Rect2i bounds) {
 		BufferSource bufferSource = graphics.bufferSource();
-		PoseStack pose = graphics.pose();
+		Matrix3x2fStack pose = graphics.pose();
 		maps.forEach((key, tmi) -> {
 			if (tmi.canBeSkipped(bounds))
 				return;
 			int x = key.getFirst();
 			int y = key.getSecond();
-			pose.pushPose();
-			pose.translate(x * WIDTH, y * HEIGHT, 0);
+			pose.pushMatrix();
+			pose.translate(x * WIDTH, y * HEIGHT);
 			tmi.draw(pose, bufferSource, linearFiltering);
-			pose.popPose();
+			pose.popMatrix();
 		});
 	}
 

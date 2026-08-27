@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.trainmap;
 
+import org.joml.Matrix3x2fStack;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -92,12 +93,12 @@ public class FTBChunksTrainMap {
 			.getWindow()
 			.getGuiScale() < 512D;
 
-		PoseStack pose = graphics.pose();
-		pose.pushPose();
+		Matrix3x2fStack pose = graphics.pose();
+		pose.pushMatrix();
 
-		pose.translate(-minX, -minY, 0);
-		pose.scale(regionTileSize, regionTileSize, 1);
-		pose.translate(-regionMinX * blocksPerRegion, -regionMinZ * blocksPerRegion, 0);
+		pose.translate(-minX, -minY);
+		pose.scale(regionTileSize, regionTileSize);
+		pose.translate(-regionMinX * blocksPerRegion, -regionMinZ * blocksPerRegion);
 
 		mouseX += minX;
 		mouseY += minY;
@@ -113,7 +114,7 @@ public class FTBChunksTrainMap {
 		List<FormattedText> tooltip = TrainMapManager.renderAndPick(graphics, Mth.floor(mouseX), Mth.floor(mouseY),
 			linearFiltering, bounds);
 
-		pose.popPose();
+		pose.popMatrix();
 
 		if (!renderToggleWidgetAndTooltip(event, largeMapScreen, graphics) && tooltip != null) {
 			renderingTooltip = true;
@@ -123,8 +124,8 @@ public class FTBChunksTrainMap {
 			cancelTooltips = 5;
 		}
 
-		pose.pushPose();
-		pose.translate(0, 0, 300);
+		pose.pushMatrix();
+		pose.translate(0, 0);
 		for (Widget widget : largeMapScreen.getWidgets()) {
 			if (!widget.isEnabled())
 				continue;
@@ -133,7 +134,7 @@ public class FTBChunksTrainMap {
 			widget.draw(graphics, largeMapScreen.getTheme(), widget.getPosX(), widget.getPosY(), widget.getWidth(),
 				widget.getHeight());
 		}
-		pose.popPose();
+		pose.popMatrix();
 	}
 
 	private static boolean renderToggleWidgetAndTooltip(ScreenEvent.Render.Post event, LargeMapScreen largeMapScreen,

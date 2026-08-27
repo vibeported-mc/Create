@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category.animations;
 
+import org.joml.Matrix3x2fStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
@@ -14,9 +15,9 @@ public class AnimatedDeployer extends AnimatedKinetics {
 
 	@Override
 	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
-		PoseStack matrixStack = graphics.pose();
-		matrixStack.pushPose();
-		matrixStack.translate(xOffset, yOffset, 100);
+		Matrix3x2fStack matrixStack = graphics.pose();
+		matrixStack.pushMatrix();
+		matrixStack.translate(xOffset, yOffset);
 		matrixStack.mulPose(Axis.XP.rotationDegrees(-15.5f));
 		matrixStack.mulPose(Axis.YP.rotationDegrees(22.5f));
 		int scale = 20;
@@ -35,9 +36,9 @@ public class AnimatedDeployer extends AnimatedKinetics {
 		float cycle = (AnimationTickHolder.getRenderTime() - offset * 8) % 30;
 		float offset = cycle < 10 ? cycle / 10f : cycle < 20 ? (20 - cycle) / 10f : 0;
 
-		matrixStack.pushPose();
+		matrixStack.pushMatrix();
 
-		matrixStack.translate(0, offset * 17, 0);
+		matrixStack.translate(0, offset * 17);
 		blockElement(AllPartialModels.DEPLOYER_POLE)
 			.rotateBlock(90, 0, 0)
 			.scale(scale)
@@ -47,14 +48,14 @@ public class AnimatedDeployer extends AnimatedKinetics {
 			.scale(scale)
 			.render(graphics);
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 
 		blockElement(AllBlocks.DEPOT.getDefaultState())
 			.atLocal(0, 2, 0)
 			.scale(scale)
 			.render(graphics);
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 }

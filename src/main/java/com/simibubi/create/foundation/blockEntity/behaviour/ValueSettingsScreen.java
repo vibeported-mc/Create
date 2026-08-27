@@ -157,12 +157,9 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 		int additionalHeight = iconMode ? 46 : 33;
 
 		int zLevel = 0;
-		UIRenderHelper.drawStretched(graphics, x - 11 + fadeInStart, y - 17, fadeInWidth,
-			windowHeight + additionalHeight, zLevel, AllGuiTextures.VALUE_SETTINGS_OUTER_BG);
-		UIRenderHelper.drawStretched(graphics, x - 10 + fadeInStart, y - 18, fadeInWidth - 2, 1, zLevel,
-			AllGuiTextures.VALUE_SETTINGS_OUTER_BG);
-		UIRenderHelper.drawStretched(graphics, x - 10 + fadeInStart, y - 17 + windowHeight + additionalHeight, zLevel,
-			fadeInWidth - 2, 1, AllGuiTextures.VALUE_SETTINGS_OUTER_BG);
+		UIRenderHelper.drawStretched(graphics, x - 11 + fadeInStart, y - 17, fadeInWidth, windowHeight + additionalHeight, AllGuiTextures.VALUE_SETTINGS_OUTER_BG);
+		UIRenderHelper.drawStretched(graphics, x - 10 + fadeInStart, y - 18, fadeInWidth - 2, 1, AllGuiTextures.VALUE_SETTINGS_OUTER_BG);
+		UIRenderHelper.drawStretched(graphics, x - 10 + fadeInStart, y - 17 + windowHeight + additionalHeight, zLevel, fadeInWidth - 2, AllGuiTextures.VALUE_SETTINGS_OUTER_BG);
 
 		if (fadeInWidth > fattestLabel) {
 			int textX = x - 11 - fatTipOffset + bgWidth / 2;
@@ -181,8 +178,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 			int valueBarX = x + maxLabelWidth + 14 + 4;
 
 			if (!iconMode) {
-				UIRenderHelper.drawCropped(graphics, x - 4, y, maxLabelWidth + 8, 11, zLevel,
-					AllGuiTextures.VALUE_SETTINGS_LABEL_BG);
+				UIRenderHelper.drawCropped(graphics, x - 4, y, maxLabelWidth + 8, 11, AllGuiTextures.VALUE_SETTINGS_LABEL_BG);
 				for (int w = 0; w < valueBarWidth; w += AllGuiTextures.VALUE_SETTINGS_BAR.getWidth() - 1)
 					UIRenderHelper.drawCropped(graphics, valueBarX + w, y + 1,
 						Math.min(AllGuiTextures.VALUE_SETTINGS_BAR.getWidth() - 1, valueBarWidth - w), 8, zLevel,
@@ -248,8 +244,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 		}
 
 		AllGuiTextures.VALUE_SETTINGS_CURSOR_LEFT.render(graphics, cursorX - 3, cursorY);
-		UIRenderHelper.drawCropped(graphics, cursorX, cursorY, cursorWidth, 14, zLevel,
-			AllGuiTextures.VALUE_SETTINGS_CURSOR);
+		UIRenderHelper.drawCropped(graphics, cursorX, cursorY, cursorWidth, 14, AllGuiTextures.VALUE_SETTINGS_CURSOR);
 		AllGuiTextures.VALUE_SETTINGS_CURSOR_RIGHT.render(graphics, cursorX + cursorWidth, cursorY);
 
 		graphics.text(font, cursorText, cursorX + 2, cursorY + 3, 0x442000, false);
@@ -263,14 +258,13 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 		int zLevel = 0;
 
 		if (h > 8) {
-			UIRenderHelper.drawStretched(graphics, x, y + 4, 3, h - 8, zLevel, AllGuiTextures.BRASS_FRAME_LEFT);
-			UIRenderHelper.drawStretched(graphics, x + w - 3, y + 4, 3, h - 8, zLevel,
-				AllGuiTextures.BRASS_FRAME_RIGHT);
+			UIRenderHelper.drawStretched(graphics, x, y + 4, 3, h - 8, AllGuiTextures.BRASS_FRAME_LEFT);
+			UIRenderHelper.drawStretched(graphics, x + w - 3, y + 4, 3, h - 8, AllGuiTextures.BRASS_FRAME_RIGHT);
 		}
 
 		if (w > 8) {
-			UIRenderHelper.drawCropped(graphics, x + 4, y, w - 8, 3, zLevel, AllGuiTextures.BRASS_FRAME_TOP);
-			UIRenderHelper.drawCropped(graphics, x + 4, y + h - 3, w - 8, 3, zLevel, AllGuiTextures.BRASS_FRAME_BOTTOM);
+			UIRenderHelper.drawCropped(graphics, x + 4, y, w - 8, 3, AllGuiTextures.BRASS_FRAME_TOP);
+			UIRenderHelper.drawCropped(graphics, x + 4, y + h - 3, w - 8, 3, AllGuiTextures.BRASS_FRAME_BOTTOM);
 		}
 
 	}

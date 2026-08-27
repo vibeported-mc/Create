@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -222,8 +223,8 @@ public class LinkedControllerClientHandler {
 		if (MODE != Mode.BIND)
 			return;
 
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		Screen tooltipScreen = new Screen(CommonComponents.EMPTY) {
 		};
 		tooltipScreen.init(mc, width1, height1);
@@ -252,7 +253,7 @@ public class LinkedControllerClientHandler {
 		// TODO
 		guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, list, x, y);
 
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 
 	public enum Mode {

@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
 import java.util.List;
 import java.util.function.Supplier;
@@ -55,9 +56,9 @@ public abstract class ProcessingViaFanCategory<T extends Recipe<?>> extends Crea
 	public void draw(T recipe, IRecipeSlotsView iRecipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
 		renderWidgets(graphics, recipe, mouseX, mouseY);
 
-		PoseStack matrixStack = graphics.pose();
+		Matrix3x2fStack matrixStack = graphics.pose();
 
-		matrixStack.pushPose();
+		matrixStack.pushMatrix();
 		translateFan(matrixStack);
 		matrixStack.mulPose(Axis.XP.rotationDegrees(-12.5f));
 		matrixStack.mulPose(Axis.YP.rotationDegrees(22.5f));
@@ -74,7 +75,7 @@ public abstract class ProcessingViaFanCategory<T extends Recipe<?>> extends Crea
 			.render(graphics);
 
 		renderAttachedBlock(graphics);
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 	protected void renderWidgets(GuiGraphicsExtractor graphics, T recipe, double mouseX, double mouseY) {
@@ -88,7 +89,7 @@ public abstract class ProcessingViaFanCategory<T extends Recipe<?>> extends Crea
 	}
 
 	protected void translateFan(PoseStack matrixStack) {
-		matrixStack.translate(56, 33, 0);
+		matrixStack.translate(56, 33);
 	}
 
 	protected abstract void renderAttachedBlock(GuiGraphicsExtractor graphics);

@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei;
 
+import org.joml.Matrix3x2fStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -30,19 +31,19 @@ public class ItemIcon implements IDrawable {
 
 	@Override
 	public void draw(GuiGraphicsExtractor graphics, int xOffset, int yOffset) {
-		PoseStack matrixStack = graphics.pose();
+		Matrix3x2fStack matrixStack = graphics.pose();
 		if (stack == null) {
 			stack = supplier.get();
 		}
 
 		RenderSystem.enableDepthTest();
-		matrixStack.pushPose();
-		matrixStack.translate(xOffset + 1, yOffset + 1, 0);
+		matrixStack.pushMatrix();
+		matrixStack.translate(xOffset + 1, yOffset + 1);
 
 		GuiGameElement.of(stack)
 			.render(graphics);
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 

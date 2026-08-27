@@ -1,6 +1,7 @@
 package com.simibubi.create.content.equipment.symmetryWand;
 
 
+import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.joml.Vector3f;
 
@@ -138,18 +139,18 @@ public class SymmetryWandScreen extends AbstractSimiScreen {
 	}
 
 	protected void renderBlock(GuiGraphicsExtractor graphics, int x, int y) {
-		PoseStack ms = graphics.pose();
+		Matrix3x2fStack ms = graphics.pose();
 
-		ms.pushPose();
-		ms.translate(x + 26, y + 39, 20);
-		ms.scale(16, 16, 16);
+		ms.pushMatrix();
+		ms.translate(x + 26, y + 39);
+		ms.scale(16, 16);
 		ms.mulPose(Axis.of(new Vector3f(.3f, 1f, 0f)).rotationDegrees(-22.5f));
 		currentElement.applyModelTransform(ms);
 		// RenderSystem.multMatrix(ms.peek().getModel());
 		GuiGameElement.of(currentElement.getModel())
 			.render(graphics);
 
-		ms.popPose();
+		ms.popMatrix();
 	}
 
 	@Override

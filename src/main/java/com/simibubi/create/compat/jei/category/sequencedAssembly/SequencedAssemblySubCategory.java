@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category.sequencedAssembly;
 
+import org.joml.Matrix3x2fStack;
 import java.util.Arrays;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -48,13 +49,13 @@ public abstract class SequencedAssemblySubCategory {
 
 		@Override
 		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
-			PoseStack ms = graphics.pose();
+			Matrix3x2fStack ms = graphics.pose();
 			press.offset = index;
-			ms.pushPose();
-			ms.translate(-5, 50, 0);
-			ms.scale(.6f, .6f, .6f);
+			ms.pushMatrix();
+			ms.translate(-5, 50);
+			ms.scale(.6f, .6f);
 			press.draw(graphics, getWidth() / 2, 0);
-			ms.popPose();
+			ms.popMatrix();
 		}
 
 	}
@@ -79,17 +80,17 @@ public abstract class SequencedAssemblySubCategory {
 
 		@Override
 		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
-			PoseStack ms = graphics.pose();
+			Matrix3x2fStack ms = graphics.pose();
 			spout.offset = index;
-			ms.pushPose();
-			ms.translate(-7, 50, 0);
-			ms.scale(.75f, .75f, .75f);
+			ms.pushMatrix();
+			ms.translate(-7, 50);
+			ms.scale(.75f, .75f);
 			spout.withFluids(Arrays.asList(recipe.getRecipe()
 					.getFluidIngredients()
 					.get(0)
 					.getFluids()))
 				.draw(graphics, getWidth() / 2, 0);
-			ms.popPose();
+			ms.popMatrix();
 		}
 
 	}
@@ -119,13 +120,13 @@ public abstract class SequencedAssemblySubCategory {
 
 		@Override
 		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
-			PoseStack ms = graphics.pose();
+			Matrix3x2fStack ms = graphics.pose();
 			deployer.offset = index;
-			ms.pushPose();
-			ms.translate(-7, 50, 0);
-			ms.scale(.75f, .75f, .75f);
+			ms.pushMatrix();
+			ms.translate(-7, 50);
+			ms.scale(.75f, .75f);
 			deployer.draw(graphics, getWidth() / 2, 0);
-			ms.popPose();
+			ms.popMatrix();
 		}
 
 	}
@@ -141,12 +142,12 @@ public abstract class SequencedAssemblySubCategory {
 
 		@Override
 		public void draw(SequencedRecipe<?> recipe, GuiGraphicsExtractor graphics, double mouseX, double mouseY, int index) {
-			PoseStack ms = graphics.pose();
-			ms.pushPose();
-			ms.translate(0, 51.5f, 0);
-			ms.scale(.6f, .6f, .6f);
+			Matrix3x2fStack ms = graphics.pose();
+			ms.pushMatrix();
+			ms.translate(0, 51.5f);
+			ms.scale(.6f, .6f);
 			saw.draw(graphics, getWidth() / 2, 30);
-			ms.popPose();
+			ms.popMatrix();
 		}
 
 	}

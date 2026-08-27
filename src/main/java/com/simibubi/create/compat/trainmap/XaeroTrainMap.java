@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.trainmap;
 
+import org.joml.Matrix3x2fStack;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.Window;
@@ -81,12 +82,12 @@ public class XaeroTrainMap {
 		double interfaceScale = (double) window.getWidth() / window.getScreenWidth();
 		double scale = mapScale / guiScale / interfaceScale;
 
-		PoseStack pose = graphics.pose();
-		pose.pushPose();
+		Matrix3x2fStack pose = graphics.pose();
+		pose.pushMatrix();
 
-		pose.translate(screen.width / 2.0f, screen.height / 2.0f, 0);
+		pose.translate(screen.width / 2.0f, screen.height / 2.0f);
 		pose.scale((float) scale, (float) scale, 1);
-		pose.translate(-x, -z, 0);
+		pose.translate(-x, -z);
 
 		float mouseX = mX - screen.width / 2.0f;
 		float mouseY = mY - screen.height / 2.0f;
@@ -102,7 +103,7 @@ public class XaeroTrainMap {
 		List<FormattedText> tooltip =
 			TrainMapManager.renderAndPick(graphics, Mth.floor(mouseX), Mth.floor(mouseY), false, bounds);
 
-		pose.popPose();
+		pose.popMatrix();
 
 		if (!renderToggleWidgetAndTooltip(graphics, screen, mX, mY) && tooltip != null)
 			RemovedGuiUtils.drawHoveringText(graphics, tooltip, mX, mY, screen.width, screen.height, 256, mc.font);

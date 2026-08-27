@@ -4,22 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
-import net.neoforged.neoforge.client.extensions.IGuiGraphicsExtension;
+import net.neoforged.neoforge.client.extensions.GuiGraphicsExtractorExtension;
 import net.neoforged.neoforge.common.NeoForge;
 
 public class RemovedGuiUtils {
@@ -37,7 +33,7 @@ public class RemovedGuiUtils {
 	public static void drawHoveringText(GuiGraphicsExtractor graphics, List<? extends FormattedText> textLines, int mouseX,
 		int mouseY, int screenWidth, int screenHeight, int maxTextWidth, Font font) {
 		drawHoveringText(graphics, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth,
-			IGuiGraphicsExtension.DEFAULT_BACKGROUND_COLOR, IGuiGraphicsExtension.DEFAULT_BORDER_COLOR_START, IGuiGraphicsExtension.DEFAULT_BORDER_COLOR_END,
+			GuiGraphicsExtractorExtension.DEFAULT_BACKGROUND_COLOR, GuiGraphicsExtractorExtension.DEFAULT_BORDER_COLOR_START, GuiGraphicsExtractorExtension.DEFAULT_BORDER_COLOR_END,
 			font);
 	}
 
@@ -52,7 +48,7 @@ public class RemovedGuiUtils {
 		List<? extends FormattedText> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight,
 		int maxTextWidth, Font font) {
 		drawHoveringText(stack, graphics, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth,
-			IGuiGraphicsExtension.DEFAULT_BACKGROUND_COLOR, IGuiGraphicsExtension.DEFAULT_BORDER_COLOR_START, IGuiGraphicsExtension.DEFAULT_BORDER_COLOR_END,
+			GuiGraphicsExtractorExtension.DEFAULT_BACKGROUND_COLOR, GuiGraphicsExtractorExtension.DEFAULT_BORDER_COLOR_START, GuiGraphicsExtractorExtension.DEFAULT_BORDER_COLOR_END,
 			font);
 	}
 
@@ -69,16 +65,12 @@ public class RemovedGuiUtils {
 		if (NeoForge.EVENT_BUS.post(event).isCanceled())
 			return;
 
-		PoseStack pStack = graphics.pose();
-
 		mouseX = event.getX();
 		mouseY = event.getY();
 		screenWidth = event.getScreenWidth();
 		screenHeight = event.getScreenHeight();
 		font = event.getFont();
 
-		// RenderSystem.disableRescaleNormal();
-		RenderSystem.disableDepthTest();
 		int tooltipTextWidth = 0;
 
 		for (FormattedText textLine : textLines) {
@@ -148,54 +140,39 @@ public class RemovedGuiUtils {
 		else if (tooltipY + tooltipHeight + 4 > screenHeight)
 			tooltipY = screenHeight - tooltipHeight - 4;
 
-		final int zLevel = 400;
-		RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(stack, graphics, tooltipX, tooltipY,
-			font, backgroundColor, borderColorStart, borderColorEnd, list);
-		NeoForge.EVENT_BUS.post(colorEvent);
-		backgroundColor = colorEvent.getBackgroundStart();
-		borderColorStart = colorEvent.getBorderStart();
-		borderColorEnd = colorEvent.getBorderEnd();
+		// RenderTooltipEvent.Color is gone: 26.2 frames tooltips with a background texture, so the
+		// event that let listeners recolour the gradient has no counterpart. The colours Create
+		// passes in stand as given.
 
-		pStack.pushPose();
-		Matrix4f mat = pStack.last()
-			.pose();
 		graphics.fillGradient(tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3,
-			tooltipY - 3, zLevel, backgroundColor, backgroundColor);
+			tooltipY - 3, backgroundColor, backgroundColor);
 		graphics.fillGradient(tooltipX - 3, tooltipY + tooltipHeight + 3,
-			tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, zLevel, backgroundColor, backgroundColor);
+			tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
 		graphics.fillGradient(tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3,
-			tooltipY + tooltipHeight + 3, zLevel, backgroundColor, backgroundColor);
+			tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
 		graphics.fillGradient(tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3,
-			zLevel, backgroundColor, backgroundColor);
+			backgroundColor, backgroundColor);
 		graphics.fillGradient(tooltipX + tooltipTextWidth + 3, tooltipY - 3,
-			tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, zLevel, backgroundColor, backgroundColor);
+			tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
 		graphics.fillGradient(tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1,
-			tooltipY + tooltipHeight + 3 - 1, zLevel, borderColorStart, borderColorEnd);
+			tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
 		graphics.fillGradient(tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1,
-			tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, zLevel, borderColorStart, borderColorEnd);
+			tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
 		graphics.fillGradient(tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3,
-			tooltipY - 3 + 1, zLevel, borderColorStart, borderColorStart);
+			tooltipY - 3 + 1, borderColorStart, borderColorStart);
 		graphics.fillGradient(tooltipX - 3, tooltipY + tooltipHeight + 2,
-			tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, zLevel, borderColorEnd, borderColorEnd);
-
-		MultiBufferSource.BufferSource renderType = graphics.bufferSource();
-		pStack.translate(0.0D, 0.0D, zLevel);
+			tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
 		for (int lineNumber = 0; lineNumber < list.size(); ++lineNumber) {
 			ClientTooltipComponent line = list.get(lineNumber);
 
 			if (line != null)
-				line.renderText(font, tooltipX, tooltipY, mat, renderType);
+				line.extractText(graphics, font, tooltipX, tooltipY);
 
 			if (lineNumber + 1 == titleLinesCount)
 				tooltipY += 2;
 
-			tooltipY += line == null ? 10 : line.getHeight();
+			tooltipY += line == null ? 10 : line.getHeight(font);
 		}
-
-		renderType.endBatch();
-		pStack.popPose();
-
-		RenderSystem.enableDepthTest();
 	}
 }

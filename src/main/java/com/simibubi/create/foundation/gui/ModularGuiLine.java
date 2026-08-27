@@ -63,7 +63,7 @@ public class ModularGuiLine {
 	}
 
 	private void box(GuiGraphicsExtractor graphics, int x, int width, boolean b) {
-		UIRenderHelper.drawStretched(graphics, x, 0, width, 18, 0, AllGuiTextures.DATA_AREA);
+		UIRenderHelper.drawStretched(graphics, x, 0, width, 18, AllGuiTextures.DATA_AREA);
 		if (b)
 			AllGuiTextures.DATA_AREA_SPEECH.render(graphics, x - 3, 0);
 		else

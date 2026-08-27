@@ -1,5 +1,6 @@
 package com.simibubi.create.content.equipment.armor;
 
+import org.joml.Matrix3x2fStack;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -46,8 +47,8 @@ public class RemainingAirOverlay implements LayeredDraw.Layer {
 		int timeLeft = player.getPersistentData()
 			.getIntOr("VisualBacktankAir", 0);
 
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 
 		ItemStack backtank = getDisplayedBacktank(player);
 		poseStack.translate(guiGraphics.guiWidth() / 2 + 90, guiGraphics.guiHeight() - 53 + (backtank
@@ -63,7 +64,7 @@ public class RemainingAirOverlay implements LayeredDraw.Layer {
 		}
 		guiGraphics.text(mc.font, text, 16, 5, color);
 
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 
 	public static ItemStack getDisplayedBacktank(LocalPlayer player) {
