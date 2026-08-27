@@ -48,6 +48,6 @@ public class PassengerCommand {
 			return;
 		}
 
-		rider.startRiding(vehicle, true);
+		rider.startRiding(vehicle, true, true);
 	}
 }

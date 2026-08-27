@@ -48,6 +48,7 @@ public class TagProviderImpl<K, V> implements SimpleRegistry.Provider<K, V> {
 		if (key == null)
 			throw new IllegalStateException("Unregistered BlockEntityType: " + type);
 
-		return BuiltInRegistries.BLOCK_ENTITY_TYPE.getHolder(key).orElseThrow();
+		return BuiltInRegistries.BLOCK_ENTITY_TYPE.get(key)
+			.orElseThrow();
 	}
 }

@@ -44,7 +44,7 @@ public class CreateTestCommand {
 					.executes(ctx -> handleExport(
 						ctx.getSource(),
 						ctx.getSource().getLevel(),
-						StringArgumentType.getStringOr(ctx, "path", "")
+						getStringOrEmpty(ctx, "path")
 					))
 				)
 			);
@@ -105,4 +105,17 @@ public class CreateTestCommand {
 		}
 		return builder.buildFuture();
 	}
+
+	/**
+	 * Brigadier's defaulting getter is gone in 26.2; an argument that was never given simply is not in
+	 * the context.
+	 */
+	private static String getStringOrEmpty(CommandContext<CommandSourceStack> ctx, String name) {
+		try {
+			return StringArgumentType.getString(ctx, name);
+		} catch (IllegalArgumentException e) {
+			return "";
+		}
+	}
+
 }

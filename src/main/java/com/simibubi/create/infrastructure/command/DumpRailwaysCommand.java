@@ -31,7 +31,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class DumpRailwaysCommand {
 
-	private static final int white = ChatFormatting.WHITE.getColor();
+	private static final int white = 0xFF_FFFFFF;
 	private static final int blue = 0xaac8e0;
 	//private static final int blue = 0xD3DEDC;
 	private static final int darkBlue = 0x88a5b7;

@@ -99,7 +99,8 @@ public class RemapHelper {
 		reMap.put("adjustable_pulse_repeater", PULSE_REPEATER.getId());
 		reMap.put("adjustable_repeater", PULSE_REPEATER.getId());
 
-		reMap.put("copper_block", RegisteredObjectsHelper.getKeyOrThrow(Blocks.COPPER_BLOCK));
+		reMap.put("copper_block", RegisteredObjectsHelper.getKeyOrThrow(Blocks.COPPER_BLOCK.weathering()
+			.unaffected()));
 		reMap.put("copper_ore", RegisteredObjectsHelper.getKeyOrThrow(Blocks.COPPER_ORE));
 
 		reMap.put("acacia_glass", ACACIA_WINDOW.getId());
