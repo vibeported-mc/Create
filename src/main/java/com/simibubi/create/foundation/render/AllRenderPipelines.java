@@ -29,10 +29,13 @@ public class AllRenderPipelines {
 	public static final Identifier GLOWING_ID = Create.asResource("core/glowing_shader");
 
 	/**
-	 * The glowing shader ignores the diffuse light direction, so it builds on the plain matrices/fog
-	 * snippet and binds the lightmap sampler itself instead of reusing the entity snippet.
+	 * The glowing shader ignores the diffuse light direction, and binds the lightmap sampler itself
+	 * rather than reusing the entity snippet.
+	 * <p>
+	 * It builds on the item snippet because these draws are item geometry: the GUI pass only draws
+	 * item render types, so anything else is simply dropped when an inventory renders the item.
 	 */
-	public static final RenderPipeline.Snippet GLOWING_SNIPPET = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+	public static final RenderPipeline.Snippet GLOWING_SNIPPET = RenderPipeline.builder(RenderPipelines.ITEM_SNIPPET)
 		.withVertexShader(GLOWING_ID)
 		.withFragmentShader(GLOWING_ID)
 		.withBindGroupLayout(BindGroupLayouts.SAMPLER0_SAMPLER2)

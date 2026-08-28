@@ -172,7 +172,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 		ClientLevel level = Minecraft.getInstance().level;
 		if (level == null)
 			return ItemStack.EMPTY;
-		return RecipeAccessors.result(recipe, null);
+		return RecipeAccessors.result(recipe, level);
 	}
 
 	public static IRecipeSlotRichTooltipCallback addStochasticTooltip(ProcessingOutput output) {

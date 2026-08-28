@@ -66,9 +66,10 @@ public class BlockCuttingCategory extends CreateRecipeCategory<CondensedBlockCut
 
 		// The recipe group moved onto StonecutterRecipe#group (hardcoded to "") and the result is now
 		// an ItemStackTemplate; CommonInfo only carries the show-notification flag, which keeps its
-		// former default. The result is never read - the category draws the condensed output list.
-		public CondensedBlockCuttingRecipe(Ingredient ingredient) {
-			super(new Recipe.CommonInfo(true), ingredient, ItemStackTemplate.fromStack(ItemStack.EMPTY));
+		// former default. The category draws the condensed output list rather than this result, but
+		// 26.2 will not describe a recipe as producing nothing, so the first output stands for it.
+		public CondensedBlockCuttingRecipe(Ingredient ingredient, ItemStack firstOutput) {
+			super(new Recipe.CommonInfo(true), ingredient, ItemStackTemplate.fromNonEmptyStack(firstOutput));
 		}
 
 		public void addOutput(ItemStack stack) {
@@ -113,8 +114,11 @@ public class BlockCuttingCategory extends CreateRecipeCategory<CondensedBlockCut
 					continue Recipes;
 				}
 			}
-			CondensedBlockCuttingRecipe cr = new CondensedBlockCuttingRecipe(i1);
-			cr.addOutput(getResultItem(recipe.value()));
+			ItemStack firstOutput = getResultItem(recipe.value());
+			if (firstOutput.isEmpty())
+				continue;
+			CondensedBlockCuttingRecipe cr = new CondensedBlockCuttingRecipe(i1, firstOutput);
+			cr.addOutput(firstOutput);
 			condensed.add(new RecipeHolder<>(recipe.id(), cr));
 		}
 		return condensed;
