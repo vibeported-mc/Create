@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 
-import com.simibubi.create.AllItems;
+import com.simibubi.create.Create;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.client.gui.ScreenOpener;
@@ -15,6 +15,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -28,6 +30,8 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 
 public class OpenCreateMenuButton extends Button {
 
+	private static final Identifier GOGGLES_TEXTURE = Create.asResource("textures/item/goggles.png");
+
 	public OpenCreateMenuButton(int x, int y) {
 		super(x, y, 20, 20, CommonComponents.EMPTY, OpenCreateMenuButton::click, DEFAULT_NARRATION);
 	}
@@ -35,7 +39,9 @@ public class OpenCreateMenuButton extends Button {
 	@Override
 	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		extractDefaultSprite(graphics);
-		graphics.item(AllItems.GOGGLES.asStack(), getX() + 2, getY() + 2);
+		// 26.2 binds an item's components when world data loads, so no stack can be built while the
+		// title screen is up. The goggles are a flat item model, so their texture draws the same thing.
+		graphics.blit(RenderPipelines.GUI_TEXTURED, GOGGLES_TEXTURE, getX() + 2, getY() + 2, 0, 0, 16, 16, 16, 16);
 	}
 
 	public static void click(Button b) {
