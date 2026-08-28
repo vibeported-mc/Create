@@ -59,7 +59,7 @@
     "client.MinecraftPickMixin",
 		"client.GuiRendererMixin",
     "client.HeavyBootsOnPlayerMixin",
-    "client.HumanoidModelMixin",
+    "client.PlayerModelMixin",
     "client.ClientLevelDestructionMixin"
   ],
   "injectors": {
