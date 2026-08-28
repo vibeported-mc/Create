@@ -32,6 +32,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -297,6 +298,14 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 
 	public ItemStack getTransitionalItem() {
 		return transitionalItem.getStack();
+	}
+
+	/**
+	 * The transitional item's type, needed while the recipe is still being read - at that point its
+	 * components are not bound yet, so no stack can be made of it.
+	 */
+	public Item getTransitionalItemType() {
+		return transitionalItem.getItem();
 	}
 
 	public record SequencedAssembly(Identifier id, int step, float progress) {

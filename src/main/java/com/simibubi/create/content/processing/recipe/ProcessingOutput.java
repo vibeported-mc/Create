@@ -80,6 +80,14 @@ public class ProcessingOutput {
 		return getStack(count);
 	}
 
+	/**
+	 * The item this output names, without building a stack from it - 26.2 binds an item's components
+	 * when world data loads, which is after recipes are read.
+	 */
+	public Item getItem() {
+		return item;
+	}
+
 	public float getChance() {
 		return chance;
 	}
