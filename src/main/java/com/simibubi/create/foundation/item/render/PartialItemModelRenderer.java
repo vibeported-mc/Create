@@ -9,8 +9,6 @@ import com.simibubi.create.foundation.model.BakedModelHelper;
 import com.simibubi.create.foundation.render.RenderTypes;
 
 import com.simibubi.create.foundation.mixin.accessor.ItemStackRenderStateAccessor;
-import net.minecraft.client.resources.model.cuboid.ItemTransform;
-import org.joml.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.Sheets;
@@ -116,15 +114,12 @@ public class PartialItemModelRenderer {
 		if (quads.isEmpty())
 			return;
 
+		// Submitted as item geometry rather than as custom geometry on a block sheet: a base model can
+		// be a flat item sprite, whose quads come from the item atlas.
 		ms.pushPose();
 		ms.translate(-0.5D, -0.5D, -0.5D);
-		QuadInstance instance = new QuadInstance();
-		instance.setLightCoords(light);
-		instance.setOverlayCoords(overlay);
-		collector.submitCustomGeometry(ms, Sheets.cutoutBlockItemSheet(), (pose, buffer) -> {
-			for (BakedQuad quad : quads)
-				buffer.putBakedQuad(pose, quad, instance);
-		});
+		collector.submitItem(ms, context.displayContext(), light, overlay, 0,
+			ItemStackRenderState.LayerRenderState.EMPTY_TINTS, quads, ItemStackRenderState.FoilType.NONE);
 		ms.popPose();
 	}
 
