@@ -2,7 +2,6 @@ package com.simibubi.create;
 
 import com.simibubi.create.content.equipment.hats.HatRenderData;
 import com.simibubi.create.content.legacy.ChromaticCompoundColor;
-import com.simibubi.create.infrastructure.gui.CreatePanorama;
 import com.simibubi.create.foundation.gui.render.GuiCustomGeometryRenderer;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.foundation.render.CachedBufferer;
@@ -123,7 +122,6 @@ public class CreateClient {
 
 		AllPartialModels.init();
 
-		event.enqueueWork(CreatePanorama::registerTextures);
 
 
 		//AllPonderTags.register();

@@ -7,6 +7,7 @@ import com.simibubi.create.Create;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.CubeMap;
+import net.minecraft.client.renderer.texture.CubeMapTexture;
 import net.minecraft.resources.Identifier;
 
 /**
@@ -35,23 +36,22 @@ public class CreatePanorama {
 	}
 
 	/**
-	 * Registers the panorama's textures, which the texture manager only uploads on a resource reload -
-	 * so this has to happen before the menu is ever drawn, not on the frame that first asks for it.
-	 */
-	public static void registerTextures() {
-		cubeMap = new CubeMap(CUBE_MAP_LOCATION);
-		cubeMap.registerTextures(Minecraft.getInstance()
-			.getTextureManager());
-	}
-
-	/**
 	 * Picks the cube map to draw this frame, consuming the request made while extracting it.
 	 */
 	public static CubeMap pick(CubeMap vanilla) {
 		if (!requested)
 			return vanilla;
 		requested = false;
-		return cubeMap == null ? vanilla : cubeMap;
+
+		if (cubeMap == null) {
+			cubeMap = new CubeMap(CUBE_MAP_LOCATION);
+			// CubeMap#registerTextures only registers, leaving the upload to the next resource reload -
+			// this is built on the frame that first asks for it, so it has to be loaded right away.
+			Minecraft.getInstance()
+				.getTextureManager()
+				.registerAndLoad(CUBE_MAP_LOCATION, new CubeMapTexture(CUBE_MAP_LOCATION));
+		}
+		return cubeMap;
 	}
 
 	private CreatePanorama() {
