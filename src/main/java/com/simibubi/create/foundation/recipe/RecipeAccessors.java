@@ -35,7 +35,12 @@ public class RecipeAccessors {
 		if (recipe instanceof ProcessingRecipe<?, ?> processing)
 			return processing.getResultItem(null);
 
-		ContextMap context = level == null ? SlotDisplayContext.fromLevel(null) : SlotDisplayContext.fromLevel(level);
+		// A display's result is resolved against the level it would be crafted in, so without one there
+		// is nothing to resolve it from.
+		if (level == null)
+			return ItemStack.EMPTY;
+
+		ContextMap context = SlotDisplayContext.fromLevel(level);
 		for (RecipeDisplay display : recipe.display()) {
 			ItemStack stack = display.result()
 				.resolveForFirstStack(context);

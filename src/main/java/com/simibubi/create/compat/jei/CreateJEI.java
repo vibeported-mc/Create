@@ -88,6 +88,7 @@ import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.Level;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.RegistryAccess;
@@ -474,7 +475,9 @@ public class CreateJEI implements IModPlugin {
 	}
 
 	public static boolean doOutputsMatch(Recipe<?> recipe1, Recipe<?> recipe2) {
-		return ItemHelper.sameItem(RecipeAccessors.result(recipe1, null), RecipeAccessors.result(recipe2, null));
+		// Recipes that describe their result as a display need a level to resolve it against.
+		Level level = Minecraft.getInstance().level;
+		return ItemHelper.sameItem(RecipeAccessors.result(recipe1, level), RecipeAccessors.result(recipe2, level));
 	}
 
 	@Override
