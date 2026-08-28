@@ -85,6 +85,21 @@ public class RenderTypes {
 			.setOutline(OutlineProperty.AFFECTS_OUTLINE)
 			.createRenderSetup());
 
+	private static final RenderType GUI_ITEM_GLOWING_SOLID = RenderType.create(createLayerName("gui_item_glowing_solid"),
+		RenderSetup.builder(AllRenderPipelines.GUI_GLOWING)
+			.withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+			.useLightmap()
+			.useOverlay()
+			.createRenderSetup());
+
+	private static final RenderType GUI_ITEM_GLOWING_TRANSLUCENT = RenderType.create(
+		createLayerName("gui_item_glowing_translucent"), RenderSetup.builder(AllRenderPipelines.GUI_GLOWING_TRANSLUCENT)
+			.withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+			.useLightmap()
+			.useOverlay()
+			.sortOnUpload()
+			.createRenderSetup());
+
 	/** The chain texture is tiled along the strand, so it samples with repeat rather than clamp. */
 	public static final Supplier<GpuSampler> CHAIN_SAMPLER = () -> RenderSystem.getSamplerCache()
 		.getRepeat(FilterMode.NEAREST, true);
@@ -125,12 +140,12 @@ public class RenderTypes {
 			.createRenderSetup());
 	}
 
-	public static RenderType itemGlowingSolid() {
-		return ITEM_GLOWING_SOLID;
+	public static RenderType itemGlowingSolid(boolean inGui) {
+		return inGui ? GUI_ITEM_GLOWING_SOLID : ITEM_GLOWING_SOLID;
 	}
 
-	public static RenderType itemGlowingTranslucent() {
-		return ITEM_GLOWING_TRANSLUCENT;
+	public static RenderType itemGlowingTranslucent(boolean inGui) {
+		return inGui ? GUI_ITEM_GLOWING_TRANSLUCENT : ITEM_GLOWING_TRANSLUCENT;
 	}
 
 	public static RenderType chain(Identifier pLocation) {
