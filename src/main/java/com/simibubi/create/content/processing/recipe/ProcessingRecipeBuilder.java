@@ -32,6 +32,7 @@ import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.common.conditions.NotCondition;
 import net.neoforged.neoforge.common.crafting.ICustomIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
@@ -98,7 +99,8 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	}
 
 	public S withFluidOutputs(NonNullList<FluidStack> outputs) {
-		params.fluidResults = outputs;
+		params.fluidResults = NonNullList.create();
+		outputs.forEach(this::output);
 		return self();
 	}
 
@@ -227,7 +229,9 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	}
 
 	public S output(FluidStack fluidStack) {
-		params.fluidResults.add(fluidStack);
+		// Named rather than kept as a stack: a recipe's fluid results are read before fluid components
+		// are bound, so they travel as templates.
+		params.fluidResults.add(FluidStackTemplate.fromNonEmptyStack(fluidStack));
 		return self();
 	}
 

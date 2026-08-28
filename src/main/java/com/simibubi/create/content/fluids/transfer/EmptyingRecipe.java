@@ -38,7 +38,7 @@ public class EmptyingRecipe extends StandardProcessingRecipe<SingleRecipeInput> 
 	public FluidStack getResultingFluid() {
 		if (fluidResults.isEmpty())
 			throw new IllegalStateException("Emptying Recipe has no fluid output!");
-		return fluidResults.get(0);
+		return getFluidResults().get(0);
 	}
 
 }

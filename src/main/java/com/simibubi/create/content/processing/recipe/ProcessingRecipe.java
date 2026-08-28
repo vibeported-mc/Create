@@ -26,7 +26,10 @@ import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
+import org.jspecify.annotations.Nullable;
+
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 @NullMarked
@@ -36,7 +39,9 @@ public abstract class ProcessingRecipe<I extends RecipeInput, P extends Processi
 	protected NonNullList<Ingredient> ingredients;
 	protected NonNullList<ProcessingOutput> results;
 	protected NonNullList<SizedFluidIngredient> fluidIngredients;
-	protected NonNullList<FluidStack> fluidResults;
+	protected NonNullList<FluidStackTemplate> fluidResults;
+	@Nullable
+	private NonNullList<FluidStack> fluidResultStacks;
 	protected int processingDuration;
 	protected HeatCondition requiredHeat;
 
@@ -130,8 +135,16 @@ public abstract class ProcessingRecipe<I extends RecipeInput, P extends Processi
 		return results;
 	}
 
+	/**
+	 * The stacks this recipe produces. 26.2 binds a fluid's components when world data loads, which is
+	 * after recipes are read, so the stacks are built the first time something asks for them.
+	 */
 	public NonNullList<FluidStack> getFluidResults() {
-		return fluidResults;
+		if (fluidResultStacks == null) {
+			fluidResultStacks = NonNullList.create();
+			fluidResults.forEach(template -> fluidResultStacks.add(template.create()));
+		}
+		return fluidResultStacks;
 	}
 
 	public List<ItemStack> getRollableResultsAsItemStacks() {

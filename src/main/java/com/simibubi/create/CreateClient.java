@@ -29,6 +29,7 @@ import com.simibubi.create.content.schematics.client.SchematicHandler;
 import com.simibubi.create.content.trains.GlobalRailwayManager;
 import com.simibubi.create.foundation.ClientResourceReloadListener;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsClient;
+import com.simibubi.create.foundation.item.render.AllCustomItemRenderers;
 import com.simibubi.create.foundation.model.ModelSwapper;
 import com.simibubi.create.foundation.ponder.CreatePonderPlugin;
 import com.simibubi.create.foundation.render.AllInstanceTypes;
@@ -119,6 +120,10 @@ public class CreateClient {
 		SuperByteBufferCache.getInstance().registerCompartment(KineticBlockEntityRenderer.KINETIC_BLOCK);
 		SuperByteBufferCache.getInstance().registerCompartment(WaterWheelRenderer.WATER_WHEEL);
 		SuperByteBufferCache.getInstance().registerCompartment(ContraptionEntityRenderer.CONTRAPTION, 20);
+
+		// Must happen before models are baked: ModelSwapper wraps each of these items' baked models so
+		// the renderer is reached through the item's render state.
+		AllCustomItemRenderers.register();
 
 		AllPartialModels.init();
 

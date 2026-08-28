@@ -21,14 +21,19 @@ import net.neoforged.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class CustomRenderedItems {
 
-	private static final Map<Item, Supplier<CustomRenderedItemModelRenderer>> ITEMS = new IdentityHashMap<>();
+	private static final Map<Item, CustomRenderedItemModelRenderer> ITEMS = new IdentityHashMap<>();
 
+	/**
+	 * The renderer is built here rather than when the models are swapped: these renderers hold their
+	 * own {@link dev.engine_room.flywheel.lib.model.baked.PartialModel PartialModel}s in static
+	 * fields, and a partial only gets baked if it exists before the models are registered.
+	 */
 	public static void register(Item item, Supplier<CustomRenderedItemModelRenderer> renderer) {
-		ITEMS.put(item, renderer);
+		ITEMS.put(item, renderer.get());
 	}
 
 	public static void forEach(BiConsumer<Item, CustomRenderedItemModelRenderer> consumer) {
-		ITEMS.forEach((item, renderer) -> consumer.accept(item, renderer.get()));
+		ITEMS.forEach(consumer);
 	}
 
 }

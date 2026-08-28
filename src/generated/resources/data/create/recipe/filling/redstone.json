@@ -3,15 +3,17 @@
   "ingredients": [
     "create:cinder_flour",
     {
-      "type": "neoforge:components",
       "amount": 25,
-      "components": {
-        "create:potion_fluid_bottle_type": "regular",
-        "minecraft:potion_contents": {
-          "potion": "minecraft:strength"
-        }
-      },
-      "fluids": "create:potion"
+      "ingredient": {
+        "type": "neoforge:components",
+        "components": {
+          "create:potion_fluid_bottle_type": "regular",
+          "minecraft:potion_contents": {
+            "potion": "minecraft:strength"
+          }
+        },
+        "fluids": "create:potion"
+      }
     }
   ],
   "results": [

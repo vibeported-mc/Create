@@ -11,10 +11,13 @@
       "type": "create:deploying",
       "ingredients": [
         "create:incomplete_track",
-        [
-          "#c:nuggets/iron",
-          "#c:nuggets/zinc"
-        ]
+        {
+          "type": "neoforge:compound",
+          "children": [
+            "#c:nuggets/iron",
+            "#c:nuggets/zinc"
+          ]
+        }
       ],
       "results": [
         {
@@ -26,10 +29,13 @@
       "type": "create:deploying",
       "ingredients": [
         "create:incomplete_track",
-        [
-          "#c:nuggets/iron",
-          "#c:nuggets/zinc"
-        ]
+        {
+          "type": "neoforge:compound",
+          "children": [
+            "#c:nuggets/iron",
+            "#c:nuggets/zinc"
+          ]
+        }
       ],
       "results": [
         {
