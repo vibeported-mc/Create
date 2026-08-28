@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-		"2": "create:item/cardboard_sword_in_hand",
-		"particle": "create:item/cardboard_sword_in_hand"
+		"2": "create:block/cardboard_sword_in_hand",
+		"particle": "create:block/cardboard_sword_in_hand"
 	},
 	"elements": [
 		{

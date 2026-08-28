@@ -1,6 +1,6 @@
 {
 	"textures": {
-		"4": "create:item/extendo_grip"
+		"4": "create:block/extendo_grip"
 	},
 	"elements": [
 		{
