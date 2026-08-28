@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 import com.simibubi.create.content.decoration.bracket.BracketedBlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import net.createmod.catnip.impl.neoforge.render.VirtualRenderHelper;
+import net.createmod.catnip.api.client.level.VirtualBlockGetter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -17,14 +17,13 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
-import net.neoforged.neoforge.model.data.ModelData;
 
 /**
  * Draws the bracket a shaft or cogwheel is wearing, and nothing else.
  * <p>
- * The shaft itself is drawn by Flywheel, so in the world this model contributes only the bracket.
- * Virtual rendering - schematics, ponder - has no Flywheel behind it, so there the shaft's own model
- * is used instead.
+ * Wherever the block sits in a level, something else is already drawing the shaft: Flywheel in the
+ * world, the block entity renderer in a ponder scene. Only when the model is asked for on its own,
+ * detached from any level, does it have to supply the shaft itself.
  */
 public class BracketedKineticBlockModel extends DelegateBlockStateModel {
 
@@ -35,8 +34,9 @@ public class BracketedKineticBlockModel extends DelegateBlockStateModel {
 	@Override
 	public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
 		List<BlockStateModelPart> parts) {
-		ModelData data = level.getModelData(pos);
-		if (VirtualRenderHelper.isVirtual(data)) {
+		// A virtual getter stands in for "no level here": a GUI element, a ghost block, a model being
+		// buffered on its own. There is nothing else to draw the shaft in that case, so draw it.
+		if (level instanceof VirtualBlockGetter) {
 			super.collectParts(level, pos, state, random, parts);
 			return;
 		}
