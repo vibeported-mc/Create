@@ -51,7 +51,8 @@ public class WorldshaperScreen extends ZapperScreen {
 
 	public WorldshaperScreen(ItemStack zapper, InteractionHand hand) {
 		super(AllGuiTextures.TERRAINZAPPER, zapper, hand);
-		fontColor = 0x767676;
+		// 26.2 draws nothing when a text colour has no alpha
+		fontColor = 0xFF767676;
 		title = zapper.getHoverName();
 
 		currentBrush = zapper.getOrDefault(AllDataComponents.SHAPER_BRUSH, TerrainBrushes.Cuboid);

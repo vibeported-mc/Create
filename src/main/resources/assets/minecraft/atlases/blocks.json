@@ -69,6 +69,38 @@
       "resource": "create:fluid/tea_still"
     },
     {
+      "type": "single",
+      "resource": "create:item/cardboard_sword_in_hand"
+    },
+    {
+      "type": "single",
+      "resource": "create:item/extendo_grip"
+    },
+    {
+      "type": "single",
+      "resource": "create:item/linked_controller"
+    },
+    {
+      "type": "single",
+      "resource": "create:item/linked_controller_powered"
+    },
+    {
+      "type": "single",
+      "resource": "create:item/parts/mechanical_press_pole"
+    },
+    {
+      "type": "single",
+      "resource": "create:item/parts/redstone_antenna"
+    },
+    {
+      "type": "single",
+      "resource": "create:item/potato_cannon"
+    },
+    {
+      "type": "single",
+      "resource": "create:item/wrench"
+    },
+    {
       "type": "paletted_permutations",
       "textures": [
         "create:trims/items/card_leggings_trim",

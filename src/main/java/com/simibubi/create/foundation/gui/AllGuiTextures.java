@@ -268,7 +268,9 @@ public enum AllGuiTextures implements ScreenElement, TextureSheetSegment {
 
 	;
 
-	public static final int FONT_COLOR = 0x575F7A;
+	// 26.2 draws nothing when a text colour has no alpha, where the font used to read a missing alpha
+	// as fully opaque.
+	public static final int FONT_COLOR = 0xFF575F7A;
 
 	public final Identifier location;
 	private final int width;

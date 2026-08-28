@@ -79,7 +79,10 @@ public class Label extends AbstractSimiWidget {
 		if (suffix != null && !suffix.isEmpty())
 			copy.append(suffix);
 
-		graphics.text(font, copy, getX(), getY(), color, hasShadow);
+		// Labels are coloured with plain RGB; 26.2 draws nothing when a text colour has no alpha,
+		// whereas the font used to read that as fully opaque.
+		int argb = (color & 0xFF000000) == 0 ? color | 0xFF000000 : color;
+		graphics.text(font, copy, getX(), getY(), argb, hasShadow);
 	}
 
 }

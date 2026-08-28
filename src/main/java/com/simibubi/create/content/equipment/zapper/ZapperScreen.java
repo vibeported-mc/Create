@@ -46,7 +46,7 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 		this.zapper = zapper;
 		this.hand = hand;
 		title = CommonComponents.EMPTY;
-		brightColor = 0xFEFEFE;
+		brightColor = 0xFFFEFEFE;
 		fontColor = AllGuiTextures.FONT_COLOR;
 
 		currentPattern = zapper.getOrDefault(AllDataComponents.PLACEMENT_PATTERN, PlacementPatterns.Solid);
