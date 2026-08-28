@@ -239,7 +239,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		searchBox = new EditBox(new NoShadowFontWrapper(font), x + 71, y + 22, 100, 9, searchLabel);
 		searchBox.setMaxLength(50);
 		searchBox.setBordered(false);
-		searchBox.setTextColor(0x4A2D31);
+		searchBox.setTextColor(0xFF4A2D31);
 		addWidget(searchBox);
 
 		refreshSearchNextTick = true;
@@ -250,7 +250,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		String previouslyUsedAddress = initial ? blockEntity.previouslyUsedAddress : addressBox.getValue();
 		addressBox =
 			new AddressEditBox(this, new NoShadowFontWrapper(font), x + 27, y + windowHeight - 36, 92, 10, true);
-		addressBox.setTextColor(0x714A40);
+		addressBox.setTextColor(0xFF714A40);
 		addressBox.setValue(previouslyUsedAddress);
 		addRenderableWidget(addressBox);
 

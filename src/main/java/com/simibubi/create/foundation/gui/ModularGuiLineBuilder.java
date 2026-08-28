@@ -79,7 +79,7 @@ public class ModularGuiLineBuilder {
 		BiConsumer<FilteredEditBox, TooltipArea> inputTransform, String dataKey) {
 		FilteredEditBox input = new FilteredEditBox(font, x + this.x + 5, y, width - 9, 8, CommonComponents.EMPTY);
 		input.setBordered(false);
-		input.setTextColor(0xffffff);
+		input.setTextColor(0xFFffffff);
 		input.setFocused(false);
 		input.setFocused(true);
 		TooltipArea tooltipArea = new TooltipArea(this.x + x, y - 4, width, 18);

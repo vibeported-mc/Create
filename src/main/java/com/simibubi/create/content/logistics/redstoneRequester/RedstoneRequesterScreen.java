@@ -75,7 +75,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 		if (addressBox == null) {
 			addressBox = new AddressEditBox(this, new NoShadowFontWrapper(font), x + 55, y + 68, 110, 10, false);
 			addressBox.setValue(menu.contentHolder.encodedTargetAdress);
-			addressBox.setTextColor(0x555555);
+			addressBox.setTextColor(0xFF555555);
 		}
 		addRenderableWidget(addressBox);
 

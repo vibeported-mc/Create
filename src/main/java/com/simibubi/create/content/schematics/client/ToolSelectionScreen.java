@@ -100,9 +100,9 @@ public class ToolSelectionScreen extends Screen {
 				.getGuiScaledWidth();
 			if (!focused)
 				graphics.centeredText(minecraft.font, CreateLang.translateDirect(holdToFocus, keyName), width / 2,
-					y - 10, 0xCCDDFF);
+					y - 10, 0xFFCCDDFF);
 			else
-				graphics.centeredText(minecraft.font, scrollToCycle, width / 2, y - 10, 0xCCDDFF);
+				graphics.centeredText(minecraft.font, scrollToCycle, width / 2, y - 10, 0xFFCCDDFF);
 		} else {
 			x += 65;
 		}
@@ -116,7 +116,7 @@ public class ToolSelectionScreen extends Screen {
 				matrixStack.translate((float) (0), (float) (-10));
 				graphics.centeredText(minecraft.font, tools.get(i)
 					.getDisplayName()
-					.getString(), x + i * 50 + 24, y + 28, 0xCCDDFF);
+					.getString(), x + i * 50 + 24, y + 28, 0xFFCCDDFF);
 				alpha = 1;
 			}
 			tools.get(i)

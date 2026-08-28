@@ -82,7 +82,7 @@ public class SchematicEditScreen extends AbstractSimiScreen {
 		for (FilteredEditBox widget : new FilteredEditBox[] { xInput, yInput, zInput }) {
 			widget.setMaxLength(6);
 			widget.setBordered(false);
-			widget.setTextColor(0xFFFFFF);
+			widget.setTextColor(0xFFFFFFFF);
 			widget.setFocused(false);
 			widget.setFocused(true);
 			widget.setFilter(s -> {

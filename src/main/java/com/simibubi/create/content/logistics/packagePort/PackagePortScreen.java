@@ -64,7 +64,7 @@ public class PackagePortScreen extends AbstractSimiContainerScreen<PackagePortMe
                 Component.empty());
 		addressBox.setBordered(false);
 		addressBox.setMaxLength(25);
-		addressBox.setTextColor(0x3D3C48);
+		addressBox.setTextColor(0xFF3D3C48);
 		addressBox.setValue(menu.contentHolder.addressFilter);
 		addressBox.setFocused(false);
 		addressBox.setFocused(true);

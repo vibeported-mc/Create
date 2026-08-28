@@ -48,7 +48,7 @@ public class PackageFilterScreen extends AbstractFilterScreen<PackageFilterMenu>
 		int y = topPos;
 
 		addressBox = new AddressEditBox(this, this.font, x + 44, y + 28, 129, 9, false);
-		addressBox.setTextColor(0xffffff);
+		addressBox.setTextColor(0xFFffffff);
 		addressBox.setValue(menu.address);
 		addressBox.setResponder(this::onAddressEdited);
 		addRenderableWidget(addressBox);

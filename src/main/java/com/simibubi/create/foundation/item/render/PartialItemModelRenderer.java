@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -61,11 +62,20 @@ public class PartialItemModelRenderer {
 	}
 
 	public void renderGlowing(BlockStateModel model, int light) {
-		render(model, RenderTypes.itemGlowingTranslucent(), light);
+		render(model, inGui() ? Sheets.translucentBlockItemSheet() : RenderTypes.itemGlowingTranslucent(), light);
 	}
 
 	public void renderSolidGlowing(BlockStateModel model, int light) {
-		render(model, RenderTypes.itemGlowingSolid(), light);
+		render(model, inGui() ? Sheets.cutoutBlockItemSheet() : RenderTypes.itemGlowingSolid(), light);
+	}
+
+	/**
+	 * Create's glowing render types draw through the level's matrices and lightmap, neither of which the
+	 * GUI pass sets up, so glowing parts drawn in an inventory come out invisible. They fall back to
+	 * the ordinary item sheets there, where the glow would not read at icon size anyway.
+	 */
+	private boolean inGui() {
+		return context.displayContext() == ItemDisplayContext.GUI;
 	}
 
 	public void render(BlockStateModel model, RenderType type, int light) {

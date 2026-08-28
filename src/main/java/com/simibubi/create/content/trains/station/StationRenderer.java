@@ -41,7 +41,6 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity,
 		public final DepotRenderer.DepotRenderState depot = new DepotRenderer.DepotRenderState();
 		public @Nullable SuperByteBufferRenderState flag;
 		public final List<AssemblySlot> assembly = new ArrayList<>();
-		public @Nullable BlockPos assemblyOffset;
 		public @Nullable Level level;
 		public @Nullable BlockPos targetPosition;
 		public @Nullable BlockPos offset;
@@ -71,7 +70,6 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity,
 		state.flag = null;
 		state.assembly.clear();
 		state.overlayType = null;
-		state.assemblyOffset = null;
 
 		BlockPos pos = be.getBlockPos();
 		TrackTargetingBehaviour<GlobalStation> target = be.edgePoint;
@@ -112,12 +110,11 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity,
 		if (direction == null || be.assemblyLength == 0 || be.bogeyLocations == null)
 			return;
 
-		// The overlay model is prepared against a live PoseStack, so it is baked here one bogey slot
-		// at a time and the accumulated offset is replayed during submission.
+		// The overlay model is prepared against a live PoseStack: preparing it points the overlay along
+		// the track, so that pose has to be baked into each slot's buffer rather than just its offset.
 		PoseStack ms = new PoseStack();
 		BlockPos offset = targetPosition.subtract(pos);
 		ms.translate(offset.getX(), offset.getY(), offset.getZ());
-		state.assemblyOffset = offset;
 
 		MutableBlockPos currentPos = targetPosition.mutable();
 		PartialModel assemblyOverlay = track.prepareAssemblyOverlay(level, targetPosition, trackState, direction, ms);
@@ -136,10 +133,14 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity,
 				}
 
 			if (valid != -1) {
+				ms.pushPose();
+				ms.translate(0, 0, i + 1);
 				SuperByteBuffer sbb = CachedBufferer.partial(assemblyOverlay, trackState);
+				sbb.transform(ms);
 				sbb.color(valid);
 				sbb.light(LightCoordsUtil.getLightCoords(level, currentPos));
 				state.assembly.add(new AssemblySlot(sbb.extractRenderState(), i + 1));
+				ms.popPose();
 			}
 			currentPos.move(direction);
 		}
@@ -163,19 +164,12 @@ public class StationRenderer extends SafeBlockEntityRenderer<StationBlockEntity,
 			return;
 		}
 
-		if (state.assembly.isEmpty() || state.assemblyOffset == null)
+		if (state.assembly.isEmpty())
 			return;
 
-		ms.pushPose();
-		ms.translate(state.assemblyOffset.getX(), state.assemblyOffset.getY(), state.assemblyOffset.getZ());
-		for (AssemblySlot slot : state.assembly) {
-			ms.pushPose();
-			ms.translate(0, 0, slot.step());
+		for (AssemblySlot slot : state.assembly)
 			slot.overlay()
 				.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
-			ms.popPose();
-		}
-		ms.popPose();
 	}
 
 	public static SuperByteBufferRenderState extractFlag(PartialModel flag, StationBlockEntity be, float partialTicks,

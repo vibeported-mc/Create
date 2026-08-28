@@ -134,10 +134,10 @@ public class AssemblyScreen extends AbstractStationScreen {
 					y + 67, 0xFF7A7A7A, false);
 				offset += 10;
 			}
-			graphics.textWithWordWrap(font, lastAssemblyException.component, x + 30, y + 67 + offset, 134, 0x775B5B);
+			graphics.textWithWordWrap(font, lastAssemblyException.component, x + 30, y + 67 + offset, 134, 0xFF775B5B);
 			offset += font.split(lastAssemblyException.component, 134)
 				.size() * 9 + 5;
-			graphics.textWithWordWrap(font, CreateLang.translateDirect("station.retry"), x + 30, y + 67 + offset, 134, 0x7A7A7A);
+			graphics.textWithWordWrap(font, CreateLang.translateDirect("station.retry"), x + 30, y + 67 + offset, 134, 0xFF7A7A7A);
 			return;
 		}
 
@@ -148,9 +148,9 @@ public class AssemblyScreen extends AbstractStationScreen {
 			bogeyCount);
 		graphics.text(font, text, x + 97 - font.width(text) / 2, y + 47, 0xFF7A7A7A, false);
 
-		graphics.textWithWordWrap(font, CreateLang.translateDirect("station.how_to"), x + 28, y + 62, 134, 0x7A7A7A);
-		graphics.textWithWordWrap(font, CreateLang.translateDirect("station.how_to_1"), x + 28, y + 94, 134, 0x7A7A7A);
-		graphics.textWithWordWrap(font, CreateLang.translateDirect("station.how_to_2"), x + 28, y + 117, 138, 0x7A7A7A);
+		graphics.textWithWordWrap(font, CreateLang.translateDirect("station.how_to"), x + 28, y + 62, 134, 0xFF7A7A7A);
+		graphics.textWithWordWrap(font, CreateLang.translateDirect("station.how_to_1"), x + 28, y + 94, 134, 0xFF7A7A7A);
+		graphics.textWithWordWrap(font, CreateLang.translateDirect("station.how_to_2"), x + 28, y + 117, 138, 0xFF7A7A7A);
 	}
 
 	@Override
