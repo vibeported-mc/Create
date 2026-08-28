@@ -213,6 +213,8 @@ public class TrackBlockOutline {
 		});
 	}
 
+	private static final float LINE_WIDTH = 1;
+
 	public static void renderShape(VoxelShape s, PoseStack.Pose transform, VertexConsumer vb, Boolean valid) {
 		s.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
 			float xDiff = (float) (x2 - x1);
@@ -240,12 +242,15 @@ public class TrackBlockOutline {
 				g = 0.25f;
 			}
 
+			// 26.2's line format carries a width per vertex; a vertex left without one is rejected.
 			vb.addVertex(transform.pose(), (float) x1, (float) y1, (float) z1)
 				.setColor(r, g, b, .4f)
-				.setNormal(transform.copy(), xDiff, yDiff, zDiff);
+				.setNormal(transform.copy(), xDiff, yDiff, zDiff)
+				.setLineWidth(LINE_WIDTH);
 			vb.addVertex(transform.pose(), (float) x2, (float) y2, (float) z2)
 				.setColor(r, g, b, .4f)
-				.setNormal(transform.copy(), xDiff, yDiff, zDiff);
+				.setNormal(transform.copy(), xDiff, yDiff, zDiff)
+				.setLineWidth(LINE_WIDTH);
 
 		});
 	}

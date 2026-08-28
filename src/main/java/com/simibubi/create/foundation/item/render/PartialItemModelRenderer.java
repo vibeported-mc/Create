@@ -9,6 +9,8 @@ import com.simibubi.create.foundation.model.BakedModelHelper;
 import com.simibubi.create.foundation.render.RenderTypes;
 
 import com.simibubi.create.foundation.mixin.accessor.ItemStackRenderStateAccessor;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
+import org.joml.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.Sheets;
@@ -93,10 +95,11 @@ public class PartialItemModelRenderer {
 	/**
 	 * Draws the item's own model, the one Create's wrapper took the place of.
 	 * <p>
-	 * Its quads are drawn straight into this pose rather than through a render state of their own:
-	 * a state applies the item's transform for the display context as it submits, and the layer this
-	 * renderer was reached through has already applied it. Even a flattened transform would shift the
-	 * model, since 26.2 folds the half-block centring into that same step.
+	 * It is submitted as a render state of its own so that each of its layers is drawn from whichever
+	 * atlas its quads belong to. That state applies the item's transform as it submits, and the layer
+	 * this renderer was reached through has already applied the real one, so the copy is flattened -
+	 * which still leaves the half-block centring 26.2 folds into that step, standing in for the one
+	 * the other draws here make by hand.
 	 */
 	public void renderBase(int light) {
 		ItemModel base = context.baseModel();
@@ -108,19 +111,13 @@ public class PartialItemModelRenderer {
 			.getItemModelResolver(), context.displayContext(), context.level(), context.owner(), context.seed());
 
 		ItemStackRenderStateAccessor layers = (ItemStackRenderStateAccessor) scratchState;
-		List<BakedQuad> quads = new ArrayList<>();
-		for (int i = 0; i < layers.create$getActiveLayerCount(); i++)
-			quads.addAll(layers.create$getLayers()[i].prepareQuadList());
-		if (quads.isEmpty())
-			return;
+		for (int i = 0; i < layers.create$getActiveLayerCount(); i++) {
+			ItemStackRenderState.LayerRenderState layer = layers.create$getLayers()[i];
+			layer.setItemTransform(ItemTransform.NO_TRANSFORM);
+			layer.setLocalTransform(new Matrix4f());
+		}
 
-		// Submitted as item geometry rather than as custom geometry on a block sheet: a base model can
-		// be a flat item sprite, whose quads come from the item atlas.
-		ms.pushPose();
-		ms.translate(-0.5D, -0.5D, -0.5D);
-		collector.submitItem(ms, context.displayContext(), light, overlay, 0,
-			ItemStackRenderState.LayerRenderState.EMPTY_TINTS, quads, ItemStackRenderState.FoilType.NONE);
-		ms.popPose();
+		scratchState.submit(ms, collector, light, overlay, 0);
 	}
 
 	private static List<BakedQuad> collectQuads(List<BlockStateModelPart> parts) {
