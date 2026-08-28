@@ -8,7 +8,7 @@
   "type": "create:mixing",
   "ingredients": [
     {
-      "type": "neoforge:compound",
+      "neoforge:ingredient_type": "neoforge:compound",
       "ingredients": [
         "regions_unexplored:peat_dirt"
       ]
