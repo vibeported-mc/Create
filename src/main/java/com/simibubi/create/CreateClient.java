@@ -82,7 +82,6 @@ public class CreateClient {
 		modEventBus.addListener(CreateClient::clientInit);
 		modEventBus.addListener(AllParticleTypes::registerFactories);
 		modEventBus.addListener(AllParticleTypes::registerGroups);
-		modEventBus.addListener(AllFluids::registerFluidModels);
 		modEventBus.addListener(HatRenderData::registerModifier);
 		modEventBus.addListener(GuiCustomGeometryRenderer::register);
 		modEventBus.addListener(ChromaticCompoundColor::register);
