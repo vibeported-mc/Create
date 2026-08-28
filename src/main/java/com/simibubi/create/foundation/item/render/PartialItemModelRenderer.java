@@ -8,6 +8,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.model.BakedModelHelper;
 import com.simibubi.create.foundation.render.RenderTypes;
 
+import com.simibubi.create.foundation.mixin.accessor.ItemStackRenderStateAccessor;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
+import org.joml.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.Sheets;
@@ -102,6 +105,17 @@ public class PartialItemModelRenderer {
 		scratchState.clear();
 		base.update(scratchState, context.stack(), Minecraft.getInstance()
 			.getItemModelResolver(), context.displayContext(), context.level(), context.owner(), context.seed());
+
+		// The layer this renderer was reached through already carries the item's transform for this
+		// display context, and the base model sets the same one again on the state built here. Only one
+		// of them may apply, so the scratch copy is flattened.
+		ItemStackRenderStateAccessor layers = (ItemStackRenderStateAccessor) scratchState;
+		for (int i = 0; i < layers.create$getActiveLayerCount(); i++) {
+			ItemStackRenderState.LayerRenderState layer = layers.create$getLayers()[i];
+			layer.setItemTransform(ItemTransform.NO_TRANSFORM);
+			layer.setLocalTransform(new Matrix4f());
+		}
+
 		scratchState.submit(ms, collector, light, overlay, 0);
 		ms.popPose();
 	}
