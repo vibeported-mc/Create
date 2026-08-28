@@ -15,11 +15,10 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class CreateRecipeSerializerTagsProvider extends TagsProvider<RecipeSerializer<?>> {
-	public CreateRecipeSerializerTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-		super(output, Registries.RECIPE_SERIALIZER, lookupProvider, Create.ID, existingFileHelper);
+	public CreateRecipeSerializerTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+		super(output, Registries.RECIPE_SERIALIZER, lookupProvider, Create.ID);
 	}
 
 	@Override

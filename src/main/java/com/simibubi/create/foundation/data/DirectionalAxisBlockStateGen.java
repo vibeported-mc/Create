@@ -2,13 +2,14 @@ package com.simibubi.create.foundation.data;
 
 import com.simibubi.create.content.kinetics.gauge.GaugeBlock;
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
 
 public abstract class DirectionalAxisBlockStateGen extends SpecialBlockStateGen {
 
@@ -40,17 +41,16 @@ public abstract class DirectionalAxisBlockStateGen extends SpecialBlockStateGen 
 	}
 
 	public abstract <T extends Block> String getModelPrefix(DataGenContext<Block, T> ctx,
-		RegistrateBlockstateProvider prov, BlockState state);
+		RegistrateBlockModelGenerator prov, BlockState state);
 
 	@Override
-	public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+	public <T extends Block> MultiVariant getModel(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		BlockState state) {
 		boolean vertical = state.getValue(GaugeBlock.FACING)
 			.getAxis()
 			.isVertical();
 		String partial = vertical ? "" : "_wall";
-		return prov.models()
-			.getExistingFile(prov.modLoc(getModelPrefix(ctx, prov, state) + partial));
+		return BlockModelGenerators.plainVariant(prov.modLoc(getModelPrefix(ctx, prov, state) + partial));
 	}
 
 }

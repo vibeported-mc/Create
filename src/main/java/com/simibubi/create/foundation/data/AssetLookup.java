@@ -3,20 +3,31 @@ package com.simibubi.create.foundation.data;
 import java.util.function.Function;
 
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
-import com.tterrag.registrate.providers.RegistrateItemModelProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
+import com.tterrag.registrate.providers.generators.RegistrateItemModelGenerator;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
 
+/**
+ * Points at models that are authored by hand rather than generated.
+ * <p>
+ * 26.2 has no {@code ModelFile} and no existence checking to go with it: a blockstate refers to a
+ * model purely by id, and the id is wrapped into a {@link MultiVariant} to be used as a variant.
+ * These helpers therefore hand back ids and variants, and a missing file shows up when the game
+ * loads the pack rather than while it is being generated.
+ */
 public class AssetLookup {
+
+	private static final TextureSlot INDICATOR = TextureSlot.create("indicator");
 
 	/**
 	 * Custom block models packaged with other partials. Example:
@@ -24,33 +35,38 @@ public class AssetLookup {
 	 * <br>
 	 * Adding "powered", "vertical" will look for /block_powered_vertical.json
 	 */
-	public static ModelFile partialBaseModel(DataGenContext<?, ?> ctx, RegistrateBlockstateProvider prov,
+	public static Identifier partialBaseModel(DataGenContext<?, ?> ctx, RegistrateBlockModelGenerator prov,
 		String... suffix) {
 		String string = "/block";
 		for (String suf : suffix)
 			if (!suf.isEmpty())
 				string += "_" + suf;
-		final String location = "block/" + ctx.getName() + string;
-		return prov.models()
-			.getExistingFile(prov.modLoc(location));
+		return prov.modLoc("block/" + ctx.getName() + string);
+	}
+
+	public static MultiVariant partialBaseVariant(DataGenContext<?, ?> ctx, RegistrateBlockModelGenerator prov,
+		String... suffix) {
+		return BlockModelGenerators.plainVariant(partialBaseModel(ctx, prov, suffix));
 	}
 
 	/**
 	 * Custom block model from models/block/x.json
 	 */
-	public static ModelFile standardModel(DataGenContext<?, ?> ctx, RegistrateBlockstateProvider prov) {
-		return prov.models()
-			.getExistingFile(prov.modLoc("block/" + ctx.getName()));
+	public static Identifier standardModel(DataGenContext<?, ?> ctx, RegistrateBlockModelGenerator prov) {
+		return prov.modLoc("block/" + ctx.getName());
+	}
+
+	public static MultiVariant standardVariant(DataGenContext<?, ?> ctx, RegistrateBlockModelGenerator prov) {
+		return BlockModelGenerators.plainVariant(standardModel(ctx, prov));
 	}
 
 	/**
 	 * Generate item model inheriting from a seperate model in
 	 * models/block/x/item.json
 	 */
-	public static <I extends BlockItem> ItemModelBuilder customItemModel(DataGenContext<Item, I> ctx,
-		RegistrateItemModelProvider prov) {
-		return prov.blockItem(() -> ctx.getEntry()
-			.getBlock(), "/item");
+	public static <I extends BlockItem> void customItemModel(DataGenContext<Item, I> ctx,
+		RegistrateItemModelGenerator prov) {
+		prov.generateBlockItem(ctx.getEntry(), "/item");
 	}
 
 	/**
@@ -58,61 +74,70 @@ public class AssetLookup {
 	 * models/block/folders[0]/folders[1]/.../item.json "_" will be replaced by the
 	 * item name
 	 */
-	public static <I extends BlockItem> NonNullBiConsumer<DataGenContext<Item, I>, RegistrateItemModelProvider> customBlockItemModel(
+	public static <I extends BlockItem> NonNullBiConsumer<DataGenContext<Item, I>, RegistrateItemModelGenerator> customBlockItemModel(
 		String... folders) {
 		return (c, p) -> {
 			String path = "block";
 			for (String string : folders)
 				path += "/" + ("_".equals(string) ? c.getName() : string);
-			p.withExistingParent(c.getName(), p.modLoc(path));
+			p.createWithExistingModel(c.getEntry(), p.modLoc(path));
 		};
 	}
 
-	public static <I extends Item> NonNullBiConsumer<DataGenContext<Item, I>, RegistrateItemModelProvider> customGenericItemModel(
+	public static <I extends Item> NonNullBiConsumer<DataGenContext<Item, I>, RegistrateItemModelGenerator> customGenericItemModel(
 		String... folders) {
 		return (c, p) -> {
 			String path = "block";
 			for (String string : folders)
 				path += "/" + ("_".equals(string) ? c.getName() : string);
-			p.withExistingParent(c.getName(), p.modLoc(path));
+			p.createWithExistingModel(c.getEntry(), p.modLoc(path));
 		};
 	}
 
-	public static Function<BlockState, ModelFile> forPowered(DataGenContext<?, ?> ctx,
-		RegistrateBlockstateProvider prov) {
-		return state -> state.getValue(BlockStateProperties.POWERED) ? partialBaseModel(ctx, prov, "powered")
-			: partialBaseModel(ctx, prov);
+	public static Function<BlockState, MultiVariant> forPowered(DataGenContext<?, ?> ctx,
+		RegistrateBlockModelGenerator prov) {
+		return state -> state.getValue(BlockStateProperties.POWERED) ? partialBaseVariant(ctx, prov, "powered")
+			: partialBaseVariant(ctx, prov);
 	}
 
-	public static Function<BlockState, ModelFile> forPowered(DataGenContext<?, ?> ctx,
-		RegistrateBlockstateProvider prov, String path) {
-		return state -> prov.models()
-			.getExistingFile(
-				prov.modLoc("block/" + path + (state.getValue(BlockStateProperties.POWERED) ? "_powered" : "")));
+	public static Function<BlockState, MultiVariant> forPowered(DataGenContext<?, ?> ctx,
+		RegistrateBlockModelGenerator prov, String path) {
+		return state -> BlockModelGenerators.plainVariant(
+			prov.modLoc("block/" + path + (state.getValue(BlockStateProperties.POWERED) ? "_powered" : "")));
 	}
 
-	public static Function<BlockState, ModelFile> withIndicator(DataGenContext<?, ?> ctx,
-		RegistrateBlockstateProvider prov, Function<BlockState, ModelFile> baseModelFunc, IntegerProperty property) {
+	/**
+	 * The indicator variants are models in their own right - the base model with one texture swapped
+	 * - so unlike the lookups above this one writes a model out as a side effect.
+	 */
+	public static Function<BlockState, MultiVariant> withIndicator(DataGenContext<?, ?> ctx,
+		RegistrateBlockModelGenerator prov, Function<BlockState, MultiVariant> baseModelFunc,
+		IntegerProperty property) {
 		return state -> {
 			Identifier baseModel = baseModelFunc.apply(state)
-				.getLocation();
+				.variants()
+				.unwrap()
+				.getFirst()
+				.value()
+				.modelLocation();
 			Integer integer = state.getValue(property);
-			return prov.models()
-				.withExistingParent(ctx.getName() + "_" + integer, baseModel)
-				.texture("indicator", "block/indicator/" + integer);
+			return BlockModelGenerators.plainVariant(prov.getBuilder()
+				.parent(baseModel)
+				.texture(INDICATOR, prov.modBlockTexture("indicator/" + integer))
+				.build(prov.modLoc("block/" + ctx.getName() + "_" + integer)));
 		};
 	}
 
-	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelProvider> existingItemModel() {
-		return (c, p) -> p.getExistingFile(p.modLoc("item/" + c.getName()));
+	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelGenerator> existingItemModel() {
+		return (c, p) -> p.createWithExistingModel(c.getEntry(), p.modLoc("item/" + c.getName()));
 	}
 
-	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelProvider> itemModel(String name) {
-		return (c, p) -> p.getExistingFile(p.modLoc("item/" + name));
+	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelGenerator> itemModel(String name) {
+		return (c, p) -> p.createWithExistingModel(c.getEntry(), p.modLoc("item/" + name));
 	}
 
-	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelProvider> itemModelWithPartials() {
-		return (c, p) -> p.withExistingParent("item/" + c.getName(), p.modLoc("item/" + c.getName() + "/item"));
+	public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrateItemModelGenerator> itemModelWithPartials() {
+		return (c, p) -> p.createWithExistingModel(c.getEntry(), p.modLoc("item/" + c.getName() + "/item"));
 	}
 
 }

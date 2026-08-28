@@ -207,17 +207,17 @@ sourceSets.main {
         // The generated assets in src/generated/resources are committed, so the mod builds and runs
         // without datagen; these are excluded rather than deleted so the port can pick them up.
         // TODO: port datagen to RegistrateBlockModelGenerator and drop these exclusions.
-        exclude("com/simibubi/create/foundation/data/AssetLookup.java")
-        exclude("com/simibubi/create/foundation/data/BlockStateGen.java")
-        exclude("com/simibubi/create/foundation/data/DirectionalAxisBlockStateGen.java")
-        exclude("com/simibubi/create/foundation/data/ModelGen.java")
-        exclude("com/simibubi/create/foundation/data/SpecialBlockStateGen.java")
         exclude("com/simibubi/create/content/decoration/copycat/SpecialCopycatPanelBlockState.java")
-        exclude("com/simibubi/create/infrastructure/data/**")
-        // RuntimeDataGenerator is not datagen at all - it fills Create's dynamic pack with generated
-        // recipes and tags while the game runs - so it stays in the build.
-        exclude { it.file.name.endsWith("Generator.java") && it.file.name != "RuntimeDataGenerator.java" }
-        exclude("**/*BlockStateGen*.java")
+        // Everything named *Generator here is a blockstate or model generator, and those are what the
+        // Registrate change broke. The handful that generate something else - the dynamic pack, lang,
+        // hat offsets, curios data - are datagen Create still runs, so they stay in the build.
+        def portedGenerators = [
+            "RuntimeDataGenerator.java",
+            "TagLangGenerator.java",
+            "VanillaHatOffsetGenerator.java",
+            "CuriosDataGenerator.java",
+        ]
+        exclude { it.file.name.endsWith("Generator.java") && !portedGenerators.contains(it.file.name) }
 
         // 26.2 rebuilt the recipe framework around it: RecipeProvider#buildRecipes takes no
         // arguments, RecipeSerializer is a final record, and colour variants of items collapsed into
