@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:brass_casing"
-    },
-    {
-      "item": "create:cogwheel"
-    },
-    {
-      "item": "create:electron_tube"
-    }
+    "create:brass_casing",
+    "create:cogwheel",
+    "create:electron_tube"
   ],
   "result": {
     "count": 1,

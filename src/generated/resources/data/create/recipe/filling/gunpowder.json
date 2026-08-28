@@ -1,9 +1,7 @@
 {
   "type": "create:filling",
   "ingredients": [
-    {
-      "item": "create:cinder_flour"
-    },
+    "create:cinder_flour",
     {
       "type": "neoforge:components",
       "amount": 25,

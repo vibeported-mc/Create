@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:allium_flower_bush"
-        }
+        "biomeswevegone:allium_flower_bush"
       ]
     }
   ],

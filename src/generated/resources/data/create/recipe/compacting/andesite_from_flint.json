@@ -1,15 +1,9 @@
 {
   "type": "create:compacting",
   "ingredients": [
-    {
-      "item": "minecraft:flint"
-    },
-    {
-      "item": "minecraft:flint"
-    },
-    {
-      "item": "minecraft:gravel"
-    },
+    "minecraft:flint",
+    "minecraft:flint",
+    "minecraft:gravel",
     {
       "type": "neoforge:single",
       "amount": 100,

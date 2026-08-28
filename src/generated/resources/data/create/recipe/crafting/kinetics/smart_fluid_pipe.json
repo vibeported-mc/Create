@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "I": {
-      "tag": "c:plates/brass"
-    },
-    "P": {
-      "item": "create:electron_tube"
-    },
-    "S": {
-      "item": "create:fluid_pipe"
-    }
+    "I": "#c:plates/brass",
+    "P": "create:electron_tube",
+    "S": "create:fluid_pipe"
   },
   "pattern": [
     "I",

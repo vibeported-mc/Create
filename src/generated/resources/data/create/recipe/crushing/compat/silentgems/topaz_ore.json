@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:topaz_ore"
-        }
+        "silentgems:topaz_ore"
       ]
     }
   ],

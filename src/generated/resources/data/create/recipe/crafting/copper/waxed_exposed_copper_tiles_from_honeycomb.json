@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "create:exposed_copper_tiles"
-    },
-    {
-      "item": "minecraft:honeycomb"
-    }
+    "create:exposed_copper_tiles",
+    "minecraft:honeycomb"
   ],
   "result": {
     "count": 1,

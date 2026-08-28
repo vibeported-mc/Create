@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "minecraft:wooden_trapdoors"
-    },
-    {
-      "item": "create:railway_casing"
-    }
+    "#minecraft:wooden_trapdoors",
+    "create:railway_casing"
   ],
   "result": {
     "count": 1,

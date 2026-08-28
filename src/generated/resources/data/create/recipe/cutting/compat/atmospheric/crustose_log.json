@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "atmospheric:crustose_log"
-        }
+        "atmospheric:crustose_log"
       ]
     }
   ],

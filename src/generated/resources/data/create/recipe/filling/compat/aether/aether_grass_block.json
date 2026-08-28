@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "aether:aether_dirt"
-        }
+        "aether:aether_dirt"
       ]
     },
     {

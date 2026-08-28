@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:nether_turquoise_ore"
-        }
+        "silentgems:nether_turquoise_ore"
       ]
     }
   ],

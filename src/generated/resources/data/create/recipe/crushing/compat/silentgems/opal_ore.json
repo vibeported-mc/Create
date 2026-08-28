@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:opal_ore"
-        }
+        "silentgems:opal_ore"
       ]
     }
   ],

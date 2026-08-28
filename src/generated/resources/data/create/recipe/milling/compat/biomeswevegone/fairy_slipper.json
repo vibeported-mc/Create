@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:fairy_slipper"
-        }
+        "biomeswevegone:fairy_slipper"
       ]
     }
   ],

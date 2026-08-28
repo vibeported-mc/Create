@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:nuggets/brass"
-    }
+    "A": "#c:nuggets/brass"
   },
   "pattern": [
     "AAA"

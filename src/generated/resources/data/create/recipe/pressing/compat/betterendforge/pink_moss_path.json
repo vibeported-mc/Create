@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "betterendforge:pink_moss"
-        }
+        "betterendforge:pink_moss"
       ]
     }
   ],

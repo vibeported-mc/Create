@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "regions_unexplored:orange_coneflower"
-        }
+        "regions_unexplored:orange_coneflower"
       ]
     }
   ],

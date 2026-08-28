@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "P": {
-      "item": "create:mechanical_piston"
-    },
-    "S": {
-      "tag": "c:slimeballs"
-    }
+    "P": "create:mechanical_piston",
+    "S": "#c:slimeballs"
   },
   "pattern": [
     "S",

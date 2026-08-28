@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "betterendforge:shadow_grass"
-        }
+        "betterendforge:shadow_grass"
       ]
     }
   ],

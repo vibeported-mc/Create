@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:peach_leather_flower"
-        }
+        "biomeswevegone:peach_leather_flower"
       ]
     }
   ],

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "P": {
-      "item": "create:redstone_link"
-    },
-    "S": {
-      "tag": "minecraft:wooden_buttons"
-    }
+    "P": "create:redstone_link",
+    "S": "#minecraft:wooden_buttons"
   },
   "pattern": [
     "SSS",

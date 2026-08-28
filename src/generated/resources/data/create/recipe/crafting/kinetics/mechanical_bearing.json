@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "tag": "minecraft:wooden_slabs"
-    },
-    "C": {
-      "item": "create:andesite_casing"
-    },
-    "I": {
-      "item": "create:shaft"
-    }
+    "B": "#minecraft:wooden_slabs",
+    "C": "create:andesite_casing",
+    "I": "create:shaft"
   },
   "pattern": [
     "B",

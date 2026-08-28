@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "environmental:bluebell"
-        }
+        "environmental:bluebell"
       ]
     }
   ],

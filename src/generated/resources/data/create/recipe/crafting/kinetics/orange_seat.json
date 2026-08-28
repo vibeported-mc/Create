@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "minecraft:orange_wool"
-    },
-    {
-      "tag": "minecraft:wooden_slabs"
-    }
+    "minecraft:orange_wool",
+    "#minecraft:wooden_slabs"
   ],
   "result": {
     "count": 1,

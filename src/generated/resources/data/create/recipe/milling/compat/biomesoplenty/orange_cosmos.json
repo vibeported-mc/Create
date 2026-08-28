@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomesoplenty:orange_cosmos"
-        }
+        "biomesoplenty:orange_cosmos"
       ]
     }
   ],

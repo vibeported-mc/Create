@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "elementaryores:ore_coal_nether"
-        }
+        "elementaryores:ore_coal_nether"
       ]
     }
   ],

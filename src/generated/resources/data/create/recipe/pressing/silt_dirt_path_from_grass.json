@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "regions_unexplored:silt_grass_block"
-        }
+        "regions_unexplored:silt_grass_block"
       ]
     }
   ],

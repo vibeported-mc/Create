@@ -38,8 +38,12 @@ public class ItemCopyingRecipe extends CustomRecipe {
 		DataComponentType<?> getComponentType();
 	}
 
+	// StreamCodec#unit checks the decoded value against the one it holds, so the recipe read from
+	// data and the recipe sent over the network have to be the same object.
+	private static final ItemCopyingRecipe INSTANCE = new ItemCopyingRecipe();
+
 	public static final RecipeSerializer<ItemCopyingRecipe> SERIALIZER =
-		new RecipeSerializer<>(MapCodec.unit(ItemCopyingRecipe::new), StreamCodec.unit(new ItemCopyingRecipe()));
+		new RecipeSerializer<>(MapCodec.unit(INSTANCE), StreamCodec.unit(INSTANCE));
 
 	@Override
 	public boolean matches(CraftingInput input, Level level) {

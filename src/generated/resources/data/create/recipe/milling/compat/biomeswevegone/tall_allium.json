@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:tall_allium"
-        }
+        "biomeswevegone:tall_allium"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "exnihilosequentia:crushed_netherrack"
-        }
+        "exnihilosequentia:crushed_netherrack"
       ]
     }
   ],

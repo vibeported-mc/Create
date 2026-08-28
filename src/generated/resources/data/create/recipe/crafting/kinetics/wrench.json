@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": {
-      "tag": "c:plates/gold"
-    },
-    "P": {
-      "item": "create:cogwheel"
-    },
-    "S": {
-      "tag": "c:rods/wooden"
-    }
+    "G": "#c:plates/gold",
+    "P": "create:cogwheel",
+    "S": "#c:rods/wooden"
   },
   "pattern": [
     "GG",

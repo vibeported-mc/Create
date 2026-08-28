@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "netherexp:cerebrage_claret_stem"
-        }
+        "netherexp:cerebrage_claret_stem"
       ]
     }
   ],

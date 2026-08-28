@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomesoplenty:pink_hibiscus"
-        }
+        "biomesoplenty:pink_hibiscus"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:rose_quartz_ore"
-        }
+        "silentgems:rose_quartz_ore"
       ]
     }
   ],

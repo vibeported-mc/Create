@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:kyanite_ore"
-        }
+        "silentgems:kyanite_ore"
       ]
     }
   ],

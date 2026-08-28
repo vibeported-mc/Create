@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "elementaryores:ore_lapis_end"
-        }
+        "elementaryores:ore_lapis_end"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:silver_vase_flower"
-        }
+        "biomeswevegone:silver_vase_flower"
       ]
     }
   ],

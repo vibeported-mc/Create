@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "simplefarming:oat"
-        }
+        "simplefarming:oat"
       ]
     }
   ],

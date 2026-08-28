@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.0,
-  "ingredient": {
-    "item": "minecraft:soul_sand"
-  },
+  "ingredient": "minecraft:soul_sand",
   "result": {
     "count": 1,
     "id": "create:scoria"

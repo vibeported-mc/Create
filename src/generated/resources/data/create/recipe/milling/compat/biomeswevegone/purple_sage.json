@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:purple_sage"
-        }
+        "biomeswevegone:purple_sage"
       ]
     }
   ],

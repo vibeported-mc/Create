@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:copper_casing"
-    },
-    {
-      "item": "create:chute"
-    }
+    "create:copper_casing",
+    "create:chute"
   ],
   "result": {
     "count": 1,

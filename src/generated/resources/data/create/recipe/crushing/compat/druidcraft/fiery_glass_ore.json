@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "druidcraft:fiery_glass_ore"
-        }
+        "druidcraft:fiery_glass_ore"
       ]
     }
   ],

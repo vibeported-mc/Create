@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "regions_unexplored:pink_snowbelle"
-        }
+        "regions_unexplored:pink_snowbelle"
       ]
     }
   ],

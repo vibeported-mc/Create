@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "regions_unexplored:poppy_bush"
-        }
+        "regions_unexplored:poppy_bush"
       ]
     }
   ],

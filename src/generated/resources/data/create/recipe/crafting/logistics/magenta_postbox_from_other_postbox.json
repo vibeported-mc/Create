@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "tag": "c:dyes/magenta"
-    },
-    {
-      "tag": "create:postboxes"
-    }
+    "#c:dyes/magenta",
+    "#create:postboxes"
   ],
   "result": {
     "count": 1,

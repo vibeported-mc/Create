@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "P": {
-      "item": "minecraft:dried_kelp"
-    },
-    "T": {
-      "item": "create:copper_casing"
-    }
+    "P": "minecraft:dried_kelp",
+    "T": "create:copper_casing"
   },
   "pattern": [
     "T",

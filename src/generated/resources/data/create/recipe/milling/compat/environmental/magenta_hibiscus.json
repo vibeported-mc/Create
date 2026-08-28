@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "environmental:magenta_hibiscus"
-        }
+        "environmental:magenta_hibiscus"
       ]
     }
   ],

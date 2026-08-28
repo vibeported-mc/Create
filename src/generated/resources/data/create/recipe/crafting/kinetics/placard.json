@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:item_frame"
-    },
-    {
-      "tag": "c:plates/brass"
-    }
+    "minecraft:item_frame",
+    "#c:plates/brass"
   ],
   "result": {
     "count": 1,

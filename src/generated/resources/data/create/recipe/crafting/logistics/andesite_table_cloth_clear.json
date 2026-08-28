@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:andesite_table_cloth"
-    }
+    "create:andesite_table_cloth"
   ],
   "result": {
     "count": 1,

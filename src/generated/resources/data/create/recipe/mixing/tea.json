@@ -2,9 +2,7 @@
   "type": "create:mixing",
   "heat_requirement": "heated",
   "ingredients": [
-    {
-      "tag": "minecraft:leaves"
-    },
+    "#minecraft:leaves",
     {
       "type": "neoforge:single",
       "amount": 250,

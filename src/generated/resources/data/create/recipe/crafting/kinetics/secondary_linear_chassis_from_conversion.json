@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:linear_chassis"
-    }
+    "create:linear_chassis"
   ],
   "result": {
     "count": 1,

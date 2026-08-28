@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:garnet_ore"
-        }
+        "silentgems:garnet_ore"
       ]
     }
   ],

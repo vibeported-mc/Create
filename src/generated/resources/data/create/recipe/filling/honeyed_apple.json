@@ -1,9 +1,7 @@
 {
   "type": "create:filling",
   "ingredients": [
-    {
-      "item": "minecraft:apple"
-    },
+    "minecraft:apple",
     {
       "type": "neoforge:tag",
       "amount": 250,

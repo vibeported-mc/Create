@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:carnelian_ore"
-        }
+        "silentgems:carnelian_ore"
       ]
     }
   ],

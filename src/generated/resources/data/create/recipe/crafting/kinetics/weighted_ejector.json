@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:plates/gold"
-    },
-    "D": {
-      "item": "create:depot"
-    },
-    "I": {
-      "item": "create:cogwheel"
-    }
+    "A": "#c:plates/gold",
+    "D": "create:depot",
+    "I": "create:cogwheel"
   },
   "pattern": [
     "A",

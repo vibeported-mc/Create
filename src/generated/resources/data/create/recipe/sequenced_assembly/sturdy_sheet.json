@@ -1,8 +1,6 @@
 {
   "type": "create:sequenced_assembly",
-  "ingredient": {
-    "tag": "c:dusts/obsidian"
-  },
+  "ingredient": "#c:dusts/obsidian",
   "results": [
     {
       "id": "create:sturdy_sheet"
@@ -12,9 +10,7 @@
     {
       "type": "create:filling",
       "ingredients": [
-        {
-          "item": "create:unprocessed_obsidian_sheet"
-        },
+        "create:unprocessed_obsidian_sheet",
         {
           "type": "neoforge:single",
           "amount": 500,
@@ -30,9 +26,7 @@
     {
       "type": "create:pressing",
       "ingredients": [
-        {
-          "item": "create:unprocessed_obsidian_sheet"
-        }
+        "create:unprocessed_obsidian_sheet"
       ],
       "results": [
         {
@@ -43,9 +37,7 @@
     {
       "type": "create:pressing",
       "ingredients": [
-        {
-          "item": "create:unprocessed_obsidian_sheet"
-        }
+        "create:unprocessed_obsidian_sheet"
       ],
       "results": [
         {

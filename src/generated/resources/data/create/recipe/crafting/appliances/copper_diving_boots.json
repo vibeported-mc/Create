@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": {
-      "item": "create:andesite_alloy"
-    },
-    "P": {
-      "tag": "c:ingots/copper"
-    }
+    "G": "create:andesite_alloy",
+    "P": "#c:ingots/copper"
   },
   "pattern": [
     "P P",

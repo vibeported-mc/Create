@@ -1,9 +1,7 @@
 {
   "type": "create:filling",
   "ingredients": [
-    {
-      "item": "minecraft:bread"
-    },
+    "minecraft:bread",
     {
       "type": "neoforge:tag",
       "amount": 250,

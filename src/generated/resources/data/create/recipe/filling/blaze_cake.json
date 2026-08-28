@@ -1,9 +1,7 @@
 {
   "type": "create:filling",
   "ingredients": [
-    {
-      "item": "create:blaze_cake_base"
-    },
+    "create:blaze_cake_base",
     {
       "type": "neoforge:single",
       "amount": 250,

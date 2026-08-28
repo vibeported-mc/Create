@@ -1,9 +1,7 @@
 {
   "type": "create:filling",
   "ingredients": [
-    {
-      "item": "minecraft:dirt"
-    },
+    "minecraft:dirt",
     {
       "type": "neoforge:single",
       "amount": 500,

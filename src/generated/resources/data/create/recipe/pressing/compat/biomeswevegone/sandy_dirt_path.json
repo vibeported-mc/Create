@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:sandy_dirt"
-        }
+        "biomeswevegone:sandy_dirt"
       ]
     }
   ],

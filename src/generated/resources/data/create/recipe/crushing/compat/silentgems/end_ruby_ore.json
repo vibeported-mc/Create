@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:end_ruby_ore"
-        }
+        "silentgems:end_ruby_ore"
       ]
     }
   ],

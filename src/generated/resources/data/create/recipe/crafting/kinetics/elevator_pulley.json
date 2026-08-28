@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "create:brass_casing"
-    },
-    "C": {
-      "item": "minecraft:dried_kelp_block"
-    },
-    "I": {
-      "tag": "c:plates/iron"
-    }
+    "B": "create:brass_casing",
+    "C": "minecraft:dried_kelp_block",
+    "I": "#c:plates/iron"
   },
   "pattern": [
     "B",

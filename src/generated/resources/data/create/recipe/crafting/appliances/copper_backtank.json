@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "create:andesite_alloy"
-    },
-    "B": {
-      "tag": "c:storage_blocks/copper"
-    },
-    "G": {
-      "item": "create:shaft"
-    },
-    "P": {
-      "tag": "c:ingots/copper"
-    }
+    "A": "create:andesite_alloy",
+    "B": "#c:storage_blocks/copper",
+    "G": "create:shaft",
+    "P": "#c:ingots/copper"
   },
   "pattern": [
     "AGA",

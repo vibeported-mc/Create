@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "minecraft:yellow_wool"
-    },
-    {
-      "tag": "minecraft:wooden_slabs"
-    }
+    "minecraft:yellow_wool",
+    "#minecraft:wooden_slabs"
   ],
   "result": {
     "count": 1,

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "create:precision_mechanism"
-    },
-    "C": {
-      "item": "create:brass_casing"
-    }
+    "B": "create:precision_mechanism",
+    "C": "create:brass_casing"
   },
   "pattern": [
     "B",

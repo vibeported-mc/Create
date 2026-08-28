@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "regions_unexplored:tassel"
-        }
+        "regions_unexplored:tassel"
       ]
     }
   ],

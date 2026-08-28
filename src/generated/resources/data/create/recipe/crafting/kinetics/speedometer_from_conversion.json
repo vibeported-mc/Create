@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:stressometer"
-    }
+    "create:stressometer"
   ],
   "result": {
     "count": 1,

@@ -21,8 +21,12 @@ import net.neoforged.neoforge.common.Tags;
 
 public class ToolboxDyeingRecipe extends CustomRecipe {
 
+	// StreamCodec#unit checks the decoded value against the one it holds, so the recipe read from
+	// data and the recipe sent over the network have to be the same object.
+	private static final ToolboxDyeingRecipe INSTANCE = new ToolboxDyeingRecipe();
+
 	public static final RecipeSerializer<ToolboxDyeingRecipe> SERIALIZER =
-		new RecipeSerializer<>(MapCodec.unit(ToolboxDyeingRecipe::new), StreamCodec.unit(new ToolboxDyeingRecipe()));
+		new RecipeSerializer<>(MapCodec.unit(INSTANCE), StreamCodec.unit(INSTANCE));
 
 	@Override
 	public boolean matches(CraftingInput input, Level level) {

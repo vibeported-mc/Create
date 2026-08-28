@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:deepslate_aquamarine_ore"
-        }
+        "silentgems:deepslate_aquamarine_ore"
       ]
     }
   ],

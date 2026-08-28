@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:lazarus_bellflower"
-        }
+        "biomeswevegone:lazarus_bellflower"
       ]
     }
   ],

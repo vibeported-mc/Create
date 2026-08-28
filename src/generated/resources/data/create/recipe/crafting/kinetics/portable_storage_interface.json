@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:andesite_casing"
-    },
-    {
-      "item": "create:chute"
-    }
+    "create:andesite_casing",
+    "create:chute"
   ],
   "result": {
     "count": 1,

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "environmental:pink_delphinium"
-        }
+        "environmental:pink_delphinium"
       ]
     }
   ],

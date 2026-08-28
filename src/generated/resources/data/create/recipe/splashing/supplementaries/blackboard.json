@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "supplementaries:blackboard"
-        }
+        "supplementaries:blackboard"
       ]
     }
   ],

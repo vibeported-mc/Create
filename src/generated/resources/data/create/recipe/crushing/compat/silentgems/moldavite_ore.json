@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:moldavite_ore"
-        }
+        "silentgems:moldavite_ore"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "upgrade_aquatic:flowering_rush"
-        }
+        "upgrade_aquatic:flowering_rush"
       ]
     }
   ],

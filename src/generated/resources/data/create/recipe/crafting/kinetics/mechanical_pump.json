@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:cogwheel"
-    },
-    {
-      "item": "create:fluid_pipe"
-    }
+    "create:cogwheel",
+    "create:fluid_pipe"
   ],
   "result": {
     "count": 1,

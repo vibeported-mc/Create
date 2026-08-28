@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:clock"
-    },
-    "C": {
-      "item": "create:andesite_casing"
-    },
-    "S": {
-      "tag": "minecraft:planks"
-    }
+    "A": "minecraft:clock",
+    "C": "create:andesite_casing",
+    "S": "#minecraft:planks"
   },
   "pattern": [
     "S",

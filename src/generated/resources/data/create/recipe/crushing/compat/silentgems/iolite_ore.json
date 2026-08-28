@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:iolite_ore"
-        }
+        "silentgems:iolite_ore"
       ]
     }
   ],

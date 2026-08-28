@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "create:cut_deepslate_slab"
-    },
-    {
-      "item": "create:cut_deepslate_slab"
-    }
+    "create:cut_deepslate_slab",
+    "create:cut_deepslate_slab"
   ],
   "result": {
     "count": 1,

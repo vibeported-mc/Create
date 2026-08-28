@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:black_rose"
-        }
+        "biomeswevegone:black_rose"
       ]
     }
   ],

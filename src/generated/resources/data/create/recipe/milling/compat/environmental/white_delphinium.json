@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "environmental:white_delphinium"
-        }
+        "environmental:white_delphinium"
       ]
     }
   ],

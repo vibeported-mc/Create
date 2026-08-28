@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:dyes/light_blue"
-    },
-    {
-      "tag": "create:valve_handles"
-    }
+    "#c:dyes/light_blue",
+    "#create:valve_handles"
   ],
   "result": {
     "count": 1,

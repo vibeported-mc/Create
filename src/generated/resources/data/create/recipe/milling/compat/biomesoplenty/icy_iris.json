@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomesoplenty:icy_iris"
-        }
+        "biomesoplenty:icy_iris"
       ]
     }
   ],

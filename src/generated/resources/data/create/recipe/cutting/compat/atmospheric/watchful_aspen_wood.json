@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "atmospheric:watchful_aspen_wood"
-        }
+        "atmospheric:watchful_aspen_wood"
       ]
     }
   ],

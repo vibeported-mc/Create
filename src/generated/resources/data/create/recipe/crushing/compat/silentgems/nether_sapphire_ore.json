@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:nether_sapphire_ore"
-        }
+        "silentgems:nether_sapphire_ore"
       ]
     }
   ],

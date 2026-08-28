@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:stripped_palo_verde_log"
-        }
+        "biomeswevegone:stripped_palo_verde_log"
       ]
     }
   ],

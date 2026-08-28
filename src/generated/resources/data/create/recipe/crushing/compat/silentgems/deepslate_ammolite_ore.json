@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:deepslate_ammolite_ore"
-        }
+        "silentgems:deepslate_ammolite_ore"
       ]
     }
   ],

@@ -1,9 +1,7 @@
 {
   "type": "create:filling",
   "ingredients": [
-    {
-      "item": "minecraft:glass_bottle"
-    },
+    "minecraft:glass_bottle",
     {
       "type": "neoforge:single",
       "amount": 250,

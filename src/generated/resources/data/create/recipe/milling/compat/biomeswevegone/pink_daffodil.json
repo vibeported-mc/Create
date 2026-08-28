@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:pink_daffodil"
-        }
+        "biomeswevegone:pink_daffodil"
       ]
     }
   ],

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "tag": "c:dyes/white"
-    },
-    {
-      "tag": "create:seats"
-    }
+    "#c:dyes/white",
+    "#create:seats"
   ],
   "result": {
     "count": 1,

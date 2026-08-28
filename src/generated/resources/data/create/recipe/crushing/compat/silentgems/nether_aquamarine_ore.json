@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:nether_aquamarine_ore"
-        }
+        "silentgems:nether_aquamarine_ore"
       ]
     }
   ],

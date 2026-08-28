@@ -2,12 +2,8 @@
   "type": "create:mixing",
   "heat_requirement": "heated",
   "ingredients": [
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:cocoa_beans"
-    },
+    "minecraft:sugar",
+    "minecraft:cocoa_beans",
     {
       "type": "neoforge:tag",
       "amount": 250,

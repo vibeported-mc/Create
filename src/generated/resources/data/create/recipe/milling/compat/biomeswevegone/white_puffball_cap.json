@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:white_puffball_cap"
-        }
+        "biomeswevegone:white_puffball_cap"
       ]
     }
   ],

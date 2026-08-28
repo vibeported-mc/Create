@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:hydrangea_bush"
-        }
+        "biomeswevegone:hydrangea_bush"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:magenta_amaranth"
-        }
+        "biomeswevegone:magenta_amaranth"
       ]
     }
   ],

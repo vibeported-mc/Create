@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "tconstruct:necrotic_bone"
-        }
+        "tconstruct:necrotic_bone"
       ]
     }
   ],

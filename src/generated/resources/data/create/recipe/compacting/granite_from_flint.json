@@ -1,15 +1,9 @@
 {
   "type": "create:compacting",
   "ingredients": [
-    {
-      "item": "minecraft:flint"
-    },
-    {
-      "item": "minecraft:flint"
-    },
-    {
-      "item": "minecraft:red_sand"
-    },
+    "minecraft:flint",
+    "minecraft:flint",
+    "minecraft:red_sand",
     {
       "type": "neoforge:single",
       "amount": 100,

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "farmersdelight:milk_bottle"
-        }
+        "farmersdelight:milk_bottle"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:black_diamond_ore"
-        }
+        "silentgems:black_diamond_ore"
       ]
     }
   ],

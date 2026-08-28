@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "regions_unexplored:fireweed"
-        }
+        "regions_unexplored:fireweed"
       ]
     }
   ],

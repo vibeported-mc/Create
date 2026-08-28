@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:orange_daisy"
-        }
+        "biomeswevegone:orange_daisy"
       ]
     }
   ],

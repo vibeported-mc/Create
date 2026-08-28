@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "create:exposed_copper_shingle_slab"
-    },
-    {
-      "item": "minecraft:honeycomb"
-    }
+    "create:exposed_copper_shingle_slab",
+    "minecraft:honeycomb"
   ],
   "result": {
     "count": 1,

@@ -1,9 +1,7 @@
 {
   "type": "create:filling",
   "ingredients": [
-    {
-      "item": "minecraft:sweet_berries"
-    },
+    "minecraft:sweet_berries",
     {
       "type": "neoforge:single",
       "amount": 250,

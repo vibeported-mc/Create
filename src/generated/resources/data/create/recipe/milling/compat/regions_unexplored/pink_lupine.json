@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "regions_unexplored:pink_lupine"
-        }
+        "regions_unexplored:pink_lupine"
       ]
     }
   ],

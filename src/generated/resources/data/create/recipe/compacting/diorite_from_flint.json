@@ -1,15 +1,9 @@
 {
   "type": "create:compacting",
   "ingredients": [
-    {
-      "item": "minecraft:flint"
-    },
-    {
-      "item": "minecraft:flint"
-    },
-    {
-      "item": "minecraft:calcite"
-    },
+    "minecraft:flint",
+    "minecraft:flint",
+    "minecraft:calcite",
     {
       "type": "neoforge:single",
       "amount": 100,

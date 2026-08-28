@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:pink_sandstone"
-        }
+        "biomeswevegone:pink_sandstone"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:end_peridot_ore"
-        }
+        "silentgems:end_peridot_ore"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:end_citrine_ore"
-        }
+        "silentgems:end_citrine_ore"
       ]
     }
   ],

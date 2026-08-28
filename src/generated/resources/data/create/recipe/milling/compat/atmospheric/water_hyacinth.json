@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "atmospheric:water_hyacinth"
-        }
+        "atmospheric:water_hyacinth"
       ]
     }
   ],

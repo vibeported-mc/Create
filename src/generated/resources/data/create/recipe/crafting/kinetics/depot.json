@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:andesite_alloy"
-    },
-    {
-      "item": "create:andesite_casing"
-    }
+    "create:andesite_alloy",
+    "create:andesite_casing"
   ],
   "result": {
     "count": 1,

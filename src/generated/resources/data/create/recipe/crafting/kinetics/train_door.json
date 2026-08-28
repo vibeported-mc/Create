@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "minecraft:wooden_doors"
-    },
-    {
-      "item": "create:railway_casing"
-    }
+    "#minecraft:wooden_doors",
+    "create:railway_casing"
   ],
   "result": {
     "count": 1,

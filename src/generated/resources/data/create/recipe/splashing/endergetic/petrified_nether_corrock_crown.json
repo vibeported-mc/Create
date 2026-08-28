@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "endergetic:nether_corrock_crown"
-        }
+        "endergetic:nether_corrock_crown"
       ]
     }
   ],

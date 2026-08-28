@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:andesite"
-    },
-    "B": {
-      "tag": "c:nuggets/zinc"
-    }
+    "A": "minecraft:andesite",
+    "B": "#c:nuggets/zinc"
   },
   "pattern": [
     "BA",

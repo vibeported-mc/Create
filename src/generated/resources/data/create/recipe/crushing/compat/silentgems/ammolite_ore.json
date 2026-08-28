@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "silentgems:ammolite_ore"
-        }
+        "silentgems:ammolite_ore"
       ]
     }
   ],

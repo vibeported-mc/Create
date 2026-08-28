@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:yellow_tulip"
-        }
+        "biomeswevegone:yellow_tulip"
       ]
     }
   ],

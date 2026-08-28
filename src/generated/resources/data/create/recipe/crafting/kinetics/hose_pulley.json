@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "create:copper_casing"
-    },
-    "C": {
-      "item": "minecraft:dried_kelp_block"
-    },
-    "I": {
-      "tag": "c:plates/copper"
-    }
+    "B": "create:copper_casing",
+    "C": "minecraft:dried_kelp_block",
+    "I": "#c:plates/copper"
   },
   "pattern": [
     "B",

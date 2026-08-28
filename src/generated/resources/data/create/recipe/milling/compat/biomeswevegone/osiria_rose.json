@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:osiria_rose"
-        }
+        "biomeswevegone:osiria_rose"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:california_poppy"
-        }
+        "biomeswevegone:california_poppy"
       ]
     }
   ],

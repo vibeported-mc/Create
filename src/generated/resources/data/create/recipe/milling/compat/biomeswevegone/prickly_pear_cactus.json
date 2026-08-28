@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomeswevegone:prickly_pear_cactus"
-        }
+        "biomeswevegone:prickly_pear_cactus"
       ]
     }
   ],

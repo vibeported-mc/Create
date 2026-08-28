@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "atmospheric:tall_yucca_flower"
-        }
+        "atmospheric:tall_yucca_flower"
       ]
     }
   ],

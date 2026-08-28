@@ -1,18 +1,10 @@
 {
   "type": "create:mixing",
   "ingredients": [
-    {
-      "tag": "create:pulpifiable"
-    },
-    {
-      "tag": "create:pulpifiable"
-    },
-    {
-      "tag": "create:pulpifiable"
-    },
-    {
-      "tag": "create:pulpifiable"
-    },
+    "#create:pulpifiable",
+    "#create:pulpifiable",
+    "#create:pulpifiable",
+    "#create:pulpifiable",
     {
       "type": "neoforge:single",
       "amount": 250,

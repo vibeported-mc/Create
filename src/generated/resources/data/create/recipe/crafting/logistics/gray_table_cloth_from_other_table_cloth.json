@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "tag": "c:dyes/gray"
-    },
-    {
-      "tag": "create:dyed_table_cloths"
-    }
+    "#c:dyes/gray",
+    "#create:dyed_table_cloths"
   ],
   "result": {
     "count": 1,

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "create:copper_shingles"
-    },
-    {
-      "item": "minecraft:honeycomb"
-    }
+    "create:copper_shingles",
+    "minecraft:honeycomb"
   ],
   "result": {
     "count": 1,

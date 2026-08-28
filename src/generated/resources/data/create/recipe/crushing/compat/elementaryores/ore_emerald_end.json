@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "elementaryores:ore_emerald_end"
-        }
+        "elementaryores:ore_emerald_end"
       ]
     }
   ],

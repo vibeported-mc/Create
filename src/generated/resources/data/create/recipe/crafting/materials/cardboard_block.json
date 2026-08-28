@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "create:cardboard"
-    }
+    "C": "create:cardboard"
   },
   "pattern": [
     "CC",

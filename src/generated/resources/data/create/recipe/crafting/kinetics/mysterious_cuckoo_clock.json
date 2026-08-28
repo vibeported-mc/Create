@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "create:cuckoo_clock"
-    },
-    "C": {
-      "tag": "c:gunpowders"
-    }
+    "B": "create:cuckoo_clock",
+    "C": "#c:gunpowders"
   },
   "pattern": [
     " C ",

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "tag": "c:dyes/red"
-    },
-    {
-      "tag": "create:postboxes"
-    }
+    "#c:dyes/red",
+    "#create:postboxes"
   ],
   "result": {
     "count": 1,

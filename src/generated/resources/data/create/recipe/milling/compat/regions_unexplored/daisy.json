@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "regions_unexplored:daisy"
-        }
+        "regions_unexplored:daisy"
       ]
     }
   ],

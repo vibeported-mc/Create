@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "biomesoplenty:tiny_cactus"
-        }
+        "biomesoplenty:tiny_cactus"
       ]
     }
   ],

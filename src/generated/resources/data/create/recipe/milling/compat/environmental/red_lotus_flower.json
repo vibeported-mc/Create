@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "environmental:red_lotus_flower"
-        }
+        "environmental:red_lotus_flower"
       ]
     }
   ],

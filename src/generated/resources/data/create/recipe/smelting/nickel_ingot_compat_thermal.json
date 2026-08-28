@@ -9,9 +9,7 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.1,
-  "ingredient": {
-    "item": "create:crushed_raw_nickel"
-  },
+  "ingredient": "create:crushed_raw_nickel",
   "result": {
     "id": "thermal:nickel_ingot"
   }

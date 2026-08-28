@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "create:empty_schematic"
-    },
-    {
-      "tag": "c:feathers"
-    }
+    "create:empty_schematic",
+    "#c:feathers"
   ],
   "result": {
     "count": 1,

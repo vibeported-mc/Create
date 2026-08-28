@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "thermal:sulfur_ore"
-        }
+        "thermal:sulfur_ore"
       ]
     }
   ],

@@ -10,9 +10,7 @@
     {
       "type": "neoforge:compound",
       "ingredients": [
-        {
-          "item": "atmospheric:red_arid_sand"
-        }
+        "atmospheric:red_arid_sand"
       ]
     }
   ],
