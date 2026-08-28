@@ -51,10 +51,12 @@ public class CustomRenderedItemModel implements ItemModel {
 				.clear();
 		ItemStackRenderState.LayerRenderState layer = layers.create$getLayers()[after - 1];
 
-		if (item.hasFoil()) {
+		if (item.hasFoil())
 			layer.setFoilType(ItemStackRenderState.FoilType.STANDARD);
-			output.setAnimated();
-		}
+
+		// These renderers move every frame - the spinning cog on the wrench, the worldshaper's core -
+		// and a render state that is not marked animated is cached, which freezes them in the GUI.
+		output.setAnimated();
 		layer.setupSpecialModel(renderer,
 			new CustomItemRenderContext(item, displayContext, originalModel, level, owner, seed));
 	}
