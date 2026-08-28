@@ -235,7 +235,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 			if (random.nextDouble() <= recoveryChance) {
 				recoverItem();
 			} else {
-				spawnOnServer(type.dropStack());
+				spawnOnServer(type.createDrop());
 			}
 		}
 
@@ -301,7 +301,7 @@ public class PotatoProjectileEntity extends AbstractHurtingProjectile implements
 			if (random.nextDouble() <= recoveryChance) {
 				recoverItem();
 			} else {
-				spawnOnServer(getProjectileType().dropStack());
+				spawnOnServer(getProjectileType().createDrop());
 			}
 		}
 

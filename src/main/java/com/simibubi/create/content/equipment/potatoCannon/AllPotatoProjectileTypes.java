@@ -18,6 +18,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.Foods;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
@@ -279,7 +280,7 @@ public class AllPotatoProjectileTypes {
 			.knockback(0.2f)
 			.velocity(0.8f)
 			.renderTowardMotion(140, 1)
-			.dropStack(Items.BOWL.getDefaultInstance())
+			.dropStack(new ItemStackTemplate(Items.BOWL))
 			.onEntityHit(SuspiciousStew.INSTANCE)
 			.addItems(Items.SUSPICIOUS_STEW)
 			.build());

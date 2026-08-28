@@ -20,6 +20,7 @@ import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.BlockHitResult;
@@ -28,7 +29,7 @@ import net.minecraft.world.phys.EntityHitResult;
 // TODO: 1.21.1+ - Move into api package
 public record PotatoCannonProjectileType(HolderSet<Item> items, int reloadTicks, int damage, int split, float knockback,
 										 float drag, float velocityMultiplier, float gravityMultiplier,
-										 float soundPitch, boolean sticky, ItemStack dropStack,
+										 float soundPitch, boolean sticky, Optional<ItemStackTemplate> dropStack,
 										 PotatoProjectileRenderMode renderMode,
 										 Optional<PotatoProjectileEntityHitAction> preEntityHit,
 										 Optional<PotatoProjectileEntityHitAction> onEntityHit,
@@ -44,7 +45,7 @@ public record PotatoCannonProjectileType(HolderSet<Item> items, int reloadTicks,
 		Codec.FLOAT.optionalFieldOf("gravity_multiplier", 1f).forGetter(PotatoCannonProjectileType::gravityMultiplier),
 		Codec.FLOAT.optionalFieldOf("sound_pitch", 1f).forGetter(PotatoCannonProjectileType::soundPitch),
 		Codec.BOOL.optionalFieldOf("sticky", false).forGetter(PotatoCannonProjectileType::sticky),
-		ItemStack.CODEC.optionalFieldOf("drop_stack", ItemStack.EMPTY).forGetter(PotatoCannonProjectileType::dropStack),
+		ItemStackTemplate.CODEC.optionalFieldOf("drop_stack").forGetter(PotatoCannonProjectileType::dropStack),
 		PotatoProjectileRenderMode.CODEC.optionalFieldOf("render_mode", Billboard.INSTANCE).forGetter(PotatoCannonProjectileType::renderMode),
 		PotatoProjectileEntityHitAction.CODEC.optionalFieldOf("pre_entity_hit").forGetter(p -> p.preEntityHit),
 		PotatoProjectileEntityHitAction.CODEC.optionalFieldOf("on_entity_hit").forGetter(p -> p.onEntityHit),
@@ -71,10 +72,15 @@ public record PotatoCannonProjectileType(HolderSet<Item> items, int reloadTicks,
 		return onBlockHit.map(i -> i.execute(level, stack, ray)).orElse(false);
 	}
 
-	// Copy the stack so it's not mutated and lost
-	@Override
-	public ItemStack dropStack() {
-		return dropStack.copy();
+	/**
+	 * The stack this projectile leaves behind, built fresh so it cannot be mutated and lost.
+	 * <p>
+	 * 26.2 binds an item's components when world data loads, which is after these types are read, so
+	 * the drop names its item through an {@link ItemStackTemplate} rather than being stored as a stack.
+	 */
+	public ItemStack createDrop() {
+		return dropStack.map(ItemStackTemplate::create)
+			.orElse(ItemStack.EMPTY);
 	}
 
 	public static class Builder {
@@ -88,7 +94,7 @@ public record PotatoCannonProjectileType(HolderSet<Item> items, int reloadTicks,
 		private float gravityMultiplier = 1f;
 		private float soundPitch = 1f;
 		private boolean sticky = false;
-		private ItemStack dropStack = ItemStack.EMPTY;
+		private Optional<ItemStackTemplate> dropStack = Optional.empty();
 		private PotatoProjectileRenderMode renderMode = Billboard.INSTANCE;
 		private PotatoProjectileEntityHitAction preEntityHit = null;
 		private PotatoProjectileEntityHitAction onEntityHit = null;
@@ -139,8 +145,8 @@ public record PotatoCannonProjectileType(HolderSet<Item> items, int reloadTicks,
 			return this;
 		}
 
-		public Builder dropStack(ItemStack stack) {
-			this.dropStack = stack;
+		public Builder dropStack(ItemStackTemplate stack) {
+			this.dropStack = Optional.of(stack);
 			return this;
 		}
 
