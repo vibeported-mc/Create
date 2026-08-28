@@ -5,9 +5,8 @@
     "minecraft:flint",
     "minecraft:gravel",
     {
-      "type": "neoforge:single",
       "amount": 100,
-      "fluid": "minecraft:lava"
+      "ingredient": "minecraft:lava"
     }
   ],
   "results": [

@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "create:item_vault",
-    "B": "#c:slimeballs",
+    "B": "#c:slime_balls",
     "C": "create:andesite_alloy"
   },
   "pattern": [

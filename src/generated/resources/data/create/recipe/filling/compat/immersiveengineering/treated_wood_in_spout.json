@@ -9,9 +9,8 @@
   "ingredients": [
     "#minecraft:planks",
     {
-      "type": "neoforge:tag",
       "amount": 125,
-      "tag": "c:creosote"
+      "ingredient": "#c:creosote"
     }
   ],
   "results": [

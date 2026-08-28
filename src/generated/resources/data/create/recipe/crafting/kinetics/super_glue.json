@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "#c:slimeballs",
+    "A": "#c:slime_balls",
     "N": "#c:nuggets/iron",
     "S": "#c:plates/iron"
   },

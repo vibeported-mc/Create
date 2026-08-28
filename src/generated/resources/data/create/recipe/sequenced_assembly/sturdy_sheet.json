@@ -12,9 +12,8 @@
       "ingredients": [
         "create:unprocessed_obsidian_sheet",
         {
-          "type": "neoforge:single",
           "amount": 500,
-          "fluid": "minecraft:lava"
+          "ingredient": "minecraft:lava"
         }
       ],
       "results": [

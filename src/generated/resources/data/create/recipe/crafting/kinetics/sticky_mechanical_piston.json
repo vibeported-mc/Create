@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "P": "create:mechanical_piston",
-    "S": "#c:slimeballs"
+    "S": "#c:slime_balls"
   },
   "pattern": [
     "S",

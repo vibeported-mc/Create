@@ -5,9 +5,8 @@
     "minecraft:sugar",
     "minecraft:cocoa_beans",
     {
-      "type": "neoforge:tag",
       "amount": 250,
-      "tag": "c:milk"
+      "ingredient": "#c:milk"
     }
   ],
   "results": [

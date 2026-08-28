@@ -5,7 +5,7 @@
     "C": "#c:cobblestones",
     "I": "create:andesite_alloy",
     "R": "#c:dusts/redstone",
-    "S": "#c:slimeballs"
+    "S": "#c:slime_balls"
   },
   "pattern": [
     "ISI",

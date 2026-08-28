@@ -4,14 +4,12 @@
   "ingredients": [
     "#minecraft:leaves",
     {
-      "type": "neoforge:single",
       "amount": 250,
-      "fluid": "minecraft:water"
+      "ingredient": "minecraft:water"
     },
     {
-      "type": "neoforge:tag",
       "amount": 250,
-      "tag": "c:milk"
+      "ingredient": "#c:milk"
     }
   ],
   "results": [

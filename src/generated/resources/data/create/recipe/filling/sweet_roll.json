@@ -3,9 +3,8 @@
   "ingredients": [
     "minecraft:bread",
     {
-      "type": "neoforge:tag",
       "amount": 250,
-      "tag": "c:milk"
+      "ingredient": "#c:milk"
     }
   ],
   "results": [

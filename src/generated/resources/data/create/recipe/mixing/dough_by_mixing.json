@@ -3,9 +3,8 @@
   "ingredients": [
     "#c:flours/wheat",
     {
-      "type": "neoforge:single",
       "amount": 1000,
-      "fluid": "minecraft:water"
+      "ingredient": "minecraft:water"
     }
   ],
   "results": [

@@ -1,7 +1,6 @@
 package com.simibubi.create.foundation.codec;
 
 import com.simibubi.create.foundation.item.ItemStackHandler;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredientType;
 import com.mojang.serialization.MapCodec;
 import java.util.function.Function;
 
@@ -14,10 +13,7 @@ import com.simibubi.create.foundation.item.ItemSlots;
 
 import net.minecraft.util.ExtraCodecs;
 
-import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class CreateCodecs {
 	public static final Codec<Integer> INT_STR = Codec.STRING.comapFlatMap(
@@ -53,23 +49,9 @@ public class CreateCodecs {
 	}
 
 	/**
-	 * A fluid ingredient written flat: its type beside its own fields, rather than nested under a key.
-	 * <p>
-	 * 26.2 dropped {@code FluidIngredient.MAP_CODEC_NONEMPTY}; dispatching on the type registry gives
-	 * back the same shape, since a dispatch map codec inlines the dispatched fields.
+	 * 26.2 spells a fluid ingredient the way it spells an item one - the fluid's id, or a tag's id
+	 * behind a '#' - and wraps it as {@code {"ingredient": ..., "amount": n}}. The pre-26.2 spellings
+	 * named a fluid ingredient type beside the amount; those types no longer exist.
 	 */
-	private static final MapCodec<FluidIngredient> FLAT_FLUID_INGREDIENT = NeoForgeRegistries.FLUID_INGREDIENT_TYPES
-		.byNameCodec()
-		.dispatchMap("type", FluidIngredient::getType, FluidIngredientType::codec);
-
-	public static Codec<SizedFluidIngredient> FLAT_SIZED_FLUID_INGREDIENT_WITH_TYPE = RecordCodecBuilder.create(instance -> instance.group(
-		FLAT_FLUID_INGREDIENT.forGetter(SizedFluidIngredient::ingredient),
-		NeoForgeExtraCodecs.optionalFieldAlwaysWrite(ExtraCodecs.POSITIVE_INT, "amount", 1000).forGetter(SizedFluidIngredient::amount)
-	).apply(instance, SizedFluidIngredient::new));
-
-	/**
-	 * The pre-1.21.1 {@code fluid_stack}/{@code fluid_tag} spellings were scheduled for removal in this
-	 * port, and their fluid ingredient types no longer exist in 26.2, so only the flat form is read.
-	 */
-	public static Codec<SizedFluidIngredient> SIZED_FLUID_INGREDIENT = FLAT_SIZED_FLUID_INGREDIENT_WITH_TYPE;
+	public static Codec<SizedFluidIngredient> SIZED_FLUID_INGREDIENT = SizedFluidIngredient.CODEC;
 }

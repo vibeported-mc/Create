@@ -3,9 +3,8 @@
   "ingredients": [
     "minecraft:apple",
     {
-      "type": "neoforge:tag",
       "amount": 250,
-      "tag": "c:honey"
+      "ingredient": "#c:honey"
     }
   ],
   "results": [

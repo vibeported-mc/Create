@@ -9,9 +9,8 @@
   "ingredients": [
     "minecraft:glass_bottle",
     {
-      "type": "neoforge:tag",
       "amount": 250,
-      "tag": "c:milk"
+      "ingredient": "#c:milk"
     }
   ],
   "results": [

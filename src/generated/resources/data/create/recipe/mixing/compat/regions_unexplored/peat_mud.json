@@ -14,9 +14,8 @@
       ]
     },
     {
-      "type": "neoforge:single",
       "amount": 250,
-      "fluid": "minecraft:water"
+      "ingredient": "minecraft:water"
     }
   ],
   "results": [
