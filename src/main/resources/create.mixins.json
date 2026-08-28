@@ -51,16 +51,17 @@
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.FontAccessor",
     "accessor.HudAccessor",
+    "accessor.ItemStackRenderStateAccessor",
     "accessor.MinecraftAccessor",
     "accessor.MouseHandlerAccessor",
     "accessor.TimerAccessor",
     "client.BlockDestructionProgressMixin",
+    "client.ClientLevelDestructionMixin",
     "client.EntityContraptionInteractionMixin",
-    "client.MinecraftPickMixin",
-		"client.GuiRendererMixin",
+    "client.GuiRendererMixin",
     "client.HeavyBootsOnPlayerMixin",
-    "client.PlayerModelMixin",
-    "client.ClientLevelDestructionMixin"
+    "client.MinecraftPickMixin",
+    "client.PlayerModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

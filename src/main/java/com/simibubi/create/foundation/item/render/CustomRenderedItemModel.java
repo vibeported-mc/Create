@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.item.render;
 
+import com.simibubi.create.foundation.mixin.accessor.ItemStackRenderStateAccessor;
+
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -33,7 +35,22 @@ public class CustomRenderedItemModel implements ItemModel {
 	public void update(ItemStackRenderState output, ItemStack item, ItemModelResolver resolver,
 		ItemDisplayContext displayContext, @Nullable ClientLevel level, @Nullable ItemOwner owner, int seed) {
 		output.appendModelIdentityElement(this);
-		ItemStackRenderState.LayerRenderState layer = output.newLayer();
+
+		// The layer carries the item's transform for this display context, and only the model it was
+		// built from knows what that is. So the wrapped model builds the layer, and its geometry is
+		// then dropped - Create's renderer draws the base itself, along with the moving parts.
+		ItemStackRenderStateAccessor layers = (ItemStackRenderStateAccessor) output;
+		int before = layers.create$getActiveLayerCount();
+		originalModel.update(output, item, resolver, displayContext, level, owner, seed);
+		int after = layers.create$getActiveLayerCount();
+		if (after == before) {
+			return;
+		}
+		for (int i = before; i < after; i++)
+			layers.create$getLayers()[i].prepareQuadList()
+				.clear();
+		ItemStackRenderState.LayerRenderState layer = layers.create$getLayers()[after - 1];
+
 		if (item.hasFoil()) {
 			layer.setFoilType(ItemStackRenderState.FoilType.STANDARD);
 			output.setAnimated();
