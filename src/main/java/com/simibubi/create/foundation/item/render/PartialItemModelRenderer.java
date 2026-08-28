@@ -94,29 +94,37 @@ public class PartialItemModelRenderer {
 
 	/**
 	 * Draws the item's own model, the one Create's wrapper took the place of.
+	 * <p>
+	 * Its quads are drawn straight into this pose rather than through a render state of their own:
+	 * a state applies the item's transform for the display context as it submits, and the layer this
+	 * renderer was reached through has already applied it. Even a flattened transform would shift the
+	 * model, since 26.2 folds the half-block centring into that same step.
 	 */
 	public void renderBase(int light) {
 		ItemModel base = context.baseModel();
 		if (base == null)
 			return;
 
-		ms.pushPose();
-		ms.translate(-0.5D, -0.5D, -0.5D);
 		scratchState.clear();
 		base.update(scratchState, context.stack(), Minecraft.getInstance()
 			.getItemModelResolver(), context.displayContext(), context.level(), context.owner(), context.seed());
 
-		// The layer this renderer was reached through already carries the item's transform for this
-		// display context, and the base model sets the same one again on the state built here. Only one
-		// of them may apply, so the scratch copy is flattened.
 		ItemStackRenderStateAccessor layers = (ItemStackRenderStateAccessor) scratchState;
-		for (int i = 0; i < layers.create$getActiveLayerCount(); i++) {
-			ItemStackRenderState.LayerRenderState layer = layers.create$getLayers()[i];
-			layer.setItemTransform(ItemTransform.NO_TRANSFORM);
-			layer.setLocalTransform(new Matrix4f());
-		}
+		List<BakedQuad> quads = new ArrayList<>();
+		for (int i = 0; i < layers.create$getActiveLayerCount(); i++)
+			quads.addAll(layers.create$getLayers()[i].prepareQuadList());
+		if (quads.isEmpty())
+			return;
 
-		scratchState.submit(ms, collector, light, overlay, 0);
+		ms.pushPose();
+		ms.translate(-0.5D, -0.5D, -0.5D);
+		QuadInstance instance = new QuadInstance();
+		instance.setLightCoords(light);
+		instance.setOverlayCoords(overlay);
+		collector.submitCustomGeometry(ms, Sheets.cutoutBlockItemSheet(), (pose, buffer) -> {
+			for (BakedQuad quad : quads)
+				buffer.putBakedQuad(pose, quad, instance);
+		});
 		ms.popPose();
 	}
 
