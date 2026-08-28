@@ -243,7 +243,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 				+ (entry.getHoverName()
 				.getString()
 				.length() > 20 ? "..." : ""),
-			35, 5, 0x656565, false);
+			35, 5, 0xFF656565, false);
 
 		matrixStack.popMatrix();
 		return cardHeight;
@@ -480,7 +480,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 
 		int center = leftPos + (AllGuiTextures.STOCK_KEEPER_CATEGORY.getWidth()) / 2;
 		graphics.text(font, formattedcharsequence, center - font.width(formattedcharsequence) / 2, topPos + 4,
-			0x3D3C48, false);
+			0xFF3D3C48, false);
 
 		if (editingItem == null) {
 			renderCategories(graphics, pMouseX, pMouseY, pPartialTick);
@@ -502,7 +502,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 			.component()
 			.getVisualOrderText();
 		graphics.text(font, formattedcharsequence, center - font.width(formattedcharsequence) / 2, topPos - 1,
-			0x3D3C48, false);
+			0xFF3D3C48, false);
 	}
 
 	@Override

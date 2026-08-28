@@ -86,7 +86,7 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 		int y = topPos;
 
 		BG.render(graphics, x, y);
-		graphics.text(font, title, x + 15, y + 4, 0x592424, false);
+		graphics.text(font, title, x + 15, y + 4, 0xFF592424, false);
 
 		int invX = leftPos;
 		int invY = topPos + imageHeight - PLAYER.getHeight();

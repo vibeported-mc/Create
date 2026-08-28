@@ -299,7 +299,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			} else {
 				graphics.text(font, "\u25A1", x + 45, y + 51, checked ? 0x668D7F6B : 0xff8D7F6B, false);
 				if (checked)
-					graphics.text(font, "\u2714", x + 45, y + 50, 0x31B25D, false);
+					graphics.text(font, "\u2714", x + 45, y + 50, 0xFF31B25D, false);
 			}
 
 			List<FormattedCharSequence> split = font.split(text, 150 - iconOffset);
@@ -314,7 +314,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			for (FormattedCharSequence sequence : split) {
 				if (i != editingIndex)
 					graphics.text(font, sequence, x + 58 + iconOffset, y + 50,
-						checked ? isAddress ? 0x668D7F6B : 0x31B25D : 0x311A00, false);
+						checked ? isAddress ? 0x668D7F6B : 0xFF31B25D : 0xFF311A00, false);
 				y += 9;
 			}
 			y += 3;
@@ -327,7 +327,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		DisplayCache cache = getDisplayCache();
 
 		for (LineInfo line : cache.lines)
-			graphics.text(font, line.asComponent, line.x, line.y, 0x311A00, false);
+			graphics.text(font, line.asComponent, line.x, line.y, 0xFF311A00, false);
 
 		renderHighlight(graphics, cache.selection);
 		renderCursor(graphics, cache.cursor, cache.cursorAtEnd);

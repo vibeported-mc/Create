@@ -159,9 +159,9 @@ public class TrainHUD {
 				poseStack.pushMatrix();
 				poseStack.translate(font.width(currentPrompt) / -2f + 82, -27);
 				if (currentPromptShadow)
-					guiGraphics.text(font, currentPrompt, 9, 4, 0x544D45);
+					guiGraphics.text(font, currentPrompt, 9, 4, 0xFF544D45);
 				else
-					guiGraphics.text(font, currentPrompt, 9, 4, 0x544D45, false);
+					guiGraphics.text(font, currentPrompt, 9, 4, 0xFF544D45, false);
 				poseStack.popMatrix();
 			}
 		}

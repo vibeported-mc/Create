@@ -1,0 +1,16 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "create:block/copper_casing"
+    },
+    {
+      "type": "single",
+      "resource": "create:block/mechanical_press_pole"
+    },
+    {
+      "type": "single",
+      "resource": "create:block/redstone_antenna"
+    }
+  ]
+}

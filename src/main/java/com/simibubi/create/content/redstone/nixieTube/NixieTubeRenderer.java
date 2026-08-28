@@ -161,6 +161,10 @@ public class NixieTubeRenderer
 	 * text from bleeding into later draws is gone.
 	 */
 	public static void submitInWorldString(PoseStack ms, SubmitNodeCollector queue, String c, int color) {
+		// Create writes its text colours as plain RGB; the submit path takes ARGB, where no alpha draws
+		// nothing, whereas the font used to read a missing alpha as fully opaque.
+		if ((color & 0xFF000000) == 0)
+			color |= 0xFF000000;
 		queue.submitText(ms, 0, 0, Component.literal(c)
 			.getVisualOrderText(), false, Font.DisplayMode.NORMAL, LightCoordsUtil.FULL_BRIGHT, color, 0, 0);
 	}

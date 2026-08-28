@@ -172,7 +172,7 @@ public class SequencedGearshiftScreen extends AbstractSimiScreen {
 				label(graphics, 127, yOffset - 1, instruction.speedModifier.label);
 		}
 
-		graphics.text(font, title, x + (background.getWidth() - 8) / 2 - font.width(title) / 2, y + 4, 0x592424, false);
+		graphics.text(font, title, x + (background.getWidth() - 8) / 2 - font.width(title) / 2, y + 4, 0xFF592424, false);
 		renderAdditional(graphics, mouseX, mouseY, partialTicks, x, y, background);
 	}
 
@@ -185,7 +185,7 @@ public class SequencedGearshiftScreen extends AbstractSimiScreen {
 	}
 
 	private void label(GuiGraphicsExtractor graphics, int x, int y, Component text) {
-		graphics.text(font, text, guiLeft + x, guiTop + 26 + y, 0xFFFFEE);
+		graphics.text(font, text, guiLeft + x, guiTop + 26 + y, 0xFFFFFFEE);
 	}
 
 	public void sendPacket() {

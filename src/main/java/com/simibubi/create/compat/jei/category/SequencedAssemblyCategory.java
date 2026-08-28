@@ -124,7 +124,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 			AllGuiTextures.JEI_CHANCE_SLOT.render(graphics, 150 + xOffset, 75);
             Component component = Component.literal("?").withStyle(ChatFormatting.BOLD);
 			graphics.text(font, component, font.width(component) / -2 + 8 + 150 + xOffset, 2 + 78,
-				0xefefef);
+				0xFFefefef);
 		}
 
 		if (recipe.getLoops() > 1) {
@@ -132,7 +132,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 			matrixStack.translate((float) (15), (float) (9));
 			AllIcons.I_SEQ_REPEAT.render(graphics, 50 + xOffset, 75);
             Component repeat = Component.literal("x" + recipe.getLoops());
-			graphics.text(font, repeat, 66 + xOffset, 80, 0x888888, false);
+			graphics.text(font, repeat, 66 + xOffset, 80, 0xFF888888, false);
 			matrixStack.popMatrix();
 		}
 
@@ -152,7 +152,7 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 			SequencedAssemblySubCategory subCategory = getSubCategory(sequencedRecipe);
 			int subWidth = subCategory.getWidth();
             MutableComponent component = Component.literal("" + romans[Math.min(i, 6)]);
-			graphics.text(font, component, font.width(component) / -2 + subWidth / 2, 2, 0x888888, false);
+			graphics.text(font, component, font.width(component) / -2 + subWidth / 2, 2, 0xFF888888, false);
 			subCategory.draw(sequencedRecipe, graphics, mouseX, mouseY, i);
 			matrixStack.translate((float) (subWidth + margin), (float) (0));
 		}

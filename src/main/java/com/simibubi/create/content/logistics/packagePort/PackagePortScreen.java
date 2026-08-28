@@ -126,7 +126,7 @@ public class PackagePortScreen extends AbstractSimiContainerScreen<PackagePortMe
 				.isEmpty()) {
 				text = icon.getHoverName()
 					.getString();
-				graphics.text(font, text, nameBoxX(text, addressBox), y - 11, 0x3D3C48, false);
+				graphics.text(font, text, nameBoxX(text, addressBox), y - 11, 0xFF3D3C48, false);
 			}
 			AllGuiTextures.FROGPORT_EDIT_NAME.render(graphics, nameBoxX(text, addressBox) + font.width(text) + 5,
 				y - 14);

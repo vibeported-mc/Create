@@ -54,7 +54,7 @@ public class FactoryPanelSetItemScreen extends AbstractSimiContainerScreen<Facto
 		ItemStack stack = AllBlocks.FACTORY_GAUGE.asStack();
 		Component title = CreateLang.translate("gui.factory_panel.place_item_to_monitor")
 			.component();
-		pGuiGraphics.text(font, title, x + imageWidth / 2 - font.width(title) / 2 - 5, y + 4, 0x3D3C48, false);
+		pGuiGraphics.text(font, title, x + imageWidth / 2 - font.width(title) / 2 - 5, y + 4, 0xFF3D3C48, false);
 
 		GuiGameElement.of(stack)
 			.scale(3)

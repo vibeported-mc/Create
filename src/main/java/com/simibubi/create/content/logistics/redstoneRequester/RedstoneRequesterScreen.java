@@ -117,7 +117,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 		Component title = CreateLang.text(stack.getHoverName()
 			.getString())
 			.component();
-		pGuiGraphics.text(font, title, x + 117 - font.width(title) / 2, y + 4, 0x3D3C48, false);
+		pGuiGraphics.text(font, title, x + 117 - font.width(title) / 2, y + 4, 0xFF3D3C48, false);
 
 		GuiGameElement.of(stack)
 			.scale(3)

@@ -122,16 +122,16 @@ public class AssemblyScreen extends AbstractStationScreen {
 		int y = guiTop;
 
 		MutableComponent header = CreateLang.translateDirect("station.assembly_title");
-		graphics.text(font, header, x + background.getWidth() / 2 - font.width(header) / 2, y + 4, 0x0E2233, false);
+		graphics.text(font, header, x + background.getWidth() / 2 - font.width(header) / 2, y + 4, 0xFF0E2233, false);
 
 		AssemblyException lastAssemblyException = blockEntity.lastException;
 		if (lastAssemblyException != null) {
 			MutableComponent text = CreateLang.translateDirect("station.failed");
-			graphics.text(font, text, x + 97 - font.width(text) / 2, y + 47, 0x775B5B, false);
+			graphics.text(font, text, x + 97 - font.width(text) / 2, y + 47, 0xFF775B5B, false);
 			int offset = 0;
 			if (blockEntity.failedCarriageIndex != -1) {
 				graphics.text(font, CreateLang.translateDirect("station.carriage_number", blockEntity.failedCarriageIndex), x + 30,
-					y + 67, 0x7A7A7A, false);
+					y + 67, 0xFF7A7A7A, false);
 				offset += 10;
 			}
 			graphics.textWithWordWrap(font, lastAssemblyException.component, x + 30, y + 67 + offset, 134, 0x775B5B);
@@ -146,7 +146,7 @@ public class AssemblyScreen extends AbstractStationScreen {
 		MutableComponent text = CreateLang.translateDirect(
 			bogeyCount == 0 ? "station.no_bogeys" : bogeyCount == 1 ? "station.one_bogey" : "station.more_bogeys",
 			bogeyCount);
-		graphics.text(font, text, x + 97 - font.width(text) / 2, y + 47, 0x7A7A7A, false);
+		graphics.text(font, text, x + 97 - font.width(text) / 2, y + 47, 0xFF7A7A7A, false);
 
 		graphics.textWithWordWrap(font, CreateLang.translateDirect("station.how_to"), x + 28, y + 62, 134, 0x7A7A7A);
 		graphics.textWithWordWrap(font, CreateLang.translateDirect("station.how_to_1"), x + 28, y + 94, 134, 0x7A7A7A);

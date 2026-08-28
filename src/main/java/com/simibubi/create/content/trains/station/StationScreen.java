@@ -292,7 +292,7 @@ public class StationScreen extends AbstractStationScreen {
 		Train train = displayedTrain.get();
 		if (train == null) {
 			MutableComponent header = CreateLang.translateDirect("station.idle");
-			graphics.text(font, header, x + 97 - font.width(header) / 2, y + 47, 0x7A7A7A, false);
+			graphics.text(font, header, x + 97 - font.width(header) / 2, y + 47, 0xFF7A7A7A, false);
 			return;
 		}
 
@@ -328,7 +328,7 @@ public class StationScreen extends AbstractStationScreen {
 			int buttonX = nameBoxX(text, trainNameBox) + font.width(text) + 5;
 			AllGuiTextures.STATION_EDIT_TRAIN_NAME.render(graphics, Math.min(buttonX, guiLeft + 156), y + 44);
 			if (font.width(text) > trainNameBox.getWidth())
-				graphics.text(font, "...", guiLeft + 26, guiTop + 47, 0xa6a6a6);
+				graphics.text(font, "...", guiLeft + 26, guiTop + 47, 0xFFa6a6a6);
 		}
 
 		if (!mapModsPresent())

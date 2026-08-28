@@ -164,9 +164,9 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 
 		if (fadeInWidth > fattestLabel) {
 			int textX = x - 11 - fatTipOffset + bgWidth / 2;
-			graphics.text(font, title, textX - font.width(title) / 2, y - 14, 0xdddddd, false);
+			graphics.text(font, title, textX - font.width(title) / 2, y - 14, 0xFFdddddd, false);
 			graphics.text(font, tip, textX - font.width(tip) / 2, y + windowHeight + additionalHeight - 27,
-				0xdddddd, false);
+				0xFFdddddd, false);
 		}
 
 		renderBrassFrame(graphics, x + maxLabelWidth + 14, y - 3, valueBarWidth + 8, board.rows()
@@ -184,7 +184,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 					UIRenderHelper.drawCropped(graphics, valueBarX + w, y + 1,
 						Math.min(AllGuiTextures.VALUE_SETTINGS_BAR.getWidth() - 1, valueBarWidth - w), 8,
 						AllGuiTextures.VALUE_SETTINGS_BAR);
-				graphics.text(font, component, x, y + 1, 0x442000, false);
+				graphics.text(font, component, x, y + 1, 0xFF442000, false);
 			}
 
 			int milestoneX = valueBarX;
@@ -238,7 +238,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 			cursorIcon.render(graphics, cursorX + 1, cursorY - 1);
 			if (fadeInWidth > fattestLabel)
 				graphics.text(font, cursorText, x - 11 - fatTipOffset + (bgWidth - font.width(cursorText)) / 2,
-					originalY + windowHeight + additionalHeight - 40, 0xFBDC7D, false);
+					originalY + windowHeight + additionalHeight - 40, 0xFFFBDC7D, false);
 			return;
 		}
 
@@ -246,7 +246,7 @@ public class ValueSettingsScreen extends AbstractSimiScreen {
 		UIRenderHelper.drawCropped(graphics, cursorX, cursorY, cursorWidth, 14, AllGuiTextures.VALUE_SETTINGS_CURSOR);
 		AllGuiTextures.VALUE_SETTINGS_CURSOR_RIGHT.render(graphics, cursorX + cursorWidth, cursorY);
 
-		graphics.text(font, cursorText, cursorX + 2, cursorY + 3, 0x442000, false);
+		graphics.text(font, cursorText, cursorX + 2, cursorY + 3, 0xFF442000, false);
 	}
 
 	protected void renderBrassFrame(GuiGraphicsExtractor graphics, int x, int y, int w, int h) {

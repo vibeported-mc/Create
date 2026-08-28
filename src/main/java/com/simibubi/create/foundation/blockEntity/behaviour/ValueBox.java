@@ -232,7 +232,15 @@ public class ValueBox extends ChasingAABBOutline {
 	private static void submitText(PoseStack ms, SubmitNodeCollector queue, Component text, int color,
 		int outlineColor) {
 		queue.submitText(ms, 0, 0, text.getVisualOrderText(), false, Font.DisplayMode.NORMAL,
-			LightCoordsUtil.FULL_BRIGHT, color, 0, outlineColor);
+			LightCoordsUtil.FULL_BRIGHT, opaque(color), 0, outlineColor);
+	}
+
+	/**
+	 * Create writes its text colours as plain RGB. The font used to read those as fully opaque; the
+	 * submit path takes them as ARGB, where no alpha means nothing is drawn.
+	 */
+	private static int opaque(int color) {
+		return (color & 0xFF000000) == 0 ? color | 0xFF000000 : color;
 	}
 
 	private static void submitText8x(PoseStack ms, SubmitNodeCollector queue, Component text, int color) {

@@ -572,7 +572,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 
 		if (itemsToOrder.size() > 9) {
 			graphics.text(font, Component.literal("[+" + (itemsToOrder.size() - 9) + "]"), x + windowWidth - 40,
-				orderY + 21, 0xF8F8EC);
+				orderY + 21, 0xFFF8F8EC);
 		}
 
 		boolean justSent = itemsToOrder.isEmpty() && successTicks > 0;
@@ -582,7 +582,7 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 
 		MutableComponent headerTitle = CreateLang.translate("gui.stock_keeper.title")
 			.component();
-		graphics.text(font, headerTitle, x + windowWidth / 2 - font.width(headerTitle) / 2, y + 4, 0x714A40,
+		graphics.text(font, headerTitle, x + windowWidth / 2 - font.width(headerTitle) / 2, y + 4, 0xFF714A40,
 			false);
 		MutableComponent component =
 			CreateLang.translate(encodeRequester ? "gui.stock_keeper.configure" : "gui.stock_keeper.send")
@@ -594,14 +594,14 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			ms.translate((float) (alpha * alpha * 50), (float) (0));
 			if (successTicks < 10)
 				graphics.text(font, component, x + windowWidth - 42 - font.width(component) / 2,
-					y + windowHeight - 35, new Color(0x252525).setAlpha(1 - alpha * alpha)
+					y + windowHeight - 35, new Color(0xFF252525).setAlpha(1 - alpha * alpha)
 						.getRGB(),
 					false);
 			ms.popMatrix();
 
 		} else {
 			graphics.text(font, component, x + windowWidth - 42 - font.width(component) / 2,
-				y + windowHeight - 35, 0x252525, false);
+				y + windowHeight - 35, 0xFF252525, false);
 		}
 
 		// Request just sent
@@ -662,11 +662,11 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 					FormattedCharSequence sequence = split.get(i);
 					int lineWidth = font.width(sequence);
 					graphics.text(font, sequence, x + windowWidth / 2 - lineWidth / 2 + 1,
-						itemsY + 20 + 1 + i * (font.lineHeight + 1), new Color(0x4A2D31).setAlpha(alpha)
+						itemsY + 20 + 1 + i * (font.lineHeight + 1), new Color(0xFF4A2D31).setAlpha(alpha)
 							.getRGB(),
 						false);
 					graphics.text(font, sequence, x + windowWidth / 2 - lineWidth / 2,
-						itemsY + 20 + i * (font.lineHeight + 1), new Color(0xF8F8EC).setAlpha(alpha)
+						itemsY + 20 + i * (font.lineHeight + 1), new Color(0xFFF8F8EC).setAlpha(alpha)
 							.getRGB(),
 						false);
 				}
@@ -684,8 +684,8 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			if (!categories.isEmpty()) {
 				(categoryEntry.hidden ? AllGuiTextures.STOCK_KEEPER_CATEGORY_HIDDEN
 					: AllGuiTextures.STOCK_KEEPER_CATEGORY_SHOWN).render(graphics, itemsX, itemsY + categoryY + 6);
-				graphics.text(font, categoryEntry.name, itemsX + 10, itemsY + categoryY + 8, 0x4A2D31, false);
-				graphics.text(font, categoryEntry.name, itemsX + 9, itemsY + categoryY + 7, 0xF8F8EC, false);
+				graphics.text(font, categoryEntry.name, itemsX + 10, itemsY + categoryY + 8, 0xFF4A2D31, false);
+				graphics.text(font, categoryEntry.name, itemsX + 9, itemsY + categoryY + 7, 0xFFF8F8EC, false);
 				if (categoryEntry.hidden)
 					continue;
 			}

@@ -85,13 +85,13 @@ public class ToolSelectionScreen extends Screen {
 			graphics.blit(RenderPipelines.GUI_TEXTURED, gray.location, x - 15, y + 33, gray.getStartX(), gray.getStartY(), w, h + 22, gray.getWidth(), gray.getHeight());
 
 			if (toolTip.size() > 0)
-				graphics.text(font, toolTip.get(0), x - 10, y + 38, 0xEEEEEE + stringAlphaComponent, false);
+				graphics.text(font, toolTip.get(0), x - 10, y + 38, 0xFFEEEEEE + stringAlphaComponent, false);
 			if (toolTip.size() > 1)
-				graphics.text(font, toolTip.get(1), x - 10, y + 50, 0xCCDDFF + stringAlphaComponent, false);
+				graphics.text(font, toolTip.get(1), x - 10, y + 50, 0xFFCCDDFF + stringAlphaComponent, false);
 			if (toolTip.size() > 2)
-				graphics.text(font, toolTip.get(2), x - 10, y + 60, 0xCCDDFF + stringAlphaComponent, false);
+				graphics.text(font, toolTip.get(2), x - 10, y + 60, 0xFFCCDDFF + stringAlphaComponent, false);
 			if (toolTip.size() > 3)
-				graphics.text(font, toolTip.get(3), x - 10, y + 72, 0xCCCCDD + stringAlphaComponent, false);
+				graphics.text(font, toolTip.get(3), x - 10, y + 72, 0xFFCCCCDD + stringAlphaComponent, false);
 		}
 
 		if (tools.size() > 1) {
