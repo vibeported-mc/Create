@@ -118,7 +118,12 @@ public class AnalogLeverBlock extends FaceAttachedHorizontalDirectionalBlock imp
 
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-		return ((BlockBehaviourAccessor) Blocks.LEVER).create$getShape(state, worldIn, pos, context);
+		// 26.2 resolves a lever's shape through a map built over the lever's own states, so the vanilla
+		// block has to be asked about one of its own states rather than about this one.
+		BlockState leverState = Blocks.LEVER.defaultBlockState()
+			.setValue(FACE, state.getValue(FACE))
+			.setValue(FACING, state.getValue(FACING));
+		return ((BlockBehaviourAccessor) Blocks.LEVER).create$getShape(leverState, worldIn, pos, context);
 	}
 
 	@Override
