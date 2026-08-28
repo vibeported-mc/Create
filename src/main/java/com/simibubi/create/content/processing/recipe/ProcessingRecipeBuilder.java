@@ -187,7 +187,9 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	}
 
 	public S output(float chance, ItemLike item, int amount) {
-		return output(chance, new ItemStack(item, amount));
+		// Named rather than built as a stack: 26.2 binds an item's components when world data loads,
+		// and the dynamic pack's recipes are generated before that.
+		return output(new ProcessingOutput(item.asItem(), amount, chance));
 	}
 
 	public S output(ItemStack output) {
