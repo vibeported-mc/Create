@@ -1,8 +1,13 @@
-#version 150
+#version 330
+
+// Minecraft's own item shader, with two things left out: the vertex colour is taken as-is rather
+// than mixed with the light directions - that mixing is the diffuse shading this render type exists
+// to skip - and the overlay is not sampled, since these draws never carry one.
 
 #moj_import <minecraft:fog.glsl>
 #moj_import <minecraft:dynamictransforms.glsl>
 #moj_import <minecraft:projection.glsl>
+#moj_import <minecraft:sample_lightmap.glsl>
 
 in vec3 Position;
 in vec4 Color;
@@ -17,15 +22,15 @@ out float cylindricalVertexDistance;
 out vec4 vertexColor;
 out vec4 lightMapColor;
 out vec2 texCoord0;
-out vec4 normal;
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
     sphericalVertexDistance = fog_spherical_distance(Position);
     cylindricalVertexDistance = fog_cylindrical_distance(Position);
+
     vertexColor = Color;
-    lightMapColor = texelFetch(Sampler2, UV2 / 16, 0);
+    lightMapColor = sample_lightmap(Sampler2, UV2);
+
     texCoord0 = UV0;
-    normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
 }

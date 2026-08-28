@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -62,16 +61,11 @@ public class PartialItemModelRenderer {
 	}
 
 	public void renderGlowing(BlockStateModel model, int light) {
-		render(model, RenderTypes.itemGlowingTranslucent(inGui()), light);
+		render(model, RenderTypes.itemGlowingTranslucent(), light);
 	}
 
 	public void renderSolidGlowing(BlockStateModel model, int light) {
-		render(model, RenderTypes.itemGlowingSolid(inGui()), light);
-	}
-
-	/** A pipeline is only valid in the pass it was built for, and an inventory is not the level pass. */
-	private boolean inGui() {
-		return context.displayContext() == ItemDisplayContext.GUI;
+		render(model, RenderTypes.itemGlowingSolid(), light);
 	}
 
 	public void render(BlockStateModel model, RenderType type, int light) {

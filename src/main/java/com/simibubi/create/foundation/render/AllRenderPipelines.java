@@ -5,7 +5,6 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.BlendFactor;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.simibubi.create.Create;
 
@@ -29,51 +28,39 @@ public class AllRenderPipelines {
 	public static final Identifier GLOWING_ID = Create.asResource("core/glowing_shader");
 
 	/**
-	 * The glowing shader ignores the diffuse light direction, sampling the lightmap itself instead of
-	 * reusing the entity snippet.
+	 * The glowing shader is Minecraft's own item shader with the diffuse mixing and the overlay taken
+	 * out, so it needs only the texture and lightmap samplers - the lighting bind group vanilla's item
+	 * snippet adds is exactly what this render type exists to skip.
 	 * <p>
-	 * There are two of these because a pipeline is only valid in the pass it was built for: the level
-	 * pass draws through the matrices and fog snippet, while an inventory draws item geometry and
-	 * silently drops anything else. Both snippets already declare the samplers this shader reads.
+	 * One snippet serves both the level and an inventory. They looked like they needed a pipeline
+	 * each, but the two passes agree on everything a pipeline fixes: 26.2 draws item icons into an
+	 * offscreen atlas whose depth buffer is reversed the same way the level's is, so
+	 * {@link DepthStencilState#DEFAULT} is right for both.
 	 */
-	public static final RenderPipeline.Snippet GLOWING_SNIPPET = glowingSnippet(RenderPipelines.MATRICES_FOG_SNIPPET);
-
-	public static final RenderPipeline.Snippet GUI_GLOWING_SNIPPET = glowingSnippet(RenderPipelines.ITEM_SNIPPET);
-
-	private static RenderPipeline.Snippet glowingSnippet(RenderPipeline.Snippet base) {
-		RenderPipeline.Builder builder = RenderPipeline.builder(base)
-			.withVertexShader(GLOWING_ID)
-			.withFragmentShader(GLOWING_ID)
-			.withVertexBinding(0, DefaultVertexFormat.ENTITY)
-			.withPrimitiveTopology(PrimitiveTopology.QUADS)
-			.withDepthStencilState(DepthStencilState.DEFAULT);
-		if (base == RenderPipelines.MATRICES_FOG_SNIPPET)
-			builder.withBindGroupLayout(BindGroupLayouts.SAMPLER0_SAMPLER2);
-		return builder.buildSnippet();
-	}
+	public static final RenderPipeline.Snippet GLOWING_SNIPPET = RenderPipeline
+		.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+		.withVertexShader(GLOWING_ID)
+		.withFragmentShader(GLOWING_ID)
+		.withBindGroupLayout(BindGroupLayouts.SAMPLER0_SAMPLER2)
+		.withVertexBinding(0, DefaultVertexFormat.ENTITY)
+		.withPrimitiveTopology(PrimitiveTopology.QUADS)
+		.withDepthStencilState(DepthStencilState.DEFAULT)
+		.buildSnippet();
 
 	public static final RenderPipeline ADDITIVE = pipeline("additive",
 		RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
 			.withColorTargetState(new ColorTargetState(BlendFunction.ADDITIVE))
 			.withCull(false));
 
-	public static final RenderPipeline GLOWING = pipeline("glowing", glowing(GLOWING_SNIPPET));
+	/**
+	 * The solid half draws opaque. It is the lit core of a model whose glow is the separate
+	 * translucent half, and blending it turns that core into a window.
+	 */
+	public static final RenderPipeline GLOWING = pipeline("glowing", RenderPipeline.builder(GLOWING_SNIPPET));
 
 	public static final RenderPipeline GLOWING_TRANSLUCENT = pipeline("glowing_translucent",
 		RenderPipeline.builder(GLOWING_SNIPPET)
 			.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT)));
-
-	public static final RenderPipeline GUI_GLOWING = pipeline("gui_glowing", glowing(GUI_GLOWING_SNIPPET));
-
-	public static final RenderPipeline GUI_GLOWING_TRANSLUCENT = pipeline("gui_glowing_translucent",
-		RenderPipeline.builder(GUI_GLOWING_SNIPPET)
-			.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT)));
-
-	private static RenderPipeline.Builder glowing(RenderPipeline.Snippet snippet) {
-		return RenderPipeline.builder(snippet)
-			.withColorTargetState(new ColorTargetState(new BlendFunction(BlendFactor.SRC_ALPHA,
-				BlendFactor.ONE_MINUS_SRC_ALPHA, BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA)));
-	}
 
 	/**
 	 * Additive blending over the particle snippet, for Create's own particle group.
@@ -93,8 +80,6 @@ public class AllRenderPipelines {
 		event.registerPipeline(ADDITIVE_PARTICLE);
 		event.registerPipeline(GLOWING);
 		event.registerPipeline(GLOWING_TRANSLUCENT);
-		event.registerPipeline(GUI_GLOWING);
-		event.registerPipeline(GUI_GLOWING_TRANSLUCENT);
 	}
 
 }

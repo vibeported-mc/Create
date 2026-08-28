@@ -112,7 +112,7 @@ public class BogeyStyle {
 	@OnlyIn(Dist.CLIENT)
 	@Nullable
 	public BogeyVisual createVisual(BogeySize size, VisualizationContext ctx, float partialTick, boolean inContraption) {
-		SizeRenderer renderer = sizeRenderers.get(size);
+		SizeRenderer renderer = sizeRenderers == null ? null : sizeRenderers.get(size);
 		if (renderer != null) {
 			return renderer.visualizer.createVisual(ctx, partialTick, inContraption);
 		}
