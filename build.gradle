@@ -67,6 +67,13 @@ neoForge {
 
         client {
             client()
+
+            // -PquickPlay=<world folder> boots straight into that singleplayer world, which saves
+            // walking the menus on every launch when testing a render change.
+            if (project.hasProperty("quickPlay")) {
+                programArgument("--quickPlaySingleplayer")
+                programArgument(project.property("quickPlay") as String)
+            }
         }
 
         server {
