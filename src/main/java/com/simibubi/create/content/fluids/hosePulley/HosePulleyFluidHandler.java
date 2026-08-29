@@ -125,11 +125,20 @@ public class HosePulleyFluidHandler implements ResourceHandler<FluidResource> {
 		journal.updateSnapshots(transaction);
 		pendingPulls++;
 
-		int available = 1000 + internalTank.getFluidAmount();
+		int held = internalTank.getFluidAmount();
+		int available = 1000 + held;
 		int drained = Math.min(amount, available);
 		int leftover = available - drained;
 
-		internalTank.set(0, leftover > 0 ? resource : FluidResource.EMPTY, leftover);
+		// Through the transaction rather than straight into the tank. set writes past the transaction
+		// it is inside, so a pass that only meant to ask what was available left the fluid behind while
+		// the pull that would have taken it out of the pool was rolled back: fluid out of nowhere, and
+		// a pool that never went down.
+		if (leftover > held)
+			internalTank.insert(0, resource, leftover - held, transaction);
+		else if (leftover < held)
+			internalTank.extract(0, resource, held - leftover, transaction);
+
 		return drained;
 	}
 

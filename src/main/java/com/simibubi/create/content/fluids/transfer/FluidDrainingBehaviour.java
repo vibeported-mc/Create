@@ -360,8 +360,10 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 	}
 
 	public FluidStack getDrainableFluid(BlockPos rootPos) {
-		return fluid == null || isSearching() || !pullNext(rootPos, true) ? FluidStack.EMPTY
-			: new FluidStack(fluid, 1000);
+		// Asked first, and once. This call is what walks the pool and settles what is under the hose;
+		// behind the short circuit it is never reached, because the fluid is unknown until it runs.
+		boolean pulled = pullNext(rootPos, true);
+		return fluid == null || isSearching() || !pulled ? FluidStack.EMPTY : new FluidStack(fluid, 1000);
 	}
 
 }
