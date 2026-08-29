@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="Read attached LICENSE.md"
+
+[[mods]]
+modId="create_gametest"
+version="1.0.0"
+displayName="Create Client GameTests"
+description='''Client gametests for Create. Only does anything when the game is launched with -Dfabric.client.gametest=true, which is what runClientGameTest does.'''
+
+[modproperties.create_gametest]
+fabric-client-gametest = ["com.simibubi.create.gametest.client.WaterWheelClientGameTest"]
+
+[[dependencies.create_gametest]]
+modId="create"
+type="required"
+versionRange="[0,)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.create_gametest]]
+modId="fabric_client_gametest_api_v1"
+type="required"
+versionRange="[0,)"
+ordering="AFTER"
+side="CLIENT"

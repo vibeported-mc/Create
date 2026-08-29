@@ -6,6 +6,9 @@ plugins {
     id("dev.ithundxr.silk") version "1.0.1" // https://github.com/ithundxr/silk
     id("net.neoforged.moddev") version "2.0.144" // https://projects.neoforged.net/neoforged/ModDevGradle
     id("me.modmuss50.mod-publish-plugin") version "1.1.0" // https://github.com/modmuss50/mod-publish-plugin
+    // Client gametests: builds src/gametest as its own mod and adds the runClientGameTest run.
+    // Built from Wurst-Imperium/neoforge-client-gametest-api branch 26.2 and published to mavenLocal.
+    id("net.wimods.neoforge-client-gametest-api") version "0.1.0+26.2"
 }
 
 boolean dev = System.getenv("RELEASE") == null || System.getenv("RELEASE") == "false"
