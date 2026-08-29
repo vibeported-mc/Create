@@ -58,8 +58,6 @@ public class WaterWheelTests {
 			assertBlock(level, motor, AllBlocks.CREATIVE_MOTOR);
 			assertDriven(level, wheel, motor);
 		});
-
-		context.takeScreenshot("water_wheel");
 	}
 
 	@ClientGameTest
@@ -91,8 +89,6 @@ public class WaterWheelTests {
 
 			assertDriven(level, wheel, motor);
 		});
-
-		context.takeScreenshot("large_water_wheel");
 	}
 
 	private static void setBlock(TestServerContext server, BlockPos pos, String state) {
