@@ -56,8 +56,16 @@ public class HosePulleyFluidHandler implements ResourceHandler<FluidResource> {
 		return internalTank.getResource(tank);
 	}
 
+	/**
+	 * The pool the hose is hanging in, when nothing is held internally. Both halves of what a tank
+	 * reports have to agree: {@link #getResource} already answers with the fluid down there, and
+	 * saying nought of it is available leaves every reader holding an empty stack and concluding the
+	 * pulley has nothing to give.
+	 */
 	@Override
 	public long getAmountAsLong(int tank) {
+		if (internalTank.isEmpty())
+			return drainer.getDrainableFluid(rootPosGetter.get()).getAmount();
 		return internalTank.getAmountAsLong(tank);
 	}
 

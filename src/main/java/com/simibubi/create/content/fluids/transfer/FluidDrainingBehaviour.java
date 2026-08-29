@@ -261,6 +261,12 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 		reset();
 		rootPos = root;
 		affectedArea = BoundingBox.fromCorners(rootPos, rootPos);
+		// Whether there is anything worth searching for is a question about this root, so it is asked
+		// here rather than left to the next tick. The frontier is only ever seeded in this method, and
+		// on the first call - a hose pulley newly lowered into a pool, asking what it can drain - the
+		// answer from before there was a root at all is no. The search would never start, and the
+		// pulley would report nothing to drain for ever after.
+		isValid = checkValid(getWorld(), rootPos);
 		if (isValid)
 			frontier.add(new BlockPosEntry(root, 0));
 	}

@@ -67,7 +67,10 @@ public class FluidPipeBlock extends PipeBlock implements SimpleWaterloggedBlock,
 	public static final MapCodec<FluidPipeBlock> CODEC = simpleCodec(FluidPipeBlock::new);
 
 	public FluidPipeBlock(Properties properties) {
-		super(4 / 16f, properties);
+		// Eight pixels across, centred: the same 4 to 12 core as the occlusion box below. PipeBlock used
+		// to be given an apothem as a fraction of a block, and is now given a width in pixels, so the
+		// old 4/16 made a quarter-of-a-pixel speck with no outline and nothing to click on.
+		super(8, properties);
 		this.registerDefaultState(super.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, false));
 	}
 

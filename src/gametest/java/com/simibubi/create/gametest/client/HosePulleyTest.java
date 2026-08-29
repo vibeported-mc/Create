@@ -3,7 +3,6 @@ package com.simibubi.create.gametest.client;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
@@ -52,14 +51,14 @@ public class HosePulleyTest {
 	private static final int PUMP_SPEED = 256;
 
 	/** The pulleys are wound down gently, so a hose stops where it is meant to. */
-	private static final int PULLEY_SPEED = 64;
+	private static final int PULLEY_SPEED = 256;
 
 	/** Long enough at that speed for a hose to reach the floor of a tank. */
-	private static final int LOWERING_TICKS = 200;
+	private static final int LOWERING_TICKS = 60;
 
 	private static final int PATIENCE_TICKS = 600;
 
-	@Disabled("The pipe network never asks the source pulley for fluid, so nothing is drained. See the note on the class.")
+	@org.junit.jupiter.api.Disabled("Still no fluid reaches the far tank; see the note on the class.")
 	@ClientGameTest(screenshot = false)
 	@DisplayName("Hose pulleys drain one glass tank into another")
 	void pulleyToPulley(ClientGameTestContext context, TestSingleplayerContext singleplayer,
