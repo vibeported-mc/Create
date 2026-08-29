@@ -74,7 +74,7 @@ public abstract class TrainHUDUpdatePacket implements CustomPacketPayload {
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
-			return AllPackets.S_TRAIN_HONK.getType();
+			return AllPackets.S_TRAIN_HUD.getType();
 		}
 
 		private static double nonStalledSpeed(Train train) {
@@ -105,7 +105,7 @@ public abstract class TrainHUDUpdatePacket implements CustomPacketPayload {
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
-			return AllPackets.C_TRAIN_HONK.getType();
+			return AllPackets.C_TRAIN_HUD.getType();
 		}
 	}
 

@@ -75,7 +75,7 @@ public abstract class TrainEditPacket implements CustomPacketPayload {
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
-			return AllPackets.C_TRAIN_HONK.getType();
+			return AllPackets.C_CONFIGURE_TRAIN.getType();
 		}
 	}
 

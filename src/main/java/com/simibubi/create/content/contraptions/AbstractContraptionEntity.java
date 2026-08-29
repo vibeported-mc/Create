@@ -7,6 +7,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
+import com.simibubi.create.AllEntityDataSerializers;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.createmod.catnip.api.network.NetworkHelper;
 import java.util.Collection;
@@ -88,10 +89,8 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 	private static final EntityDataAccessor<Boolean> STALLED =
 		SynchedEntityData.defineId(AbstractContraptionEntity.class, EntityDataSerializers.BOOLEAN);
-	private static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID =
-		EntityDataSerializer.forValueType(ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC));
 	private static final EntityDataAccessor<Optional<UUID>> CONTROLLED_BY =
-		SynchedEntityData.defineId(AbstractContraptionEntity.class, OPTIONAL_UUID);
+		SynchedEntityData.defineId(AbstractContraptionEntity.class, AllEntityDataSerializers.OPTIONAL_UUID);
 
 	public final Map<Entity, MutableInt> collidingEntities;
 

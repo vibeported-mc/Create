@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.AllEntityDataSerializers;
 import com.simibubi.create.AllAttachmentTypes;
 import com.simibubi.create.AllEntityTypes;
 import com.simibubi.create.api.contraption.storage.item.MountedItemStorageWrapper;
@@ -65,11 +66,8 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 
 	private static final Ingredient FUEL_ITEMS = Ingredient.of(Items.COAL, Items.CHARCOAL);
 
-	private static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID =
-		EntityDataSerializer.forValueType(UUIDUtil.STREAM_CODEC.apply(ByteBufCodecs::optional));
-
 	private static final EntityDataAccessor<Optional<UUID>> COUPLING =
-		SynchedEntityData.defineId(OrientedContraptionEntity.class, OPTIONAL_UUID);
+		SynchedEntityData.defineId(OrientedContraptionEntity.class, AllEntityDataSerializers.OPTIONAL_UUID);
 	private static final EntityDataAccessor<Direction> INITIAL_ORIENTATION =
 		SynchedEntityData.defineId(OrientedContraptionEntity.class, EntityDataSerializers.DIRECTION);
 

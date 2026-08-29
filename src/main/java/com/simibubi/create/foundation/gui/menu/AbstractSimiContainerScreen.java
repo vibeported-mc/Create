@@ -175,6 +175,19 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 		return super.mouseClicked(event, doubleClick);
 	}
 
+	/**
+	 * 26.2's AbstractContainerScreen answers a scroll itself and stops there, where it used to fall
+	 * through to whatever widget the cursor was over. Create's screens are full of widgets that are
+	 * driven by scrolling, so hand the event on when the slot actions do not want it.
+	 */
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (super.mouseScrolled(mouseX, mouseY, scrollX, scrollY))
+			return true;
+		return getChildAt(mouseX, mouseY).filter(child -> child.mouseScrolled(mouseX, mouseY, scrollX, scrollY))
+			.isPresent();
+	}
+
 	@Override
 	public GuiEventListener getFocused() {
 		GuiEventListener focused = super.getFocused();

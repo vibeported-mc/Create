@@ -49,7 +49,9 @@ public record ControlsInputPacket(List<Integer> activatedButtons, boolean press,
 			return;
 		}
 
-		if (player.isWithinBlockInteractionRange(controlsPos, 16))
+		// controlsPos is where the controls sit inside the contraption, not a position in the world, so
+		// the reach check has to go through the entity that knows where the contraption is.
+		if (ace.canInteractWithBlock(player, controlsPos, 16))
 			ControlsServerHandler.receivePressed(world, ace, controlsPos, uniqueID, activatedButtons, press);
 	}
 

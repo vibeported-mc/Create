@@ -51,7 +51,7 @@ public record EjectorPlacementPacket(int h, int v, BlockPos pos, Direction facin
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
-			return AllPackets.S_PLACE_PACKAGE_PORT.getType();
+			return AllPackets.S_PLACE_EJECTOR.getType();
 		}
 
 		@OnlyIn(Dist.CLIENT)

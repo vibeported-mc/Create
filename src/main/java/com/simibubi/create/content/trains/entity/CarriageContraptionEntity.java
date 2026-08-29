@@ -63,11 +63,8 @@ public class CarriageContraptionEntity extends OrientedContraptionEntity {
 
 	private static final EntityDataAccessor<CarriageSyncData> CARRIAGE_DATA =
 		SynchedEntityData.defineId(CarriageContraptionEntity.class, AllEntityDataSerializers.CARRIAGE_DATA);
-	// EntityDataSerializers.OPTIONAL_UUID is gone; serializers are now built from a stream codec.
-	private static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID =
-		EntityDataSerializer.forValueType(ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC));
 	private static final EntityDataAccessor<Optional<UUID>> TRACK_GRAPH =
-		SynchedEntityData.defineId(CarriageContraptionEntity.class, OPTIONAL_UUID);
+		SynchedEntityData.defineId(CarriageContraptionEntity.class, AllEntityDataSerializers.OPTIONAL_UUID);
 	private static final EntityDataAccessor<Boolean> SCHEDULED =
 		SynchedEntityData.defineId(CarriageContraptionEntity.class, EntityDataSerializers.BOOLEAN);
 

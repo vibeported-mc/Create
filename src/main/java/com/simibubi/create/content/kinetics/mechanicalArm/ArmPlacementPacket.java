@@ -58,7 +58,7 @@ public record ArmPlacementPacket(ListTag tag, BlockPos pos) implements SelfHandl
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
-			return AllPackets.S_PLACE_PACKAGE_PORT.getType();
+			return AllPackets.S_PLACE_ARM.getType();
 		}
 
 		@OnlyIn(Dist.CLIENT)
