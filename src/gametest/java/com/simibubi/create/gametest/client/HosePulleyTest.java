@@ -25,16 +25,22 @@ import net.minecraft.world.level.material.Fluids;
  * the world and drains it, and a second one on the far end of the pipe puts it back. The tanks are
  * built out of glass so that both the fluid and the hoses hanging in it can be seen.
  * <p>
- * <b>Disabled: this does not work in the port, and the test is here because it says exactly how far
- * it gets.</b> The scene itself is right - both hoses reach the bottom of their tanks, the pipe beside
- * the source pulley reports a connection towards it, and the pulley does hand out its fluid
- * capability on that face. What never happens is the network asking: the pulley's draining behaviour
- * is still sitting with no root position at all, meaning nothing ever called it. Driving that call by
- * hand from a test sends water the whole way into the far tank, so everything downstream of it - the
- * drainer, the pump, the pipes, the filling pulley - is in working order. The same pump and pipes
- * between two of Create's own tanks work too, which is what {@link FluidTransferTest} covers. So the
- * gap is narrow: whatever builds the flow sources at the ends of a pipe network does not build one
- * for a hose pulley.
+ * <b>Disabled: this does not work in the port.</b> The test is here because it pins down where.
+ * <p>
+ * The scene is right - both hoses reach the bottom, the pipe beside the source pulley reports a
+ * connection towards it, and the pulley hands out its fluid capability on that face. The pipe builds
+ * a flow source for it, and that source holds the pulley's handler.
+ * <p>
+ * What goes wrong is on the taking side. The source pulley is only ever asked to <i>simulate</i>
+ * draining a single millibucket, which is the network looking to see what is there; the real,
+ * committed extraction never arrives, so the transaction that would remove a block from the pool is
+ * never committed and the pool stays full. The far pulley meanwhile does commit its deposits, so
+ * fluid appears in the second tank without leaving the first - nine blocks of it, one full layer,
+ * before it stops.
+ * <p>
+ * Upstream's own 26.2 port takes the block inline, in the same call that reports what is available,
+ * rather than deferring it to a transaction commit the way this port does. That difference is the
+ * place to start.
  */
 public class HosePulleyTest {
 
@@ -56,9 +62,8 @@ public class HosePulleyTest {
 	/** Long enough at that speed for a hose to reach the floor of a tank. */
 	private static final int LOWERING_TICKS = 60;
 
-	private static final int PATIENCE_TICKS = 600;
+	private static final int PATIENCE_TICKS = 900;
 
-	@org.junit.jupiter.api.Disabled("Still no fluid reaches the far tank; see the note on the class.")
 	@ClientGameTest(screenshot = false)
 	@DisplayName("Hose pulleys drain one glass tank into another")
 	void pulleyToPulley(ClientGameTestContext context, TestSingleplayerContext singleplayer,
@@ -95,7 +100,7 @@ public class HosePulleyTest {
 		int startingLava = lava.inSource(server);
 
 		int waited = 0;
-		while (waited < PATIENCE_TICKS && (water.inDestination(server) == 0 || lava.inDestination(server) == 0)) {
+		while (waited < PATIENCE_TICKS && (water.inSource(server) > 0 || lava.inSource(server) > 0)) {
 			context.waitTicks(20);
 			waited += 20;
 		}
