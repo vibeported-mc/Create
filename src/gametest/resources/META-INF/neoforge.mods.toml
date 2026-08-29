@@ -16,6 +16,7 @@ fabric-client-gametest-junit = [
   "com.simibubi.create.gametest.client.LogisticsTest",
   "com.simibubi.create.gametest.client.FluidTransferTest",
   "com.simibubi.create.gametest.client.HosePulleyTest",
+  "com.simibubi.create.gametest.client.ItemLogisticsTest",
 ]
 
 [[dependencies.create_gametest]]

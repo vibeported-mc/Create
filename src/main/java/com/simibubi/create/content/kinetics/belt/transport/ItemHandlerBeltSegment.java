@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.belt.transport;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.component.DataComponents;
@@ -12,8 +14,11 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 /**
  * One belt position exposed as a single-slot handler.
  * <p>
- * The item is owned by the belt inventory, so the snapshot copies the transported stack at this
- * offset and puts it back on rollback.
+ * The items belong to the belt inventory, and neither operation here touches it the way a plain slot
+ * would: an insert is queued for the belt to take up on its next tick, and an extraction shrinks the
+ * stack where it lies instead of lifting it off. So the snapshot holds what a rollback needs to undo
+ * either - which item was at this offset and how much of it there was, and how long the belt queue
+ * already was.
  */
 public class ItemHandlerBeltSegment implements ResourceHandler<ItemResource> {
 
@@ -87,29 +92,47 @@ public class ItemHandlerBeltSegment implements ResourceHandler<ItemResource> {
 		return extracted;
 	}
 
-	private class SegmentJournal extends SnapshotJournal<@Nullable TransportedItemStack> {
+	/**
+	 * What this segment can disturb, as it stood when a transaction first reached it.
+	 *
+	 * @param onBelt the item at this offset, which is the one an extraction goes on to shrink
+	 * @param count  how much of it there was
+	 * @param queued how many items the belt already had waiting to be let on
+	 */
+	private record Segment(@Nullable TransportedItemStack onBelt, int count, int queued) {
+	}
+
+	private class SegmentJournal extends SnapshotJournal<Segment> {
 		@Override
-		protected @Nullable TransportedItemStack createSnapshot() {
+		protected Segment createSnapshot() {
 			TransportedItemStack transported = beltInventory.getStackAtOffset(offset);
-			return transported == null ? null : transported.copy();
+			return new Segment(transported, transported == null ? 0 : transported.stack.getCount(),
+				beltInventory.toInsert.size());
 		}
 
 		@Override
-		protected void revertToSnapshot(@Nullable TransportedItemStack snapshot) {
-			TransportedItemStack current = beltInventory.getStackAtOffset(offset);
-			if (current != null) {
-				beltInventory.toRemove.remove(current);
-				beltInventory.getTransportedItems()
-					.remove(current);
+		protected void revertToSnapshot(Segment snapshot) {
+			// Anything queued since was conjured by a transaction that only meant to ask. The belt does
+			// not count it among its items yet, so a rollback that went looking there would miss it and
+			// let it ride away as though the insert had stood.
+			List<TransportedItemStack> queue = beltInventory.toInsert;
+			if (queue.size() > snapshot.queued())
+				queue.subList(snapshot.queued(), queue.size())
+					.clear();
+
+			// An extraction leaves the stack where it lies, so giving back what it took is a matter of
+			// the count - and of sparing the stack the removal an emptied one is marked for.
+			if (snapshot.onBelt() != null) {
+				snapshot.onBelt().stack.setCount(snapshot.count());
+				beltInventory.toRemove.remove(snapshot.onBelt());
 			}
-			if (snapshot != null)
-				beltInventory.addItem(snapshot);
 		}
 
 		@Override
-		protected void onRootCommit(@Nullable TransportedItemStack originalState) {
+		protected void onRootCommit(Segment originalState) {
 			beltInventory.belt.notifyUpdate();
 		}
 	}
+
 
 }

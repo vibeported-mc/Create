@@ -26,6 +26,12 @@ public class BeltHelper {
 	public static final ResourceManagerReloadListener LISTENER = resourceManager -> uprightCache.clear();
 
 	public static boolean isItemUpright(ItemStack stack) {
+		// Nothing stands upright, and asking would throw: the access below refuses an empty stack. A
+		// belt does hold one from time to time, since a stack an extraction emptied is only dropped on
+		// the next tick, and it is written out and read back again in the meantime.
+		if (stack.isEmpty())
+			return false;
+
 		return uprightCache.computeIfAbsent(
 			stack.getItem(),
 			item -> {
