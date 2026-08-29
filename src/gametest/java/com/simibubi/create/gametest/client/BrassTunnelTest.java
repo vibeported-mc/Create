@@ -14,6 +14,8 @@ import com.simibubi.create.content.kinetics.belt.item.BeltConnectorItem;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
 import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity.SelectionMode;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
+import com.simibubi.create.foundation.blockEntity.behaviour.filtering.SidedFilteringBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
 
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -22,6 +24,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import net.fabricmc.fabric.api.client.gametest.v1.junit.ClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -70,6 +73,11 @@ public class BrassTunnelTest {
 	 * choice however the mode makes it, which leaves turn-taking nothing to show for itself.
 	 */
 	private static final Item SEPARATE = Items.WOODEN_SWORD;
+
+	/** One kind of item to each belt, for the tunnels told to sort rather than to share out. */
+	private static final List<Item> SORTED = List.of(Items.DIAMOND, Items.IRON_INGOT, Items.COAL);
+
+	private static final int EACH = 4;
 
 	/** Long enough for this much to travel four blocks, and short enough to sit through. */
 	private static final int PATIENCE_TICKS = 200;
@@ -148,6 +156,105 @@ public class BrassTunnelTest {
 			"Synchronize did not deliver everything that went in: " + arrived);
 	}
 
+	@ClientGameTest(screenshot = false)
+	@DisplayName("Filtered tunnels send each kind of item down its own belt")
+	void sortsByFilter(ClientGameTestContext context, TestSingleplayerContext singleplayer,
+		TestServerContext server) {
+		singleplayer.getClientLevel()
+			.waitForChunksRender();
+
+		// Its own patch of the world, past the one each mode took.
+		int origin = SelectionMode.values().length * 8;
+
+		for (int belt = 0; belt < BELTS; belt++)
+			buildBelt(server, origin + belt);
+
+		// Everything goes in on the first belt, mixed together.
+		setBlock(server, new BlockPos(0, BELT_Y + 1, origin), "create:chute[facing=down,shape=normal]");
+		setBlock(server, source(origin), "minecraft:chest");
+
+		for (int kind = 0; kind < SORTED.size(); kind++)
+			give(server, source(origin), kind, SORTED.get(kind), EACH);
+
+		setBlock(server, motor(origin), "create:creative_motor[facing=south]");
+
+		server.runOnServer(minecraftServer -> {
+			ServerLevel level = minecraftServer.overworld();
+
+			for (int belt = 0; belt < BELTS; belt++) {
+				layBelt(level, origin + belt);
+				encase(level, origin + belt);
+			}
+
+			((CreativeMotorBlockEntity) level.getBlockEntity(motor(origin))).generatedSpeed.setValue(-64);
+		});
+
+		for (int belt = 0; belt < BELTS; belt++) {
+			setBlock(server, tunnel(origin + belt), "create:brass_tunnel");
+			setBlock(server, unloader(origin + belt),
+				"create:brass_belt_funnel[facing=west,shape=retracted,powered=false]");
+		}
+
+		// A tunnel is given its filters only once it has stood for a tick, so they are set after one.
+		context.waitTicks(2);
+
+		server.runOnServer(minecraftServer -> {
+			ServerLevel level = minecraftServer.overworld();
+
+			// A tunnel filters the side an item would leave by, which for these belts is the way they
+			// run. One kind to each, so every item has exactly one way out of the group.
+			for (int belt = 0; belt < BELTS; belt++)
+				keepFor(level, tunnel(origin + belt), SORTED.get(belt));
+		});
+
+		lookDownOn(context, server, origin);
+
+		for (int belt = 0; belt < BELTS; belt++)
+			context.showContainerOverlay(destination(origin + belt));
+
+		context.showContainerOverlay(source(origin));
+		context.waitTicks(20);
+		context.takeScreenshot(shot("sorted_before"));
+
+		int waited = 0;
+
+		while (waited < PATIENCE_TICKS && sortedSoFar(server, origin) < SORTED.size() * EACH) {
+			context.waitTicks(10);
+			waited += 10;
+		}
+
+		context.takeScreenshot(shot("sorted_after"));
+
+		for (int belt = 0; belt < BELTS; belt++) {
+			for (Item kind : SORTED) {
+				int found = countIn(server, destination(origin + belt), kind);
+
+				assertEquals(kind == SORTED.get(belt) ? EACH : 0, found,
+					"Belt " + belt + " should have ended up with " + (kind == SORTED.get(belt) ? EACH : 0)
+						+ " of " + kind + " and had " + found);
+			}
+		}
+	}
+
+	/** How much has reached the belt its filter sends it to. */
+	private int sortedSoFar(TestServerContext server, int origin) {
+		int found = 0;
+
+		for (int belt = 0; belt < BELTS; belt++)
+			found += countIn(server, destination(origin + belt), SORTED.get(belt));
+
+		return found;
+	}
+
+	/** Tells a tunnel to let this one kind of item out of the side its belt runs towards. */
+	private static void keepFor(ServerLevel level, BlockPos pos, Item kind) {
+		if (!(BlockEntityBehaviour.get(level, pos, FilteringBehaviour.TYPE) instanceof
+			SidedFilteringBehaviour filtering))
+			throw new AssertionError("No tunnel to set the filter of at " + pos);
+
+		filtering.setFilter(Direction.EAST, new ItemStack(kind));
+	}
+
 	/**
 	 * Builds a scene of its own for the given mode, feeds it, and reports what reached the chest at the
 	 * end of each belt.
@@ -197,11 +304,22 @@ public class BrassTunnelTest {
 
 		server.runOnServer(minecraftServer -> {
 			ServerLevel level = minecraftServer.overworld();
+
 			for (int belt = 0; belt < BELTS; belt++)
 				setMode(level, tunnel(origin + belt), mode);
 		});
 
 		lookDownOn(context, server, origin);
+
+		// Every chest says what is in it, beside itself, so a picture of the scene shows where the items
+		// went as well as where they are.
+		for (int belt = 0; belt < BELTS; belt++) {
+			if (belt == 0 || feedEveryBelt)
+				context.showContainerOverlay(source(origin + belt));
+
+			context.showContainerOverlay(destination(origin + belt));
+		}
+
 		context.waitTicks(20);
 		context.takeScreenshot(shot(mode, "before"));
 
@@ -343,9 +461,19 @@ public class BrassTunnelTest {
 	}
 
 	private static TestScreenshotOptions shot(SelectionMode mode, String when) {
-		return TestScreenshotOptions.of("brass_tunnel_" + mode.name()
-			.toLowerCase() + "_" + when)
+		return shot(mode.name()
+			.toLowerCase() + "_" + when);
+	}
+
+	private static TestScreenshotOptions shot(String name) {
+		return TestScreenshotOptions.of("brass_tunnel_" + name)
 			.withSize(1280, 720);
+	}
+
+	/** A given kind into a given slot, for a chest that is to hold more than one kind. */
+	private static void give(TestServerContext server, BlockPos pos, int slot, Item cargo, int count) {
+		server.runCommand("item replace block %d %d %d container.%d with %s %d".formatted(pos.getX(),
+			pos.getY(), pos.getZ(), slot, BuiltInRegistries.ITEM.getKey(cargo), count));
 	}
 
 	/** One heap of it where it stacks, a slot apiece where it does not. */

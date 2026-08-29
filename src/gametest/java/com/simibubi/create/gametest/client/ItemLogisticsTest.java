@@ -90,6 +90,15 @@ public class ItemLogisticsTest {
 		server.runOnServer(minecraftServer -> setFilter(minecraftServer.overworld(), loadingFunnel(BRASS_LANE),
 			new ItemStack(ALLOWED)));
 
+		// Every chest says what is in it, beside itself, so a picture of the scene shows what each lane
+		// carried and what it turned away.
+		for (int lane : LANES) {
+			context.showContainerOverlay(chuteSource(lane));
+			context.showContainerOverlay(chuteDestination(lane));
+			context.showContainerOverlay(loadingChest(lane));
+			context.showContainerOverlay(unloadingChest(lane));
+		}
+
 		watchTheWholeThing(context, server);
 		context.waitTicks(20);
 		context.takeScreenshot(shot("item_logistics_before"));
