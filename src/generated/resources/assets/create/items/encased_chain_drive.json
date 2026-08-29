@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/encased_chain_drive"
+    "model": "create:block/encased_chain_drive/item"
   }
 }

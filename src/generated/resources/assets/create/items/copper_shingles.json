@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/copper_shingles"
+    "model": "create:block/copper_shingles"
   }
 }

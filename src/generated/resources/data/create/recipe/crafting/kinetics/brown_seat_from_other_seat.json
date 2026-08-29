@@ -6,7 +6,6 @@
     "#create:seats"
   ],
   "result": {
-    "count": 1,
     "id": "create:brown_seat"
   }
 }

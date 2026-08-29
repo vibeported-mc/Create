@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/brass_casing"
+    "model": "create:block/brass_casing"
   }
 }

@@ -3,7 +3,6 @@
   "addition": "create:copper_backtank",
   "base": "minecraft:netherite_chestplate",
   "result": {
-    "count": 1,
     "id": "create:netherite_backtank"
   },
   "template": "minecraft:netherite_upgrade_smithing_template"

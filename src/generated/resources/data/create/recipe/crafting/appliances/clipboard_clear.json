@@ -1,11 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
   "ingredients": [
     "create:clipboard"
   ],
   "result": {
-    "count": 1,
     "id": "create:clipboard"
   }
 }

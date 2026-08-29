@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/crimsite_pillar"
+    "model": "create:block/crimsite_pillar"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/tuff_pillar"
+    "model": "create:block/tuff_pillar"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/item_hatch"
+    "model": "create:block/item_hatch/block_closed"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/deepslate_zinc_ore"
+    "model": "create:block/deepslate_zinc_ore"
   }
 }

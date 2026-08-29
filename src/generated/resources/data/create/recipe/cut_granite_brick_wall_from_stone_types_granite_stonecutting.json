@@ -2,7 +2,6 @@
   "type": "minecraft:stonecutting",
   "ingredient": "#create:stone_types/granite",
   "result": {
-    "count": 1,
     "id": "create:cut_granite_brick_wall"
   }
 }

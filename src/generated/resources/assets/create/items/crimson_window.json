@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/crimson_window"
+    "model": "create:block/crimson_window"
   }
 }

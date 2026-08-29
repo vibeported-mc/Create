@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/copycat_step"
+    "model": "create:block/copycat_base/step"
   }
 }

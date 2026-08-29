@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/cut_granite"
+    "model": "create:block/cut_granite"
   }
 }

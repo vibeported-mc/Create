@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/diorite_pillar"
+    "model": "create:block/diorite_pillar"
   }
 }

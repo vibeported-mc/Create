@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "G": "create:andesite_alloy",
     "P": "#c:ingots/copper"
@@ -11,7 +10,6 @@
     "G G"
   ],
   "result": {
-    "count": 1,
     "id": "create:copper_diving_boots"
   }
 }

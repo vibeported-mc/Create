@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/gantry_shaft"
+    "model": "create:block/gantry_shaft/block_single"
   }
 }

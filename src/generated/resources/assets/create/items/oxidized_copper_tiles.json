@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/oxidized_copper_tiles"
+    "model": "create:block/oxidized_copper_tiles"
   }
 }

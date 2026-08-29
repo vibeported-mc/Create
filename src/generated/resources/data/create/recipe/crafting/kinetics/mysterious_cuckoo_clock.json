@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "B": "create:cuckoo_clock",
     "C": "#c:gunpowders"
@@ -11,7 +10,6 @@
     " C "
   ],
   "result": {
-    "count": 1,
     "id": "create:mysterious_cuckoo_clock"
   }
 }

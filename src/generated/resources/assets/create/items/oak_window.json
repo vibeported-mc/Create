@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/oak_window"
+    "model": "create:block/oak_window"
   }
 }

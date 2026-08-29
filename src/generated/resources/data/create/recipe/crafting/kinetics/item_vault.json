@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "B": "#c:plates/iron",
     "C": "#c:barrels/wooden"
@@ -11,7 +10,6 @@
     "B"
   ],
   "result": {
-    "count": 1,
     "id": "create:item_vault"
   }
 }

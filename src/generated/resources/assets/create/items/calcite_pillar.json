@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/calcite_pillar"
+    "model": "create:block/calcite_pillar"
   }
 }

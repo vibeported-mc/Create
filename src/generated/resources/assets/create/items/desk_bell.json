@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/desk_bell"
+    "model": "create:block/desk_bell/block"
   }
 }

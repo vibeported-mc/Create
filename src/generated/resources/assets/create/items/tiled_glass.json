@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/tiled_glass"
+    "model": "create:block/tiled_glass"
   }
 }

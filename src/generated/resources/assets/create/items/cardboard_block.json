@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/cardboard_block"
+    "model": "create:block/cardboard_block"
   }
 }

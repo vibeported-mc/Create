@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/cut_ochrum_stairs"
+    "model": "create:block/cut_ochrum_stairs"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/piston_extension_pole"
+    "model": "create:block/piston_extension_pole"
   }
 }

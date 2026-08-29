@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/zinc_block"
+    "model": "create:block/zinc_block"
   }
 }

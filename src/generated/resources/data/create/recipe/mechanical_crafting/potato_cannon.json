@@ -1,7 +1,6 @@
 {
   "type": "create:mechanical_crafting",
   "accept_mirrored": true,
-  "category": "misc",
   "key": {
     "C": "#c:ingots/copper",
     "L": "create:andesite_alloy",
@@ -13,7 +12,6 @@
     "CC   "
   ],
   "result": {
-    "count": 1,
     "id": "create:potato_cannon"
   }
 }

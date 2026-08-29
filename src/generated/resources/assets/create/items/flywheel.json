@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/flywheel"
+    "model": "create:block/flywheel/item"
   }
 }

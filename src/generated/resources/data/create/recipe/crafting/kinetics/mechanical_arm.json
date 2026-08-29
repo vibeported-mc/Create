@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "A": "create:andesite_alloy",
     "C": "create:brass_casing",
@@ -13,7 +12,6 @@
     "IC "
   ],
   "result": {
-    "count": 1,
     "id": "create:mechanical_arm"
   }
 }

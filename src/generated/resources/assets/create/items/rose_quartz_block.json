@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/rose_quartz_block"
+    "model": "create:block/rose_quartz_block"
   }
 }

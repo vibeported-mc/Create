@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/elevator_contact"
+    "model": "create:block/elevator_contact/block"
   }
 }

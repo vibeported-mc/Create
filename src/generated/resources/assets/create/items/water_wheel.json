@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/water_wheel"
+    "model": "create:block/water_wheel/item"
   }
 }

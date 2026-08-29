@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/fluid_valve"
+    "model": "create:block/fluid_valve/item"
   }
 }

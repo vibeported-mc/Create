@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "A": "create:large_cogwheel",
     "C": "create:andesite_casing"

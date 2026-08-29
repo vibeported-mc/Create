@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/sticker"
+    "model": "create:block/sticker/item"
   }
 }

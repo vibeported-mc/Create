@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/pink_valve_handle"
+    "model": "create:block/pink_valve_handle"
   }
 }

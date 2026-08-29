@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/chute"
+    "model": "create:block/chute/block"
   }
 }

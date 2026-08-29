@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/framed_glass_trapdoor"
+    "model": "create:block/framed_glass_trapdoor"
   }
 }

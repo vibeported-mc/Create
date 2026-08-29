@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "G": "#c:glass_blocks",
     "P": "#c:plates/gold",
@@ -11,7 +10,6 @@
     "GPG"
   ],
   "result": {
-    "count": 1,
     "id": "create:goggles"
   }
 }

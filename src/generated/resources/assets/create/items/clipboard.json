@@ -1,6 +1,33 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "create:item/clipboard"
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "create:item/clipboard_0"
+        },
+        "when": "empty"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "create:item/clipboard_1"
+        },
+        "when": "written"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "create:item/clipboard_2"
+        },
+        "when": "editing"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "create:item/clipboard_0"
+    },
+    "property": "create:clipboard_type"
   }
 }

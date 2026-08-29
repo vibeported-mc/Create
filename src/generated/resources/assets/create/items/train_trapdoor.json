@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/train_trapdoor"
+    "model": "create:block/train_trapdoor"
   }
 }

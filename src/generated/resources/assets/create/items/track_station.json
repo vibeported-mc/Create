@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/track_station"
+    "model": "create:block/track_station/item"
   }
 }

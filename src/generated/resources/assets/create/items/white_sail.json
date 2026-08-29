@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/white_sail"
+    "model": "create:block/white_sail"
   }
 }

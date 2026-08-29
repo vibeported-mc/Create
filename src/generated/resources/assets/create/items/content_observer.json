@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/content_observer"
+    "model": "create:block/content_observer/block"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/factory_gauge"
+    "model": "create:block/factory_gauge/item"
   }
 }

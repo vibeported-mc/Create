@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "C": "create:cogwheel",
     "L": "#c:leathers",
@@ -13,7 +12,6 @@
     " L "
   ],
   "result": {
-    "count": 1,
     "id": "create:brown_toolbox"
   }
 }

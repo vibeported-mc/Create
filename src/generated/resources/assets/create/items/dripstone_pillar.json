@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/dripstone_pillar"
+    "model": "create:block/dripstone_pillar"
   }
 }

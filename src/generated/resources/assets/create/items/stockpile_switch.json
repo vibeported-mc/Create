@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/stockpile_switch"
+    "model": "create:block/threshold_switch/block_wall"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/jungle_window"
+    "model": "create:block/jungle_window"
   }
 }

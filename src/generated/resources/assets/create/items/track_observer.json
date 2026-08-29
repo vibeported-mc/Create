@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/track_observer"
+    "model": "create:block/track_observer/block"
   }
 }

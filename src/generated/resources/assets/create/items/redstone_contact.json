@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/redstone_contact"
+    "model": "create:block/redstone_contact/block"
   }
 }

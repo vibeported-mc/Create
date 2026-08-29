@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/scoria_pillar"
+    "model": "create:block/scoria_pillar"
   }
 }

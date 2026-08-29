@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/cut_scorchia"
+    "model": "create:block/cut_scorchia"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/refined_radiance_casing"
+    "model": "create:block/refined_radiance_casing"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/yellow_seat"
+    "model": "create:block/yellow_seat"
   }
 }

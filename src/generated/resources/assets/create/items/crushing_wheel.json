@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/crushing_wheel"
+    "model": "create:block/crushing_wheel/item"
   }
 }

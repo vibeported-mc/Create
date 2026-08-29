@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/steam_engine"
+    "model": "create:block/steam_engine/item"
   }
 }

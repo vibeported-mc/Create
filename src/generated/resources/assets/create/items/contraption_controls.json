@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/contraption_controls"
+    "model": "create:block/contraption_controls/item"
   }
 }

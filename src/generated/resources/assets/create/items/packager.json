@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/packager"
+    "model": "create:block/packager/item"
   }
 }

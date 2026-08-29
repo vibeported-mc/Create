@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/chain_conveyor"
+    "model": "create:block/chain_conveyor/item"
   }
 }

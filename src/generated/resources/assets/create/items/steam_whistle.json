@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/steam_whistle"
+    "model": "create:block/steam_whistle/item"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/nozzle"
+    "model": "create:block/nozzle/item"
   }
 }

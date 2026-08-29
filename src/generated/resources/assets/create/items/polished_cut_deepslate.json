@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/polished_cut_deepslate"
+    "model": "create:block/polished_cut_deepslate"
   }
 }

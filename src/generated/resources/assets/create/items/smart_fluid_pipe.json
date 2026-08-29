@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/smart_fluid_pipe"
+    "model": "create:block/smart_fluid_pipe/item"
   }
 }

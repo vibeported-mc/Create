@@ -6,7 +6,6 @@
     "#create:postboxes"
   ],
   "result": {
-    "count": 1,
     "id": "create:black_postbox"
   }
 }

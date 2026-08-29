@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "P": "create:cardboard"
   },
@@ -10,7 +9,6 @@
     "P P"
   ],
   "result": {
-    "count": 1,
     "id": "create:cardboard_leggings"
   }
 }

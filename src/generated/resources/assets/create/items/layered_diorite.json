@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/layered_diorite"
+    "model": "create:block/layered_diorite"
   }
 }

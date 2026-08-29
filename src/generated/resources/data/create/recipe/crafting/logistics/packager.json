@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "A": "create:cardboard_block",
     "C": "#c:ingots/iron",
@@ -12,7 +11,6 @@
     "RCR"
   ],
   "result": {
-    "count": 1,
     "id": "create:packager"
   }
 }

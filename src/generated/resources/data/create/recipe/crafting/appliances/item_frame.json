@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "P": "create:cardboard",
     "S": "#c:rods/wooden"
@@ -11,7 +10,6 @@
     "SSS"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:item_frame"
   }
 }

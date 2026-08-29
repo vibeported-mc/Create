@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/brass_block"
+    "model": "create:block/brass_block"
   }
 }

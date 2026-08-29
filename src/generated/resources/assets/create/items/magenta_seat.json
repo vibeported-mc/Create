@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/magenta_seat"
+    "model": "create:block/magenta_seat"
   }
 }

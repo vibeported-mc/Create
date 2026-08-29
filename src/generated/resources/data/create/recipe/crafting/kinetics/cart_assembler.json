@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "C": "create:andesite_alloy",
     "L": "#minecraft:logs",
@@ -11,7 +10,6 @@
     "L L"
   ],
   "result": {
-    "count": 1,
     "id": "create:cart_assembler"
   }
 }

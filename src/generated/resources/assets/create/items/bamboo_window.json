@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/bamboo_window"
+    "model": "create:block/bamboo_window"
   }
 }

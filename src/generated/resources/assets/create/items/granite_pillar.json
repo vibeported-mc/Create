@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/granite_pillar"
+    "model": "create:block/granite_pillar"
   }
 }

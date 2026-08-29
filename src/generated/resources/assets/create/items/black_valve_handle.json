@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/black_valve_handle"
+    "model": "create:block/black_valve_handle"
   }
 }

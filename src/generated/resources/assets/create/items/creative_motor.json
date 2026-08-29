@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/creative_motor"
+    "model": "create:block/creative_motor/item"
   }
 }

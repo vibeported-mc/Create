@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
   "ingredients": [
     "#minecraft:small_flowers",
     "#minecraft:small_flowers",

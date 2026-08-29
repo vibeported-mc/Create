@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/cardboard_sword"
+    "model": "create:item/cardboard_sword/item"
   }
 }

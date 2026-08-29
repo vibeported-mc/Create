@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "E": "#c:eggs",
     "M": "minecraft:milk_bucket",
@@ -13,7 +12,6 @@
     " P "
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:cake"
   }
 }

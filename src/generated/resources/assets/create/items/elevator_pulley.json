@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/elevator_pulley"
+    "model": "create:block/elevator_pulley/item"
   }
 }

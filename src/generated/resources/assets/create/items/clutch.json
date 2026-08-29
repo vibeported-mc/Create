@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/clutch"
+    "model": "create:block/clutch/item"
   }
 }

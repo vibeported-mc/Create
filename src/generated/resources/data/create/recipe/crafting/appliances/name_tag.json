@@ -1,13 +1,11 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
   "ingredients": [
     "#c:dyes/black",
     "#c:strings",
     "create:cardboard"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:name_tag"
   }
 }

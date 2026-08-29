@@ -1,7 +1,6 @@
 {
   "type": "create:mechanical_crafting",
   "accept_mirrored": false,
-  "category": "misc",
   "key": {
     "H": "create:brass_hand",
     "L": "#c:ingots/brass",
@@ -16,8 +15,6 @@
     " H "
   ],
   "result": {
-    "count": 1,
     "id": "create:extendo_grip"
-  },
-  "show_notification": false
+  }
 }

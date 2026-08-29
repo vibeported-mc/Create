@@ -1,7 +1,6 @@
 {
   "type": "create:mechanical_crafting",
   "accept_mirrored": true,
-  "category": "misc",
   "key": {
     "B": "#c:ingots/brass",
     "E": "#c:ender_pearls",
@@ -17,7 +16,6 @@
     " O "
   ],
   "result": {
-    "count": 1,
     "id": "create:wand_of_symmetry"
   }
 }

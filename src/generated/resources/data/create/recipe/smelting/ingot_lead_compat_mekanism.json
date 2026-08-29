@@ -7,7 +7,6 @@
   ],
   "type": "minecraft:smelting",
   "category": "blocks",
-  "cookingtime": 200,
   "experience": 0.1,
   "ingredient": "create:crushed_raw_lead",
   "result": {

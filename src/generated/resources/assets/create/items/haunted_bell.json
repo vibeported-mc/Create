@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/haunted_bell"
+    "model": "create:block/haunted_bell"
   }
 }

@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "A": "#c:nuggets/iron",
     "S": "#minecraft:wool"
@@ -9,7 +8,6 @@
     "ASA"
   ],
   "result": {
-    "count": 1,
     "id": "create:filter"
   }
 }

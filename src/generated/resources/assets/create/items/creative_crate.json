@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/creative_crate"
+    "model": "create:block/crate/creative/single"
   }
 }

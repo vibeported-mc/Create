@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/potato_cannon"
+    "model": "create:item/potato_cannon/item"
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/linked_controller"
+    "model": "create:item/linked_controller/item"
   }
 }

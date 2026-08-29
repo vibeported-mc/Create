@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "A": "#c:netherracks",
     "I": "#c:plates/iron"
@@ -11,7 +10,6 @@
     " I "
   ],
   "result": {
-    "count": 1,
     "id": "create:empty_blaze_burner"
   }
 }

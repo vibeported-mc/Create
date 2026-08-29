@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/layered_tuff"
+    "model": "create:block/layered_tuff"
   }
 }

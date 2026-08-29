@@ -10,18 +10,21 @@
           "type": "minecraft:apply_effects",
           "effects": [
             {
-              "id": "minecraft:poison",
+              "amplifier": 1,
               "duration": 1200,
-              "amplifier": 1
+              "id": "minecraft:poison",
+              "show_icon": true
             },
             {
-              "id": "minecraft:hunger",
+              "amplifier": 2,
               "duration": 300,
-              "amplifier": 2
+              "id": "minecraft:hunger",
+              "show_icon": true
             },
             {
+              "duration": 300,
               "id": "minecraft:nausea",
-              "duration": 300
+              "show_icon": true
             }
           ]
         }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/cuckoo_clock"
+    "model": "create:block/cuckoo_clock/item"
   }
 }

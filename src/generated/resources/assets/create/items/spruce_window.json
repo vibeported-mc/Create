@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/spruce_window"
+    "model": "create:block/spruce_window"
   }
 }

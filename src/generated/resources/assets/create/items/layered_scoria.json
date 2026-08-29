@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "create:item/layered_scoria"
+    "model": "create:block/layered_scoria"
   }
 }

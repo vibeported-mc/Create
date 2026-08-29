@@ -9,22 +9,26 @@
           "type": "minecraft:apply_effects",
           "effects": [
             {
-              "id": "minecraft:regeneration",
+              "amplifier": 1,
               "duration": 400,
-              "amplifier": 1
+              "id": "minecraft:regeneration",
+              "show_icon": true
             },
             {
+              "duration": 6000,
               "id": "minecraft:resistance",
-              "duration": 6000
+              "show_icon": true
             },
             {
+              "duration": 6000,
               "id": "minecraft:fire_resistance",
-              "duration": 6000
+              "show_icon": true
             },
             {
-              "id": "minecraft:absorption",
+              "amplifier": 3,
               "duration": 2400,
-              "amplifier": 3
+              "id": "minecraft:absorption",
+              "show_icon": true
             }
           ]
         }
