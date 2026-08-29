@@ -21,6 +21,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Places every block Create gives the player, on its own in mid air, and photographs it from every
@@ -88,8 +89,19 @@ public class BlocksSmokeTest {
 	private static final double HALF_FRAME = Math.tan(Math.toRadians(FOV * FILL / 2));
 
 	/**
-	 * Every block Create gives the player. Blocks with no item are the ones the mod places itself -
-	 * the halves of a large water wheel, the body of a multiblock - and they mean nothing alone.
+	 * The sixteen dye colours, in the order a block family is registered in.
+	 */
+	private static final List<String> DYES = List.of("white", "orange", "magenta", "light_blue", "yellow",
+		"lime", "pink", "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black");
+
+	/**
+	 * Every block Create gives the player, minus the repetitions.
+	 * <p>
+	 * Blocks with no item are the ones the mod places itself - the halves of a large water wheel, the
+	 * body of a multiblock - and they mean nothing standing alone. The dyed families are worse than
+	 * useless: a hundred and twelve pictures of the same six models in different colours, which nobody
+	 * is going to look through and which would hide the blocks that matter. One of each family stands
+	 * for the rest, and where there is an undyed block already - a nixie tube - that one does.
 	 */
 	static List<String> blocks() {
 		List<String> ids = new ArrayList<>();
@@ -107,7 +119,22 @@ public class BlocksSmokeTest {
 		}
 
 		ids.sort(null);
-		return ids;
+		return ids.stream().filter(id -> standsForItsColours(id, ids)).toList();
+	}
+
+	private static boolean standsForItsColours(String id, List<String> all) {
+		String path = id.substring(id.indexOf(':') + 1);
+
+		for (String dye : DYES) {
+			if (!path.startsWith(dye + "_")) {
+				continue;
+			}
+
+			String undyed = Create.ID + ":" + path.substring(dye.length() + 1);
+			return !all.contains(undyed) && DYES.getFirst().equals(dye);
+		}
+
+		return true;
 	}
 
 	/**
@@ -162,7 +189,9 @@ public class BlocksSmokeTest {
 		// Long enough for the section to be rebuilt and the block entity, if there is one, to be set up.
 		context.waitTicks(5 + SETTLE);
 
-		if (!stillStanding(server, id)) {
+		Placed placed = inspect(server, id);
+
+		if (!placed.present()) {
 			// Rails, seats, anything that wants something underneath it. Nothing to photograph, and
 			// nothing broken either.
 			Assumptions.abort(id + " cannot stand in mid air");
@@ -170,7 +199,7 @@ public class BlocksSmokeTest {
 
 		String name = id.replace(':', '_');
 
-		for (View view : subject.views()) {
+		for (View view : subject.views(placed.solid())) {
 			view.lookAt(server, subject, eyeHeight);
 			context.waitTicks(SETTLE);
 			context.takeScreenshot(TestScreenshotOptions.of(name + "_" + view.name())
@@ -181,10 +210,21 @@ public class BlocksSmokeTest {
 		context.waitTicks(SETTLE);
 	}
 
-	private static boolean stillStanding(TestServerContext server, String id) {
+	/**
+	 * What is actually standing at the origin, and whether it is a plain cube.
+	 *
+	 * @param present whether the block survived being put in mid air at all
+	 * @param solid whether it fills its space and hides what is behind it, which is Create's way of
+	 *              saying the model is an ordinary six sided box
+	 */
+	private record Placed(boolean present, boolean solid) {
+	}
+
+	private static Placed inspect(TestServerContext server, String id) {
 		return server.computeOnServer(minecraftServer -> {
 			Block expected = BuiltInRegistries.BLOCK.getValue(Identifier.parse(id));
-			return minecraftServer.overworld().getBlockState(ORIGIN).is(expected);
+			BlockState state = minecraftServer.overworld().getBlockState(ORIGIN);
+			return new Placed(state.is(expected), state.canOcclude());
 		});
 	}
 
@@ -220,8 +260,12 @@ public class BlocksSmokeTest {
 			setBlock(server, ORIGIN.east().above(), id);
 		}
 
-		List<View> views() {
-			return this == PANES ? VIEWS.subList(0, 1) : VIEWS;
+		/**
+		 * One corner is enough for a plain cube, whose remaining faces hold no surprises, and for a
+		 * wall of panes, which is only interesting from the front. Everything else earns all four.
+		 */
+		List<View> views(boolean solid) {
+			return this == PANES || (this == SINGLE && solid) ? VIEWS.subList(0, 1) : VIEWS;
 		}
 
 		/** The middle of what was built, which the camera points at. */
