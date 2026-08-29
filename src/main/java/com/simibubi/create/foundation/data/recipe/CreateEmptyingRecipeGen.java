@@ -1,6 +1,5 @@
 package com.simibubi.create.foundation.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
@@ -8,9 +7,9 @@ import com.simibubi.create.Create;
 import com.simibubi.create.api.data.recipe.EmptyingRecipeGen;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import net.neoforged.neoforge.common.NeoForgeMod;
 
@@ -52,7 +51,7 @@ public final class CreateEmptyingRecipeGen extends EmptyingRecipeGen {
 
 	;
 
-	public CreateEmptyingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateEmptyingRecipeGen(HolderLookup.Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 }

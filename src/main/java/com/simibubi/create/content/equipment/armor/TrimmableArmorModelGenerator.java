@@ -1,58 +1,42 @@
 package com.simibubi.create.content.equipment.armor;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
-import java.util.Map;
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.generators.RegistrateItemModelGenerator;
 
 import com.simibubi.create.Create;
-import com.simibubi.create.foundation.mixin.accessor.ItemModelGeneratorsAccessor;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateItemModelProvider;
 
-import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.equipment.ArmorType;
 
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelBuilder;
-
+/**
+ * Item models for armour that can carry a trim.
+ * <p>
+ * 26.2 generates these itself. A trimmed model used to be an override on the base model, picked by a
+ * predicate on {@code trim_type}, and building one meant reaching into the model builder's texture
+ * map by reflection to add the trim layer. Now a trimmable item is one call: the layers come from
+ * the material's {@link net.minecraft.world.item.equipment.EquipmentAsset}, and the slot decides
+ * which trim sprites are used.
+ */
 public class TrimmableArmorModelGenerator {
-	public static final VarHandle TEXTURES_HANDLE;
 
-	static {
-		try {
-			MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(ModelBuilder.class, MethodHandles.lookup());
-			TEXTURES_HANDLE = lookup.findVarHandle(ModelBuilder.class, "textures", Map.class);
-		} catch (IllegalAccessException | NoSuchFieldException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static <T extends ArmorItem> void generate(DataGenContext<Item, T> c, RegistrateItemModelProvider p) {
+	public static <T extends BaseArmorItem> void generate(DataGenContext<Item, T> c, RegistrateItemModelGenerator p) {
 		T item = c.get();
-		ItemModelBuilder builder = p.generated(c);
-		for (ItemModelGenerators.TrimModelData data : ItemModelGeneratorsAccessor.create$getGENERATED_TRIM_MODELS()) {
-			Identifier modelLoc = ModelLocationUtils.getModelLocation(item);
-			Identifier textureLoc = TextureMapping.getItemTexture(item);
-			String trimId = data.name(item.getMaterial());
-			Identifier trimModelLoc = modelLoc.withSuffix("_" + trimId + "_trim");
-			Identifier trimLoc =
-				Identifier.withDefaultNamespace("trims/items/" + item.getType().getName() + "_trim_" + trimId);
-			String parent = "item/generated";
-			if (item.getMaterial() == AllArmorMaterials.CARDBOARD) {
-				trimLoc = Create.asResource("trims/items/card_" + item.getType().getName() + "_trim_" + trimId);
-			}
-			ItemModelBuilder itemModel = p.withExistingParent(trimModelLoc.getPath(), parent)
-				.texture("layer0", textureLoc);
-			Map<String, String> textures = (Map<String, String>) TEXTURES_HANDLE.get(itemModel);
-			textures.put("layer1", trimLoc.toString());
-			builder.override()
-				.predicate(ItemModelGenerators.TRIM_TYPE_PREDICATE_ID, data.itemModelIndex())
-				.model(itemModel)
-				.end();
-		}
+		p.generateTrimmableItem(item, item.getMaterial()
+			.assetId(), slotTrimPrefix(item.getArmorType()), false);
 	}
+
+	/**
+	 * Create draws its cardboard trims from its own sprites rather than the vanilla ones, so the prefix
+	 * the trim layer is built from points into Create's namespace.
+	 */
+	private static Identifier slotTrimPrefix(ArmorType type) {
+		return Create.asResource("trims/items/card_" + switch (type) {
+			case HELMET -> "helmet";
+			case CHESTPLATE, BODY -> "chestplate";
+			case LEGGINGS -> "leggings";
+			case BOOTS -> "boots";
+		} + "_trim");
+	}
+
 }

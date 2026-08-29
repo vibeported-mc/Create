@@ -15,6 +15,7 @@ import com.simibubi.create.foundation.data.TagGen;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 import com.tterrag.registrate.providers.generators.RegistrateRecipeProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.DataIngredient;
@@ -25,7 +26,12 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.lang.Lang;
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Items;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -121,25 +127,31 @@ public class CopperBlockSet {
 		Supplier<Block> baseBlock = baseBlock(state);
 		BlockBuilder<T, ?> builder = registrate.block(name, variant.getFactory(this, state, waxed))
 			.initialProperties(() -> baseBlock.get())
-			// TODO 26.2: port datagen to the new recipe/loot builders
-			// .loot((lt, block) -> variant.generateLootTable(lt, block, this, state, waxed))
-			
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((ctx, prov) -> variant.generateBlockState(ctx, prov, this, state, waxed))
-			
-			
+			.loot((lt, block) -> variant.generateLootTable(lt, block, this, state, waxed))
+			.blockstate(() -> (ctx, prov) -> variant.generateBlockState(ctx, prov, this, state, waxed))
 			.transform(TagGen.pickaxeOnly())
 			.onRegister(block -> onRegister.accept(state, block))
 			.tag(BlockTags.NEEDS_STONE_TOOL)
 			.simpleItem();
 
-		// TODO 26.2: port datagen to the new recipe builders. This registered the block's own recipe
-		// and, for a waxed variant, the honeycomb recipe that produces it from the unwaxed one.
-		// if (variant == BlockVariant.INSTANCE && state == WeatherState.UNAFFECTED && !waxed) {
-		// 	builder.recipe(mainBlockRecipe::accept);
-		// } else {
-		// 	builder.recipe((ctx, prov) -> { ... });
-		// }
+		if (variant == BlockVariant.INSTANCE && state == WeatherState.UNAFFECTED && !waxed) {
+			builder.recipe(mainBlockRecipe::accept);
+		} else {
+			builder.recipe((ctx, prov) -> {
+				if (waxed) {
+					Block unwaxed = get(variant, state, false).get();
+					prov.shapeless(RecipeCategory.BUILDING_BLOCKS, ctx.get())
+						.requires(unwaxed)
+						.requires(Items.HONEYCOMB)
+						.unlockedBy("has_unwaxed", prov.has(unwaxed))
+						.save(prov, Identifier.fromNamespaceAndPath(ctx.getId()
+							.getNamespace(), "crafting/" + generalDirectory + ctx.getName() + "_from_honeycomb")
+							.toString());
+				}
+
+				variant.generateRecipes(get(BlockVariant.INSTANCE, state, waxed), ctx, prov);
+			});
+		}
 
 		if (variant == StairVariant.INSTANCE)
 			builder.tag(BlockItemTags.STAIRS.block());
@@ -202,7 +214,8 @@ public class CopperBlockSet {
 
 		void generateRecipes(BlockEntry<?> blockVariant, DataGenContext<Block, T> ctx, RegistrateRecipeProvider prov);
 
-		// TODO 26.2: generateBlockState removed with the datagen port; see PORT-NOTES.md
+		void generateBlockState(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
+								CopperBlockSet blocks, WeatherState state, boolean waxed);
 
 	}
 
@@ -226,8 +239,23 @@ public class CopperBlockSet {
 			}
 		}
 
-		// TODO 26.2: generateBlockState removed with the datagen port; see PORT-NOTES.md
+		@Override
+		public void generateBlockState(DataGenContext<Block, Block> ctx, RegistrateBlockModelGenerator prov,
+									   CopperBlockSet blocks, WeatherState state, boolean waxed) {
+			Block block = ctx.get();
+			String baseLoc = "block/" + blocks.generalDirectory + getWeatherStatePrefix(state);
 
+			Material texture = new Material(prov.modLoc(baseLoc + blocks.getName()));
+			if (Objects.equals(blocks.getName(), blocks.getEndTextureName())) {
+				// End texture and base texture are equal, so we should use cube_all.
+				prov.generateWithTemplate(block, ModelTemplates.CUBE_ALL, TextureMapping.cube(texture));
+			} else {
+				// End texture and base texture aren't equal, so we should use cube_column.
+				Material endTexture = new Material(prov.modLoc(baseLoc + blocks.getEndTextureName()));
+				prov.generateWithTemplate(block, ModelTemplates.CUBE_COLUMN,
+					TextureMapping.column(texture, endTexture));
+			}
+		}
 
 		@Override
 		public void generateRecipes(BlockEntry<?> blockVariant, DataGenContext<Block, Block> ctx,
@@ -263,8 +291,19 @@ public class CopperBlockSet {
 			lootTable.add(block, lootTable.createSlabItemTable(block));
 		}
 
-		// TODO 26.2: generateBlockState removed with the datagen port; see PORT-NOTES.md
+		@Override
+		public void generateBlockState(DataGenContext<Block, SlabBlock> ctx, RegistrateBlockModelGenerator prov,
+									   CopperBlockSet blocks, WeatherState state, boolean waxed) {
+			// The double slab reuses the full block's model, which lives outside the set's own folder.
+			Identifier fullModel = prov.modLoc("block/" + getWeatherStatePrefix(state) + blocks.getName());
 
+			String baseLoc = "block/" + blocks.generalDirectory + getWeatherStatePrefix(state);
+			Material texture = new Material(prov.modLoc(baseLoc + blocks.getName()));
+			Material endTexture = new Material(prov.modLoc(baseLoc + blocks.getEndTextureName()));
+
+			prov.generateSlabBlock(ctx.get(), BlockModelGenerators.plainVariant(fullModel), texture, endTexture,
+				endTexture);
+		}
 
 		@Override
 		public void generateRecipes(BlockEntry<?> blockVariant, DataGenContext<Block, SlabBlock> ctx,
@@ -301,8 +340,14 @@ public class CopperBlockSet {
 			}
 		}
 
-		// TODO 26.2: generateBlockState removed with the datagen port; see PORT-NOTES.md
-
+		@Override
+		public void generateBlockState(DataGenContext<Block, StairBlock> ctx, RegistrateBlockModelGenerator prov,
+									   CopperBlockSet blocks, WeatherState state, boolean waxed) {
+			String baseLoc = "block/" + blocks.generalDirectory + getWeatherStatePrefix(state);
+			Material texture = new Material(prov.modLoc(baseLoc + blocks.getName()));
+			Material endTexture = new Material(prov.modLoc(baseLoc + blocks.getEndTextureName()));
+			prov.generateStairsBlock(ctx.get(), texture, endTexture, endTexture);
+		}
 
 		@Override
 		public void generateRecipes(BlockEntry<?> blockVariant, DataGenContext<Block, StairBlock> ctx,

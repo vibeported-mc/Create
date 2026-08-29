@@ -1,6 +1,5 @@
 package com.simibubi.create.foundation.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
@@ -8,10 +7,10 @@ import com.simibubi.create.Create;
 import com.simibubi.create.api.data.recipe.CompactingRecipeGen;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import net.neoforged.neoforge.common.Tags;
 
@@ -21,8 +20,8 @@ import net.neoforged.neoforge.common.Tags;
  */
 @SuppressWarnings("unused")
 public final class CreateCompactingRecipeGen extends CompactingRecipeGen {
-	public CreateCompactingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateCompactingRecipeGen(HolderLookup.Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 
 	GeneratedRecipe

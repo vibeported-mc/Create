@@ -11,7 +11,6 @@ import static com.simibubi.create.foundation.data.recipe.CommonMetal.SILVER;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.TIN;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.URANIUM;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -22,7 +21,7 @@ import com.simibubi.create.foundation.data.recipe.CreateRecipeProvider.I;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
@@ -118,8 +117,8 @@ public final class CreateWashingRecipeGen extends WashingRecipeGen {
 	VH = simpleModded(Mods.VH, "ornate_chain", "ornate_chain_rusty");
 
 
-	public CreateWashingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateWashingRecipeGen(HolderLookup.Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 
 	public GeneratedRecipe moddedCrushedOre(ItemEntry<? extends Item> crushed, CommonMetal metal) {

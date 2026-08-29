@@ -1,6 +1,5 @@
 package com.simibubi.create.api.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import com.simibubi.create.AllRecipeTypes;
@@ -8,10 +7,10 @@ import com.simibubi.create.content.kinetics.fan.processing.SplashingRecipe;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.data.recipes.RecipeOutput;
 
 /**
  * The base class for Washing recipe generation.
@@ -37,8 +36,8 @@ public abstract class WashingRecipeGen extends StandardProcessingRecipeGen<Splas
 			.output(mod, output).whenModLoaded(mod.getId()));
 	}
 
-	public WashingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public WashingRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package com.simibubi.create.api.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import com.simibubi.create.AllRecipeTypes;
@@ -8,9 +7,9 @@ import com.simibubi.create.content.kinetics.fan.processing.HauntingRecipe;
 
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.data.recipes.RecipeOutput;
 
 /**
  * The base class for Haunting recipe generation.
@@ -38,8 +37,8 @@ public abstract class HauntingRecipeGen extends StandardProcessingRecipeGen<Haun
 			.whenModLoaded(mod.getId()));
 	}
 
-	public HauntingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public HauntingRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override

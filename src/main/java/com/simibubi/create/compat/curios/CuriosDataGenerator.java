@@ -9,15 +9,13 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.data.PackOutput;
 import top.theillusivec4.curios.api.CuriosDataProvider;
 
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-
 public class CuriosDataGenerator extends CuriosDataProvider {
-	public CuriosDataGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper fileHelper) {
-		super(Create.ID, output, fileHelper, registries);
+	public CuriosDataGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+		super(Create.ID, output, registries);
 	}
 
 	@Override
-	public void generate(Provider registries, ExistingFileHelper fileHelper) {
+	public void generate(Provider registries) {
 		createEntities("players")
 			.addPlayer()
 			.addSlots("head");

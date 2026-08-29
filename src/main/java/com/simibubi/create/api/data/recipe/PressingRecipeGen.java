@@ -1,12 +1,11 @@
 package com.simibubi.create.api.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.kinetics.press.PressingRecipe;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeOutput;
 
 /**
  * The base class for Pressing recipe generation.
@@ -30,8 +29,8 @@ public abstract class PressingRecipeGen extends StandardProcessingRecipeGen<Pres
 		return null;
 	}
 
-	public PressingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public PressingRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override

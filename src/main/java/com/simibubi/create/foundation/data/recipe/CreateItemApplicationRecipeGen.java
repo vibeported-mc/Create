@@ -1,13 +1,12 @@
 package com.simibubi.create.foundation.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 import com.simibubi.create.api.data.recipe.ItemApplicationRecipeGen;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import net.neoforged.neoforge.common.Tags;
 
@@ -33,7 +32,7 @@ public final class CreateItemApplicationRecipeGen extends ItemApplicationRecipeG
 		.output(CreateRecipeProvider.I.railwayCasing()));
 
 
-	public CreateItemApplicationRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateItemApplicationRecipeGen(HolderLookup.Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 }

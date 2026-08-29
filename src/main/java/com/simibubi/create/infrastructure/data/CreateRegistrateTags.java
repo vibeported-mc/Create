@@ -82,10 +82,9 @@ public class CreateRegistrateTags {
 		prov.tag(AllBlockTags.FAN_TRANSPARENT.tag)
 			.add(Blocks.IRON_BARS)
 			.add(Blocks.MANGROVE_ROOTS)
-			.add(Blocks.COPPER_GRATE, Blocks.EXPOSED_COPPER_GRATE, Blocks.WEATHERED_COPPER_GRATE,
-				Blocks.OXIDIZED_COPPER_GRATE, Blocks.WAXED_COPPER_GRATE, Blocks.WAXED_EXPOSED_COPPER_GRATE,
-				Blocks.WAXED_WEATHERED_COPPER_GRATE, Blocks.WAXED_OXIDIZED_COPPER_GRATE
-			)
+			// 26.2 groups the weathering stages and their waxed twins into one collection.
+			.add(Blocks.COPPER_GRATE.asList()
+				.toArray(Block[]::new))
 			.addTag(BlockTags.CAMPFIRES)
 			.addTag(BlockItemTags.FENCES.block())
 			.addTag(BlockTags.LEAVES);

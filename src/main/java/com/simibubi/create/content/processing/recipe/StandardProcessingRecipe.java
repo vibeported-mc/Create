@@ -20,7 +20,7 @@ public abstract class StandardProcessingRecipe<T extends RecipeInput> extends Pr
 	public static class Builder<R extends StandardProcessingRecipe<?>>
 		extends ProcessingRecipeBuilder<ProcessingRecipeParams, R, Builder<R>> {
 
-		public Builder(Factory<R> factory, Identifier recipeId) {
+		public Builder(ProcessingRecipe.Factory<ProcessingRecipeParams, R> factory, Identifier recipeId) {
 			super(factory, recipeId);
 		}
 

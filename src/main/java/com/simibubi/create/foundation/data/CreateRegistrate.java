@@ -43,6 +43,9 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -187,24 +190,17 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 																				 boolean hasNaturalVariants) {
 		BlockBuilder<T, CreateRegistrate> builder = super.block(name, factory).initialProperties(propertiesFrom)
 			.transform(pickaxeOnly())
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate(hasNaturalVariants ? BlockStateGen.naturalStoneTypeBlock(name) : (c, p) -> {
-										// final String location = "block/palettes/stone_types/" + c.getName();
-										// p.simpleBlock(c.get(), p.models()
-											// .cubeAll(c.getName(), p.modLoc(location)));
-									// })
-			
-			
+			.blockstate(() -> hasNaturalVariants ? BlockStateGen.naturalStoneTypeBlock(name)
+				: (c, p) -> BlockStateGen.cubeAll(c, p, "palettes/stone_types/"))
 			.tag(BlockTags.DRIPSTONE_REPLACEABLE)
 			.tag(BlockTags.AZALEA_ROOT_REPLACEABLE)
 			.tag(BlockTags.MOSS_REPLACEABLE)
 			.tag(BlockTags.LUSH_GROUND_REPLACEABLE)
 			.item()
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.cubeAll(c.getName(),
-				// p.modLoc(hasNaturalVariants ? "block/palettes/stone_types/natural/" + name + "_1"
-					// : "block/palettes/stone_types/" + c.getName())))
-			
+			.model(() -> (c, p) -> p.generateWithTemplate(c.getEntry(), ModelTemplates.CUBE_ALL,
+				TextureMapping.cube(new Material(
+					p.modLoc(hasNaturalVariants ? "block/palettes/stone_types/natural/" + name + "_1"
+						: "block/palettes/stone_types/" + c.getName())))))
 			.build();
 		return builder;
 	}

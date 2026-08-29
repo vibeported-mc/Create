@@ -1,12 +1,11 @@
 package com.simibubi.create.api.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllRecipeTypes;
 
 import com.simibubi.create.content.equipment.sandPaper.SandPaperPolishingRecipe;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeOutput;
 
 /**
  * The base class for Polishing recipe generation.
@@ -17,8 +16,8 @@ import net.minecraft.data.PackOutput;
  */
 public abstract class PolishingRecipeGen extends StandardProcessingRecipeGen<SandPaperPolishingRecipe> {
 
-	public PolishingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public PolishingRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override

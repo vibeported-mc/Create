@@ -10,7 +10,6 @@ import static com.simibubi.create.foundation.data.recipe.CommonMetal.SILVER;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.TIN;
 import static com.simibubi.create.foundation.data.recipe.CommonMetal.URANIUM;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
 import com.simibubi.create.AllBlocks;
@@ -25,11 +24,11 @@ import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 
 import net.createmod.catnip.api.lang.Lang;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import net.neoforged.neoforge.common.Tags;
 
@@ -440,8 +439,8 @@ public final class CreateCrushingRecipeGen extends CrushingRecipeGen {
 		return null;
 	}
 
-	public CreateCrushingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateCrushingRecipeGen(HolderLookup.Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 
 	GeneratedRecipe ensMineralRecycling(AllPaletteStoneTypes type, UnaryOperator<StandardProcessingRecipe.Builder<CrushingRecipe>> transform) {

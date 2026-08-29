@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.api.data.recipe.DatagenMod;
@@ -25,25 +26,25 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 public class SimpleDatagenIngredient implements ICustomIngredient {
 	/*
 	  "ingredients": [
-		  {
-			  "item": "mod:compat_item"
-		  }
+		  "mod:compat_item"
 	  ]
 	 */
-	private static final MapCodec<SimpleDatagenIngredient> INTERNAL_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		Identifier.CODEC.fieldOf("item").forGetter(i -> i.mod.asResource(i.id))
-	).apply(instance, location -> {
-		for (Mods mod : Mods.values()) {
-			if (mod.getId().equals(location.getNamespace())) {
-				return new SimpleDatagenIngredient(mod, location.getPath());
+	// 26.2 writes a one-item ingredient as its bare id rather than an object with an "item" field, so
+	// the child this pretends to hold is written the same way.
+	private static final Codec<SimpleDatagenIngredient> INTERNAL_CODEC = Identifier.CODEC.xmap(
+		location -> {
+			for (Mods mod : Mods.values()) {
+				if (mod.getId()
+					.equals(location.getNamespace()))
+					return new SimpleDatagenIngredient(mod, location.getPath());
 			}
-		}
-		throw new AssertionError("ID " + location.getNamespace() + " doesn't correspond to any compat mod." +
-			" SimpleDatagenIngredient is not meant for deserialization anyway");
-	}));
+			throw new AssertionError("ID " + location.getNamespace() + " doesn't correspond to any compat mod." +
+				" SimpleDatagenIngredient is not meant for deserialization anyway");
+		},
+		i -> i.mod.asResource(i.id));
 
 	private static final MapCodec<SimpleDatagenIngredient> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		INTERNAL_CODEC.codec().listOf().fieldOf("ingredients").forGetter(List::of)
+		INTERNAL_CODEC.listOf().fieldOf("ingredients").forGetter(List::of)
 	).apply(instance, list -> {
 		assert list.size() == 1 : "SimpleDatagenIngredient should only be serialized as a single-element list, and shouldn't be deserialized anyway";
 		return list.getFirst();

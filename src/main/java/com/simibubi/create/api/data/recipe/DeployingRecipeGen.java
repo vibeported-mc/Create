@@ -2,7 +2,6 @@ package com.simibubi.create.api.data.recipe;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import com.simibubi.create.AllRecipeTypes;
@@ -14,11 +13,13 @@ import com.simibubi.create.foundation.block.CopperBlockSet;
 import com.simibubi.create.foundation.block.CopperBlockSet.Variant;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.WeatheringCopperCollection;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
 
 /**
@@ -57,6 +58,18 @@ public abstract class DeployingRecipeGen extends ProcessingRecipeGen<ItemApplica
 			.output(waxed.get()));
 	}
 
+	/**
+	 * 26.2 gathers the four weather states of a vanilla copper block into one collection rather than a
+	 * constant per state, so a whole family's deoxidising and waxing recipes come from one value.
+	 */
+	public GeneratedRecipe oxidizationChain(WeatheringCopperCollection<Block> family) {
+		return oxidizationChain(chainOf(family.weathering()), chainOf(family.waxed()));
+	}
+
+	private static List<Supplier<ItemLike>> chainOf(WeatheringCopperCollection.ByState<Block> byState) {
+		return List.of(byState::unaffected, byState::exposed, byState::weathered, byState::oxidized);
+	}
+
 	public GeneratedRecipe oxidizationChain(List<Supplier<ItemLike>> chain, List<Supplier<ItemLike>> waxedChain) {
 		for (int i = 0; i < chain.size() - 1; i++) {
 			Supplier<ItemLike> to = chain.get(i);
@@ -73,8 +86,8 @@ public abstract class DeployingRecipeGen extends ProcessingRecipeGen<ItemApplica
 		return null;
 	}
 
-	public DeployingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public DeployingRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override

@@ -4,30 +4,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 public class BrassDiodeGenerator extends AbstractDiodeGenerator {
 
+	private static final TextureSlot TOP = TextureSlot.create("top");
+	private static final TextureSlot TORCH = TextureSlot.create("torch");
+
 	@Override
-	protected <T extends Block> List<ModelFile> createModels(DataGenContext<Block, T> ctx, BlockModelProvider prov) {
-		List<ModelFile> models = new ArrayList<>(4);
+	protected <T extends Block> List<MultiVariant> createModels(DataGenContext<Block, T> ctx,
+		RegistrateBlockModelGenerator prov) {
+		List<MultiVariant> models = new ArrayList<>(4);
 		String name = ctx.getName();
 		Identifier template = existing(name);
 
-		models.add(prov.getExistingFile(template));
-		models.add(prov.withExistingParent(name + "_powered", template)
-			.texture("top", texture(ctx, "powered")));
-		models.add(prov.withExistingParent(name + "_powering", template)
-			.texture("torch", poweredTorch())
-			.texture("top", texture(ctx, "powering")));
-		models.add(prov.withExistingParent(name + "_powered_powering", template)
-			.texture("torch", poweredTorch())
-			.texture("top", texture(ctx, "powered_powering")));
+		models.add(BlockModelGenerators.plainVariant(template));
+		models.add(BlockModelGenerators.plainVariant(prov.getBuilder()
+			.parent(template)
+			.texture(TOP, new Material(texture(ctx, "powered")))
+			.build(prov.modLoc("block/" + name + "_powered"))));
+		models.add(BlockModelGenerators.plainVariant(prov.getBuilder()
+			.parent(template)
+			.texture(TORCH, new Material(poweredTorch()))
+			.texture(TOP, new Material(texture(ctx, "powering")))
+			.build(prov.modLoc("block/" + name + "_powering"))));
+		models.add(BlockModelGenerators.plainVariant(prov.getBuilder()
+			.parent(template)
+			.texture(TORCH, new Material(poweredTorch()))
+			.texture(TOP, new Material(texture(ctx, "powered_powering")))
+			.build(prov.modLoc("block/" + name + "_powered_powering"))));
 
 		return models;
 	}

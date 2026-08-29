@@ -1,12 +1,15 @@
 package com.simibubi.create.content.redstone.link;
 
+import com.simibubi.create.foundation.data.SpecialBlockStateGen;
+
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
 
 public class RedstoneLinkGenerator extends SpecialBlockStateGen {
 
@@ -24,7 +27,7 @@ public class RedstoneLinkGenerator extends SpecialBlockStateGen {
 	}
 
 	@Override
-	public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+	public <T extends Block> MultiVariant getModel(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		BlockState state) {
 		String variant = state.getValue(RedstoneLinkBlock.RECEIVER) ? "receiver" : "transmitter";
 		if (state.getValue(RedstoneLinkBlock.FACING).getAxis().isHorizontal())
@@ -32,7 +35,7 @@ public class RedstoneLinkGenerator extends SpecialBlockStateGen {
 		if (state.getValue(RedstoneLinkBlock.POWERED))
 			variant += "_powered";
 
-		return prov.models().getExistingFile(prov.modLoc("block/redstone_link/" + variant));
+		return BlockModelGenerators.plainVariant(prov.modLoc("block/redstone_link/" + variant));
 	}
 
 }

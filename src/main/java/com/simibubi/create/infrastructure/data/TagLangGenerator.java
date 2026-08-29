@@ -180,7 +180,7 @@ public class TagLangGenerator {
 			registryId.getNamespace().equals("minecraft") ? registryId.getPath() : registryId.toLanguageKey()
 		);
 
-		return "tag." + registry + '.' + sanitize(tag.identifier().toLanguageKey());
+		return "tag." + registry + '.' + sanitize(tag.location().toLanguageKey());
 	}
 
 	private static String sanitize(String string) {

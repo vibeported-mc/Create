@@ -1,15 +1,17 @@
 package com.simibubi.create.content.decoration.copycat;
 
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.simibubi.create.foundation.data.SpecialBlockStateGen;
 
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
+
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
 
 public class SpecialCopycatPanelBlockState extends SpecialBlockStateGen {
 
@@ -34,12 +36,11 @@ public class SpecialCopycatPanelBlockState extends SpecialBlockStateGen {
 	}
 
 	@Override
-	public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+	public <T extends Block> MultiVariant getModel(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		BlockState state) {
-		BlockModelProvider models = prov.models();
-		return facing(state).getAxis() == Axis.Y
-			? models.getExistingFile(prov.modLoc("block/copycat_panel/" + name + "_vertical"))
-			: models.getExistingFile(prov.modLoc("block/copycat_panel/" + name));
+		return BlockModelGenerators.plainVariant(facing(state).getAxis() == Axis.Y
+			? prov.modLoc("block/copycat_panel/" + name + "_vertical")
+			: prov.modLoc("block/copycat_panel/" + name));
 	}
 
 }

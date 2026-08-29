@@ -1,6 +1,5 @@
 package com.simibubi.create.api.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
@@ -10,8 +9,8 @@ import com.simibubi.create.content.kinetics.millstone.MillingRecipe;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import net.neoforged.neoforge.common.conditions.NotCondition;
 import net.neoforged.neoforge.common.conditions.TagEmptyCondition;
@@ -32,7 +31,7 @@ public abstract class MillingRecipeGen extends StandardProcessingRecipeGen<Milli
 	@Deprecated(since = "6.0.7", forRemoval = true)
 	protected GeneratedRecipe metalOre(String name, ItemEntry<? extends Item> crushed, int duration) {
 		return create(name + "_ore", b -> b.duration(duration)
-			.withCondition(new NotCondition(new TagEmptyCondition("c", "ores/" + name)))
+			.withCondition(new NotCondition(new TagEmptyCondition<>(AllTags.commonItemTag("ores/" + name))))
 			.require(AllTags.commonItemTag("ores/" + name))
 			.output(crushed.get()));
 	}
@@ -45,8 +44,8 @@ public abstract class MillingRecipeGen extends StandardProcessingRecipeGen<Milli
 			.whenModLoaded(mod.getId()));
 	}
 
-	public MillingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public MillingRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override

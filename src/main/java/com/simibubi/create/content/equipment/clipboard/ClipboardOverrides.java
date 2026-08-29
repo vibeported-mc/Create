@@ -5,7 +5,19 @@ import org.jetbrains.annotations.NotNull;
 import com.mojang.serialization.Codec;
 import com.simibubi.create.Create;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.generators.RegistrateItemModelGenerator;
+
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.renderer.item.SelectItemModel;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.world.item.Item;
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import net.createmod.catnip.api.lang.Lang;
 import net.minecraft.network.codec.StreamCodec;
@@ -34,8 +46,26 @@ public class ClipboardOverrides {
 		}
 	}
 
-	// TODO 26.2: which of the three clipboard models is shown is data now - a "select" item model
-	// keyed on the clipboard's type - rather than a client-registered item property with model
-	// overrides generated alongside it. Restore both halves when datagen is ported.
+	/**
+	 * One flat model per clipboard type, picked by {@link ClipboardTypeProperty}. The empty clipboard
+	 * is also the fallback, for a stack that carries no clipboard content at all.
+	 */
+	public static void addOverrideModels(DataGenContext<Item, ClipboardBlockItem> c,
+		RegistrateItemModelGenerator p) {
+		List<SelectItemModel.SwitchCase<ClipboardType>> cases = new ArrayList<>();
+		Identifier fallback = null;
+
+		for (ClipboardType type : ClipboardType.values()) {
+			Identifier model = ModelTemplates.FLAT_ITEM.create(
+				p.modLoc("item/" + c.getName() + "_" + type.ordinal()),
+				TextureMapping.layer0(new Material(Create.asResource("item/" + type.file))), p.modelOutput);
+			if (type == ClipboardType.EMPTY)
+				fallback = model;
+			cases.add(ItemModelUtils.when(type, ItemModelUtils.plainModel(model)));
+		}
+
+		p.itemModelOutput.accept(c.getEntry(), ItemModelUtils.select(new ClipboardTypeProperty(),
+			ItemModelUtils.plainModel(fallback), cases));
+	}
 
 }

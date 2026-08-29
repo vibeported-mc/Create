@@ -73,6 +73,17 @@ public class TagGen {
 		return appender;
 	}
 
+	public static <T> CreateTagAppender<T> addOptional(CreateTagAppender<T> appender, Mods mod, String id) {
+		appender.addOptional(mod.asResource(id));
+		return appender;
+	}
+
+	public static <T> CreateTagAppender<T> addOptional(CreateTagAppender<T> appender, Mods mod, List<String> ids) {
+		for (String id : ids)
+			appender.addOptional(mod.asResource(id));
+		return appender;
+	}
+
 	public static class CreateTagsProvider<T> {
 		private final RegistrateTagsProvider<T> provider;
 		private final Function<T, ResourceKey<T>> keyExtractor;
@@ -84,7 +95,8 @@ public class TagGen {
 
 		public CreateTagAppender<T> tag(TagKey<T> tag) {
 			// Registrate's provider interface exposes the raw builder rather than an appender.
-			return new CreateTagAppender<>(TagAppender.forBuilder(getOrCreateRawBuilder(tag)), keyExtractor);
+			TagBuilder builder = getOrCreateRawBuilder(tag);
+			return new CreateTagAppender<>(TagAppender.forBuilder(builder), keyExtractor, builder);
 		}
 
 		public TagBuilder getOrCreateRawBuilder(TagKey<T> tag) {
@@ -97,9 +109,13 @@ public class TagGen {
 		private final TagAppender<T> delegate;
 		private final Function<T, ResourceKey<T>> keyExtractor;
 
-		public CreateTagAppender(TagAppender<T> delegate, Function<T, ResourceKey<T>> keyExtractor) {
+		private final TagBuilder builder;
+
+		public CreateTagAppender(TagAppender<T> delegate, Function<T, ResourceKey<T>> keyExtractor,
+			TagBuilder builder) {
 			this.delegate = delegate;
 			this.keyExtractor = keyExtractor;
+			this.builder = builder;
 		}
 
 		public TagAppender<T> delegate() {
@@ -136,6 +152,15 @@ public class TagGen {
 
 		public CreateTagAppender<T> addOptionalTag(TagKey<T> tag) {
 			delegate.addOptionalTag(tag);
+			return this;
+		}
+
+		/**
+		 * 26.2 dropped removal from the tag appender; it lives on the builder now.
+		 */
+		public CreateTagAppender<T> remove(Identifier... ids) {
+			for (Identifier id : ids)
+				builder.remove(TagEntry.element(id));
 			return this;
 		}
 

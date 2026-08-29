@@ -19,6 +19,7 @@ import com.simibubi.create.foundation.block.connected.HorizontalCTBehaviour;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 import com.tterrag.registrate.providers.generators.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -26,7 +27,15 @@ import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.renderer.block.dispatch.Variant;
+import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -64,6 +73,13 @@ public class WindowGen {
 		return false;
 	}
 
+	private static Identifier cubeColumnModel(RegistrateBlockModelGenerator p, String name, Identifier side,
+		Identifier end) {
+		return p.withParent(ModelTemplates.CUBE_COLUMN,
+			TextureMapping.column(new Material(side), new Material(end)))
+			.build(p.modLoc("block/" + name));
+	}
+
 	public static BlockEntry<WindowBlock> woodenWindowBlock(WoodType woodType, Block planksBlock) {
 		return woodenWindowBlock(woodType, planksBlock, false);
 	}
@@ -75,26 +91,17 @@ public class WindowGen {
 		Identifier side_texture = Create.asResource(palettesDir() + name);
 		Function<Integer, Identifier> ends = i -> Create.asResource(palettesDir() + name + "_" + i + "_end");
 		return windowBlock(name, ingredient, null, translucent, n -> end_texture, n -> side_texture, color)
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.simpleBlock(c.get(), ConfiguredModel.builder()
-										// .modelFile(p.models()
-											// .cubeColumn(c.getName() + "_1", side_texture, ends.apply(1)))
-										// .nextModel()
-										// .modelFile(p.models()
-											// .cubeColumn(c.getName() + "_2", side_texture, ends.apply(2)))
-										// .nextModel()
-										// .modelFile(p.models()
-											// .cubeColumn(c.getName() + "_3", side_texture, ends.apply(3)))
-										// .nextModel()
-										// .modelFile(p.models()
-											// .cubeColumn(c.getName() + "_4", side_texture, ends.apply(4)))
-										// .build()))
-			
-			
+			.blockstate(() -> (c, p) -> {
+				Variant[] variants = new Variant[4];
+				for (int i = 1; i <= 4; i++)
+					variants[i - 1] = BlockModelGenerators.plainModel(
+						cubeColumnModel(p, c.getName() + "_" + i, side_texture, ends.apply(i)));
+				p.blockStateOutput
+					.accept(BlockModelGenerators.createSimpleBlock(c.get(), BlockModelGenerators.variants(variants)));
+			})
 			.item()
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.cubeColumn(c.getName(), side_texture, ends.apply(1)))
-			
+			.model(() -> (c, p) -> p.generateWithTemplate(c.getEntry(), ModelTemplates.CUBE_COLUMN,
+				TextureMapping.column(new Material(side_texture), new Material(ends.apply(1)))))
 			.build();
 	}
 
@@ -125,26 +132,20 @@ public class WindowGen {
 		return REGISTRATE.block(name, p -> new WindowBlock(p, translucent))
 			.onRegister(ct == null ? $ -> {
 			} : connectedTextures(() -> new HorizontalCTBehaviour(ct.get())))
-			// TODO 26.2: port datagen to the new recipe/loot builders
-			// .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 2)
-				// .pattern(" # ")
-				// .pattern("#X#")
-				// .define('#', ingredient.get())
-					// .define('X', DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)).toVanilla())
-				// .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(ingredient.get()))
-				// .save(p))
-			
+			.recipe((c, p) -> p.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 2)
+				.pattern(" # ")
+				.pattern("#X#")
+				.define('#', ingredient.get())
+				.define('X', Tags.Items.GLASS_BLOCKS_COLORLESS)
+				.unlockedBy("has_ingredient", p.has(ingredient.get()))
+				.save(p))
 			.initialProperties(() -> Blocks.GLASS)
 			.properties(WindowGen::glassProperties)
 			.properties(p -> p.mapColor(color.get()))
-			// TODO 26.2: port datagen to the new recipe/loot builders
-			// .loot((t, g) -> t.dropWhenSilkTouch(g))
-			
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> p.simpleBlock(c.get(), p.models()
-										// .cubeColumn(c.getName(), sideTexture.apply(c.getName()), endTexture.apply(c.getName()))))
-			
-			
+			.loot((t, g) -> t.dropWhenSilkTouch(g))
+			.blockstate(() -> (c, p) -> p.generateWithTemplate(c.get(), ModelTemplates.CUBE_COLUMN,
+				TextureMapping.column(new Material(sideTexture.apply(c.getName())),
+					new Material(endTexture.apply(c.getName())))))
 			.tag(BlockTags.IMPERMEABLE)
 			.simpleItem();
 	}
@@ -155,24 +156,16 @@ public class WindowGen {
 			.onRegister(connectedTextures(behaviour))
 			.initialProperties(() -> Blocks.GLASS)
 			.properties(WindowGen::glassProperties)
-			// TODO 26.2: port datagen to the new recipe/loot builders
-			// .loot((t, g) -> t.dropWhenSilkTouch(g))
-			
-				// TODO 26.2: port datagen to the new recipe/loot builders
-				// .recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)),
-				// RecipeCategory.BUILDING_BLOCKS, c::get))
-				
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate((c, p) -> BlockStateGen.cubeAll(c, p, "palettes/", "framed_glass"))
-			
-			
-				.tag(Tags.Blocks.GLASS_BLOCKS_COLORLESS, BlockTags.IMPERMEABLE)
+			.loot((t, g) -> t.dropWhenSilkTouch(g))
+			.recipe((c, p) -> p.stonecutting(DataIngredient.tag(p.itemLookup()
+				.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)), RecipeCategory.BUILDING_BLOCKS, c::get))
+			.blockstate(() -> (c, p) -> BlockStateGen.cubeAll(c, p, "palettes/", "framed_glass"))
+			.tag(Tags.Blocks.GLASS_BLOCKS_COLORLESS, BlockTags.IMPERMEABLE)
 			.item()
-				.tag(Tags.Items.GLASS_BLOCKS_COLORLESS)
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.cubeColumn(c.getName(), p.modLoc(palettesDir() + c.getName()),
-				// p.modLoc("block/palettes/framed_glass")))
-			
+			.tag(Tags.Items.GLASS_BLOCKS_COLORLESS)
+			.model(() -> (c, p) -> p.generateWithTemplate(c.getEntry(), ModelTemplates.CUBE_COLUMN,
+				TextureMapping.column(new Material(p.modLoc(palettesDir() + c.getName())),
+					new Material(p.modLoc("block/palettes/framed_glass")))))
 			.build()
 			.register();
 	}
@@ -205,8 +198,10 @@ public class WindowGen {
 
 	public static BlockEntry<GlassPaneBlock> standardGlassPane(String name, Supplier<? extends Block> parent,
 															   Identifier sideTexture, Identifier topTexture) {
+		NonNullBiConsumer<DataGenContext<Block, GlassPaneBlock>, RegistrateBlockModelGenerator> stateProvider =
+			(c, p) -> p.generatePaneBlock(c.get(), new Material(sideTexture), new Material(topTexture));
 		return glassPane(name, parent, sideTexture, topTexture, GlassPaneBlock::new, $ -> {
-		}, true).register();
+		}, stateProvider, true).register();
 	}
 
 	private static BlockBuilder<ConnectedGlassPaneBlock, CreateRegistrate> connectedGlassPane(String name,
@@ -214,14 +209,41 @@ public class WindowGen {
 																							  Identifier itemSideTexture, Identifier topTexture, boolean colorless) {
 		NonNullConsumer<? super ConnectedGlassPaneBlock> connectedTextures = ctshift == null ? $ -> {
 		} : connectedTextures(() -> new GlassPaneCTBehaviour(ctshift.get()));
+		String CGPparents = "block/connected_glass_pane/";
+		String prefix = name + "_pane_";
+
+		Function<RegistrateBlockModelGenerator, Identifier> post =
+			getPaneModelProvider(CGPparents, prefix, "post", sideTexture, topTexture),
+			side = getPaneModelProvider(CGPparents, prefix, "side", sideTexture, topTexture),
+			sideAlt = getPaneModelProvider(CGPparents, prefix, "side_alt", sideTexture, topTexture),
+			noSide = getPaneModelProvider(CGPparents, prefix, "noside", sideTexture, topTexture),
+			noSideAlt = getPaneModelProvider(CGPparents, prefix, "noside_alt", sideTexture, topTexture);
+
+		NonNullBiConsumer<DataGenContext<Block, ConnectedGlassPaneBlock>, RegistrateBlockModelGenerator> stateProvider =
+			(c, p) -> p.generatePaneBlock(c.get(), BlockModelGenerators.plainVariant(post.apply(p)),
+				BlockModelGenerators.plainVariant(side.apply(p)), BlockModelGenerators.plainVariant(sideAlt.apply(p)),
+				BlockModelGenerators.plainVariant(noSide.apply(p)),
+				BlockModelGenerators.plainVariant(noSideAlt.apply(p)));
+
 		return glassPane(name, parent, itemSideTexture, topTexture, ConnectedGlassPaneBlock::new,
-			connectedTextures, colorless);
+			connectedTextures, stateProvider, colorless);
+	}
+
+	private static Function<RegistrateBlockModelGenerator, Identifier> getPaneModelProvider(String CGPparents,
+		String prefix, String partial, Identifier sideTexture, Identifier topTexture) {
+		return p -> p.getBuilder()
+			.parent(Create.asResource(CGPparents + partial))
+			.texture(TextureSlot.PANE, new Material(sideTexture))
+			.texture(TextureSlot.EDGE, new Material(topTexture))
+			.build(p.modLoc("block/" + prefix + partial));
 	}
 
 	private static <G extends GlassPaneBlock> BlockBuilder<G, CreateRegistrate> glassPane(String name,
 																						  Supplier<? extends Block> parent, Identifier sideTexture, Identifier topTexture,
 																						  NonNullFunction<Properties, G> factory,
-																						  NonNullConsumer<? super G> connectedTextures, boolean colorless) {
+																						  NonNullConsumer<? super G> connectedTextures,
+																						  NonNullBiConsumer<DataGenContext<Block, G>, RegistrateBlockModelGenerator> stateProvider,
+																						  boolean colorless) {
 		name += "_pane";
 
 
@@ -230,26 +252,21 @@ public class WindowGen {
 			.initialProperties(() -> Blocks.GLASS_PANE)
 			.properties(p -> p.mapColor(parent.get()
 				.defaultMapColor()))
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .blockstate(stateProvider)
+			.blockstate(() -> stateProvider)
 			
+			.recipe((c, p) -> {
+				p.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 16)
+					.pattern("###")
+					.pattern("###")
+					.define('#', parent.get())
+					.unlockedBy("has_ingredient", p.has(parent.get()))
+					.save(p);
+				if (colorless)
+					p.stonecutting(DataIngredient.tag(p.itemLookup()
+						.getOrThrow(Tags.Items.GLASS_PANES_COLORLESS)), RecipeCategory.BUILDING_BLOCKS, c::get);
+			})
 			
-			// TODO 26.2: port datagen to the new recipe/loot builders
-			// .recipe((c, p) -> {
-				// ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 16)
-					// .pattern("###")
-					// .pattern("###")
-					// .define('#', parent.get())
-					// .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(parent.get()))
-					// .save(p);
-				// if (colorless)
-					// p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_PANES_COLORLESS)), RecipeCategory.BUILDING_BLOCKS,
-						// c::get);
-			// })
-			
-			// TODO 26.2: port datagen to the new recipe/loot builders
-			// .loot((t, g) -> t.dropWhenSilkTouch(g))
-			
+			.loot((t, g) -> t.dropWhenSilkTouch(g))
 			.item();
 
 		if (colorless)
@@ -258,9 +275,7 @@ public class WindowGen {
 			itemBuilder.tag(Tags.Items.GLASS_PANES);
 
 		BlockBuilder<G, CreateRegistrate> blockBuilder = itemBuilder
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model((c, p) -> p.generated(c, sideTexture))
-			
+			.model(() -> (c, p) -> p.generateFlatItem(c.getEntry(), new Material(sideTexture)))
 			.build();
 
 		if (colorless)

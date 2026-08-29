@@ -1,15 +1,14 @@
 package com.simibubi.create.api.data.recipe;
 
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.kinetics.saw.CuttingRecipe;
 import com.simibubi.create.foundation.data.recipe.Mods;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.data.recipes.RecipeOutput;
 
 /**
  * The base class for Cutting recipe generation.
@@ -101,8 +100,8 @@ public abstract class CuttingRecipeGen extends StandardProcessingRecipeGen<Cutti
 		return null;
 	}
 
-	public CuttingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public CuttingRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override

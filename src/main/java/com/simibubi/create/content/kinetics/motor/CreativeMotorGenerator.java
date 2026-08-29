@@ -1,12 +1,16 @@
 package com.simibubi.create.content.kinetics.motor;
 
+import com.simibubi.create.foundation.data.AssetLookup;
+import com.simibubi.create.foundation.data.SpecialBlockStateGen;
+
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
 
 public class CreativeMotorGenerator extends SpecialBlockStateGen {
 
@@ -23,12 +27,12 @@ public class CreativeMotorGenerator extends SpecialBlockStateGen {
 	}
 
 	@Override
-	public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+	public <T extends Block> MultiVariant getModel(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		BlockState state) {
 		return state.getValue(CreativeMotorBlock.FACING)
 			.getAxis()
-			.isVertical() ? AssetLookup.partialBaseModel(ctx, prov, "vertical")
-				: AssetLookup.partialBaseModel(ctx, prov);
+			.isVertical() ? AssetLookup.partialBaseVariant(ctx, prov, "vertical")
+				: AssetLookup.partialBaseVariant(ctx, prov);
 	}
 
 }

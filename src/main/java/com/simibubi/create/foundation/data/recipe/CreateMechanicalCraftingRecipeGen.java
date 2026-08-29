@@ -1,6 +1,5 @@
 package com.simibubi.create.foundation.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -9,9 +8,9 @@ import com.simibubi.create.api.data.recipe.MechanicalCraftingRecipeGen;
 import com.simibubi.create.foundation.data.recipe.CreateRecipeProvider.I;
 
 import net.minecraft.core.HolderLookup.Provider;
-import net.minecraft.data.PackOutput;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.Tags.Items;
@@ -26,8 +25,8 @@ public final class CreateMechanicalCraftingRecipeGen extends MechanicalCraftingR
 	GeneratedRecipe
 
 	CRUSHING_WHEEL = create(AllBlocks.CRUSHING_WHEEL::get).returns(2)
-		.recipe(b -> b.key('P', Ingredient.of(ItemTags.PLANKS))
-			.key('S', Ingredient.of(I.stone()))
+		.recipe(b -> b.key('P', ingredient(ItemTags.PLANKS))
+			.key('S', ingredient(I.stone()))
 			.key('A', I.andesiteAlloy())
 			.patternLine(" AAA ")
 			.patternLine("AAPAA")
@@ -37,11 +36,11 @@ public final class CreateMechanicalCraftingRecipeGen extends MechanicalCraftingR
 			.disallowMirrored()),
 
 	WAND_OF_SYMMETRY =
-		create(AllItems.WAND_OF_SYMMETRY::get).recipe(b -> b.key('E', Ingredient.of(Tags.Items.ENDER_PEARLS))
-			.key('G', Ingredient.of(Items.GLASS_BLOCKS))
+		create(AllItems.WAND_OF_SYMMETRY::get).recipe(b -> b.key('E', ingredient(Tags.Items.ENDER_PEARLS))
+			.key('G', ingredient(Items.GLASS_BLOCKS))
 			.key('P', I.precisionMechanism())
-			.key('O', Ingredient.of(Items.OBSIDIANS))
-			.key('B', Ingredient.of(I.brass()))
+			.key('O', ingredient(Items.OBSIDIANS))
+			.key('B', ingredient(I.brass()))
 			.patternLine(" G ")
 			.patternLine("GEG")
 			.patternLine(" P ")
@@ -49,10 +48,10 @@ public final class CreateMechanicalCraftingRecipeGen extends MechanicalCraftingR
 			.patternLine(" O ")),
 
 	EXTENDO_GRIP = create(AllItems.EXTENDO_GRIP::get).returns(1)
-		.recipe(b -> b.key('L', Ingredient.of(I.brass()))
+		.recipe(b -> b.key('L', ingredient(I.brass()))
 			.key('R', I.precisionMechanism())
 			.key('H', AllItems.BRASS_HAND.get())
-			.key('S', Ingredient.of(Tags.Items.RODS_WOODEN))
+			.key('S', ingredient(Tags.Items.RODS_WOODEN))
 			.patternLine(" L ")
 			.patternLine(" R ")
 			.patternLine("SSS")
@@ -64,14 +63,14 @@ public final class CreateMechanicalCraftingRecipeGen extends MechanicalCraftingR
 		.recipe(b -> b.key('L', I.andesiteAlloy())
 			.key('R', I.precisionMechanism())
 			.key('S', AllBlocks.FLUID_PIPE.get())
-			.key('C', Ingredient.of(I.copper()))
+			.key('C', ingredient(I.copper()))
 			.patternLine("LRSSS")
 			.patternLine("CC   "))
 
 	;
 
 
-	public CreateMechanicalCraftingRecipeGen(PackOutput output, CompletableFuture<Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateMechanicalCraftingRecipeGen(Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 }

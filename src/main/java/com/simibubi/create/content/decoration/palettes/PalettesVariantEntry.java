@@ -40,12 +40,9 @@ public class PalettesVariantEntry {
 					// Applied directly rather than through transform(pickaxeOnly()): with the blockstate
 					// chain below gone, the wildcard on the left leaves transform nothing to infer from.
 					.tag(BlockTags.MINEABLE_WITH_PICKAXE)
-					// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-					// .blockstate(pattern.getBlockStateGenerator()
-																					// .apply(pattern)
-																					// .apply(name)::accept)
-					
-					;
+					.blockstate(() -> pattern.getBlockStateGenerator()
+						.apply(pattern)
+						.apply(name)::accept);
 
 			ItemBuilder<BlockItem, ? extends BlockBuilder<? extends Block, CreateRegistrate>> itemBuilder =
 				builder.item();
@@ -62,8 +59,11 @@ public class PalettesVariantEntry {
 			pattern.createCTBehaviour(name)
 				.ifPresent(b -> builder.onRegister(connectedTextures(b)));
 
+			// The tag comes off the provider's own item getter: only that lookup has tags bound while
+			// datagen runs.
 			builder.recipe((c, p) -> {
-				p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(paletteStoneVariants.materialTag)), RecipeCategory.BUILDING_BLOCKS, c);
+				p.stonecutting(DataIngredient.tag(p.itemLookup()
+					.getOrThrow(paletteStoneVariants.materialTag)), RecipeCategory.BUILDING_BLOCKS, c);
 				pattern.addRecipes(baseBlock, c, p);
 			});
 
@@ -77,8 +77,8 @@ public class PalettesVariantEntry {
 		}
 
 		REGISTRATE.addDataGenerator(ProviderType.RECIPE,
-			p -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(paletteStoneVariants.materialTag)), RecipeCategory.BUILDING_BLOCKS,
-				baseBlock));
+			p -> p.stonecutting(DataIngredient.tag(p.itemLookup()
+				.getOrThrow(paletteStoneVariants.materialTag)), RecipeCategory.BUILDING_BLOCKS, baseBlock));
 		REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, p -> p.tag(paletteStoneVariants.materialTag)
 			.add(BuiltInRegistries.ITEM.getResourceKey(baseBlock.get()
 				.asItem())

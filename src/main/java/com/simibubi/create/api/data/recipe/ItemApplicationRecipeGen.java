@@ -1,6 +1,5 @@
 package com.simibubi.create.api.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import com.simibubi.create.AllRecipeTypes;
@@ -11,7 +10,7 @@ import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipe.Build
 import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipeParams;
 import com.simibubi.create.content.kinetics.deployer.ManualApplicationRecipe;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -33,7 +32,7 @@ public abstract class ItemApplicationRecipeGen extends ProcessingRecipeGen<ItemA
 	}
 
 	protected GeneratedRecipe woodCasingTag(String type, Supplier<TagKey<Item>> ingredient, Supplier<ItemLike> output) {
-		return woodCasingIngredient(type, () -> Ingredient.of(ingredient.get()), output);
+		return woodCasingIngredient(type, () -> ingredient(ingredient.get()), output);
 	}
 
 	protected GeneratedRecipe woodCasingIngredient(String type, Supplier<Ingredient> ingredient,
@@ -46,8 +45,8 @@ public abstract class ItemApplicationRecipeGen extends ProcessingRecipeGen<ItemA
 			.output(output.get()));
 	}
 
-	public ItemApplicationRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public ItemApplicationRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.simibubi.create;
 
 import com.simibubi.create.content.equipment.hats.HatRenderData;
+import com.simibubi.create.content.equipment.clipboard.ClipboardTypeProperty;
 import com.simibubi.create.content.legacy.ChromaticCompoundColor;
 import com.simibubi.create.foundation.gui.render.GuiCustomGeometryRenderer;
 import com.simibubi.create.AllFluids;
@@ -86,6 +87,7 @@ public class CreateClient {
 		modEventBus.addListener(HatRenderData::registerModifier);
 		modEventBus.addListener(GuiCustomGeometryRenderer::register);
 		modEventBus.addListener(ChromaticCompoundColor::register);
+		modEventBus.addListener(ClipboardTypeProperty::register);
 
 		AllInstanceTypes.init();
 

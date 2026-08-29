@@ -14,6 +14,7 @@ import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.block.connected.HorizontalCTBehaviour;
 import com.simibubi.create.foundation.block.connected.SimpleCTBehaviour;
+import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.WindowGen;
 import com.tterrag.registrate.util.DataIngredient;
@@ -42,16 +43,10 @@ public class AllPaletteBlocks {
 
 	public static final BlockEntry<TransparentBlock> TILED_GLASS = REGISTRATE.block("tiled_glass", TransparentBlock::new)
 		.initialProperties(() -> Blocks.GLASS)
-		// TODO 26.2: port datagen to the new recipe/loot builders
-		// .recipe((c, p) -> p.stonecutting(DataIngredient.tag(BuiltInRegistries.ITEM.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)), RecipeCategory.BUILDING_BLOCKS, c))
-		
-		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-		// .blockstate((c, p) -> BlockStateGen.cubeAll(c, p, "palettes/"))
-		
-		
-		// TODO 26.2: port datagen to the new recipe/loot builders
-		// .loot((t, g) -> t.dropWhenSilkTouch(g))
-		
+		.recipe((c, p) -> p.stonecutting(DataIngredient.tag(p.itemLookup()
+			.getOrThrow(Tags.Items.GLASS_BLOCKS_COLORLESS)), RecipeCategory.BUILDING_BLOCKS, c))
+		.blockstate(() -> (c, p) -> BlockStateGen.cubeAll(c, p, "palettes/"))
+		.loot((t, g) -> t.dropWhenSilkTouch(g))
 		.tag(Tags.Blocks.GLASS_BLOCKS_COLORLESS, BlockTags.IMPERMEABLE)
 		.item()
 		.tag(Tags.Items.GLASS_BLOCKS_COLORLESS)

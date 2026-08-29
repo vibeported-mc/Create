@@ -21,6 +21,7 @@ import net.minecraft.advancements.triggers.InventoryChangeTrigger;
 import net.minecraft.advancements.predicates.ItemPredicate;
 import net.minecraft.advancements.triggers.ItemUsedOnLocationTrigger;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -96,12 +97,24 @@ public class CreateAdvancement {
 		builtinTrigger.trigger(sp);
 	}
 
+	/**
+	 * The lookup datagen is running with, for triggers that name a tag. 26.2 resolves a tag to a
+	 * holder set when the predicate is built, and the built-in registries carry no tags at that point;
+	 * the datagen provider does.
+	 */
+	static HolderLookup.Provider datagenRegistries;
+
 	void save(Consumer<AdvancementHolder> t, HolderLookup.Provider registries) {
+		datagenRegistries = registries;
 		if (parent != null)
 			mcBuilder.parent(parent.datagenResult);
 
-		if (createBuilder.func != null)
-			createBuilder.icon(createBuilder.func.apply(registries));
+		if (createBuilder.func != null) {
+			ItemStackTemplate built = createBuilder.func.apply(registries);
+			createBuilder.icon = () -> built;
+			createBuilder.iconItem = () -> built.item()
+				.value();
+		}
 
 		for (int i = 0; i < createBuilder.triggers.size(); i++)
 			mcBuilder.addCriterion(String.valueOf(i), createBuilder.triggers.get(i)
@@ -157,7 +170,7 @@ public class CreateAdvancement {
 		// touching its components, and the icon is resolved when the advancement is saved.
 		private Supplier<ItemStackTemplate> icon;
 		private Supplier<Item> iconItem;
-		private Function<Provider, ItemStack> func;
+		private Function<Provider, ItemStackTemplate> func;
 
 		Builder special(TaskType type) {
 			this.type = type;
@@ -181,20 +194,25 @@ public class CreateAdvancement {
 			return this;
 		}
 
+		/**
+		 * Named by item rather than copied from the stack: an advancement icon only ever carries the
+		 * item, and reading a stack's components during datagen comes too early for them to be bound.
+		 */
 		Builder icon(ItemStack stack) {
-			icon = () -> ItemStackTemplate.fromStack(stack);
+			icon = () -> new ItemStackTemplate(stack.getItem());
 			iconItem = stack::getItem;
 			return this;
 		}
 
 		Builder icon(Supplier<ItemStack> stack) {
-			icon = () -> ItemStackTemplate.fromStack(stack.get());
+			icon = () -> new ItemStackTemplate(stack.get()
+				.getItem());
 			iconItem = () -> stack.get()
 				.getItem();
 			return this;
 		}
 
-		Builder icon(Function<Provider, ItemStack> func) {
+		Builder icon(Function<Provider, ItemStackTemplate> func) {
 			this.func = func;
 			return this;
 		}
@@ -227,7 +245,7 @@ public class CreateAdvancement {
 
 		Builder whenItemCollected(TagKey<Item> tag) {
 			return externalTrigger(() -> InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item()
-				.of(BuiltInRegistries.ITEM, tag)
+				.of(datagenRegistries.lookupOrThrow(Registries.ITEM), tag)
 				.build()));
 		}
 

@@ -1,17 +1,16 @@
 package com.simibubi.create.foundation.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 import com.simibubi.create.api.data.recipe.HauntingRecipeGen;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import net.neoforged.neoforge.common.Tags;
 
@@ -46,9 +45,9 @@ public final class CreateHauntingRecipeGen extends HauntingRecipeGen {
 		.output(.75f, Items.PRISMARINE_SHARD)
 		.output(.125f, Items.PRISMARINE_CRYSTALS)),
 
-	SOUL_SAND = convert(() -> Ingredient.of(ItemTags.SAND), () -> Blocks.SOUL_SAND),
-	SOUL_DIRT = convert(() -> Ingredient.of(ItemTags.DIRT), () -> Blocks.SOUL_SOIL),
-		BLACK_STONE = convert(() -> Ingredient.of(Tags.Items.COBBLESTONES), () -> Blocks.BLACKSTONE),
+	SOUL_SAND = convert(() -> ingredient(ItemTags.SAND), () -> Blocks.SOUL_SAND),
+	SOUL_DIRT = convert(() -> ingredient(ItemTags.DIRT), () -> Blocks.SOUL_SOIL),
+		BLACK_STONE = convert(() -> ingredient(Tags.Items.COBBLESTONES), () -> Blocks.BLACKSTONE),
 	CRIMSON_FUNGUS = convert(Items.RED_MUSHROOM, Items.CRIMSON_FUNGUS),
 	WARPED_FUNGUS = convert(Items.BROWN_MUSHROOM, Items.WARPED_FUNGUS),
 
@@ -62,7 +61,7 @@ public final class CreateHauntingRecipeGen extends HauntingRecipeGen {
 
 	;
 
-	public CreateHauntingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateHauntingRecipeGen(HolderLookup.Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 }

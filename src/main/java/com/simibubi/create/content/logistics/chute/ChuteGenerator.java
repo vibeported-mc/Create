@@ -1,13 +1,17 @@
 package com.simibubi.create.content.logistics.chute;
 
+import com.simibubi.create.foundation.data.AssetLookup;
+import com.simibubi.create.foundation.data.SpecialBlockStateGen;
+
 import com.simibubi.create.content.logistics.chute.ChuteBlock.Shape;
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
 
 public class ChuteGenerator extends SpecialBlockStateGen {
 
@@ -22,19 +26,19 @@ public class ChuteGenerator extends SpecialBlockStateGen {
 	}
 
 	@Override
-	public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+	public <T extends Block> MultiVariant getModel(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		BlockState state) {
 		boolean horizontal = state.getValue(ChuteBlock.FACING) != Direction.DOWN;
 		ChuteBlock.Shape shape = state.getValue(ChuteBlock.SHAPE);
 
 		if (!horizontal)
-			return shape == Shape.NORMAL ? AssetLookup.partialBaseModel(ctx, prov)
+			return shape == Shape.NORMAL ? AssetLookup.partialBaseVariant(ctx, prov)
 				: shape == Shape.INTERSECTION || shape == Shape.ENCASED
-					? AssetLookup.partialBaseModel(ctx, prov, "intersection")
-					: AssetLookup.partialBaseModel(ctx, prov, "windowed");
-		return shape == Shape.INTERSECTION ? AssetLookup.partialBaseModel(ctx, prov, "diagonal", "intersection")
-			: shape == Shape.ENCASED ? AssetLookup.partialBaseModel(ctx, prov, "diagonal", "encased")
-				: AssetLookup.partialBaseModel(ctx, prov, "diagonal");
+					? AssetLookup.partialBaseVariant(ctx, prov, "intersection")
+					: AssetLookup.partialBaseVariant(ctx, prov, "windowed");
+		return shape == Shape.INTERSECTION ? AssetLookup.partialBaseVariant(ctx, prov, "diagonal", "intersection")
+			: shape == Shape.ENCASED ? AssetLookup.partialBaseVariant(ctx, prov, "diagonal", "encased")
+				: AssetLookup.partialBaseVariant(ctx, prov, "diagonal");
 	}
 
 }

@@ -14,8 +14,25 @@ import net.minecraft.world.item.equipment.ArmorType;
  */
 public class BaseArmorItem extends Item {
 
+	private final ArmorMaterial armorMaterial;
+	private final ArmorType armorType;
+
 	public BaseArmorItem(ArmorMaterial armorMaterial, ArmorType type, Properties properties) {
 		super(properties.humanoidArmor(armorMaterial, type)
 			.stacksTo(1));
+		this.armorMaterial = armorMaterial;
+		this.armorType = type;
+	}
+
+	/**
+	 * Kept because datagen needs them: the properties swallow the material and slot, and there is no
+	 * ArmorItem left to read them back off.
+	 */
+	public ArmorMaterial getMaterial() {
+		return armorMaterial;
+	}
+
+	public ArmorType getArmorType() {
+		return armorType;
 	}
 }

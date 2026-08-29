@@ -35,6 +35,7 @@ import com.simibubi.create.foundation.CreateNBTProcessors;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.infrastructure.data.CreateDatagen;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
@@ -60,6 +61,7 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod(Create.ID)
@@ -155,9 +157,16 @@ public class Create {
 		modEventBus.addListener(Create::init);
 		modEventBus.addListener(Create::onRegister);
 		modEventBus.addListener(AllEntityTypes::registerEntityAttributes);
-		// TODO 26.2: re-register CreateDatagen's providers once datagen is ported; the class is
-		// excluded from the build for now (see build.gradle).
 		modEventBus.addListener(AllSoundEvents::register);
+
+		// 26.2 raises a separate gather event per side, so the providers are split across two
+		// listeners rather than filtered by include flags inside one.
+		modEventBus.addListener(EventPriority.HIGHEST,
+			(GatherDataEvent.Server e) -> CreateDatagen.gatherDataHighPriority());
+		modEventBus.addListener(EventPriority.HIGHEST,
+			(GatherDataEvent.Client e) -> CreateDatagen.gatherDataHighPriority());
+		modEventBus.addListener((GatherDataEvent.Server e) -> CreateDatagen.gatherData(e));
+		modEventBus.addListener((GatherDataEvent.Client e) -> CreateDatagen.gatherData(e));
 
 		// FIXME: this is not thread-safe
 		Mods.CURIOS.executeIfInstalled(() -> () -> Curios.init(modEventBus));

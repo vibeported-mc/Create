@@ -1,6 +1,5 @@
 package com.simibubi.create.foundation.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
@@ -8,8 +7,8 @@ import com.simibubi.create.api.data.recipe.CuttingRecipeGen;
 import com.simibubi.create.foundation.data.recipe.CreateRecipeProvider.I;
 
 import net.minecraft.core.HolderLookup.Provider;
-import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.data.recipes.RecipeOutput;
 
 /**
  * Create's own Data Generation for Cutting recipes
@@ -74,8 +73,8 @@ public final class CreateCuttingRecipeGen extends CuttingRecipeGen {
 		BWG_2 = stripAndMakePlanksDiffPlanksModId(Mods.BWG, null, "stripped_palo_verde_wood", Mods.VANILLA, "birch_planks")
 		;
 
-	public CreateCuttingRecipeGen(PackOutput output, CompletableFuture<Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateCuttingRecipeGen(Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 
 	GeneratedRecipe ieWires(CommonMetal... metals) {

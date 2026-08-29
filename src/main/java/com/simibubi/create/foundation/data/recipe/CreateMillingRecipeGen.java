@@ -2,7 +2,6 @@ package com.simibubi.create.foundation.data.recipe;
 
 import net.minecraft.world.item.DyeColor;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags.AllItemTags;
@@ -11,12 +10,12 @@ import com.simibubi.create.api.data.recipe.MillingRecipeGen;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.PackOutput;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import net.neoforged.neoforge.common.Tags;
 
@@ -958,7 +957,7 @@ public final class CreateMillingRecipeGen extends MillingRecipeGen {
 		}
 	}
 
-	public CreateMillingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, Create.ID);
+	public CreateMillingRecipeGen(HolderLookup.Provider registries, RecipeOutput output) {
+		super(registries, output, Create.ID);
 	}
 }

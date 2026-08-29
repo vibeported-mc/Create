@@ -1,12 +1,12 @@
 package com.simibubi.create.api.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
 
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeBuilder;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeOutput;
 
 /**
  * The base class for Sequenced Assembly recipe generation.
@@ -17,8 +17,8 @@ import net.minecraft.data.PackOutput;
  */
 public abstract class SequencedAssemblyRecipeGen extends BaseRecipeProvider {
 
-	public SequencedAssemblyRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public SequencedAssemblyRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	@Override
@@ -28,7 +28,8 @@ public abstract class SequencedAssemblyRecipeGen extends BaseRecipeProvider {
 
 	protected GeneratedRecipe create(String name, UnaryOperator<SequencedAssemblyRecipeBuilder> transform) {
 		GeneratedRecipe generatedRecipe =
-			c -> transform.apply(new SequencedAssemblyRecipeBuilder(asResource(name)))
+			c -> transform.apply(new SequencedAssemblyRecipeBuilder(asResource(name)).withItemLookup(items)
+				.withFluidLookup(registries.lookupOrThrow(Registries.FLUID)))
 				.build(c);
 		all.add(generatedRecipe);
 		return generatedRecipe;

@@ -1,8 +1,10 @@
 package com.simibubi.create.content.contraptions.piston;
 
+import com.simibubi.create.foundation.data.SpecialBlockStateGen;
+
 import com.simibubi.create.content.contraptions.piston.MechanicalPistonBlock.PistonState;
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -10,7 +12,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.PistonType;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
 
 public class MechanicalPistonGenerator extends SpecialBlockStateGen {
 
@@ -35,7 +38,7 @@ public class MechanicalPistonGenerator extends SpecialBlockStateGen {
 	}
 
 	@Override
-	public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+	public <T extends Block> MultiVariant getModel(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		BlockState state) {
 		Direction facing = state.getValue(PistonBaseBlock.FACING);
 		boolean axisAlongFirst = state.getValue(MechanicalPistonBlock.AXIS_ALONG_FIRST_COORDINATE);
@@ -45,8 +48,7 @@ public class MechanicalPistonGenerator extends SpecialBlockStateGen {
 		String folder = pistonState == PistonState.RETRACTED ? type.getSerializedName() : pistonState.getSerializedName();
 		String partial = facing.getAxis() == Axis.X ^ axisAlongFirst ? "block_rotated" : "block";
 
-		return prov.models()
-			.getExistingFile(prov.modLoc(path + "/" + folder + "/" + partial));
+		return BlockModelGenerators.plainVariant(prov.modLoc(path + "/" + folder + "/" + partial));
 	}
 
 }

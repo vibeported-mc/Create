@@ -5,6 +5,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.simibubi.create.Create;
@@ -16,7 +17,17 @@ import com.tterrag.registrate.providers.generators.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.DataIngredient;
 import com.tterrag.registrate.util.entry.BlockEntry;
 
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
+import com.tterrag.registrate.providers.generators.RegistrateItemModelGenerator;
+
 import net.createmod.catnip.api.lang.Lang;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -56,13 +67,8 @@ public abstract class PaletteBlockPartial<B extends Block> {
 
 		BlockBuilder<B, CreateRegistrate> blockBuilder = Create.registrate()
 			.block(blockName, p -> createBlock(block, p))
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// /* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
-			
-			
-			// TODO 26.2: port datagen to the new recipe/loot builders
-			// .recipe((c, p) -> createRecipes(variant, block, c, p))
-			
+			.blockstate(() -> (c, p) -> generateBlockState(c, p, variantName, pattern, block))
+			.recipe((c, p) -> createRecipes(variant, block, c, p))
 			.transform(b -> transformBlock(b, variantName, pattern));
 
 		ItemBuilder<BlockItem, BlockBuilder<B, CreateRegistrate>> itemBuilder = blockBuilder.item()
@@ -106,6 +112,13 @@ public abstract class PaletteBlockPartial<B extends Block> {
 	 */
 	protected abstract B createBlock(Supplier<? extends Block> block, Properties properties);
 
+	protected abstract void createRecipes(AllPaletteStoneTypes type, BlockEntry<? extends Block> patternBlock,
+										  DataGenContext<Block, ? extends Block> c, RegistrateRecipeProvider p);
+
+	protected abstract void generateBlockState(DataGenContext<Block, B> ctx, RegistrateBlockModelGenerator prov,
+											   String variantName, PaletteBlockPattern pattern,
+											   Supplier<? extends Block> block);
+
 	protected static Properties copyOf(Block block, Properties properties) {
 		return Properties.ofFullCopy(block).setId(properties.id);
 	}
@@ -123,6 +136,12 @@ public abstract class PaletteBlockPartial<B extends Block> {
 			return new StairBlock(block.get().defaultBlockState(), copyOf(block.get(), properties));
 		}
 
+		@Override
+		protected void generateBlockState(DataGenContext<Block, StairBlock> ctx, RegistrateBlockModelGenerator prov,
+										  String variantName, PaletteBlockPattern pattern,
+										  Supplier<? extends Block> block) {
+			prov.generateStairsBlock(ctx.get(), new Material(getTexture(variantName, pattern, 0)));
+		}
 
 		@Override
 		protected Iterable<TagKey<Block>> getBlockTags() {
@@ -132,6 +151,15 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		@Override
 		protected Iterable<TagKey<Item>> getItemTags() {
 			return Arrays.asList(BlockItemTags.STAIRS.item());
+		}
+
+		@Override
+		protected void createRecipes(AllPaletteStoneTypes type, BlockEntry<? extends Block> patternBlock,
+									 DataGenContext<Block, ? extends Block> c, RegistrateRecipeProvider p) {
+			RecipeCategory category = RecipeCategory.BUILDING_BLOCKS;
+			p.stairs(DataIngredient.items(patternBlock.get()), category, c::get, c.getName(), false);
+			p.stonecutting(DataIngredient.tag(p.itemLookup()
+				.getOrThrow(type.materialTag)), category, c::get, 1);
 		}
 
 
@@ -156,6 +184,23 @@ public abstract class PaletteBlockPartial<B extends Block> {
 			return false;
 		}
 
+		@Override
+		protected void generateBlockState(DataGenContext<Block, SlabBlock> ctx, RegistrateBlockModelGenerator prov,
+										  String variantName, PaletteBlockPattern pattern,
+										  Supplier<? extends Block> block) {
+			Material mainTexture = new Material(getTexture(variantName, pattern, 0));
+			Material sideTexture = customSide ? new Material(getTexture(variantName, pattern, 1)) : mainTexture;
+
+			// The plain slabs borrow the pattern's own full block as their double model; the ones with a
+			// side of their own need a column model built for it.
+			MultiVariant doubleSlab = customSide
+				? BlockModelGenerators.plainVariant(ModelTemplates.CUBE_COLUMN.create(
+					prov.modLoc("block/" + ctx.getName() + "_double"),
+					TextureMapping.column(sideTexture, mainTexture), prov.modelOutput))
+				: BlockModelGenerators.plainVariant(prov.modLoc("block/" + pattern.createName(variantName)));
+
+			prov.generateSlabBlock(ctx.get(), doubleSlab, sideTexture, mainTexture, mainTexture);
+		}
 
 		@Override
 		protected Iterable<TagKey<Block>> getBlockTags() {
@@ -165,6 +210,21 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		@Override
 		protected Iterable<TagKey<Item>> getItemTags() {
 			return Arrays.asList(BlockItemTags.SLABS.item());
+		}
+
+		@Override
+		protected void createRecipes(AllPaletteStoneTypes type, BlockEntry<? extends Block> patternBlock,
+									 DataGenContext<Block, ? extends Block> c, RegistrateRecipeProvider p) {
+			RecipeCategory category = RecipeCategory.BUILDING_BLOCKS;
+			p.slab(DataIngredient.items(patternBlock.get()), category, c::get, c.getName(), false);
+			p.stonecutting(DataIngredient.tag(p.itemLookup()
+				.getOrThrow(type.materialTag)), category, c::get, 2);
+			DataIngredient ingredient = DataIngredient.items(c.get());
+			p.shapeless(category, patternBlock.get())
+				.requires(ingredient.toVanilla())
+				.requires(ingredient.toVanilla())
+				.unlockedBy("has_" + c.getName(), ingredient.getCriterion(p))
+				.save(p, Create.ID + ":" + c.getName() + "_recycling");
 		}
 
 
@@ -192,8 +252,23 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		protected ItemBuilder<BlockItem, BlockBuilder<WallBlock, CreateRegistrate>> transformItem(
 			ItemBuilder<BlockItem, BlockBuilder<WallBlock, CreateRegistrate>> builder, String variantName,
 			PaletteBlockPattern pattern) {
-			// datagen: builder/* TODO 26.2: port datagen to RegistrateBlockModelGenerator */
+			builder.model(() -> (c, p) -> wallInventory(c.getEntry(), p, variantName, pattern));
 			return super.transformItem(builder, variantName, pattern);
+		}
+
+		private void wallInventory(net.minecraft.world.item.Item item, RegistrateItemModelGenerator prov,
+								   String variantName, PaletteBlockPattern pattern) {
+			prov.generateWithTemplate(item,
+				new ModelTemplate(Optional.of(prov.mcLoc("block/wall_inventory")), Optional.empty(), TextureSlot.WALL),
+				TextureMapping.singleSlot(TextureSlot.WALL, new Material(getTexture(variantName, pattern, 0))));
+		}
+
+		@Override
+		protected void generateBlockState(DataGenContext<Block, WallBlock> ctx, RegistrateBlockModelGenerator prov,
+										  String variantName, PaletteBlockPattern pattern,
+										  Supplier<? extends Block> block) {
+			prov.generateWallBlock(ctx.get(), pattern.createName(variantName),
+				new Material(getTexture(variantName, pattern, 0)));
 		}
 
 
@@ -205,6 +280,23 @@ public abstract class PaletteBlockPartial<B extends Block> {
 		@Override
 		protected Iterable<TagKey<Item>> getItemTags() {
 			return Arrays.asList(BlockItemTags.WALLS.item());
+		}
+
+		@Override
+		protected void createRecipes(AllPaletteStoneTypes type, BlockEntry<? extends Block> patternBlock,
+									 DataGenContext<Block, ? extends Block> c, RegistrateRecipeProvider p) {
+			RecipeCategory category = RecipeCategory.BUILDING_BLOCKS;
+			p.stonecutting(DataIngredient.tag(p.itemLookup()
+				.getOrThrow(type.materialTag)), category, c::get, 1);
+			DataIngredient ingredient = DataIngredient.items(patternBlock.get());
+			p.shaped(category, c.get(), 6)
+				.pattern("XXX")
+				.pattern("XXX")
+				.define('X', ingredient.toVanilla())
+				.unlockedBy("has_" + p.safeName(ingredient), ingredient.getCriterion(p))
+				// 26.2 refuses an explicit id that matches the default one, and this recipe's is the
+				// block's own name either way.
+				.save(p);
 		}
 
 

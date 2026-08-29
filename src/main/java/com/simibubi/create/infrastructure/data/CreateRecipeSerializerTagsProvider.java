@@ -9,6 +9,7 @@ import com.simibubi.create.Create;
 import com.simibubi.create.compat.Mods;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -23,8 +24,10 @@ public class CreateRecipeSerializerTagsProvider extends TagsProvider<RecipeSeria
 
 	@Override
 	protected void addTags(Provider pProvider) {
-		tag(AllRecipeSerializerTags.AUTOMATION_IGNORE.tag).addOptional(Mods.OCCULTISM.rl("spirit_trade"))
-		.addOptional(Mods.OCCULTISM.rl("ritual"));
+		// 26.2 keys an optional tag entry by ResourceKey rather than by bare id.
+		tag(AllRecipeSerializerTags.AUTOMATION_IGNORE.tag)
+			.addOptional(ResourceKey.create(Registries.RECIPE_SERIALIZER, Mods.OCCULTISM.rl("spirit_trade")))
+			.addOptional(ResourceKey.create(Registries.RECIPE_SERIALIZER, Mods.OCCULTISM.rl("ritual")));
 	}
 
 	@Override

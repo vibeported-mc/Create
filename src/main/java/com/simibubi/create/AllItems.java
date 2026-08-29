@@ -65,6 +65,15 @@ import com.simibubi.create.content.schematics.SchematicAndQuillItem;
 import com.simibubi.create.content.schematics.SchematicItem;
 import com.simibubi.create.content.trains.schedule.ScheduleItem;
 import com.simibubi.create.foundation.data.BuilderTransformers;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.renderer.item.properties.select.DisplayContext;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemDisplayContext;
+import com.simibubi.create.content.legacy.ChromaticCompoundColor;
+import com.simibubi.create.foundation.data.AssetLookup;
+import com.simibubi.create.content.equipment.armor.TrimmableArmorModelGenerator;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.recipe.CommonMetal;
 import com.simibubi.create.foundation.item.ItemDescription;
@@ -184,9 +193,7 @@ public class AllItems {
 		REGISTRATE.item("cardboard_sword", CardboardSwordItem::new)
 			.burnTime(1000)
 			.properties(p -> p.stacksTo(1))
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.itemModelWithPartials())
-			
+			.model(() -> AssetLookup.itemModelWithPartials())
 			.register();
 
 	public static final ItemEntry<Item> RAW_ZINC =
@@ -199,10 +206,11 @@ public class AllItems {
 	public static final ItemEntry<ChromaticCompoundItem> CHROMATIC_COMPOUND =
 		REGISTRATE.item("chromatic_compound", ChromaticCompoundItem::new)
 			.properties(p -> p.rarity(Rarity.UNCOMMON))
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator; the model must name
-			// ChromaticCompoundColor.ID as the tint source for each of its three layers, since item
-			// tinting is data-driven now and Registrate no longer binds colour handlers.
-			// .model(AssetLookup.existingItemModel())
+			// The shifting colour is a tint source per layer now, named by the model itself, rather
+			// than a colour handler bound to the item.
+			.model(() -> (c, p) -> p.itemModelOutput.accept(c.getEntry(),
+				ItemModelUtils.tintedModel(p.modLoc("item/" + c.getName()), new ChromaticCompoundColor(0),
+					new ChromaticCompoundColor(1), new ChromaticCompoundColor(2))))
 			.register();
 
 	public static final ItemEntry<ShadowSteelItem> SHADOW_STEEL = REGISTRATE.item("shadow_steel", ShadowSteelItem::new)
@@ -252,26 +260,28 @@ public class AllItems {
 
 	public static final ItemEntry<VerticalGearboxItem> VERTICAL_GEARBOX =
 		REGISTRATE.item("vertical_gearbox", VerticalGearboxItem::new)
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.customBlockItemModel("gearbox", "item_vertical"))
-			
+			.model(() -> AssetLookup.customBlockItemModel("gearbox", "item_vertical"))
 			.register();
 
 	public static final ItemEntry<BlazeBurnerBlockItem> EMPTY_BLAZE_BURNER =
 		REGISTRATE.item("empty_blaze_burner", BlazeBurnerBlockItem::empty)
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.customBlockItemModel("blaze_burner", "block"))
-			
+			.model(() -> AssetLookup.customBlockItemModel("blaze_burner", "block"))
 			.register();
 
 	public static final ItemEntry<GogglesItem> GOGGLES = REGISTRATE.item("goggles", GogglesItem::new)
 		// Wearing is a component in 26.2 rather than something the item class declares.
 		.properties(p -> p.stacksTo(1)
 			.equippable(EquipmentSlot.HEAD))
-		// TODO 26.2: the head-worn goggles used a model that swapped itself out for
-		// AllPartialModels.GOGGLES under ItemDisplayContext.HEAD. A model can no longer choose per
-		// display context in code - that is a "select" item model keyed on display_context - so it
-		// comes back with datagen.
+		// Worn on the head the goggles are a block model rather than the flat item sprite. A model
+		// cannot choose per display context in code any more, so this is a select on display_context.
+		.model(() -> (c, p) -> {
+			Identifier flat = ModelTemplates.FLAT_ITEM.create(c.getEntry(),
+				TextureMapping.layer0(p.modItemTexture(c.getName())), p.modelOutput);
+			p.itemModelOutput.accept(c.getEntry(), ItemModelUtils.select(new DisplayContext(),
+				ItemModelUtils.plainModel(flat),
+				ItemModelUtils.when(ItemDisplayContext.HEAD,
+					ItemModelUtils.plainModel(p.modLoc("block/goggles")))));
+		})
 		.lang("Engineer's Goggles")
 		.register();
 
@@ -294,9 +304,7 @@ public class AllItems {
 	public static final ItemEntry<BacktankBlockItem> COPPER_BACKTANK_PLACEABLE = REGISTRATE
 		.item("copper_backtank_placeable",
 			p -> new BacktankBlockItem(AllBlocks.COPPER_BACKTANK.get(), AllItems.COPPER_BACKTANK::get, p))
-		// TODO 26.2: port datagen to RegistrateItemModelGenerator
-		// .model((c, p) -> p.withExistingParent(c.getName(), p.mcLoc("item/barrier")))
-		
+		.model(() -> (c, p) -> p.createWithExistingModel(c.getEntry(), p.mcLoc("item/barrier")))
 		.register();
 
 	// wrapped by NETHERITE_BACKTANK for block placement uses.
@@ -304,9 +312,7 @@ public class AllItems {
 	public static final ItemEntry<BacktankBlockItem> NETHERITE_BACKTANK_PLACEABLE = REGISTRATE
 		.item("netherite_backtank_placeable",
 			p -> new BacktankBlockItem(AllBlocks.NETHERITE_BACKTANK.get(), AllItems.NETHERITE_BACKTANK::get, p))
-		// TODO 26.2: port datagen to RegistrateItemModelGenerator
-		// .model((c, p) -> p.withExistingParent(c.getName(), p.mcLoc("item/barrier")))
-		
+		.model(() -> (c, p) -> p.createWithExistingModel(c.getEntry(), p.mcLoc("item/barrier")))
 		.register();
 
 	public static final ItemEntry<? extends BacktankItem>
@@ -316,9 +322,7 @@ public class AllItems {
 			.item("copper_backtank",
 				p -> new BacktankItem(AllArmorMaterials.COPPER, p, Create.asResource("copper_diving"),
 					COPPER_BACKTANK_PLACEABLE))
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.customGenericItemModel("_", "item"))
-			
+			.model(() -> AssetLookup.customGenericItemModel("_", "item"))
 			.tag(AllItemTags.PRESSURIZED_AIR_SOURCES.tag)
 			.tag(ItemTags.CHEST_ARMOR)
 			.register(),
@@ -327,9 +331,7 @@ public class AllItems {
 		.item("netherite_backtank",
 			p -> new BacktankItem.Layered(AllArmorMaterials.NETHERITE_DIVING, p, Create.asResource("netherite_diving"),
 				NETHERITE_BACKTANK_PLACEABLE))
-		// TODO 26.2: port datagen to RegistrateItemModelGenerator
-		// .model(AssetLookup.customGenericItemModel("_", "item"))
-		
+		.model(() -> AssetLookup.customGenericItemModel("_", "item"))
 		.properties(p -> p.fireResistant())
 		.tag(AllItemTags.PRESSURIZED_AIR_SOURCES.tag)
 		.tag(ItemTags.CHEST_ARMOR)
@@ -372,9 +374,7 @@ public class AllItems {
 		.tag(ItemTags.HEAD_ARMOR)
 		.burnTime(1000)
 		.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
-		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-		// .model(TrimmableArmorModelGenerator::generate)
-		
+		.model(() -> TrimmableArmorModelGenerator::generate)
 		.register(),
 
 	CARDBOARD_CHESTPLATE =
@@ -383,9 +383,7 @@ public class AllItems {
 			.tag(ItemTags.CHEST_ARMOR)
 			.burnTime(1000)
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .model(TrimmableArmorModelGenerator::generate)
-			
+			.model(() -> TrimmableArmorModelGenerator::generate)
 			.register(),
 
 	CARDBOARD_LEGGINGS =
@@ -394,9 +392,7 @@ public class AllItems {
 			.tag(ItemTags.LEG_ARMOR)
 			.burnTime(1000)
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
-			// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-			// .model(TrimmableArmorModelGenerator::generate)
-			
+			.model(() -> TrimmableArmorModelGenerator::generate)
 			.register(),
 
 	CARDBOARD_BOOTS = REGISTRATE.item("cardboard_boots", p -> new CardboardArmorItem(ArmorType.BOOTS, p))
@@ -404,9 +400,7 @@ public class AllItems {
 		.tag(ItemTags.FOOT_ARMOR)
 		.burnTime(1000)
 		.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
-		// TODO 26.2: port datagen to RegistrateBlockModelGenerator
-		// .model(TrimmableArmorModelGenerator::generate)
-		
+		.model(() -> TrimmableArmorModelGenerator::generate)
 		.register();
 
 	public static final ItemEntry<SandPaperItem> SAND_PAPER = REGISTRATE.item("sand_paper", SandPaperItem::new)
@@ -420,9 +414,7 @@ public class AllItems {
 
 	public static final ItemEntry<WrenchItem> WRENCH = REGISTRATE.item("wrench", WrenchItem::new)
 		.properties(p -> p.stacksTo(1))
-		// TODO 26.2: port datagen to RegistrateItemModelGenerator
-		// .model(AssetLookup.itemModelWithPartials())
-		
+		.model(() -> AssetLookup.itemModelWithPartials())
 		.tag(Items.TOOLS_WRENCH)
 		.register();
 
@@ -443,36 +435,28 @@ public class AllItems {
 	public static final ItemEntry<LinkedControllerItem> LINKED_CONTROLLER =
 		REGISTRATE.item("linked_controller", LinkedControllerItem::new)
 			.properties(p -> p.stacksTo(1))
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.itemModelWithPartials())
-			
+			.model(() -> AssetLookup.itemModelWithPartials())
 			.register();
 
 	public static final ItemEntry<PotatoCannonItem> POTATO_CANNON =
 		REGISTRATE.item("potato_cannon", PotatoCannonItem::new)
 			.properties(p -> p.durability(100))
 			.clientExtension(() -> () -> CustomArmPoseClientExtension.INSTANCE)
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.itemModelWithPartials())
-			
+			.model(() -> AssetLookup.itemModelWithPartials())
 			.tag(Tags.Items.ENCHANTABLES, ItemTags.DURABILITY_ENCHANTABLE, ItemTags.BOW_ENCHANTABLE)
 			.register();
 
 	public static final ItemEntry<ExtendoGripItem> EXTENDO_GRIP = REGISTRATE.item("extendo_grip", ExtendoGripItem::new)
 		.properties(p -> p.rarity(Rarity.UNCOMMON))
 		.tag(ItemTags.DURABILITY_ENCHANTABLE)
-		// TODO 26.2: port datagen to RegistrateItemModelGenerator
-		// .model(AssetLookup.itemModelWithPartials())
-		
+		.model(() -> AssetLookup.itemModelWithPartials())
 		.register();
 
 	public static final ItemEntry<SymmetryWandItem> WAND_OF_SYMMETRY =
 		REGISTRATE.item("wand_of_symmetry", SymmetryWandItem::new)
 			.properties(p -> p.stacksTo(1)
 				.rarity(Rarity.UNCOMMON))
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.itemModelWithPartials())
-			
+			.model(() -> AssetLookup.itemModelWithPartials())
 			.register();
 
 	public static final ItemEntry<WorldshaperItem> WORLDSHAPER =
@@ -480,9 +464,7 @@ public class AllItems {
 			.clientExtension(() -> () -> CustomArmPoseClientExtension.INSTANCE)
 			.properties(p -> p.rarity(Rarity.EPIC))
 			.lang("Creative Worldshaper")
-			// TODO 26.2: port datagen to RegistrateItemModelGenerator
-			// .model(AssetLookup.itemModelWithPartials())
-			
+			.model(() -> AssetLookup.itemModelWithPartials())
 			.register();
 
 	public static final ItemEntry<TreeFertilizerItem> TREE_FERTILIZER =

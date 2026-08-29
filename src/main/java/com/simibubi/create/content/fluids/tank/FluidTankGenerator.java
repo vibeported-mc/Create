@@ -1,12 +1,18 @@
 package com.simibubi.create.content.fluids.tank;
 
+import com.simibubi.create.foundation.data.AssetLookup;
+import com.simibubi.create.foundation.data.SpecialBlockStateGen;
+
 import com.simibubi.create.content.fluids.tank.FluidTankBlock.Shape;
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.resources.model.sprite.Material;
 
 public class FluidTankGenerator extends SpecialBlockStateGen {
 
@@ -31,7 +37,7 @@ public class FluidTankGenerator extends SpecialBlockStateGen {
 	}
 
 	@Override
-	public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+	public <T extends Block> MultiVariant getModel(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		BlockState state) {
 		Boolean top = state.getValue(FluidTankBlock.TOP);
 		Boolean bottom = state.getValue(FluidTankBlock.BOTTOM);
@@ -48,16 +54,18 @@ public class FluidTankGenerator extends SpecialBlockStateGen {
 		String modelName = shapeName + (shape == Shape.PLAIN ? "" : "_" + shape.getSerializedName());
 
 		if (!prefix.isEmpty())
-			return prov.models()
-				.withExistingParent(prefix + modelName, prov.modLoc("block/fluid_tank/block_" + modelName))
-				.texture("0", prov.modLoc("block/" + prefix + "casing"))
-				.texture("1", prov.modLoc("block/" + prefix + "fluid_tank"))
-				.texture("3", prov.modLoc("block/" + prefix + "fluid_tank_window"))
-				.texture("4", prov.modLoc("block/" + prefix + "casing"))
-				.texture("5", prov.modLoc("block/" + prefix + "fluid_tank_window_single"))
-				.texture("particle", prov.modLoc("block/" + prefix + "fluid_tank"));
+			return BlockModelGenerators.plainVariant(prov.getBuilder()
+				.parent(prov.modLoc("block/fluid_tank/block_" + modelName))
+				.texture(TextureSlot.create("0"), new Material(prov.modLoc("block/" + prefix + "casing")))
+				.texture(TextureSlot.create("1"), new Material(prov.modLoc("block/" + prefix + "fluid_tank")))
+				.texture(TextureSlot.create("3"), new Material(prov.modLoc("block/" + prefix + "fluid_tank_window")))
+				.texture(TextureSlot.create("4"), new Material(prov.modLoc("block/" + prefix + "casing")))
+				.texture(TextureSlot.create("5"),
+					new Material(prov.modLoc("block/" + prefix + "fluid_tank_window_single")))
+				.texture(TextureSlot.PARTICLE, new Material(prov.modLoc("block/" + prefix + "fluid_tank")))
+				.build(prov.modLoc("block/" + prefix + modelName)));
 
-		return AssetLookup.partialBaseModel(ctx, prov, modelName);
+		return AssetLookup.partialBaseVariant(ctx, prov, modelName);
 	}
 
 }

@@ -1,18 +1,15 @@
 package com.simibubi.create.foundation.data.recipe;
 
 import net.minecraft.tags.BlockItemTags;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags.AllItemTags;
-import com.simibubi.create.api.data.recipe.ProcessingRecipeGen;
+import com.simibubi.create.api.data.recipe.BaseRecipeProvider;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -32,49 +29,43 @@ import net.neoforged.neoforge.fluids.FluidType;
  *
  * @see com.simibubi.create.infrastructure.data.CreateDatagen
  */
-public final class CreateRecipeProvider extends RecipeProvider {
+/**
+ * 26.2 splits a recipe provider in two: the DataProvider half waits on the registries, then builds
+ * the provider proper with the output already in hand. So the processing generators are gathered
+ * behind one DataProvider that builds all of them per run rather than each being one itself.
+ */
+public final class CreateRecipeProvider {
 
-	static final List<ProcessingRecipeGen<?, ?, ?>> GENERATORS = new ArrayList<>();
 	static final int BUCKET = FluidType.BUCKET_VOLUME;
 	static final int BOTTLE = 250;
 
-	public CreateRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries);
+	private CreateRecipeProvider() {
 	}
 
-	@Override
-	protected void buildRecipes(RecipeOutput recipeOutput) {
+	public static DataProvider allProcessing(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+		return BaseRecipeProvider.runner(output, registries, "Create's Processing Recipes", AllProcessing::new);
 	}
 
-	public static void registerAllProcessing(DataGenerator gen, PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		GENERATORS.add(new CreateCrushingRecipeGen(output, registries));
-		GENERATORS.add(new CreateMillingRecipeGen(output, registries));
-		GENERATORS.add(new CreateCuttingRecipeGen(output, registries));
-		GENERATORS.add(new CreateWashingRecipeGen(output, registries));
-		GENERATORS.add(new CreatePolishingRecipeGen(output, registries));
-		GENERATORS.add(new CreateDeployingRecipeGen(output, registries));
-		GENERATORS.add(new CreateMixingRecipeGen(output, registries));
-		GENERATORS.add(new CreateCompactingRecipeGen(output, registries));
-		GENERATORS.add(new CreatePressingRecipeGen(output, registries));
-		GENERATORS.add(new CreateFillingRecipeGen(output, registries));
-		GENERATORS.add(new CreateEmptyingRecipeGen(output, registries));
-		GENERATORS.add(new CreateHauntingRecipeGen(output, registries));
-		GENERATORS.add(new CreateItemApplicationRecipeGen(output, registries));
+	private static class AllProcessing extends RecipeProvider {
 
-		gen.addProvider(true, new DataProvider() {
+		private final List<BaseRecipeProvider> generators;
 
-			@Override
-			public String getName() {
-				return "Create's Processing Recipes";
-			}
+		private AllProcessing(HolderLookup.Provider registries, RecipeOutput output) {
+			super(registries, output);
+			generators = List.of(new CreateCrushingRecipeGen(registries, output),
+				new CreateMillingRecipeGen(registries, output), new CreateCuttingRecipeGen(registries, output),
+				new CreateWashingRecipeGen(registries, output), new CreatePolishingRecipeGen(registries, output),
+				new CreateDeployingRecipeGen(registries, output), new CreateMixingRecipeGen(registries, output),
+				new CreateCompactingRecipeGen(registries, output), new CreatePressingRecipeGen(registries, output),
+				new CreateFillingRecipeGen(registries, output), new CreateEmptyingRecipeGen(registries, output),
+				new CreateHauntingRecipeGen(registries, output),
+				new CreateItemApplicationRecipeGen(registries, output));
+		}
 
-			@Override
-			public CompletableFuture<?> run(CachedOutput dc) {
-				return CompletableFuture.allOf(GENERATORS.stream()
-					.map(gen -> gen.run(dc))
-					.toArray(CompletableFuture[]::new));
-			}
-		});
+		@Override
+		protected void buildRecipes() {
+			generators.forEach(BaseRecipeProvider::buildRecipes);
+		}
 	}
 
 	protected static class I {
@@ -227,8 +218,8 @@ public final class CreateRecipeProvider extends RecipeProvider {
 			return AllItems.SHADOW_STEEL.get();
 		}
 
-		static Ingredient netherite() {
-			return Ingredient.of(Tags.Items.INGOTS_NETHERITE);
+		static TagKey<Item> netherite() {
+			return Tags.Items.INGOTS_NETHERITE;
 		}
 
 	}

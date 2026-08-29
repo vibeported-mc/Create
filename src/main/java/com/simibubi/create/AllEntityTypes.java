@@ -98,6 +98,10 @@ public class AllEntityTypes {
 			.properties(b -> b.setTrackingRange(range)
 				.setUpdateInterval(updateFrequency)
 				.setShouldReceiveVelocityUpdates(sendVelocity))
+			// None of Create's entities drop through a loot table - contraptions, seats and projectiles
+			// all hand back their contents in code. 26.2 gives every entity type a default loot table id
+			// and datagen insists a table exists for it, so say outright that there is none.
+			.properties(EntityType.Builder::noLootTable)
 			.properties(propertyBuilder)
 			.properties(b -> {
 				if (immuneToFire)

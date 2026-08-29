@@ -1,93 +1,79 @@
 package com.simibubi.create.content.decoration.girder;
 
+import com.simibubi.create.foundation.data.AssetLookup;
+import com.simibubi.create.foundation.data.BlockStateGen;
+
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 
 import net.createmod.catnip.api.data.Iterate;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.Block;
 
-import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 
 public class GirderBlockStateGenerator {
 
 	public static void blockStateWithShaft(DataGenContext<Block, GirderEncasedShaftBlock> c,
-		RegistrateBlockstateProvider p) {
-		MultiPartBlockStateBuilder builder = p.getMultipartBuilder(c.get());
+		RegistrateBlockModelGenerator p) {
+		MultiPartGenerator builder = MultiPartGenerator.multiPart(c.get());
 
-		builder.part()
-			.modelFile(AssetLookup.partialBaseModel(c, p))
-			.rotationY(0)
-			.addModel()
-			.condition(GirderEncasedShaftBlock.HORIZONTAL_AXIS, Axis.Z)
-			.end();
+		builder.with(BlockModelGenerators.condition()
+			.term(GirderEncasedShaftBlock.HORIZONTAL_AXIS, Axis.Z),
+			BlockStateGen.rotateY(AssetLookup.partialBaseVariant(c, p), 0));
 
-		builder.part()
-			.modelFile(AssetLookup.partialBaseModel(c, p))
-			.rotationY(90)
-			.addModel()
-			.condition(GirderEncasedShaftBlock.HORIZONTAL_AXIS, Axis.X)
-			.end();
+		builder.with(BlockModelGenerators.condition()
+			.term(GirderEncasedShaftBlock.HORIZONTAL_AXIS, Axis.X),
+			BlockStateGen.rotateY(AssetLookup.partialBaseVariant(c, p), 90));
 
-		builder.part()
-			.modelFile(AssetLookup.partialBaseModel(c, p, "top"))
-			.addModel()
-			.condition(GirderEncasedShaftBlock.TOP, true)
-			.end();
+		builder.with(BlockModelGenerators.condition()
+			.term(GirderEncasedShaftBlock.TOP, true),
+			AssetLookup.partialBaseVariant(c, p, "top"));
 
-		builder.part()
-			.modelFile(AssetLookup.partialBaseModel(c, p, "bottom"))
-			.addModel()
-			.condition(GirderEncasedShaftBlock.BOTTOM, true)
-			.end();
+		builder.with(BlockModelGenerators.condition()
+			.term(GirderEncasedShaftBlock.BOTTOM, true),
+			AssetLookup.partialBaseVariant(c, p, "bottom"));
 
+		p.blockStateOutput.accept(builder);
 	}
 
-	public static void blockState(DataGenContext<Block, GirderBlock> c, RegistrateBlockstateProvider p) {
-		MultiPartBlockStateBuilder builder = p.getMultipartBuilder(c.get());
+	public static void blockState(DataGenContext<Block, GirderBlock> c, RegistrateBlockModelGenerator p) {
+		MultiPartGenerator builder = MultiPartGenerator.multiPart(c.get());
 
-		builder.part()
-			.modelFile(AssetLookup.partialBaseModel(c, p, "pole"))
-			.addModel()
-			.condition(GirderBlock.X, false)
-			.condition(GirderBlock.Z, false)
-			.end();
+		builder.with(BlockModelGenerators.condition()
+			.term(GirderBlock.X, false)
+			.term(GirderBlock.Z, false),
+			AssetLookup.partialBaseVariant(c, p, "pole"));
 
-		builder.part()
-			.modelFile(AssetLookup.partialBaseModel(c, p, "x"))
-			.addModel()
-			.condition(GirderBlock.X, true)
-			.end();
+		builder.with(BlockModelGenerators.condition()
+			.term(GirderBlock.X, true),
+			AssetLookup.partialBaseVariant(c, p, "x"));
 
-		builder.part()
-			.modelFile(AssetLookup.partialBaseModel(c, p, "z"))
-			.addModel()
-			.condition(GirderBlock.Z, true)
-			.end();
+		builder.with(BlockModelGenerators.condition()
+			.term(GirderBlock.Z, true),
+			AssetLookup.partialBaseVariant(c, p, "z"));
 
-		for (boolean x : Iterate.trueAndFalse)
-			builder.part()
-				.modelFile(AssetLookup.partialBaseModel(c, p, "top"))
-				.addModel()
-				.condition(GirderBlock.TOP, true)
-				.condition(GirderBlock.X, x)
-				.condition(GirderBlock.Z, !x)
-				.end()
-				.part()
-				.modelFile(AssetLookup.partialBaseModel(c, p, "bottom"))
-				.addModel()
-				.condition(GirderBlock.BOTTOM, true)
-				.condition(GirderBlock.X, x)
-				.condition(GirderBlock.Z, !x)
-				.end();
+		for (boolean x : Iterate.trueAndFalse) {
+			builder.with(BlockModelGenerators.condition()
+				.term(GirderBlock.TOP, true)
+				.term(GirderBlock.X, x)
+				.term(GirderBlock.Z, !x),
+				AssetLookup.partialBaseVariant(c, p, "top"));
 
-		builder.part()
-			.modelFile(AssetLookup.partialBaseModel(c, p, "cross"))
-			.addModel()
-			.condition(GirderBlock.X, true)
-			.condition(GirderBlock.Z, true)
-			.end();
+			builder.with(BlockModelGenerators.condition()
+				.term(GirderBlock.BOTTOM, true)
+				.term(GirderBlock.X, x)
+				.term(GirderBlock.Z, !x),
+				AssetLookup.partialBaseVariant(c, p, "bottom"));
+		}
 
+		builder.with(BlockModelGenerators.condition()
+			.term(GirderBlock.X, true)
+			.term(GirderBlock.Z, true),
+			AssetLookup.partialBaseVariant(c, p, "cross"));
+
+		p.blockStateOutput.accept(builder);
 	}
 
 }

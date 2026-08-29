@@ -19,12 +19,22 @@ import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
 import com.simibubi.create.foundation.block.connected.HorizontalCTBehaviour;
 import com.simibubi.create.foundation.block.connected.RotatedPillarCTBehaviour;
 import com.tterrag.registrate.providers.DataGenContext;
+import com.simibubi.create.foundation.data.BlockStateGen;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
 import com.tterrag.registrate.providers.generators.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
@@ -48,10 +58,12 @@ public class PaletteBlockPattern {
 
 		POLISHED = create("polished_cut", PREFIX, FOR_POLISHED).textures("polished", "slab"),
 
-		LAYERED = create("layered", PREFIX).textures("layered", "cap")
+		LAYERED = create("layered", PREFIX).blockStateFactory(p -> p::cubeColumn)
+			.textures("layered", "cap")
 			.connectedTextures(v -> new HorizontalCTBehaviour(ct(v, CTs.LAYERED), ct(v, CTs.CAP))),
 
-		PILLAR = create("pillar", SUFFIX).block(ConnectedPillarBlock::new)
+		PILLAR = create("pillar", SUFFIX).blockStateFactory(p -> p::pillar)
+			.block(ConnectedPillarBlock::new)
 			.textures("pillar", "cap")
 			.connectedTextures(v -> new RotatedPillarCTBehaviour(ct(v, CTs.PILLAR), ct(v, CTs.CAP)))
 
@@ -71,6 +83,7 @@ public class PaletteBlockPattern {
 	private TagKey<Item>[] itemTags;
 	private Optional<Function<String, ConnectedTextureBehaviour>> ctFactory;
 
+	private IPatternBlockStateGenerator blockStateGenerator;
 	private NonNullFunction<Properties, ? extends Block> blockFactory;
 	private NonNullFunction<NonNullSupplier<Block>, NonNullBiConsumer<DataGenContext<Block, ? extends Block>, RegistrateRecipeProvider>> additionalRecipes;
 	private PaletteBlockPartial<? extends Block>[] partials;
@@ -89,7 +102,12 @@ public class PaletteBlockPattern {
 		pattern.isTranslucent = false;
 		pattern.blockFactory = Block::new;
 		pattern.textures = new String[] { name };
+		pattern.blockStateGenerator = p -> p::cubeAll;
 		return pattern;
+	}
+
+	public IPatternBlockStateGenerator getBlockStateGenerator() {
+		return blockStateGenerator;
 	}
 
 	public boolean isTranslucent() {
@@ -128,6 +146,11 @@ public class PaletteBlockPattern {
 
 	// Builder
 
+	private PaletteBlockPattern blockStateFactory(IPatternBlockStateGenerator factory) {
+		blockStateGenerator = factory;
+		return this;
+	}
+
 	private PaletteBlockPattern textures(String... textures) {
 		this.textures = textures;
 		return this;
@@ -145,10 +168,52 @@ public class PaletteBlockPattern {
 
 	// Model generators
 
-	// TODO: the four model generators that used to live here (cubeAll, cubeBottomTop, pillar and
-	// cubeColumn) built blockstates through NeoForge's model generators, which 26.2 replaced with
-	// Registrate's RegistrateBlockModelGenerator. They are gone for now along with the rest of Create's
-	// datagen; PalettesVariantEntry's call to getBlockStateGenerator is commented out to match.
+	public IBlockStateProvider cubeAll(String variant) {
+		Material all = new Material(toLocation(variant, textures[0]));
+		return (ctx, prov) -> prov.generateWithTemplate(ctx.get(), ModelTemplates.CUBE_ALL,
+			TextureMapping.cube(all));
+	}
+
+	public IBlockStateProvider cubeBottomTop(String variant) {
+		Material side = new Material(toLocation(variant, textures[0]));
+		Material bottom = new Material(toLocation(variant, textures[1]));
+		Material top = new Material(toLocation(variant, textures[2]));
+		return (ctx, prov) -> prov.generateWithTemplate(ctx.get(), ModelTemplates.CUBE_BOTTOM_TOP,
+			new TextureMapping().put(TextureSlot.SIDE, side)
+				.put(TextureSlot.BOTTOM, bottom)
+				.put(TextureSlot.TOP, top)
+				.put(TextureSlot.PARTICLE, side));
+	}
+
+	/**
+	 * The upright pillar keeps the block's own model; the two horizontal axes share a second model that
+	 * is tipped onto its side, so the cap only ever faces along the pillar.
+	 */
+	public IBlockStateProvider pillar(String variant) {
+		Material side = new Material(toLocation(variant, textures[0]));
+		Material end = new Material(toLocation(variant, textures[1]));
+
+		return (ctx, prov) -> {
+			TextureMapping textures = TextureMapping.column(side, end);
+			MultiVariant upright = BlockModelGenerators
+				.plainVariant(ModelTemplates.CUBE_COLUMN.create(ctx.get(), textures, prov.modelOutput));
+			MultiVariant horizontal = BlockModelGenerators.plainVariant(
+				ModelTemplates.CUBE_COLUMN_HORIZONTAL.create(ctx.get(), textures, prov.modelOutput));
+
+			prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+				.with(PropertyDispatch.initial(BlockStateProperties.AXIS)
+					.generate(axis -> axis == Axis.Y ? upright
+						: BlockStateGen.rotateY(BlockStateGen.rotateX(horizontal, 90),
+							axis == Axis.X ? 90 : 0))));
+		};
+	}
+
+	public IBlockStateProvider cubeColumn(String variant) {
+		Material side = new Material(toLocation(variant, textures[0]));
+		Material end = new Material(toLocation(variant, textures[1]));
+		return (ctx, prov) -> prov.generateWithTemplate(ctx.get(), ModelTemplates.CUBE_COLUMN,
+			TextureMapping.column(side, end));
+	}
 
 	// Utility
 
@@ -174,6 +239,16 @@ public class PaletteBlockPattern {
 		Identifier resLocTarget = texture.targetFactory.apply(variant);
 		return CTSpriteShifter.getCT(texture.type, resLoc,
 			Identifier.fromNamespaceAndPath(resLocTarget.getNamespace(), resLocTarget.getPath() + "_connected"));
+	}
+
+	@FunctionalInterface
+	static interface IPatternBlockStateGenerator
+		extends Function<PaletteBlockPattern, Function<String, IBlockStateProvider>> {
+	}
+
+	@FunctionalInterface
+	static interface IBlockStateProvider
+		extends NonNullBiConsumer<DataGenContext<Block, ? extends Block>, RegistrateBlockModelGenerator> {
 	}
 
 	enum PatternNameType {

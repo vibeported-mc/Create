@@ -1,6 +1,5 @@
 package com.simibubi.create.api.data.recipe;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -16,7 +15,8 @@ import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
 import net.createmod.catnip.api.registry.RegisteredObjectsHelper;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
@@ -33,8 +33,8 @@ import net.minecraft.world.level.ItemLike;
  */
 public abstract class ProcessingRecipeGen<P extends ProcessingRecipeParams, R extends ProcessingRecipe<?, P>, B extends ProcessingRecipeBuilder<P, R, B>> extends BaseRecipeProvider {
 
-	public ProcessingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String defaultNamespace) {
-		super(output, registries, defaultNamespace);
+	public ProcessingRecipeGen(HolderLookup.Provider registries, RecipeOutput output, String defaultNamespace) {
+		super(registries, output, defaultNamespace);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public abstract class ProcessingRecipeGen<P extends ProcessingRecipeParams, R ex
 		GeneratedRecipe generatedRecipe = c -> {
 			ItemLike itemLike = singleIngredient.get();
 			transform
-				.apply(getBuilder(Identifier.fromNamespaceAndPath(namespace, RegisteredObjectsHelper.getKeyOrThrow(itemLike.asItem()).getPath())).withItemIngredients(Ingredient.of(itemLike)))
+				.apply(builder(Identifier.fromNamespaceAndPath(namespace, RegisteredObjectsHelper.getKeyOrThrow(itemLike.asItem()).getPath())).withItemIngredients(Ingredient.of(itemLike)))
 				.build(c);
 		};
 		all.add(generatedRecipe);
@@ -62,7 +62,7 @@ public abstract class ProcessingRecipeGen<P extends ProcessingRecipeParams, R ex
 
 	protected GeneratedRecipe createWithDeferredId(Supplier<Identifier> name, UnaryOperator<B> transform) {
 		GeneratedRecipe generatedRecipe =
-			c -> transform.apply(getBuilder(name.get()))
+			c -> transform.apply(builder(name.get()))
 				.build(c);
 		all.add(generatedRecipe);
 		return generatedRecipe;
@@ -87,6 +87,15 @@ public abstract class ProcessingRecipeGen<P extends ProcessingRecipeParams, R ex
 	protected abstract IRecipeTypeInfo getRecipeType();
 
 	protected abstract B getBuilder(Identifier id);
+
+	/**
+	 * The builder a recipe is written with, already told where to resolve tags: only the lookup this
+	 * provider was handed has them bound while datagen runs.
+	 */
+	private B builder(Identifier id) {
+		return getBuilder(id).withItemLookup(items)
+			.withFluidLookup(registries.lookupOrThrow(Registries.FLUID));
+	}
 
 	protected Supplier<Identifier> idWithSuffix(Supplier<ItemLike> item, String suffix) {
 		return () -> {

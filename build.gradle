@@ -84,13 +84,30 @@ neoForge {
             programArgument("--nogui")
         }
 
-        data {
-            data()
+        // 26.2 splits datagen by side, so there are two runs rather than one.
+        clientData {
+            clientData()
+
+            // -PdataOut=<dir> writes elsewhere than the committed tree. Datagen prunes output it no
+            // longer produces, so while the providers are only partly ported, generating in place
+            // would delete the files the unported ones used to write.
+            programArguments.addAll(
+                "--mod", mod_id as String,
+                "--all",
+                "--output", (project.hasProperty("dataOut") ? file(project.property("dataOut") as String)
+                    : file("src/generated/resources/")).getAbsolutePath(),
+                "--existing", file("src/main/resources/").getAbsolutePath()
+            )
+        }
+
+        serverData {
+            serverData()
 
             programArguments.addAll(
                 "--mod", mod_id as String,
                 "--all",
-                "--output", file("src/generated/resources/").getAbsolutePath(),
+                "--output", (project.hasProperty("dataOut") ? file(project.property("dataOut") as String)
+                    : file("src/generated/resources/")).getAbsolutePath(),
                 "--existing", file("src/main/resources/").getAbsolutePath()
             )
         }
@@ -201,32 +218,6 @@ sourceSets.main {
         if (!farmers_delight_enable.toBoolean()) {
             exclude("com/simibubi/create/compat/farmersdelight/**")
         }
-
-        // Registrate 26.2 replaced NeoForge's BlockStateProvider/ModelFile/ConfiguredModel builders
-        // with a wrapper around vanilla's BlockModelGenerators, which is a different shape entirely.
-        // The generated assets in src/generated/resources are committed, so the mod builds and runs
-        // without datagen; these are excluded rather than deleted so the port can pick them up.
-        // TODO: port datagen to RegistrateBlockModelGenerator and drop these exclusions.
-        exclude("com/simibubi/create/content/decoration/copycat/SpecialCopycatPanelBlockState.java")
-        // Everything named *Generator here is a blockstate or model generator, and those are what the
-        // Registrate change broke. The handful that generate something else - the dynamic pack, lang,
-        // hat offsets, curios data - are datagen Create still runs, so they stay in the build.
-        def portedGenerators = [
-            "RuntimeDataGenerator.java",
-            "TagLangGenerator.java",
-            "VanillaHatOffsetGenerator.java",
-            "CuriosDataGenerator.java",
-        ]
-        exclude { it.file.name.endsWith("Generator.java") && !portedGenerators.contains(it.file.name) }
-
-        // 26.2 rebuilt the recipe framework around it: RecipeProvider#buildRecipes takes no
-        // arguments, RecipeSerializer is a final record, and colour variants of items collapsed into
-        // ColorCollections, so every generator that names Items.WHITE_DYE and friends has to be
-        // rewritten. Their output is committed alongside the rest of the generated resources.
-        // TODO: port the recipe generators to the 26.2 datagen API and drop these exclusions.
-        exclude("**/*RecipeGen.java")
-        exclude("**/*RecipeProvider.java")
-        exclude("com/simibubi/create/api/data/recipe/MechanicalCraftingRecipeBuilder.java")
 
         // FTB Chunks and Xaero have no 26.2 builds, so their APIs are not on the
         // classpath and these adapters cannot compile. Create's own train map - the sync, the

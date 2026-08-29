@@ -1,31 +1,39 @@
 package com.simibubi.create.content.redstone.diodes;
 
+import com.simibubi.create.foundation.data.SpecialBlockStateGen;
+
 import java.util.List;
+import java.util.Optional;
 
 import com.simibubi.create.Create;
 import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
-import com.tterrag.registrate.providers.RegistrateItemModelProvider;
+import com.tterrag.registrate.providers.generators.RegistrateBlockModelGenerator;
+import com.tterrag.registrate.providers.generators.RegistrateItemModelGenerator;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.ModelFile.ExistingModelFile;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.resources.model.sprite.Material;
 
 public abstract class AbstractDiodeGenerator extends SpecialBlockStateGen {
 
-	private List<ModelFile> models;
+	private List<MultiVariant> models;
 
-	public static <I extends BlockItem> void diodeItemModel(DataGenContext<Item, I> c, RegistrateItemModelProvider p) {
+	private static final TextureSlot TOP = TextureSlot.create("top");
+
+	public static <I extends BlockItem> void diodeItemModel(DataGenContext<Item, I> c, RegistrateItemModelGenerator p) {
 		String name = c.getName();
 		String path = "block/diodes/";
-		ItemModelBuilder builder = p.withExistingParent(name, p.modLoc(path + name));
-		builder.texture("top", path + name + "/item");
+		ModelTemplate template = new ModelTemplate(Optional.of(p.modLoc(path + name)), Optional.empty(), TOP);
+		p.generateWithTemplate(c.getEntry(), template,
+			new TextureMapping().put(TOP, new Material(p.modLoc(path + name + "/item"))));
 	}
 
 	@Override
@@ -38,21 +46,21 @@ public abstract class AbstractDiodeGenerator extends SpecialBlockStateGen {
 		return horizontalAngle(state.getValue(AbstractDiodeBlock.FACING));
 	}
 
-	protected abstract <T extends Block> List<ModelFile> createModels(DataGenContext<Block, T> ctx,
-																	  BlockModelProvider prov);
+	protected abstract <T extends Block> List<MultiVariant> createModels(DataGenContext<Block, T> ctx,
+		RegistrateBlockModelGenerator prov);
 
 	protected abstract int getModelIndex(BlockState state);
 
 	@Override
-	public final <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+	public final <T extends Block> MultiVariant getModel(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		BlockState state) {
 		if (models == null)
-			models = createModels(ctx, prov.models());
+			models = createModels(ctx, prov);
 		return models.get(getModelIndex(state));
 	}
 
-	protected ExistingModelFile existingModel(BlockModelProvider prov, String name) {
-		return prov.getExistingFile(existing(name));
+	protected MultiVariant existingModel(RegistrateBlockModelGenerator prov, String name) {
+		return BlockModelGenerators.plainVariant(existing(name));
 	}
 
 	protected Identifier existing(String name) {

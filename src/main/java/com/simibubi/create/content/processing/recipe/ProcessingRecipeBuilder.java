@@ -3,6 +3,8 @@ package com.simibubi.create.content.processing.recipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.HolderGetter;
+import org.jspecify.annotations.Nullable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import java.util.Collections;
 import java.util.ArrayList;
@@ -41,6 +43,10 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	protected Factory<P, R> factory;
 	protected P params;
 	protected List<ICondition> recipeConditions;
+	@Nullable
+	protected HolderGetter<Item> itemLookup;
+	@Nullable
+	protected HolderGetter<Fluid> fluidLookup;
 
 	public ProcessingRecipeBuilder(Factory<P, R> factory, Identifier recipeId) {
 		this.recipeId = recipeId;
@@ -138,8 +144,25 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 
 	// Datagen shortcuts
 
+	/**
+	 * Tags are only bound on the lookup a datagen provider is handed, never on the static registry, so
+	 * the builder resolves them through {@link #withItemLookup} when it has one.
+	 */
 	public S require(TagKey<Item> tag) {
-		return require(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(tag)));
+		return require(Ingredient.of(itemLookup == null ? BuiltInRegistries.ITEM.getOrThrow(tag)
+			: itemLookup.getOrThrow(tag)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public S withItemLookup(HolderGetter<Item> lookup) {
+		this.itemLookup = lookup;
+		return (S) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public S withFluidLookup(HolderGetter<Fluid> lookup) {
+		this.fluidLookup = lookup;
+		return (S) this;
 	}
 
 	public S require(ItemLike item) {
@@ -167,8 +190,9 @@ public abstract class ProcessingRecipeBuilder<P extends ProcessingRecipeParams, 
 	}
 
 	public S require(TagKey<Fluid> fluidTag, int amount) {
-		return require(new SizedFluidIngredient(FluidIngredient.of(BuiltInRegistries.FLUID.getOrThrow(fluidTag)),
-			amount));
+		return require(new SizedFluidIngredient(FluidIngredient.of(fluidLookup == null
+			? BuiltInRegistries.FLUID.getOrThrow(fluidTag)
+			: fluidLookup.getOrThrow(fluidTag)), amount));
 	}
 
 	public S require(SizedFluidIngredient ingredient) {

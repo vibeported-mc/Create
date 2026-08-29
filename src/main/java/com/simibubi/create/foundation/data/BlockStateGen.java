@@ -33,8 +33,11 @@ import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.Pointing;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyValueList;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
@@ -48,6 +51,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Half;
@@ -118,7 +122,7 @@ public class BlockStateGen {
 	 * Turns a rotation in degrees into the mutator that applies it. Only right angles survive the
 	 * trip, which is all a blockstate could ever express.
 	 */
-	private static MultiVariant rotateY(MultiVariant variant, int degrees) {
+	public static MultiVariant rotateY(MultiVariant variant, int degrees) {
 		return switch (Math.floorMod(degrees, 360)) {
 			case 90 -> variant.with(BlockModelGenerators.Y_ROT_90);
 			case 180 -> variant.with(BlockModelGenerators.Y_ROT_180);
@@ -127,13 +131,33 @@ public class BlockStateGen {
 		};
 	}
 
-	private static MultiVariant rotateX(MultiVariant variant, int degrees) {
+	public static MultiVariant rotateX(MultiVariant variant, int degrees) {
 		return switch (Math.floorMod(degrees, 360)) {
 			case 90 -> variant.with(BlockModelGenerators.X_ROT_90);
 			case 180 -> variant.with(BlockModelGenerators.X_ROT_180);
 			case 270 -> variant.with(BlockModelGenerators.X_ROT_270);
 			default -> variant;
 		};
+	}
+
+	/**
+	 * The same pair of turns as {@link #rotateX} and {@link #rotateY}, but as a mutator so it can be
+	 * handed to a {@link PropertyDispatch#modify} dispatch rather than applied to one variant.
+	 */
+	public static VariantMutator rotationMutator(int xDegrees, int yDegrees) {
+		VariantMutator x = switch (Math.floorMod(xDegrees, 360)) {
+			case 90 -> BlockModelGenerators.X_ROT_90;
+			case 180 -> BlockModelGenerators.X_ROT_180;
+			case 270 -> BlockModelGenerators.X_ROT_270;
+			default -> BlockModelGenerators.NOP;
+		};
+		VariantMutator y = switch (Math.floorMod(yDegrees, 360)) {
+			case 90 -> BlockModelGenerators.Y_ROT_90;
+			case 180 -> BlockModelGenerators.Y_ROT_180;
+			case 270 -> BlockModelGenerators.Y_ROT_270;
+			default -> BlockModelGenerators.NOP;
+		};
+		return x.then(y);
 	}
 
 	private static Identifier cubeAllModel(RegistrateBlockModelGenerator prov, String name, Identifier texture) {
@@ -143,36 +167,89 @@ public class BlockStateGen {
 
 	// Generators
 
+	/**
+	 * The old model generators walked every blockstate and asked for a model per state. 26.2 wants a
+	 * dispatch over named properties instead, so cover every property the block has - bar the ones the
+	 * caller says to leave out - and hand the model function the state each combination stands for.
+	 */
+	public static <T extends Block> void forAllStates(DataGenContext<Block, T> ctx,
+		RegistrateBlockModelGenerator prov, Function<BlockState, MultiVariant> modelFunc,
+		Property<?>... ignored) {
+		T block = ctx.getEntry();
+		List<Property<?>> properties = new ArrayList<>(block.getStateDefinition()
+			.getProperties());
+		properties.removeAll(List.of(ignored));
+
+		if (properties.isEmpty()) {
+			prov.blockStateOutput.accept(
+				BlockModelGenerators.createSimpleBlock(block, modelFunc.apply(block.defaultBlockState())));
+			return;
+		}
+
+		AllStatesDispatch dispatch = new AllStatesDispatch(properties);
+		fillStates(dispatch, properties, 0, PropertyValueList.EMPTY, block.defaultBlockState(), modelFunc);
+		prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
+			.with(dispatch));
+	}
+
+	private static void fillStates(AllStatesDispatch dispatch, List<Property<?>> properties, int index,
+		PropertyValueList key, BlockState state, Function<BlockState, MultiVariant> modelFunc) {
+		if (index == properties.size()) {
+			dispatch.put(key, modelFunc.apply(state));
+			return;
+		}
+		for (Property.Value<?> value : properties.get(index)
+			.getAllValues()
+			.toList())
+			fillStates(dispatch, properties, index + 1, key.extend(value), setValue(state, value), modelFunc);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static BlockState setValue(BlockState state, Property.Value<?> value) {
+		return state.setValue((Property) value.property(), (Comparable) value.value());
+	}
+
+	/**
+	 * A dispatch whose properties are only known at runtime, so that {@link #forAllStates} can cover
+	 * whatever a block happens to declare.
+	 */
+	private static class AllStatesDispatch extends PropertyDispatch<MultiVariant> {
+
+		private final List<Property<?>> properties;
+
+		private AllStatesDispatch(List<Property<?>> properties) {
+			this.properties = List.copyOf(properties);
+		}
+
+		private void put(PropertyValueList key, MultiVariant variant) {
+			putValue(key, variant);
+		}
+
+		@Override
+		public List<Property<?>> getDefinedProperties() {
+			return properties;
+		}
+	}
+
 	public static <T extends Block> void directionalBlock(DataGenContext<Block, T> ctx,
 		RegistrateBlockModelGenerator prov, Function<BlockState, MultiVariant> modelFunc) {
-		T block = ctx.getEntry();
-		prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
-			.with(PropertyDispatch.initial(BlockStateProperties.FACING)
-				.generate(dir -> {
-					MultiVariant variant = modelFunc.apply(block.defaultBlockState()
-						.setValue(BlockStateProperties.FACING, dir));
-					variant = rotateX(variant, dir == Direction.DOWN ? 180
-						: dir.getAxis()
-							.isHorizontal() ? 90 : 0);
-					return rotateY(variant, dir.getAxis()
-						.isVertical() ? 0 : (int) dir.toYRot());
-				})));
+		forAllStates(ctx, prov,
+			state -> facingVariant(modelFunc.apply(state), state.getValue(BlockStateProperties.FACING)));
 	}
 
 	public static <T extends Block> void directionalBlockIgnoresWaterlogged(DataGenContext<Block, T> ctx,
 		RegistrateBlockModelGenerator prov, Function<BlockState, MultiVariant> modelFunc) {
-		T block = ctx.getEntry();
-		prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
-			.with(PropertyDispatch.initial(BlockStateProperties.FACING)
-				.generate(dir -> {
-					MultiVariant variant = modelFunc.apply(block.defaultBlockState()
-						.setValue(BlockStateProperties.FACING, dir));
-					variant = rotateX(variant, dir == Direction.DOWN ? 180
-						: dir.getAxis()
-							.isHorizontal() ? 90 : 0);
-					return rotateY(variant, dir.getAxis()
-						.isVertical() ? 0 : ((int) dir.toYRot()) + 180);
-				})));
+		forAllStates(ctx, prov,
+			state -> facingVariant(modelFunc.apply(state), state.getValue(BlockStateProperties.FACING)),
+			BlockStateProperties.WATERLOGGED);
+	}
+
+	private static MultiVariant facingVariant(MultiVariant variant, Direction dir) {
+		variant = rotateX(variant, dir == Direction.DOWN ? 180
+			: dir.getAxis()
+				.isHorizontal() ? 90 : 0);
+		return rotateY(variant, dir.getAxis()
+			.isVertical() ? 0 : ((int) dir.toYRot()) + 180);
 	}
 
 	public static <T extends Block> void axisBlock(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
@@ -182,75 +259,75 @@ public class BlockStateGen {
 
 	public static <T extends Block> void axisBlock(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		Function<BlockState, MultiVariant> modelFunc, boolean uvLock) {
-		T block = ctx.getEntry();
-		prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
-			.with(PropertyDispatch.initial(BlockStateProperties.AXIS)
-				.generate(axis -> {
-					MultiVariant variant = modelFunc.apply(block.defaultBlockState()
-						.setValue(BlockStateProperties.AXIS, axis));
-					if (uvLock)
-						variant = variant.with(BlockModelGenerators.UV_LOCK);
-					variant = rotateX(variant, axis == Axis.Y ? 0 : 90);
-					return rotateY(variant, axis == Axis.X ? 90 : axis == Axis.Z ? 180 : 0);
-				})));
+		forAllStates(ctx, prov, state -> {
+			Axis axis = state.getValue(BlockStateProperties.AXIS);
+			MultiVariant variant = modelFunc.apply(state);
+			if (uvLock)
+				variant = variant.with(BlockModelGenerators.UV_LOCK);
+			variant = rotateX(variant, axis == Axis.Y ? 0 : 90);
+			return rotateY(variant, axis == Axis.X ? 90 : axis == Axis.Z ? 180 : 0);
+		}, BlockStateProperties.WATERLOGGED);
 	}
 
 	public static <T extends Block> void simpleBlock(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
 		Function<BlockState, MultiVariant> modelFunc) {
-		T block = ctx.getEntry();
-		prov.blockStateOutput.accept(
-			BlockModelGenerators.createSimpleBlock(block, modelFunc.apply(block.defaultBlockState())));
+		forAllStates(ctx, prov, modelFunc, BlockStateProperties.WATERLOGGED);
 	}
 
 	public static <T extends Block> void horizontalBlock(DataGenContext<Block, T> ctx,
 		RegistrateBlockModelGenerator prov, Function<BlockState, MultiVariant> modelFunc) {
-		T block = ctx.getEntry();
-		prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
-			.with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING)
-				.generate(dir -> rotateY(modelFunc.apply(block.defaultBlockState()
-					.setValue(BlockStateProperties.HORIZONTAL_FACING, dir)), (int) dir.toYRot()))));
+		forAllStates(ctx, prov, state -> rotateY(modelFunc.apply(state),
+			((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING)
+				.toYRot()) + 180));
+	}
+
+	/**
+	 * A block that also picks a face to sit on. The turns match what the old model generators produced:
+	 * the face supplies the pitch, and the facing supplies the yaw with a half turn on top - and
+	 * another half turn again when it hangs from a ceiling.
+	 */
+	public static <T extends Block> void horizontalFaceBlock(DataGenContext<Block, T> ctx,
+		RegistrateBlockModelGenerator prov, Function<BlockState, MultiVariant> modelFunc) {
+		forAllStates(ctx, prov, state -> horizontalFaceVariant(modelFunc.apply(state),
+			state.getValue(BlockStateProperties.ATTACH_FACE),
+			state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
+	}
+
+	public static MultiVariant horizontalFaceVariant(MultiVariant variant, AttachFace face, Direction dir) {
+		return rotateY(rotateX(variant, face.ordinal() * 90),
+			(int) dir.toYRot() + 180 + (face == AttachFace.CEILING ? 180 : 0));
 	}
 
 	public static <T extends Block> void horizontalAxisBlock(DataGenContext<Block, T> ctx,
 		RegistrateBlockModelGenerator prov, Function<BlockState, MultiVariant> modelFunc) {
-		T block = ctx.getEntry();
-		prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
-			.with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
-				.generate(axis -> {
-					MultiVariant variant = modelFunc.apply(block.defaultBlockState()
-						.setValue(BlockStateProperties.HORIZONTAL_AXIS, axis));
-					return axis == Axis.X ? variant.with(BlockModelGenerators.Y_ROT_90) : variant;
-				})));
+		forAllStates(ctx, prov, state -> {
+			MultiVariant variant = modelFunc.apply(state);
+			return state.getValue(BlockStateProperties.HORIZONTAL_AXIS) == Axis.X
+				? variant.with(BlockModelGenerators.Y_ROT_90)
+				: variant;
+		});
 	}
 
 	public static <T extends DirectionalAxisKineticBlock> void directionalAxisBlock(DataGenContext<Block, T> ctx,
 		RegistrateBlockModelGenerator prov, BiFunction<BlockState, Boolean, MultiVariant> modelFunc) {
-		T block = ctx.getEntry();
-		prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
-			.with(PropertyDispatch
-				.initial(DirectionalAxisKineticBlock.FACING, DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE)
-				.generate((direction, alongFirst) -> {
-					boolean vertical = direction.getAxis()
-						.isHorizontal() && (direction.getAxis() == Axis.X) == alongFirst;
-					int xRot = direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0;
-					int yRot = direction.getAxis()
-						.isVertical() ? alongFirst ? 0 : 90 : (int) direction.toYRot();
-
-					BlockState state = block.defaultBlockState()
-						.setValue(DirectionalAxisKineticBlock.FACING, direction)
-						.setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, alongFirst);
-					return rotateY(rotateX(modelFunc.apply(state, vertical), xRot), yRot);
-				})));
+		forAllStates(ctx, prov, state -> {
+			boolean alongFirst = state.getValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE);
+			Direction direction = state.getValue(DirectionalAxisKineticBlock.FACING);
+			boolean vertical = direction.getAxis()
+				.isHorizontal() && (direction.getAxis() == Axis.X) == alongFirst;
+			int xRot = direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0;
+			int yRot = direction.getAxis()
+				.isVertical() ? alongFirst ? 0 : 90 : (int) direction.toYRot();
+			return rotateY(rotateX(modelFunc.apply(state, vertical), xRot), yRot);
+		});
 	}
 
 	public static <T extends Block> void horizontalWheel(DataGenContext<Block, T> ctx,
 		RegistrateBlockModelGenerator prov, Function<BlockState, MultiVariant> modelFunc) {
-		T block = ctx.getEntry();
-		prov.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
-			.with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING)
-				.generate(dir -> rotateY(modelFunc.apply(block.defaultBlockState()
-					.setValue(BlockStateProperties.HORIZONTAL_FACING, dir))
-					.with(BlockModelGenerators.X_ROT_90), ((int) dir.toYRot()) + 180))));
+		forAllStates(ctx, prov, state -> rotateY(modelFunc.apply(state)
+			.with(BlockModelGenerators.X_ROT_90),
+			((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING)
+				.toYRot()) + 180));
 	}
 
 	public static <T extends Block> void cubeAll(DataGenContext<Block, T> ctx, RegistrateBlockModelGenerator prov,
@@ -266,19 +343,16 @@ public class BlockStateGen {
 	}
 
 	public static NonNullBiConsumer<DataGenContext<Block, CartAssemblerBlock>, RegistrateBlockModelGenerator> cartAssembler() {
-		return (c, p) -> p.blockStateOutput.accept(MultiVariantGenerator.dispatch(c.get())
-			.with(PropertyDispatch
-				.initial(CartAssemblerBlock.RAIL_TYPE, CartAssemblerBlock.POWERED, CartAssemblerBlock.BACKWARDS,
-					CartAssemblerBlock.RAIL_SHAPE)
-				.generate((type, powered, backwards, shape) -> {
-					int yRotation = shape == RailShape.EAST_WEST ? 270 : 0;
-					if (backwards)
-						yRotation += 180;
-					MultiVariant variant = BlockModelGenerators.plainVariant(
-						p.modLoc("block/" + c.getName() + "/block_" + ((CartAssembleRailType) type).getSerializedName()
-							+ (powered ? "_powered" : "")));
-					return rotateY(variant, yRotation);
-				})));
+		return (c, p) -> forAllStates(c, p, state -> {
+			int yRotation = state.getValue(CartAssemblerBlock.RAIL_SHAPE) == RailShape.EAST_WEST ? 270 : 0;
+			if (state.getValue(CartAssemblerBlock.BACKWARDS))
+				yRotation += 180;
+			MultiVariant variant = BlockModelGenerators.plainVariant(p.modLoc("block/" + c.getName() + "/block_"
+				+ state.getValue(CartAssemblerBlock.RAIL_TYPE)
+					.getSerializedName()
+				+ (state.getValue(CartAssemblerBlock.POWERED) ? "_powered" : "")));
+			return rotateY(variant, yRotation);
+		});
 	}
 
 	/**
@@ -419,6 +493,23 @@ public class BlockStateGen {
 				}
 			p.blockStateOutput.accept(builder);
 		};
+	}
+
+	/**
+	 * A trapdoor that keeps its facing when it swings open, the way the old orientable trapdoors did:
+	 * the model turns to face the same way, and a top half flips over onto its back.
+	 */
+	public static <P extends TrapDoorBlock> NonNullBiConsumer<DataGenContext<Block, P>, RegistrateBlockModelGenerator> orientableTrapdoorBlock(
+		P block, Identifier bottom, Identifier top, Identifier open) {
+		return (c, p) -> forAllStates(c, p, state -> {
+			boolean isOpen = state.getValue(TrapDoorBlock.OPEN);
+			boolean isTop = state.getValue(TrapDoorBlock.HALF) == Half.TOP;
+			boolean flipped = isOpen && isTop;
+			MultiVariant variant = BlockModelGenerators.plainVariant(isOpen ? open : isTop ? top : bottom);
+			return rotateY(rotateX(variant, flipped ? 180 : 0),
+				((int) state.getValue(TrapDoorBlock.FACING)
+					.toYRot()) + 180 + (flipped ? 180 : 0));
+		}, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
 	}
 
 	public static <P extends TrapDoorBlock> NonNullBiConsumer<DataGenContext<Block, P>, RegistrateBlockModelGenerator> uvLockedTrapdoorBlock(

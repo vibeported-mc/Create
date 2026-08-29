@@ -282,7 +282,7 @@ public class AllPartialModels {
 
 		for (PackageStyle style : PackageStyles.STYLES) {
 			Identifier key = style.getItemId();
-			PartialModel model = PartialModel.of(Create.asResource("item/" + key.getPath()));
+			PartialModel model = PartialModel.of(style.getItemModel());
 			PACKAGES.put(key, model);
 			if (!style.rare())
 				PACKAGES_TO_HIDE_AS.add(model);

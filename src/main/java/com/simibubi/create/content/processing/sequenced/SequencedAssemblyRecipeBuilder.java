@@ -3,6 +3,9 @@ package com.simibubi.create.content.processing.sequenced;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.world.level.material.Fluid;
+import org.jspecify.annotations.Nullable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,11 @@ public class SequencedAssemblyRecipeBuilder {
 	private SequencedAssemblyRecipe recipe;
 	protected List<ICondition> recipeConditions;
 
+	@Nullable
+	private HolderGetter<Item> itemLookup;
+	@Nullable
+	private HolderGetter<Fluid> fluidLookup;
+
 	public SequencedAssemblyRecipeBuilder(Identifier id) {
 		this.id = id;
 		recipeConditions = new ArrayList<>();
@@ -59,6 +67,10 @@ public class SequencedAssemblyRecipeBuilder {
 		Function<Identifier, B> factory,
 		UnaryOperator<B> builder) {
 		B recipeBuilder = factory.apply(Identifier.withDefaultNamespace("dummy"));
+		if (itemLookup != null)
+			recipeBuilder.withItemLookup(itemLookup);
+		if (fluidLookup != null)
+			recipeBuilder.withFluidLookup(fluidLookup);
 		Item placeHolder = recipe.getTransitionalItem().getItem();
 		recipe.getSequence()
 			.add(new SequencedRecipe<>(builder.apply(recipeBuilder.require(placeHolder)
@@ -71,8 +83,23 @@ public class SequencedAssemblyRecipeBuilder {
 		return require(Ingredient.of(ingredient));
 	}
 
+	/**
+	 * Tags are only bound on the lookup a datagen provider is handed, never on the static registry, so
+	 * the builder resolves them through {@link #withItemLookup} when it has one.
+	 */
 	public SequencedAssemblyRecipeBuilder require(TagKey<Item> tag) {
-		return require(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(tag)));
+		return require(Ingredient.of(itemLookup == null ? BuiltInRegistries.ITEM.getOrThrow(tag)
+			: itemLookup.getOrThrow(tag)));
+	}
+
+	public SequencedAssemblyRecipeBuilder withItemLookup(HolderGetter<Item> lookup) {
+		this.itemLookup = lookup;
+		return this;
+	}
+
+	public SequencedAssemblyRecipeBuilder withFluidLookup(HolderGetter<Fluid> lookup) {
+		this.fluidLookup = lookup;
+		return this;
 	}
 
 	public SequencedAssemblyRecipeBuilder require(Ingredient ingredient) {
