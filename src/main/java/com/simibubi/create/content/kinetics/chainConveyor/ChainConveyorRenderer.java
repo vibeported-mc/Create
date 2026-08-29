@@ -44,7 +44,13 @@ import net.minecraft.world.phys.Vec3;
 public class ChainConveyorRenderer
 	extends KineticBlockEntityRenderer<ChainConveyorBlockEntity, ChainConveyorRenderer.ChainConveyorRenderState> {
 
-	public static final Identifier CHAIN_LOCATION = Identifier.withDefaultNamespace("textures/block/chain.png");
+	/**
+	 * 26.2 gave chains a metal: the block became iron_chain alongside the copper ones, and its texture
+	 * moved with it. The old path silently resolves to the missing texture, which is what the strand
+	 * between two posts was being drawn with.
+	 */
+	public static final Identifier CHAIN_LOCATION =
+		Identifier.withDefaultNamespace("textures/block/iron_chain.png");
 	public static final int MIP_DISTANCE = 48;
 
 	public static class ChainConveyorRenderState extends KineticRenderState {

@@ -4,6 +4,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import com.simibubi.create.foundation.transfer.Transactions;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
@@ -34,7 +35,7 @@ public class FluidHandlerHelpers {
 	public static int fill(ResourceHandler<FluidResource> handler, FluidStack resource, boolean simulate) {
 		if (resource.isEmpty())
 			return 0;
-		try (Transaction transaction = Transaction.openRoot()) {
+		try (Transaction transaction = Transactions.open()) {
 			int filled = handler.insert(FluidResource.of(resource), resource.getAmount(), transaction);
 			if (!simulate)
 				transaction.commit();
@@ -49,7 +50,7 @@ public class FluidHandlerHelpers {
 		if (resource.isEmpty())
 			return FluidStack.EMPTY;
 		FluidResource wanted = FluidResource.of(resource);
-		try (Transaction transaction = Transaction.openRoot()) {
+		try (Transaction transaction = Transactions.open()) {
 			int drained = handler.extract(wanted, resource.getAmount(), transaction);
 			if (drained <= 0)
 				return FluidStack.EMPTY;
@@ -69,7 +70,7 @@ public class FluidHandlerHelpers {
 			FluidResource resource = handler.getResource(tank);
 			if (resource.isEmpty())
 				continue;
-			try (Transaction transaction = Transaction.openRoot()) {
+			try (Transaction transaction = Transactions.open()) {
 				int drained = handler.extract(resource, maxDrain, transaction);
 				if (drained <= 0)
 					continue;

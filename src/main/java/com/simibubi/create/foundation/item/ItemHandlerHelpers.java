@@ -13,6 +13,7 @@ import net.neoforged.neoforge.transfer.StacksResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
+import com.simibubi.create.foundation.transfer.Transactions;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
@@ -40,14 +41,14 @@ public class ItemHandlerHelpers {
 	 */
 	public static ItemStack insertItem(ResourceHandler<ItemResource> handler, int slot, ItemStack stack,
 		boolean simulate) {
-		return ItemUtil.insertItemReturnRemaining(handler, slot, stack, simulate, null);
+		return ItemUtil.insertItemReturnRemaining(handler, slot, stack, simulate, Transactions.current());
 	}
 
 	/**
 	 * Insert anywhere it fits, returning what would not fit.
 	 */
 	public static ItemStack insertItem(ResourceHandler<ItemResource> handler, ItemStack stack, boolean simulate) {
-		return ItemUtil.insertItemReturnRemaining(handler, stack, simulate, null);
+		return ItemUtil.insertItemReturnRemaining(handler, stack, simulate, Transactions.current());
 	}
 
 	/**
@@ -58,7 +59,7 @@ public class ItemHandlerHelpers {
 		boolean simulate) {
 		if (stack.isEmpty())
 			return ItemStack.EMPTY;
-		try (Transaction transaction = Transaction.openRoot()) {
+		try (Transaction transaction = Transactions.open()) {
 			int inserted = ResourceHandlerUtil.insertStacking(handler, ItemResource.of(stack), stack.getCount(),
 				transaction);
 			if (!simulate)
@@ -78,7 +79,7 @@ public class ItemHandlerHelpers {
 		ItemResource resource = handler.getResource(slot);
 		if (resource.isEmpty())
 			return ItemStack.EMPTY;
-		try (Transaction transaction = Transaction.openRoot()) {
+		try (Transaction transaction = Transactions.open()) {
 			int extracted = handler.extract(slot, resource, amount, transaction);
 			if (extracted <= 0)
 				return ItemStack.EMPTY;
@@ -95,7 +96,7 @@ public class ItemHandlerHelpers {
 		boolean simulate) {
 		if (amount <= 0 || resource.isEmpty())
 			return ItemStack.EMPTY;
-		try (Transaction transaction = Transaction.openRoot()) {
+		try (Transaction transaction = Transactions.open()) {
 			int extracted = handler.extract(resource, amount, transaction);
 			if (extracted <= 0)
 				return ItemStack.EMPTY;

@@ -2,6 +2,7 @@ package com.simibubi.create.foundation.blockEntity.behaviour.fluid;
 
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import com.simibubi.create.foundation.transfer.Transactions;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -221,7 +222,7 @@ public class SmartFluidTankBehaviour extends BlockEntityBehaviour {
 		 * attached to it.
 		 */
 		public int forceFill(FluidStack resource, boolean simulate) {
-			try (Transaction transaction = Transaction.openRoot()) {
+			try (Transaction transaction = Transactions.open()) {
 				int filled = super.insert(FluidResource.of(resource), resource.getAmount(), transaction);
 				if (!simulate)
 					transaction.commit();
