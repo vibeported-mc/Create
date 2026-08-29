@@ -9,7 +9,7 @@ displayName="Create Client GameTests"
 description='''Client gametests for Create. Only does anything when the game is launched with -Dfabric.client.gametest=true, which is what runClientGameTest does.'''
 
 [modproperties.create_gametest]
-fabric-client-gametest = ["com.simibubi.create.gametest.client.WaterWheelClientGameTest"]
+fabric-client-gametest-junit = ["com.simibubi.create.gametest.client.WaterWheelTests"]
 
 [[dependencies.create_gametest]]
 modId="create"
