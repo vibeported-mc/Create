@@ -28,6 +28,11 @@ fabric-client-gametest-junit = [
   "com.simibubi.create.gametest.client.transportation.BrassTunnelTest",
   "com.simibubi.create.gametest.client.gui.WorldshaperScreenTest",
   "com.simibubi.create.gametest.client.gui.ScheduleScreenTest",
+  "com.simibubi.create.gametest.client.gui.FilterScreenTest",
+  "com.simibubi.create.gametest.client.gui.SymmetryWandScreenTest",
+  "com.simibubi.create.gametest.client.gui.ClipboardScreenTest",
+  "com.simibubi.create.gametest.client.gui.LinkedControllerScreenTest",
+  "com.simibubi.create.gametest.client.gui.SchematicEditScreenTest",
 ]
 
 [[dependencies.create_gametest]]

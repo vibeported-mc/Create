@@ -48,7 +48,7 @@ public class WorldshaperScreenTest {
 			.setSelectedSlot(0));
 		context.waitTicks(SETTLE_TICKS);
 
-		sneakRightClick(context);
+		ScreenTesting.sneakRightClick(context);
 
 		WorldshaperScreen screen = ScreenTesting.waitForScreen(context, WorldshaperScreen.class);
 		context.takeScreenshot(shot("worldshaper_opened"));
@@ -88,22 +88,6 @@ public class WorldshaperScreenTest {
 		assertEquals(shownPlacement,
 			held(server, AllDataComponents.SHAPER_PLACEMENT_OPTIONS, PlacementOptions.Merged),
 			"The placement the screen showed is not the placement the item was left with");
-	}
-
-	/** The gesture that opens it: sneak held down, then a right-click. */
-	private void sneakRightClick(ClientGameTestContext context) {
-		context.getInput()
-			.holdKey(options -> options.keyShift);
-
-		// The screen only opens for a player the game already considers to be sneaking.
-		context.waitTicks(2);
-
-		context.getInput()
-			.pressMouse(1);
-		context.waitTicks(2);
-
-		context.getInput()
-			.releaseKey(options -> options.keyShift);
 	}
 
 	/** What the item in the player's hand carries under this component, on the server. */

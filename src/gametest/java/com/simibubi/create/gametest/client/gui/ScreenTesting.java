@@ -6,6 +6,9 @@ import java.util.List;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 
 /**
  * Driving Create's screens the way a player does, with the cursor.
@@ -78,6 +81,31 @@ public final class ScreenTesting {
 		});
 	}
 
+	/**
+	 * The gesture that opens a held item's own screen: the sneak key held down, then a right-click.
+	 * <p>
+	 * The key has to be down for a tick or two first, since the screen only opens for a player the game
+	 * already considers to be sneaking rather than one who has only just pressed the key.
+	 */
+	public static void sneakRightClick(ClientGameTestContext context) {
+		context.getInput()
+			.holdKey(options -> options.keyShift);
+		context.waitTicks(2);
+
+		context.getInput()
+			.pressMouse(1);
+		context.waitTicks(2);
+
+		context.getInput()
+			.releaseKey(options -> options.keyShift);
+	}
+
+	/** A plain right-click, for the items that open on one and do something else when sneaked at. */
+	public static void rightClick(ClientGameTestContext context) {
+		context.getInput()
+			.pressMouse(1);
+	}
+
 	public static void click(ClientGameTestContext context, Bounds widget) {
 		hover(context, widget);
 		context.getInput()
@@ -100,6 +128,55 @@ public final class ScreenTesting {
 				.scroll(Math.signum(notches));
 			context.waitTicks(BEAT_TICKS);
 		}
+	}
+
+	/**
+	 * Where a slot of the open menu is.
+	 * <p>
+	 * A slot is not a widget: a menu screen keeps its own list and draws them itself, so they are found
+	 * through the menu rather than among the screen's controls.
+	 */
+	public static Bounds slot(ClientGameTestContext context, int index) {
+		return context.computeOnClient(client -> slotPosition(menuScreen(client.gui.screen()), index));
+	}
+
+	static Bounds slotPosition(AbstractContainerScreen<?> screen, int index) {
+		Slot slot = screen.getMenu().slots.get(index);
+
+		return new Bounds((Integer) read(screen, "leftPos") + slot.x, (Integer) read(screen, "topPos") + slot.y,
+			16, 16);
+	}
+
+	/** What a slot of the open menu is showing, which for a ghost slot is what it was set to. */
+	public static Item itemInSlot(ClientGameTestContext context, int index) {
+		return context.computeOnClient(client -> menuScreen(client.gui.screen()).getMenu().slots.get(index)
+			.getItem()
+			.getItem());
+	}
+
+	/**
+	 * The first slot of the open menu holding this item, so that a test can say which item it means to
+	 * pick up rather than counting through a layout.
+	 */
+	public static int slotHolding(ClientGameTestContext context, Item item) {
+		return context.computeOnClient(client -> {
+			List<Slot> slots = menuScreen(client.gui.screen()).getMenu().slots;
+
+			for (int index = 0; index < slots.size(); index++)
+				if (slots.get(index)
+					.getItem()
+					.is(item))
+					return index;
+
+			throw new AssertionError("No slot on this screen is holding " + item);
+		});
+	}
+
+	private static AbstractContainerScreen<?> menuScreen(Screen screen) {
+		if (!(screen instanceof AbstractContainerScreen<?> menu))
+			throw new AssertionError("The open screen is not a menu but a " + screen);
+
+		return menu;
 	}
 
 	/**
