@@ -35,6 +35,7 @@ import com.simibubi.create.foundation.CreateNBTProcessors;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.advancement.AllTriggers;
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.infrastructure.gametest.CreateGameTests;
 import com.simibubi.create.infrastructure.data.CreateDatagen;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
@@ -134,6 +135,7 @@ public class Create {
 		AllPlacementModifiers.register(modEventBus);
 		AllIngredients.register(modEventBus);
 		AllAttachmentTypes.register(modEventBus);
+		CreateGameTests.register(modEventBus);
 		AllDataComponents.register(modEventBus);
 		AllMapDecorationTypes.register(modEventBus);
 		AllMountedStorageTypes.register();

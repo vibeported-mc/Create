@@ -7,7 +7,7 @@ import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.gametest.framework.GameTest;
+import com.simibubi.create.infrastructure.gametest.GameTest;
 import net.minecraft.world.level.block.Blocks;
 
 @GameTestGroup(path = "regressions")

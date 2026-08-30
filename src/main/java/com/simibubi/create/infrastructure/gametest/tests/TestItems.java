@@ -29,15 +29,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTest;
+import com.simibubi.create.infrastructure.gametest.GameTest;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneLampBlock;
@@ -70,7 +68,7 @@ public class TestItems {
 				helper.assertBlockState(
 					pos,
 					state -> state.getValue(BlazeBurnerBlock.HEAT_LEVEL) == HeatLevel.KINDLED,
-					() -> "Blaze burner isn't lit!"
+					state -> Component.literal("Blaze burner isn't lit!")
 				);
 		});
 	}
@@ -111,8 +109,9 @@ public class TestItems {
 				new BlockPos(3, 2, 1), new ItemStack(AllBlocks.BRASS_BLOCK.get()),
 				new BlockPos(4, 2, 1), new ItemStack(Items.APPLE),
 				new BlockPos(5, 2, 1), new ItemStack(Items.WATER_BUCKET),
-				new BlockPos(6, 2, 1), EnchantedBookItem.createForEnchantment(
-						new EnchantmentInstance(PROTECTION_ENCHANT, 1)
+				new BlockPos(6, 2, 1), Util.make(
+						new ItemStack(Items.ENCHANTED_BOOK),
+						book -> book.enchant(PROTECTION_ENCHANT, 1)
 				),
 				new BlockPos(7, 2, 1), Util.make(
 						new ItemStack(Items.NETHERITE_SWORD),

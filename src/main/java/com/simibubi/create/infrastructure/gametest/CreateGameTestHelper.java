@@ -82,6 +82,37 @@ public class CreateGameTestHelper extends GameTestHelper {
 		return helper;
 	}
 
+	/**
+	 * Where a square of the structure is in the world.
+	 * <p>
+	 * These tests were written when a test structure was laid down one block above the marker that named
+	 * it, so everything in them is counted from a floor at one rather than at nothing. The game now lays
+	 * the structure down on the marker itself, which would put every one of these tests a block into the
+	 * ceiling. Rather than move sixty-five tests' worth of coordinates - and lose the ability to read them
+	 * against the ones upstream still has - the step is put back here, where there is one of it.
+	 */
+	@Override
+	public BlockPos absolutePos(BlockPos relativePos) {
+		return super.absolutePos(relativePos.below());
+	}
+
+	@Override
+	public BlockPos relativePos(BlockPos absolutePos) {
+		return super.relativePos(absolutePos)
+			.above();
+	}
+
+	@Override
+	public Vec3 absoluteVec(Vec3 relativeVec) {
+		return super.absoluteVec(relativeVec.subtract(0, 1, 0));
+	}
+
+	@Override
+	public Vec3 relativeVec(Vec3 absoluteVec) {
+		return super.relativeVec(absoluteVec)
+			.add(0, 1, 0);
+	}
+
 	// blocks
 
 	/**
@@ -167,7 +198,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 * Get the block entity of the expected type. If the type does not match, this fails the test.
 	 */
 	public <T extends BlockEntity> T getBlockEntity(BlockEntityType<T> type, BlockPos pos) {
-		BlockEntity be = getBlockEntity(pos);
+		BlockEntity be = getBlockEntity(pos, BlockEntity.class);
 		BlockEntityType<?> actualType = be == null ? null : be.getType();
 		if (actualType != type) {
 			String actualId = actualType == null ? "null" : RegisteredObjectsHelper.getKeyOrThrow(actualType).toString();
@@ -248,7 +279,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 	// transfer - fluids
 
 	public ResourceHandler<FluidResource> fluidStorageAt(BlockPos pos) {
-		BlockEntity be = getBlockEntity(pos);
+		BlockEntity be = getBlockEntity(pos, BlockEntity.class);
 		if (be == null)
 			fail("BlockEntity not present");
 		ResourceHandler<FluidResource> handler = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
@@ -263,7 +294,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 */
 	public FluidStack getTankContents(BlockPos tank) {
 		ResourceHandler<FluidResource> handler = fluidStorageAt(tank);
-		return handler.drain(Integer.MAX_VALUE, true);
+		return FluidHandlerHelpers.drain(handler, Integer.MAX_VALUE, true);
 	}
 
 	/**
@@ -316,7 +347,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 	// transfer - items
 
 	public ResourceHandler<ItemResource> itemStorageAt(BlockPos pos) {
-		BlockEntity be = getBlockEntity(pos);
+		BlockEntity be = getBlockEntity(pos, BlockEntity.class);
 		if (be == null)
 			fail("BlockEntity not present");
 		ResourceHandler<ItemResource> handler = be.getLevel().getCapability(Capabilities.Item.BLOCK, be.getBlockPos(), null);
@@ -336,7 +367,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 			if (stack.isEmpty())
 				continue;
 			Item item = stack.getItem();
-			long amount = map.getLongOr(item, 0);
+			long amount = map.getOrDefault(item, 0L);
 			amount += stack.getCount();
 			map.put(item, amount);
 		}
@@ -384,7 +415,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 			if (stack.isEmpty())
 				continue;
 			Item item = stack.getItem();
-			long amount = map.getLongOr(item, 0);
+			long amount = map.getOrDefault(item, 0L);
 			amount -= stack.getCount();
 			if (amount == 0)
 				map.removeLong(item);

@@ -98,6 +98,11 @@ neoForge {
             if(project.hasProperty("guiBeat"))
                 systemProperty("create.gametest.gui.beatMillis", project.property("guiBeat"))
 
+            // -PserverGameTestSelect=<part of a name> runs only the server gametests whose names contain
+            // it, for looking at one on its own.
+            if(project.hasProperty("serverGameTestSelect"))
+                systemProperty("create.gametest.server.select", project.property("serverGameTestSelect"))
+
             // -Pjdwp=<port> waits for a debugger to attach before the game starts, which is the only
             // way to have breakpoints in place before a gametest has been and gone.
             if(project.hasProperty("jdwp"))
@@ -285,11 +290,7 @@ sourceSets.main {
         exclude("com/simibubi/create/compat/trainmap/XaeroTrainMap.java")
         exclude("com/simibubi/create/foundation/mixin/compat/xaeros/**")
 
-        // Minecraft 1.21.5 replaced the annotation-driven gametest framework (@GameTest,
-        // TestFunction, StructureUtils) with data-driven GameTestInstance. Nothing outside the
-        // package references it and it never ships in the mod's runtime path.
-        // TODO: port the gametests to GameTestInstance and drop this exclusion.
-        exclude("com/simibubi/create/infrastructure/gametest/**")
+
     }
 
     resources {

@@ -14,7 +14,10 @@ import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.network.chat.Component;
+import com.simibubi.create.infrastructure.gametest.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -80,9 +83,11 @@ public class TestProcessing {
 		BlockPos output = new BlockPos(11, 3, 1);
 		helper.pullLever(lever);
 
-		SequencedAssemblyRecipe recipe = (SequencedAssemblyRecipe) helper.getLevel().getRecipeManager()
-				.byKey(Create.asResource("sequenced_assembly/precision_mechanism"))
-				.orElseThrow(() -> new GameTestAssertException("Precision Mechanism recipe not found")).value();
+		SequencedAssemblyRecipe recipe = (SequencedAssemblyRecipe) helper.getLevel().recipeAccess()
+				.byKey(ResourceKey.create(Registries.RECIPE,
+						Create.asResource("sequenced_assembly/precision_mechanism")))
+				.orElseThrow(() -> new GameTestAssertException(
+						Component.literal("Precision Mechanism recipe not found"), 0)).value();
 		Item result = recipe.getResultItem(helper.getLevel().registryAccess()).getItem();
 		Item[] possibleResults = recipe.resultPool.stream()
 				.map(ProcessingOutput::getStack)

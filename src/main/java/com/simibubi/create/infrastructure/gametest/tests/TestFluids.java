@@ -23,8 +23,9 @@ import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.gametest.framework.GameTest;
+import com.simibubi.create.infrastructure.gametest.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
@@ -218,8 +219,11 @@ public class TestFluids {
 
 	@GameTest(template = "waterwheel_materials", timeoutTicks = CreateGameTestHelper.FIFTEEN_SECONDS)
 	public static void waterwheelMaterials(CreateGameTestHelper helper) {
-		List<Item> planks = BuiltInRegistries.BLOCK.getOrCreateTag(BlockTags.PLANKS).stream()
-				.map(Holder::value).map(ItemLike::asItem).collect(Collectors.toCollection(ArrayList::new));
+		List<Item> planks = new ArrayList<>();
+
+		for (Holder<Block> plank : BuiltInRegistries.BLOCK.getTagOrEmpty(BlockTags.PLANKS))
+			planks.add(plank.value()
+				.asItem());
 		List<BlockPos> chests = List.of(new BlockPos(6, 4, 2), new BlockPos(6, 4, 3));
 		List<BlockPos> deployers = chests.stream().map(pos -> pos.below(2)).toList();
 		helper.runAfterDelay(3, () -> chests.forEach(chest ->
@@ -234,7 +238,8 @@ public class TestFluids {
 		helper.succeedWhen(() -> {
 			Item plank = planks.get(0);
 			if (!(plank instanceof BlockItem blockItem))
-				throw new GameTestAssertException(BuiltInRegistries.ITEM.getKey(plank) + " is not a BlockItem");
+				throw new GameTestAssertException(
+					Component.literal(BuiltInRegistries.ITEM.getKey(plank) + " is not a BlockItem"), 0);
 			Block block = blockItem.getBlock();
 
 			WaterWheelBlockEntity smallWheelBe = helper.getBlockEntity(AllBlockEntityTypes.WATER_WHEEL.get(), smallWheel);
