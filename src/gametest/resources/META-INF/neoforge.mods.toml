@@ -33,6 +33,19 @@ fabric-client-gametest-junit = [
   "com.simibubi.create.gametest.client.gui.ClipboardScreenTest",
   "com.simibubi.create.gametest.client.gui.LinkedControllerScreenTest",
   "com.simibubi.create.gametest.client.gui.SchematicEditScreenTest",
+  "com.simibubi.create.gametest.client.gui.ThresholdSwitchScreenTest",
+  "com.simibubi.create.gametest.client.gui.SequencedGearshiftScreenTest",
+  "com.simibubi.create.gametest.client.gui.ElevatorContactScreenTest",
+  "com.simibubi.create.gametest.client.gui.SchematicTableScreenTest",
+  "com.simibubi.create.gametest.client.gui.SchematicannonScreenTest",
+  "com.simibubi.create.gametest.client.gui.ToolboxScreenTest",
+  "com.simibubi.create.gametest.client.gui.PackagePortScreenTest",
+  "com.simibubi.create.gametest.client.gui.DisplayLinkScreenTest",
+  "com.simibubi.create.gametest.client.gui.BlueprintScreenTest",
+  "com.simibubi.create.gametest.client.gui.FactoryPanelScreenTest",
+  "com.simibubi.create.gametest.client.gui.RedstoneRequesterScreenTest",
+  "com.simibubi.create.gametest.client.gui.StockKeeperScreenTest",
+  "com.simibubi.create.gametest.client.gui.StationScreenTest",
 ]
 
 [[dependencies.create_gametest]]

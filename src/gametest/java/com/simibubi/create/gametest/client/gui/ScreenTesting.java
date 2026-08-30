@@ -1,9 +1,24 @@
 package com.simibubi.create.gametest.client.gui;
 
+import org.lwjgl.glfw.GLFW;
+
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
+import com.simibubi.create.foundation.gui.widget.ScrollInput;
+
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -32,6 +47,9 @@ public final class ScreenTesting {
 	/** Always at least a tick, since an action the game has not ticked on has not happened yet. */
 	private static final int BEAT_TICKS = Math.max(1, Math.round(BEAT_MILLIS / 50f));
 
+	/** Long enough for the client to have been moved, and to have worked out what it is looking at. */
+	private static final int AIM_TICKS = 5;
+
 	private ScreenTesting() {
 	}
 
@@ -51,6 +69,18 @@ public final class ScreenTesting {
 		return context.computeOnClient(client -> type.cast(client.gui.screen()));
 	}
 
+	/**
+	 * Closes the open screen with escape, for the screens that have no button of their own to accept them.
+	 * <p>
+	 * A screen that sends what it was set to as it is taken off the screen treats this as the ordinary way
+	 * out, so it is not a discarding of anything.
+	 */
+	public static void closeWithEscape(ClientGameTestContext context) {
+		context.getInput()
+			.pressKey(GLFW.GLFW_KEY_ESCAPE);
+		waitForNoScreen(context);
+	}
+
 	public static void waitForNoScreen(ClientGameTestContext context) {
 		context.waitFor(client -> client.gui.screen() == null);
 	}
@@ -63,6 +93,39 @@ public final class ScreenTesting {
 	 */
 	public static Bounds widget(ClientGameTestContext context, String fieldName) {
 		return context.computeOnClient(client -> boundsOf(read(client.gui.screen(), fieldName), fieldName));
+	}
+
+	/** One of a grid of widgets: a list of rows, each a list of controls, as the sequencer keeps them. */
+	public static Bounds widget(ClientGameTestContext context, String fieldName, int row, int column) {
+		return context.computeOnClient(
+			client -> boundsOf(nested(client.gui.screen(), fieldName, row, column), fieldName));
+	}
+
+	/**
+	 * What a scroll input is showing.
+	 * <p>
+	 * Held against what the block was left with, so that a test says the two agree rather than naming a
+	 * number that depends on where the control started and how far a notch moves it.
+	 */
+	public static int scrollState(ClientGameTestContext context, String fieldName) {
+		return context.computeOnClient(client -> ((ScrollInput) read(client.gui.screen(), fieldName)).getState());
+	}
+
+	public static int scrollState(ClientGameTestContext context, String fieldName, int row, int column) {
+		return context.computeOnClient(
+			client -> ((ScrollInput) nested(client.gui.screen(), fieldName, row, column)).getState());
+	}
+
+	private static Object nested(Screen screen, String fieldName, int row, int column) {
+		Object held = read(screen, fieldName);
+
+		if (!(held instanceof List<?> rows))
+			throw new AssertionError(fieldName + " is not a list of rows but a " + held.getClass());
+
+		if (!(rows.get(row) instanceof List<?> controls))
+			throw new AssertionError(fieldName + " row " + row + " is not a list of widgets");
+
+		return controls.get(column);
 	}
 
 	/** The same, for one of a list of widgets - a row of buttons, or the brush parameters. */
@@ -104,6 +167,146 @@ public final class ScreenTesting {
 	public static void rightClick(ClientGameTestContext context) {
 		context.getInput()
 			.pressMouse(1);
+	}
+
+	/**
+	 * Puts the player in front of a block, looking at the middle of it.
+	 * <p>
+	 * Standing rather than spectating, since a spectator's clicks pass through the world, and a couple of
+	 * blocks back so that the face being aimed at is well within reach.
+	 */
+	public static void lookAtBlock(ClientGameTestContext context, TestServerContext server, BlockPos pos) {
+		lookAt(context, server, Vec3.atCenterOf(pos));
+	}
+
+	/**
+	 * Puts the player in front of a particular spot, looking straight at it.
+	 * <p>
+	 * For the blocks that keep more than one thing in a single face - a factory gauge holds four panels in
+	 * one - where aiming at the middle of the block lands on the corner between them.
+	 */
+	public static void lookAt(ClientGameTestContext context, TestServerContext server, Vec3 point) {
+		lookAt(context, server, point, point.add(0, -1, 2.5));
+	}
+
+	/**
+	 * The same, from a chosen place.
+	 * <p>
+	 * A face can only be clicked from the side it is on, so putting a block down on the ground means
+	 * standing above it and looking down rather than standing in front of it.
+	 */
+	public static void lookAt(ClientGameTestContext context, TestServerContext server, Vec3 point, Vec3 from) {
+		server.runOnServer(minecraftServer -> {
+			ServerPlayer player = onlyPlayer(minecraftServer);
+			player.setGameMode(GameType.CREATIVE);
+
+			// Left hovering rather than stood on anything. Where a player is put need not be where the
+			// ground is, and one who is falling is looking from somewhere they are about to leave - so
+			// rather than wait out a fall of unknown length, there is no fall.
+			player.getAbilities().flying = true;
+			player.onUpdateAbilities();
+
+			player.connection.teleport(from.x, from.y, from.z, 180, 0);
+		});
+
+		context.waitTicks(AIM_TICKS);
+
+		server.runOnServer(minecraftServer -> {
+			ServerPlayer player = onlyPlayer(minecraftServer);
+			Vec3 toBlock = point.subtract(player.getEyePosition());
+
+			float yaw = (float) (Mth.atan2(toBlock.z, toBlock.x) * 180 / Math.PI) - 90;
+			float pitch = (float) -(Mth.atan2(toBlock.y, toBlock.horizontalDistance()) * 180 / Math.PI);
+
+			player.connection.teleport(player.getX(), player.getY(), player.getZ(), yaw, pitch);
+		});
+
+		context.waitTicks(AIM_TICKS);
+	}
+
+	private static ServerPlayer onlyPlayer(MinecraftServer minecraftServer) {
+		return minecraftServer.getPlayerList()
+			.getPlayers()
+			.get(0);
+	}
+
+	/**
+	 * Right-clicks a block in the world, which is how most of Create's blocks open their screens.
+	 * <p>
+	 * Checks what the player ended up looking at first, so that a test which failed to reach the block at
+	 * all says so, rather than failing later on a screen that was never opened.
+	 */
+	public static void rightClickBlock(ClientGameTestContext context, TestServerContext server, BlockPos pos) {
+		rightClickAt(context, server, Vec3.atCenterOf(pos), pos);
+	}
+
+	/**
+	 * Right-clicks a particular spot, checking that the block it belongs to is the one meant.
+	 * <p>
+	 * Aiming at a point on a face rather than at the middle of a block is what lets the same quarter of a
+	 * gauge be hit twice running: once to hang the panel there and once to open it.
+	 */
+	public static void rightClickAt(ClientGameTestContext context, TestServerContext server, Vec3 point,
+		BlockPos expected) {
+		rightClickAt(context, server, point, point.add(0, -1, 2.5), expected);
+	}
+
+	/** The same, from a chosen place, for the faces that cannot be seen from in front. */
+	public static void rightClickAt(ClientGameTestContext context, TestServerContext server, Vec3 point,
+		Vec3 from, BlockPos expected) {
+		lookAt(context, server, point, from);
+
+		BlockPos looking = context.computeOnClient(
+			client -> client.hitResult instanceof BlockHitResult hit ? hit.getBlockPos() : null);
+
+		if (!expected.equals(looking))
+			throw new AssertionError("The player was aimed at " + point + " but is looking at " + looking
+				+ ", from " + context.computeOnClient(client -> client.player.position() + " pitch "
+					+ client.player.getXRot() + " yaw " + client.player.getYRot())
+				+ "; server says " + server.computeOnServer(minecraftServer -> minecraftServer.getPlayerList()
+					.getPlayers()
+					.get(0)
+					.position()
+					.toString()));
+
+		context.getInput()
+			.pressMouse(1);
+	}
+
+	/**
+	 * Right-clicks whatever is hanging in this space rather than the block itself.
+	 * <p>
+	 * A blueprint and its like are entities standing flush against a wall, so the crosshair reaches them
+	 * before it reaches anything solid. Checking that it really is an entity under the crosshair keeps a
+	 * missed click from turning into a click on the wall behind it.
+	 */
+	public static void rightClickEntityAt(ClientGameTestContext context, TestServerContext server, BlockPos pos) {
+		lookAtBlock(context, server, pos);
+
+		HitResult.Type looking = context.computeOnClient(
+			client -> client.hitResult == null ? HitResult.Type.MISS : client.hitResult.getType());
+
+		if (looking != HitResult.Type.ENTITY)
+			throw new AssertionError(
+				"The player was put in front of " + pos + " but is looking at " + looking + ", not an entity");
+
+		context.getInput()
+			.pressMouse(1);
+	}
+
+	/**
+	 * Empties the ground around a spot and lays a floor under it.
+	 * <p>
+	 * A block screen is opened by a player standing in front of the block and clicking it, so there has
+	 * to be somewhere to stand and nothing in the way - and the world these tests share holds whatever
+	 * the test before left in it.
+	 */
+	public static void clearGround(TestServerContext server, BlockPos centre, int radius) {
+		server.runCommand("fill %d %d %d %d %d %d air".formatted(centre.getX() - radius, centre.getY() - 1,
+			centre.getZ() - radius, centre.getX() + radius, centre.getY() + radius, centre.getZ() + radius));
+		server.runCommand("fill %d %d %d %d %d %d stone".formatted(centre.getX() - radius, centre.getY() - 1,
+			centre.getZ() - radius, centre.getX() + radius, centre.getY() - 1, centre.getZ() + radius));
+		server.runCommand("kill @e[type=item]");
 	}
 
 	public static void click(ClientGameTestContext context, Bounds widget) {
@@ -222,6 +425,36 @@ public final class ScreenTesting {
 			throw new AssertionError(named + " is not a widget but a " + widget.getClass());
 
 		return new Bounds(found.getX(), found.getY(), found.getWidth(), found.getHeight());
+	}
+
+	/**
+	 * The result of calling one of the target's own methods.
+	 * <p>
+	 * For the few things a test has to ask about that are declared on a class it cannot name - a
+	 * blueprint's sections among them, which are an inner class kept to itself.
+	 */
+	static Object invoke(Object target, String methodName, Object... arguments) {
+		if (target == null)
+			throw new AssertionError("Nothing to call " + methodName + " on");
+
+		Class<?>[] types = new Class<?>[arguments.length];
+		for (int i = 0; i < arguments.length; i++)
+			types[i] = arguments[i].getClass();
+
+		for (Class<?> type = target.getClass(); type != null; type = type.getSuperclass()) {
+			try {
+				Method method = type.getDeclaredMethod(methodName, types);
+				method.setAccessible(true);
+
+				return method.invoke(target, arguments);
+			} catch (NoSuchMethodException lookHigher) {
+				// Declared further up, if anywhere.
+			} catch (IllegalAccessException | InvocationTargetException cannotCall) {
+				throw new AssertionError("Could not call " + methodName, cannotCall);
+			}
+		}
+
+		throw new AssertionError("No method " + methodName + " on " + target.getClass());
 	}
 
 	/** The value of a field of the screen, or of anything it inherits from. */
