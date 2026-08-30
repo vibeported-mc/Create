@@ -81,6 +81,11 @@ public final class ScreenTesting {
 		waitForNoScreen(context);
 	}
 
+	/** Whether anything is on screen at all, for the screens that close themselves when they are done. */
+	public static boolean screenIsOpen(ClientGameTestContext context) {
+		return context.computeOnClient(client -> client.gui.screen() != null);
+	}
+
 	public static void waitForNoScreen(ClientGameTestContext context) {
 		context.waitFor(client -> client.gui.screen() == null);
 	}

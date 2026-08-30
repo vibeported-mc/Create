@@ -13,6 +13,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.simibubi.create.Create;
+import com.simibubi.create.content.contraptions.glue.SuperGlueEntity;
+import com.simibubi.create.content.trains.station.AssemblyScreen;
 import com.simibubi.create.content.trains.station.StationBlockEntity;
 import com.simibubi.create.content.trains.station.StationScreen;
 import com.simibubi.create.content.trains.track.TrackBlockEntity;
@@ -26,6 +28,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.junit.SharedWorld;
 import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -146,6 +149,200 @@ public class TrainCircuitTest {
 
 		assertEquals("Station A", stationName(server, STATION_A), "The first station kept the wrong name");
 		assertEquals("Station B", stationName(server, STATION_B), "The second station kept the wrong name");
+	}
+
+	@ClientGameTest(screenshot = false)
+	@Order(3)
+	@DisplayName("A train is built on the rails at station A and assembled from its screen")
+	void buildsATrainAtStationA(ClientGameTestContext context, TestSingleplayerContext singleplayer,
+		TestServerContext server) {
+		singleplayer.getClientLevel()
+			.waitForChunksRender();
+
+		assertEquals("Station A", stationName(server, STATION_A),
+			"There is no named station to build a train at - did the station phase fail?");
+
+		enterAssemblyMode(context, server);
+
+		// A bogey appears on the rail wherever the marked stretch is clicked. One is enough for a carriage,
+		// and every bogey put down needs a body of its own hung off it.
+		server.runCommand("item replace entity @a hotbar.0 with create:railway_casing");
+		context.runOnClient(client -> client.player.getInventory()
+			.setSelectedSlot(0));
+		context.waitTicks(SETTLE_TICKS);
+
+		clickTrack(context, server, bogeyTrack(0));
+
+		assertTrue(bogeyOffsets(server).startsWith("[0, -1,"),
+			"Clicking the marked rail did not put bogeys down; the station has " + bogeyOffsets(server)
+				+ " | " + assemblyState(server));
+
+		// Controls have to face the way the train is built or the station refuses the whole thing. A block
+		// takes the facing of whoever put it down back to front, so the player stands the other way about.
+		placeBlockOn(context, server, bogey(0), "create:controls", ASSEMBLY.getOpposite());
+
+		// And a seat in front of them, which is what the driver sits on. Not decoration: a train with
+		// nobody at the controls will accept a schedule and then refuse to go anywhere.
+		placeAgainst(context, server, controls(), "create:red_seat", ASSEMBLY);
+
+		// Glue holds the carriage together. A bogey only grips along its own length, so anything stacked on
+		// top of it - which is the whole body - is not part of the train until it is glued on.
+		server.runOnServer(minecraftServer -> {
+			ServerLevel level = minecraftServer.overworld();
+
+			level.addFreshEntity(new SuperGlueEntity(level, SuperGlueEntity.span(bogey(0), seat())));
+		});
+		context.waitTicks(SETTLE_TICKS);
+
+		context.takeScreenshot(shot("train_built"));
+
+		assemble(context, server);
+
+		assertEquals(1, trainCount(server), "The station did not assemble a train; its bogeys were at "
+			+ bogeyOffsets(server) + ", it could build over " + assemblyLength(server)
+			+ " blocks, and it last complained of " + lastComplaint(server) + " | " + assemblyState(server));
+	}
+
+	/** Turns the station over to assembly through its own screen, then gets out of the way. */
+	private void enterAssemblyMode(ClientGameTestContext context, TestServerContext server) {
+		ScreenTesting.rightClickBlock(context, server, STATION_A);
+		ScreenTesting.waitForScreen(context, StationScreen.class);
+
+		ScreenTesting.click(context, ScreenTesting.widget(context, "newTrainButton"));
+		ScreenTesting.waitForScreen(context, AssemblyScreen.class);
+
+		ScreenTesting.closeWithEscape(context);
+
+		// The station only works out how far it can build, and marks out the stretch of rail a click may
+		// put a bogey on, on one of its slower ticks. Clicking before that lands on nothing.
+		context.waitTicks(SETTLE_TICKS * 4);
+	}
+
+	/** Opens the station again - which now offers the assembly screen - and presses the button. */
+	private void assemble(ClientGameTestContext context, TestServerContext server) {
+		ScreenTesting.rightClickBlock(context, server, STATION_A);
+		ScreenTesting.waitForScreen(context, AssemblyScreen.class);
+		context.waitTicks(SETTLE_TICKS);
+
+		ScreenTesting.click(context, ScreenTesting.widget(context, "toggleAssemblyButton"));
+		context.waitTicks(SETTLE_TICKS * 3);
+
+		if (ScreenTesting.screenIsOpen(context))
+			ScreenTesting.closeWithEscape(context);
+
+		context.waitTicks(SETTLE_TICKS);
+	}
+
+	/** Puts a block against the side of another by clicking that face square on. */
+	private void placeAgainst(ClientGameTestContext context, TestServerContext server, BlockPos target,
+		String item, Direction side) {
+		server.runCommand("item replace entity @a hotbar.0 with " + item);
+		context.runOnClient(client -> client.player.getInventory()
+			.setSelectedSlot(0));
+		context.waitTicks(SETTLE_TICKS);
+
+		Vec3 middle = new Vec3(target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5);
+		Vec3 from = new Vec3(target.getX() + 0.5 + side.getStepX() * 3, target.getY() + 0.5,
+			target.getZ() + 0.5 + side.getStepZ() * 3);
+
+		ScreenTesting.rightClickAt(context, server, middle, from, target);
+		context.waitTicks(SETTLE_TICKS);
+	}
+
+	/** Where the controls sit: on top of the bogey. */
+	private BlockPos controls() {
+		return bogey(0).above();
+	}
+
+	/** And the seat, in front of the controls, which is where the driver goes. */
+	private BlockPos seat() {
+		return controls().relative(ASSEMBLY);
+	}
+
+	private void clickTrack(ClientGameTestContext context, TestServerContext server, BlockPos track) {
+		ScreenTesting.rightClickAt(context, server, surfaceOf(track), standingBack(track, ASSEMBLY), track);
+		context.waitTicks(SETTLE_TICKS);
+	}
+
+	/** Puts a block on top of another by clicking its upper face, facing the given way while doing it. */
+	private void placeBlockOn(ClientGameTestContext context, TestServerContext server, BlockPos below,
+		String item, Direction facing) {
+		server.runCommand("item replace entity @a hotbar.0 with " + item);
+		context.runOnClient(client -> client.player.getInventory()
+			.setSelectedSlot(0));
+		context.waitTicks(SETTLE_TICKS);
+
+		ScreenTesting.rightClickAt(context, server, topOf(below), standingBack(below, facing), below);
+		context.waitTicks(SETTLE_TICKS);
+	}
+
+	/**
+	 * Which way a train grows out of station A.
+	 * <p>
+	 * Not a free choice: the station marks out the stretch of rail it will build over, and that runs back
+	 * against the way the rail was pointed at when the station was put down.
+	 */
+	private static final Direction ASSEMBLY = Direction.NORTH;
+
+	/** The rail a bogey is put on, counted out from the piece the station watches. */
+	private BlockPos bogeyTrack(int offset) {
+		return trackFor(STATION_A).relative(ASSEMBLY, offset + 1);
+	}
+
+	/** Where that bogey ends up: one above its rail. */
+	private BlockPos bogey(int offset) {
+		return bogeyTrack(offset).above();
+	}
+
+	private int trainCount(TestServerContext server) {
+		return server.computeOnServer(minecraftServer -> Create.RAILWAYS.trains.size());
+	}
+
+	private String bogeyOffsets(TestServerContext server) {
+		return server.computeOnServer(minecraftServer -> {
+			var be = (StationBlockEntity) minecraftServer.overworld()
+				.getBlockEntity(STATION_A);
+			int[] found = (int[]) ScreenTesting.read(be, "bogeyLocations");
+
+			return java.util.Arrays.toString(found);
+		});
+	}
+
+	private String assemblyLength(TestServerContext server) {
+		return server.computeOnServer(minecraftServer -> String.valueOf(ScreenTesting.read(
+			minecraftServer.overworld()
+				.getBlockEntity(STATION_A),
+			"assemblyLength")));
+	}
+
+	private String assemblyState(TestServerContext server) {
+		return server.computeOnServer(minecraftServer -> {
+			var level = minecraftServer.overworld();
+			var be = level.getBlockEntity(STATION_A);
+			var area = com.simibubi.create.content.trains.station.StationBlockEntity.assemblyAreas.get(level)
+				.get(STATION_A);
+
+			return "assembling=" + level.getBlockState(STATION_A)
+				+ " direction=" + ScreenTesting.read(be, "assemblyDirection") + " area=" + area
+				+ " target=" + trackFor(STATION_A) + " bogeyRail=" + bogeyTrack(0)
+				+ " bogey=" + level.getBlockState(bogey(0));
+		});
+	}
+
+	private String lastComplaint(TestServerContext server) {
+		return server.computeOnServer(minecraftServer -> {
+			var be = (StationBlockEntity) minecraftServer.overworld()
+				.getBlockEntity(STATION_A);
+
+			try {
+				var complaint = (com.simibubi.create.content.contraptions.AssemblyException) ScreenTesting
+					.read(be, "lastException");
+
+				return complaint.component.getString();
+			} catch (Throwable nothingWrong) {
+				return "nothing";
+			}
+		});
 	}
 
 	/**
