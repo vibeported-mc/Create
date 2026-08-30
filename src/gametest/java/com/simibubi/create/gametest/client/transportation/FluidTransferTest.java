@@ -1,4 +1,4 @@
-package com.simibubi.create.gametest.client;
+package com.simibubi.create.gametest.client.transportation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

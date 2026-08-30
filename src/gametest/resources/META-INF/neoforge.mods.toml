@@ -9,15 +9,20 @@ displayName="Create Client GameTests"
 description='''Client gametests for Create. Only does anything when the game is launched with -Dfabric.client.gametest=true, which is what runClientGameTest does.'''
 
 [modproperties.create_gametest]
+# Every class named here runs when the whole suite does. A class left out still runs when it is asked
+# for by name with -PclientGameTestSelect, which is how the block smoke test is kept out of the way:
+# it photographs every block in the mod from four angles and takes far longer than all the rest put
+# together, so it is run deliberately rather than on the way past.
+#
+#   ./gradlew runClientGameTest -PclientGameTestSelect=com.simibubi.create.gametest.client.BlocksSmokeTest
 fabric-client-gametest-junit = [
-  "com.simibubi.create.gametest.client.WaterWheelTests",
-  "com.simibubi.create.gametest.client.BlocksSmokeTest",
   "com.simibubi.create.gametest.client.PlacementHelperTest",
-  "com.simibubi.create.gametest.client.LogisticsTest",
-  "com.simibubi.create.gametest.client.FluidTransferTest",
-  "com.simibubi.create.gametest.client.HosePulleyTest",
-  "com.simibubi.create.gametest.client.ItemLogisticsTest",
-  "com.simibubi.create.gametest.client.BrassTunnelTest",
+  "com.simibubi.create.gametest.client.contraptions.WaterWheelTests",
+  "com.simibubi.create.gametest.client.transportation.LogisticsTest",
+  "com.simibubi.create.gametest.client.transportation.FluidTransferTest",
+  "com.simibubi.create.gametest.client.transportation.HosePulleyTest",
+  "com.simibubi.create.gametest.client.transportation.ItemLogisticsTest",
+  "com.simibubi.create.gametest.client.transportation.BrassTunnelTest",
 ]
 
 [[dependencies.create_gametest]]

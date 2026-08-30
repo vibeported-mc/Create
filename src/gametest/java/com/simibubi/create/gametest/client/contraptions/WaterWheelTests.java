@@ -1,4 +1,4 @@
-package com.simibubi.create.gametest.client;
+package com.simibubi.create.gametest.client.contraptions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
