@@ -34,7 +34,19 @@ public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearable
 	@Override
 	public void clearContents() {
 		for (int i = 0; i < ghostInventory.size(); i++)
-			ItemHandlerHelpers.setStackInSlot(ghostInventory, i, ItemStack.EMPTY);
+			setGhost(i, ItemStack.EMPTY);
+	}
+
+	/**
+	 * Puts a stack into one of the ghost slots.
+	 * <p>
+	 * Through the slot rather than into the handler behind it, because a slot over a resource handler
+	 * remembers the stack it last handed out and, when told that something changed, writes that
+	 * remembered stack back over the handler. Anything written to the handler directly is undone by the
+	 * next such notice; going through the slot keeps the two in step.
+	 */
+	protected void setGhost(int slot, ItemStack stack) {
+		getSlot(slot + 36).set(stack);
 	}
 
 	@Override
@@ -78,8 +90,7 @@ public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearable
 			insert = held.copy();
 			insert.setCount(1);
 		}
-		ItemHandlerHelpers.setStackInSlot(ghostInventory, slot, insert);
-		getSlot(slotId).setChanged();
+		setGhost(slot, insert);
 	}
 
 	@Override
@@ -99,14 +110,12 @@ public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearable
 				if (stack.isEmpty()) {
 					ItemStack copy = stackToInsert.copy();
 					copy.setCount(1);
-					ItemHandlerHelpers.insertItem(ghostInventory, i, copy, false);
-					getSlot(i + 36).setChanged();
+					setGhost(i, copy);
 					break;
 				}
 			}
 		} else {
-			ItemHandlerHelpers.extractItem(ghostInventory, index - 36, 1, false);
-			getSlot(index).setChanged();
+			setGhost(index - 36, ItemStack.EMPTY);
 		}
 		return ItemStack.EMPTY;
 	}
