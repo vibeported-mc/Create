@@ -322,8 +322,18 @@ public final class ScreenTesting {
 	 * the test before left in it.
 	 */
 	public static void clearGround(TestServerContext server, BlockPos centre, int radius) {
+		clearGround(server, centre, radius, radius + 1);
+	}
+
+	/**
+	 * The same, over a box of a chosen height.
+	 * <p>
+	 * A wide clearing has to be a shallow one: the box is filled by a single command, and one of more
+	 * than thirty-two thousand blocks is refused outright, without saying so.
+	 */
+	public static void clearGround(TestServerContext server, BlockPos centre, int radius, int height) {
 		server.runCommand("fill %d %d %d %d %d %d air".formatted(centre.getX() - radius, centre.getY() - 1,
-			centre.getZ() - radius, centre.getX() + radius, centre.getY() + radius, centre.getZ() + radius));
+			centre.getZ() - radius, centre.getX() + radius, centre.getY() + height, centre.getZ() + radius));
 		server.runCommand("fill %d %d %d %d %d %d stone".formatted(centre.getX() - radius, centre.getY() - 1,
 			centre.getZ() - radius, centre.getX() + radius, centre.getY() - 1, centre.getZ() + radius));
 		server.runCommand("kill @e[type=item]");
@@ -461,7 +471,7 @@ public final class ScreenTesting {
 	 * For the few things a test has to ask about that are declared on a class it cannot name - a
 	 * blueprint's sections among them, which are an inner class kept to itself.
 	 */
-	static Object invoke(Object target, String methodName, Object... arguments) {
+	public static Object invoke(Object target, String methodName, Object... arguments) {
 		if (target == null)
 			throw new AssertionError("Nothing to call " + methodName + " on");
 
@@ -486,7 +496,7 @@ public final class ScreenTesting {
 	}
 
 	/** The value of a field of the screen, or of anything it inherits from. */
-	static Object read(Object target, String fieldName) {
+	public static Object read(Object target, String fieldName) {
 		if (target == null)
 			throw new AssertionError("No screen is open to look for " + fieldName + " on");
 

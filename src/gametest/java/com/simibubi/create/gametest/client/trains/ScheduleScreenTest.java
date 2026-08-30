@@ -1,4 +1,6 @@
-package com.simibubi.create.gametest.client.gui;
+package com.simibubi.create.gametest.client.trains;
+
+import com.simibubi.create.gametest.client.gui.ScreenTesting;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
