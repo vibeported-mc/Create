@@ -13,7 +13,15 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.simibubi.create.Create;
+import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
+import com.simibubi.create.content.contraptions.ContraptionHandlerClient;
+import com.simibubi.create.content.contraptions.actors.trainControls.ControlsHandler;
 import com.simibubi.create.content.contraptions.glue.SuperGlueEntity;
+import com.simibubi.create.content.trains.TrainHUD;
+import com.simibubi.create.content.trains.entity.Carriage;
+import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
+import com.simibubi.create.content.trains.entity.Train;
+import com.simibubi.create.content.trains.station.GlobalStation;
 import com.simibubi.create.content.trains.station.AssemblyScreen;
 import com.simibubi.create.content.trains.station.StationBlockEntity;
 import com.simibubi.create.content.trains.station.StationScreen;
@@ -26,9 +34,20 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import net.fabricmc.fabric.api.client.gametest.v1.junit.ClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.junit.SharedWorld;
 import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -177,30 +196,449 @@ public class TrainCircuitTest {
 			"Clicking the marked rail did not put bogeys down; the station has " + bogeyOffsets(server)
 				+ " | " + assemblyState(server));
 
-		// Controls have to face the way the train is built or the station refuses the whole thing. A block
-		// takes the facing of whoever put it down back to front, so the player stands the other way about.
-		placeBlockOn(context, server, bogey(0), "create:controls", ASSEMBLY.getOpposite());
-
-		// And a seat in front of them, which is what the driver sits on. Not decoration: a train with
-		// nobody at the controls will accept a schedule and then refuse to go anywhere.
-		placeAgainst(context, server, controls(), "create:red_seat", ASSEMBLY);
+		// The carriage itself is set out rather than clicked together: the fittings have to sit exactly
+		// where they belong, and a bogey answers a click of its own instead of taking a block.
+		buildCarriage(server);
+		context.waitTicks(SETTLE_TICKS);
 
 		// Glue holds the carriage together. A bogey only grips along its own length, so anything stacked on
-		// top of it - which is the whole body - is not part of the train until it is glued on.
+		// top of it - which is the whole body - is not part of the train until it is glued on. The box takes
+		// in the floor and everything standing on it.
 		server.runOnServer(minecraftServer -> {
 			ServerLevel level = minecraftServer.overworld();
 
-			level.addFreshEntity(new SuperGlueEntity(level, SuperGlueEntity.span(bogey(0), seat())));
+			level.addFreshEntity(new SuperGlueEntity(level,
+				SuperGlueEntity.span(floor(-1, -1), floor(1, 1).above())));
 		});
 		context.waitTicks(SETTLE_TICKS);
-
-		context.takeScreenshot(shot("train_built"));
 
 		assemble(context, server);
 
 		assertEquals(1, trainCount(server), "The station did not assemble a train; its bogeys were at "
 			+ bogeyOffsets(server) + ", it could build over " + assemblyLength(server)
 			+ " blocks, and it last complained of " + lastComplaint(server) + " | " + assemblyState(server));
+
+		// Everything the carriage was built out of has to have come with it. Whatever the glue missed would
+		// have been left standing on the rails instead, so this is what shows it took the whole floor.
+		for (String fitting : new String[] { "create:controls", "create:red_seat", "minecraft:chest",
+			"create:fluid_tank", "create:portable_storage_interface", "create:portable_fluid_interface" })
+			assertTrue(carriageHolds(server, fitting), "The train was assembled without its " + fitting
+				+ ", so the glue did not take the whole floor with it. It carries " + carriageContents(server)
+				+ " and what is still standing on the rails is " + leftBehind(server));
+
+		watchTheTrain(context, server);
+		context.takeScreenshot(shot("train_assembled"));
+	}
+
+	@ClientGameTest(screenshot = false)
+	@Order(4)
+	@DisplayName("The train is ridden a full circuit by hand and parked back at station A")
+	void ridesTheTrainRoundTheCircuit(ClientGameTestContext context, TestSingleplayerContext singleplayer,
+		TestServerContext server) {
+		singleplayer.getClientLevel()
+			.waitForChunksRender();
+
+		assertEquals(1, trainCount(server), "There is no train to ride - did the building phase fail?");
+
+		standBeside(context, server);
+
+		// Sitting down and taking the controls are both clicks on the train itself, which is an entity
+		// rather than blocks in the world, so what the crosshair is on has to be looked for rather than
+		// worked out.
+		assertTrue(clickOnTrain(context, "create:red_seat", middleOf(seat())),
+			"Could not find the seat to sit on");
+		assertTrue(riding(context), "Clicking the seat did not sit the player on the train");
+
+		// The seat is the square the controls face, so from it they are the one behind: the view is turned
+		// back down the train, levelled off, and then dropped a nudge at a time until it finds them. If
+		// they are not on the way down - a seated head does not sit quite where a standing one does - the
+		// wider sweep picks them up.
+		lookAlong(context, ASSEMBLY.getOpposite());
+
+		boolean onTheControls = ScreenTesting.lookDown(context, client -> aimedAt(client, "create:controls"))
+			|| ScreenTesting.lookAround(context, client -> aimedAt(client, "create:controls"));
+
+		assertTrue(onTheControls,
+			"Could not find the controls from the seat; the crosshair was on " + whatIsUnderTheCrosshair(context));
+
+		ScreenTesting.rightClick(context);
+		context.waitTicks(SETTLE_TICKS);
+		assertTrue(driving(context), "Clicking the controls did not hand the player the train");
+
+		Vec3 setOffFrom = trainIsAt(context);
+
+		// From here nothing is asked of the server: the key is held down for real and the client works out
+		// what to send from it, the same as under anyone else's hands.
+		context.getInput()
+			.holdKey(options -> options.keyUp);
+
+		// Which way that turns out to be is the train's business rather than this test's - the controls
+		// face the way the station built, which need not be the way the train pulls away - so the camera is
+		// turned to wherever it has actually started going, and the driver watches the track ahead.
+		context.waitFor(client -> trainAt(client).distanceTo(setOffFrom) > 2, DRIVE_TIMEOUT);
+		lookAlong(context, wayItIsGoing(context, setOffFrom));
+		context.takeScreenshot(shot("train_at_the_controls"));
+
+		// Right round. Away down the far side first, so that coming back within reach of station A means a
+		// lap of the circuit rather than never having left it; then the train says for itself when the
+		// station is close enough to hand the last of the run over to, and holding the same key a driver
+		// would hands it over. Everything read here is read off the client.
+		List<String> heard = new ArrayList<>();
+		Vec3 wasAt = setOffFrom;
+		double furthest = 0;
+		boolean beenAway = false;
+		boolean seenItTurning = false;
+		boolean askedToStop = false;
+		boolean arrived = false;
+
+		for (int waited = 0; waited < DRIVE_TIMEOUT && !arrived; waited += WATCH_TICKS) {
+			context.waitTicks(WATCH_TICKS);
+
+			String saying = context.computeOnClient(TrainCircuitTest::prompt);
+			double away = context.computeOnClient(client -> trainAt(client).distanceTo(setOffFrom));
+			Vec3 nowAt = trainIsAt(context);
+			Vec3 moved = nowAt.subtract(wasAt);
+			wasAt = nowAt;
+
+			furthest = Math.max(furthest, away);
+
+			// Somewhere on a corner, from over the driver's shoulder. Everything a contraption is made of
+			// has to turn with it, and a block drawn by a renderer of its own - the chest here - is the one
+			// that shows when something does not; on a straight it would look right either way. The view
+			// has to be pulled back out of the carriage to see any of this, since the driver is inside it.
+			if (beenAway && !seenItTurning && onACorner(moved)) {
+				watchOverTheShoulder(context, true);
+				context.takeScreenshot(shot("train_on_a_corner"));
+				watchOverTheShoulder(context, false);
+				seenItTurning = true;
+			}
+
+			if (!saying.isEmpty() && !heard.contains(shorten(saying)))
+				heard.add(shorten(saying));
+
+			if (!beenAway && away > FAR_SIDE) {
+				beenAway = true;
+				context.takeScreenshot(shot("train_far_side"));
+			}
+
+			// Nothing here measures how close the station is: the train says when it is near enough to hand
+			// the rest of the run to, and having been away already means saying so means a lap.
+			if (beenAway && !askedToStop && saying.contains("approach Station A")) {
+				context.takeScreenshot(shot("train_approaching"));
+				context.getInput()
+					.holdKey(options -> options.keyJump);
+				askedToStop = true;
+			}
+
+			arrived = askedToStop && saying.contains("Arrived at Station A");
+		}
+
+		String run = "; it got " + Math.round(furthest) + " blocks off and heard " + heard;
+
+		context.getInput()
+			.releaseKey(options -> options.keyUp);
+		context.getInput()
+			.releaseKey(options -> options.keyJump);
+		context.waitTicks(SETTLE_TICKS);
+		context.takeScreenshot(shot("train_parked"));
+
+		assertTrue(beenAway, "The train never got away from station A" + run);
+		assertTrue(askedToStop, "The train went round but never offered to draw in at station A" + run);
+		assertTrue(arrived, "The train was asked to draw in at station A but never got there" + run);
+
+		assertEquals(theTrainsName(server), trainWaitingAt(server, STATION_A),
+			"The train did not end up parked at the station it set off from" + run);
+	}
+
+	/** Whichever way the train has actually pulled away, which is where the driver ought to be looking. */
+	private Direction wayItIsGoing(ClientGameTestContext context, Vec3 from) {
+		Vec3 gone = trainIsAt(context).subtract(from);
+
+		return Direction.getApproximateNearest(gone.x, 0, gone.z);
+	}
+
+	/** For when the crosshair did not find what it was after, so the failure can say what it did find. */
+	private String whatIsUnderTheCrosshair(ClientGameTestContext context) {
+		return context.computeOnClient(client -> {
+			AbstractContraptionEntity train = trainEntity(client);
+
+			if (train == null)
+				return "nothing - there is no train here";
+
+			Vec3 origin = client.player.getEyePosition();
+			Vec3 target = origin.add(client.player.getLookAngle()
+				.scale(client.player.blockInteractionRange()));
+			BlockHitResult hit = ContraptionHandlerClient.rayTraceContraption(origin, target, train);
+
+			if (hit == null)
+				return "none of the train, from " + origin + " looking " + client.player.getLookAngle();
+
+			StructureBlockInfo info = train.getContraption()
+				.getBlocks()
+				.get(hit.getBlockPos());
+
+			return info == null ? "an empty square of the train" : nameOf(info.state());
+		});
+	}
+
+	/** Pulls the view back out of the carriage, so that the carriage itself can be seen, and puts it back. */
+	private void watchOverTheShoulder(ClientGameTestContext context, boolean back) {
+		context.runOnClient(client -> client.options
+			.setCameraType(back ? CameraType.THIRD_PERSON_BACK : CameraType.FIRST_PERSON));
+		context.waitTicks(SETTLE_TICKS);
+	}
+
+	/**
+	 * Whether the train is going somewhere between the compass points, which is to say round a corner.
+	 * <p>
+	 * Only worth asking of a train that is actually moving, since a heading read off a step of nothing is
+	 * whatever rounding says it is.
+	 */
+	private static boolean onACorner(Vec3 moved) {
+		if (moved.horizontalDistance() < 0.05)
+			return false;
+
+		double offAxis = Math.floorMod(Math.round(headingOf(moved)), 90);
+
+		return Math.abs(offAxis - 45) < 25;
+	}
+
+	/** Which way something moving is headed, in the degrees the game turns a head by. */
+	private static float headingOf(Vec3 moved) {
+		return (float) (-Mth.atan2(moved.x, moved.z) * 180 / Math.PI);
+	}
+
+	/** How often the run is looked in on while the train is under way. */
+	private static final int WATCH_TICKS = 5;
+
+	/** The drawing-in bar is thirty of the same character; there is nothing to be learnt from repeating it. */
+	private static String shorten(String prompt) {
+		return prompt.chars()
+			.allMatch(character -> character == '|') ? "<drawing in>" : prompt;
+	}
+
+	/**
+	 * How far off the train has to have got for it to have gone round rather than shuffled about.
+	 * <p>
+	 * The circuit is a little over twenty across and thirty long, so this is comfortably past the far
+	 * straight and comfortably short of the furthest the train can get.
+	 */
+	private static final double FAR_SIDE = 20;
+
+	/** A lap of the circuit under its own steam takes a while; this is longer than it can need. */
+	private static final int DRIVE_TIMEOUT = 4000;
+
+	/** Puts the player on the ground beside the carriage, on their feet and within reach of it. */
+	private void standBeside(ClientGameTestContext context, TestServerContext server) {
+		server.runOnServer(minecraftServer -> {
+			ServerPlayer player = minecraftServer.getPlayerList()
+				.getPlayers()
+				.get(0);
+
+			player.setGameMode(GameType.CREATIVE);
+			player.getAbilities().flying = false;
+			player.onUpdateAbilities();
+			player.connection.teleport(controls().getX() - 2.5, RAIL_Y, controls().getZ() + 0.5, 90, 0);
+		});
+		context.waitTicks(SETTLE_TICKS);
+	}
+
+	/** Levels the view off along the track, which is how a driver holds their head. */
+	private void lookAlong(ClientGameTestContext context, Direction way) {
+		context.getInput()
+			.lookAt(way.toYRot(), 0);
+		context.waitTicks(SETTLE_TICKS);
+	}
+
+	/**
+	 * Looks about until the crosshair is on one of the train's own blocks, then clicks it.
+	 * <p>
+	 * A rough turn towards where the block stands first, since the sweep only reaches so far to either
+	 * side, and then the sweep itself to land on it.
+	 */
+	private boolean clickOnTrain(ClientGameTestContext context, String wanted, Vec3 roughly) {
+		context.runOnClient(client -> {
+			Vec3 toBlock = roughly.subtract(client.player.getEyePosition());
+
+			client.player.setYRot((float) (Mth.atan2(toBlock.z, toBlock.x) * 180 / Math.PI) - 90);
+			client.player.setXRot(
+				(float) -(Mth.atan2(toBlock.y, toBlock.horizontalDistance()) * 180 / Math.PI));
+		});
+
+		if (!ScreenTesting.lookAround(context, client -> aimedAt(client, wanted)))
+			return false;
+
+		ScreenTesting.rightClick(context);
+		context.waitTicks(SETTLE_TICKS);
+		return true;
+	}
+
+	/** Whether the crosshair is on the named block of the train, asked the way the game itself asks. */
+	private static boolean aimedAt(Minecraft client, String wanted) {
+		AbstractContraptionEntity train = trainEntity(client);
+
+		if (train == null)
+			return false;
+
+		Vec3 origin = client.player.getEyePosition();
+		Vec3 target = origin.add(client.player.getLookAngle()
+			.scale(client.player.blockInteractionRange()));
+		BlockHitResult hit = ContraptionHandlerClient.rayTraceContraption(origin, target, train);
+
+		if (hit == null)
+			return false;
+
+		StructureBlockInfo info = train.getContraption()
+			.getBlocks()
+			.get(hit.getBlockPos());
+
+		return info != null && nameOf(info.state()).equals(wanted);
+	}
+
+	private static AbstractContraptionEntity trainEntity(Minecraft client) {
+		for (Entity entity : client.level.entitiesForRendering())
+			if (entity instanceof CarriageContraptionEntity carriage)
+				return carriage;
+
+		return null;
+	}
+
+	private static Vec3 trainAt(Minecraft client) {
+		AbstractContraptionEntity train = trainEntity(client);
+
+		return train == null ? Vec3.ZERO : train.position();
+	}
+
+	private Vec3 trainIsAt(ClientGameTestContext context) {
+		return context.computeOnClient(TrainCircuitTest::trainAt);
+	}
+
+	private boolean riding(ClientGameTestContext context) {
+		return context
+			.computeOnClient(client -> client.player.getVehicle() instanceof CarriageContraptionEntity);
+	}
+
+	private boolean driving(ClientGameTestContext context) {
+		return context.computeOnClient(client -> ControlsHandler.getContraption() != null);
+	}
+
+	/** What the train is telling its driver, which is what every step of the run is read from. */
+	private static String prompt(Minecraft client) {
+		return TrainHUD.currentPrompt == null ? "" : TrainHUD.currentPrompt.getString();
+	}
+
+	/** Whether the assembled train carries the named block, which is how the glue is checked. */
+	private boolean carriageHolds(TestServerContext server, String wanted) {
+		return server.computeOnServer(minecraftServer -> {
+			for (Train train : Create.RAILWAYS.trains.values())
+				for (Carriage carriage : train.carriages) {
+					CarriageContraptionEntity entity = carriage.anyAvailableEntity();
+
+					if (entity == null)
+						continue;
+
+					for (StructureBlockInfo info : entity.getContraption()
+						.getBlocks()
+						.values())
+						if (nameOf(info.state()).equals(wanted))
+							return true;
+				}
+
+			return false;
+		});
+	}
+
+	/** Everything the assembled train carries, for when something was left behind. */
+	private String carriageContents(TestServerContext server) {
+		return server.computeOnServer(minecraftServer -> {
+			List<String> carried = new ArrayList<>();
+
+			for (Train train : Create.RAILWAYS.trains.values())
+				for (Carriage carriage : train.carriages) {
+					CarriageContraptionEntity entity = carriage.anyAvailableEntity();
+
+					if (entity == null)
+						continue;
+
+					for (StructureBlockInfo info : entity.getContraption()
+						.getBlocks()
+						.values())
+						carried.add(nameOf(info.state()));
+				}
+
+			return carried.toString();
+		});
+	}
+
+	/** What is still standing where the carriage was built, which is whatever the train did not take. */
+	private String leftBehind(TestServerContext server) {
+		return server.computeOnServer(minecraftServer -> {
+			ServerLevel level = minecraftServer.overworld();
+			List<String> standing = new ArrayList<>();
+
+			for (int across = -1; across <= 1; across++)
+				for (int along = -1; along <= 1; along++)
+					for (int up = 0; up <= 1; up++) {
+						BlockPos pos = floor(across, along).above(up);
+						BlockState state = level.getBlockState(pos);
+
+						if (!state.isAir())
+							standing.add(pos.toShortString() + " " + nameOf(state));
+					}
+
+			return standing.toString();
+		});
+	}
+
+	/** What the assembled train ended up called, which is whatever a station reports when it is there. */
+	private String theTrainsName(TestServerContext server) {
+		return server.computeOnServer(minecraftServer -> Create.RAILWAYS.trains.values()
+			.iterator()
+			.next().name.getString());
+	}
+
+	/** Which train, if any, is standing at a station. */
+	private String trainWaitingAt(TestServerContext server, BlockPos pos) {
+		return server.computeOnServer(minecraftServer -> {
+			BlockEntity be = minecraftServer.overworld()
+				.getBlockEntity(pos);
+
+			if (!(be instanceof StationBlockEntity station))
+				return "there is no station at " + pos;
+
+			GlobalStation global = station.getStation();
+
+			if (global == null)
+				return "the station is not on the track";
+
+			Train train = global.getPresentTrain();
+
+			return train == null ? "no train is there" : train.name.getString();
+		});
+	}
+
+	private static String nameOf(BlockState state) {
+		return BuiltInRegistries.BLOCK.getKey(state.getBlock())
+			.toString();
+	}
+
+	private static Vec3 middleOf(BlockPos pos) {
+		return new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+	}
+
+	private void hideTheHud(ClientGameTestContext context) {
+		context.runOnClient(client -> {
+			if (!client.gui.hud.isHidden())
+				client.gui.hud.toggle();
+		});
+	}
+
+	/** Stands off the carriage's corner and above it, so the floor and everything on it are in view. */
+	private void watchTheTrain(ClientGameTestContext context, TestServerContext server) {
+		hideTheHud(context);
+
+		ScreenTesting.lookAt(context, server, middleOf(bogey(0).above()),
+			new Vec3(bogey(0).getX() + 6.5, bogey(0).getY() + 5, bogey(0).getZ() + 6.5));
 	}
 
 	/** Turns the station over to assembly through its own screen, then gets out of the way. */
@@ -249,14 +687,77 @@ public class TrainCircuitTest {
 		context.waitTicks(SETTLE_TICKS);
 	}
 
-	/** Where the controls sit: on top of the bogey. */
-	private BlockPos controls() {
-		return bogey(0).above();
+	/**
+	 * The carriage: a floor three squares by three with the bogey at its middle, and the fittings on it.
+	 * <p>
+	 * Where each piece goes matters. The controls have to face the way the train is built or the station
+	 * refuses the whole thing, and the seat has to be the square they face. Those two take the left-hand
+	 * side with nothing standing over them, the cargo goes across the back, and the two interfaces take the
+	 * right - which is the side facing into the circuit, where whatever loads and empties the train will
+	 * stand.
+	 */
+	private void buildCarriage(TestServerContext server) {
+		for (int across = -1; across <= 1; across++)
+			for (int along = -1; along <= 1; along++)
+				if (across != 0 || along != 0)
+					setBlock(server, floor(across, along), CASING);
+
+		setBlock(server, controls(), "create:controls[facing=" + ASSEMBLY.getSerializedName() + "]");
+		setBlock(server, seat(), "create:red_seat");
+
+		setBlock(server, itemInterface(), "create:portable_storage_interface[facing=" + INTERFACES + "]");
+		setBlock(server, fluidInterface(), "create:portable_fluid_interface[facing=" + INTERFACES + "]");
+
+		setBlock(server, chest(), "minecraft:chest");
+		setBlock(server, tank(), "create:fluid_tank");
 	}
 
-	/** And the seat, in front of the controls, which is where the driver goes. */
+	private static final String CASING = "create:andesite_casing";
+
+	/** The train's right-hand side, which is the one that faces in towards the middle of the circuit. */
+	private static final String INTERFACES = "east";
+
+	/**
+	 * A square of the carriage floor, counted out from the bogey at its middle.
+	 * <p>
+	 * Across is to the right of the way the train is built, and along is the way it is built, so along -1
+	 * is towards the front of the train.
+	 */
+	private BlockPos floor(int across, int along) {
+		return bogey(0).relative(Direction.EAST, across)
+			.relative(ASSEMBLY, -along);
+	}
+
+	/**
+	 * The controls, in the middle of the left-hand side, facing the way the train is built.
+	 * <p>
+	 * Not a free choice either way. A station refuses to assemble anything unless some set of controls
+	 * faces the way it is building, and it only counts a seat as the driver's when the controls beside it
+	 * face that seat - so the controls face along the train and the seat is the square ahead of them.
+	 */
+	private BlockPos controls() {
+		return floor(-1, 0).above();
+	}
+
+	/** The seat, which is the square the controls face, and where the driver goes. */
 	private BlockPos seat() {
-		return controls().relative(ASSEMBLY);
+		return floor(-1, -1).above();
+	}
+
+	private BlockPos tank() {
+		return floor(-1, 1).above();
+	}
+
+	private BlockPos chest() {
+		return floor(0, 1).above();
+	}
+
+	private BlockPos itemInterface() {
+		return floor(1, -1).above();
+	}
+
+	private BlockPos fluidInterface() {
+		return floor(1, 0).above();
 	}
 
 	private void clickTrack(ClientGameTestContext context, TestServerContext server, BlockPos track) {
@@ -501,6 +1002,10 @@ public class TrainCircuitTest {
 
 	private static Vec3 topOf(BlockPos pos) {
 		return new Vec3(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
+	}
+
+	private static void setBlock(TestServerContext server, BlockPos pos, String state) {
+		server.runCommand("setblock %d %d %d %s".formatted(pos.getX(), pos.getY(), pos.getZ(), state));
 	}
 
 	private static TestScreenshotOptions shot(String name) {

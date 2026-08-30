@@ -6,11 +6,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.simibubi.create.foundation.gui.widget.ScrollInput;
 
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -241,6 +243,100 @@ public final class ScreenTesting {
 	 * Checks what the player ended up looking at first, so that a test which failed to reach the block at
 	 * all says so, rather than failing later on a screen that was never opened.
 	 */
+	/**
+	 * Drops the view a nudge at a time until the crosshair finds what the test is after.
+	 * <p>
+	 * The way a player finds something just in front of their feet: look straight ahead, then tip the head
+	 * down bit by bit until it comes into the middle of the view. Nothing needs to be worked out from where
+	 * the thing stands, which matters aboard a train, where nothing stands still for long.
+	 *
+	 * @return whether any angle on the way down satisfied the predicate, the view being left pointing there
+	 *         if so and back where it started if not
+	 */
+	public static boolean lookDown(ClientGameTestContext context, Predicate<Minecraft> onTarget) {
+		Float found = context.computeOnClient(client -> {
+			float wasPitch = client.player.getXRot();
+
+			for (float pitch = wasPitch; pitch <= STRAIGHT_DOWN; pitch += SWEEP_STEP) {
+				client.player.setXRot(pitch);
+
+				if (onTarget.test(client))
+					return pitch;
+			}
+
+			client.player.setXRot(wasPitch);
+			return null;
+		});
+
+		if (found == null)
+			return false;
+
+		context.getInput()
+			.lookAt(context.computeOnClient(client -> client.player.getYRot()), found);
+		context.waitTicks(AIM_TICKS);
+		return true;
+	}
+
+	/** As far down as a head goes. */
+	private static final float STRAIGHT_DOWN = 89;
+
+	/** How far either way the view is swept, and how big a nudge it moves in. */
+	private static final float SWEEP_DEGREES = 40;
+
+	private static final float SWEEP_STEP = 1.5f;
+
+	/**
+	 * Turns the view a nudge at a time until the crosshair finds what the test is after.
+	 * <p>
+	 * Working an angle out from where a thing stands only holds while the thing and the player both stand
+	 * still. On a train neither does: the carriage sways as it runs, and what the crosshair is on is
+	 * decided by a ray against a moving contraption rather than against the world. So the view is swept
+	 * instead - outwards from where it already points, a degree and a half at a time - and after each
+	 * nudge the caller is asked whether that is the thing it wanted.
+	 * <p>
+	 * The sweep itself is done without letting the game run, so hundreds of angles cost nothing; only the
+	 * one that answered is then aimed at properly, through the mouse, so the game sees it as looking
+	 * about.
+	 *
+	 * @return whether any angle satisfied the predicate, the view being left pointing there if so and back
+	 *         where it started if not
+	 */
+	public static boolean lookAround(ClientGameTestContext context, Predicate<Minecraft> onTarget) {
+		float[] found = context.computeOnClient(client -> {
+			float wasYaw = client.player.getYRot();
+			float wasPitch = client.player.getXRot();
+
+			for (float ring = 0; ring <= SWEEP_DEGREES; ring += SWEEP_STEP) {
+				for (float pitch = -ring; pitch <= ring + 0.01f; pitch += SWEEP_STEP) {
+					for (float yaw = -ring; yaw <= ring + 0.01f; yaw += SWEEP_STEP) {
+						// Only the edge of each ring: everything inside it was tried by a smaller one.
+						if (ring > 0 && Math.abs(Math.abs(pitch) - ring) > 0.01f
+							&& Math.abs(Math.abs(yaw) - ring) > 0.01f)
+							continue;
+
+						client.player.setYRot(wasYaw + yaw);
+						client.player.setXRot(wasPitch + pitch);
+
+						if (onTarget.test(client))
+							return new float[] { wasYaw + yaw, wasPitch + pitch };
+					}
+				}
+			}
+
+			client.player.setYRot(wasYaw);
+			client.player.setXRot(wasPitch);
+			return null;
+		});
+
+		if (found == null)
+			return false;
+
+		context.getInput()
+			.lookAt(found[0], found[1]);
+		context.waitTicks(AIM_TICKS);
+		return true;
+	}
+
 	public static void rightClickBlock(ClientGameTestContext context, TestServerContext server, BlockPos pos) {
 		rightClickAt(context, server, Vec3.atCenterOf(pos), pos);
 	}
