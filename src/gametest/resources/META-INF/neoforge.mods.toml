@@ -21,6 +21,8 @@ fabric-client-gametest-junit = [
   "com.simibubi.create.gametest.client.contraptions.ProcessingTest",
   "com.simibubi.create.gametest.client.contraptions.MechanicalArmTest",
   "com.simibubi.create.gametest.client.contraptions.MechanicalCrafterTest",
+  "com.simibubi.create.gametest.client.contraptions.EncasedFanTest",
+  "com.simibubi.create.gametest.client.contraptions.MixerTest",
   "com.simibubi.create.gametest.client.contraptions.PortableFluidTransportTest",
   "com.simibubi.create.gametest.client.contraptions.PortableHarvestTest",
   "com.simibubi.create.gametest.client.transportation.LogisticsTest",
