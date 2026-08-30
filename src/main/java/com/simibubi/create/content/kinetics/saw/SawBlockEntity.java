@@ -370,7 +370,10 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 			if (recipe instanceof CuttingRecipe)
 				results = ((CuttingRecipe) recipe).rollResults(level.getRandom());
 			else if (recipe instanceof StonecutterRecipe || recipe.getType() == woodcuttingRecipeType.get())
-				results.add(RecipeAccessors.result(recipe, null)
+				// A vanilla recipe describes what it makes against the level it would be made in, so
+				// asking without one gets nothing back - and the saw has already emptied itself of what
+				// it was given, so the cut would eat the item and hand out nothing.
+				results.add(RecipeAccessors.result(recipe, level)
 					.copy());
 
 			for (ItemStack stack : results) {
