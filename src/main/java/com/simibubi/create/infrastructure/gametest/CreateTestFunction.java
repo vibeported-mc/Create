@@ -73,15 +73,22 @@ public class CreateTestFunction {
 			"gametest/" + group.path() + "/" + gt.template());
 		Rotation rotation = StructureUtils.getRotationForRotationSteps(gt.rotationSteps());
 
+		// GAMETEST FIX - room above and around the structure. These tests were written when a structure
+		// was laid one block above the marker naming it, which left space over its roof; the game now lays
+		// it on the marker and walls the test in tight to its own size. Anything thrown - an ejector's arc,
+		// a dispenser's arrow - then hits the ceiling instead of what it was aimed at.
 		TestData<Holder<TestEnvironmentDefinition<?>>> data = new TestData<>(environment, structure,
 			gt.timeoutTicks(), gt.setupTicks(), gt.required(), rotation, false, gt.attempts(),
-			gt.requiredSuccesses(), false, 0);
+			gt.requiredSuccesses(), true, ROOM_AROUND_THE_STRUCTURE);
 
 		Identifier id = Identifier.fromNamespaceAndPath(group.namespace(),
 			asPath(owner.getSimpleName()) + "/" + asPath(method.getName()));
 
 		return new Found(id, new CreateTestInstance(simpleName, asConsumer(method), data));
 	}
+
+	/** How much space to leave on every side of a test structure. */
+	private static final int ROOM_AROUND_THE_STRUCTURE = 2;
 
 	/**
 	 * A java name as a name the game will accept.
