@@ -18,6 +18,7 @@ description='''Client gametests for Create. Only does anything when the game is 
 fabric-client-gametest-junit = [
   "com.simibubi.create.gametest.client.PlacementHelperTest",
   "com.simibubi.create.gametest.client.contraptions.WaterWheelTests",
+  "com.simibubi.create.gametest.client.contraptions.ProcessingTest",
   "com.simibubi.create.gametest.client.transportation.LogisticsTest",
   "com.simibubi.create.gametest.client.transportation.FluidTransferTest",
   "com.simibubi.create.gametest.client.transportation.HosePulleyTest",
