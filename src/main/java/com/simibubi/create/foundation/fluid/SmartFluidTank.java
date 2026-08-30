@@ -73,6 +73,14 @@ public class SmartFluidTank extends FluidStacksResourceHandler {
 
 	public void readFromNBT(HolderLookup.Provider registries, CompoundTag tag) {
 		deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, tag));
+
+		// GAMETEST FIX - a stopgap: existing worlds want a datafixer, not a read-time fallback.
+		// A tank written before the handler serialized through ValueIO put everything it held under a
+		// single "Fluid" tag. Those are still about - in worlds saved by an older version, in schematics,
+		// in the structures the game tests are built from - and read the new way they come back empty,
+		// which quietly pours away whatever was in them.
+		if (isEmpty() && tag.contains("Fluid"))
+			setFluid(FluidHelper.parseOptional(registries, tag.getCompoundOrEmpty("Fluid")));
 	}
 
 	@Override

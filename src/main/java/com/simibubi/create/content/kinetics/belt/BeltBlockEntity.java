@@ -307,6 +307,8 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 	}
 
 	/**
+	 * GAMETEST FIX - a stopgap: the position saved for the head is what really wants correcting.
+	 * <p>
 	 * Whether the segment this belt thinks is in charge of it is a belt at all.
 	 * <p>
 	 * Which segment that is gets written down as a plain position, so a belt saved in one place and put
