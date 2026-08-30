@@ -56,15 +56,18 @@ public class CreateGameTests {
 		Holder<TestEnvironmentDefinition<?>> environment =
 			event.registerEnvironment(Create.asResource("default"));
 
-		// -PserverGameTestSelect=<part of a name> narrows a run to the tests whose names contain it, which
-		// is how one is looked at on its own. Empty, as it is on a normal run, means all of them.
+		// -PserverGameTestSelect=<name> narrows a run to one test, which is how one is looked at on its
+		// own. The name given is matched whole rather than as a piece of one, so that asking for
+		// brass_mixing does not also bring brass_mixing2 along and put two structures in the world.
 		String only = System.getProperty("create.gametest.server.select", "");
 
-		for (CreateTestFunction.Found test : CreateTestFunction.getTestsFrom(environment, testHolders))
-			if (only.isEmpty() || test.id()
-				.getPath()
-				.contains(only))
+		for (CreateTestFunction.Found test : CreateTestFunction.getTestsFrom(environment, testHolders)) {
+			String path = test.id()
+				.getPath();
+
+			if (only.isEmpty() || path.equals(only) || path.endsWith("/" + only))
 				event.registerTest(test.id(), test.instance());
+		}
 	}
 
 }
