@@ -46,6 +46,9 @@ fabric-client-gametest-junit = [
   "com.simibubi.create.gametest.client.gui.RedstoneRequesterScreenTest",
   "com.simibubi.create.gametest.client.gui.StockKeeperScreenTest",
   "com.simibubi.create.gametest.client.gui.StationScreenTest",
+  "com.simibubi.create.gametest.client.gui.ValueSettingsScreenTest",
+  "com.simibubi.create.gametest.client.gui.GoggleConfigScreenTest",
+  "com.simibubi.create.gametest.client.gui.RadialWrenchScreenTest",
 ]
 
 [[dependencies.create_gametest]]

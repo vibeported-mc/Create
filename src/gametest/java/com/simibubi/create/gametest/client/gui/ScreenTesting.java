@@ -251,11 +251,34 @@ public final class ScreenTesting {
 		rightClickAt(context, server, point, point.add(0, -1, 2.5), expected);
 	}
 
+	/**
+	 * Holds the right button down on a spot rather than clicking it.
+	 * <p>
+	 * Which is how a block's value board is opened: it appears only once the button has been held for a
+	 * few ticks, and what is set is decided by where the cursor is when the button is let go again.
+	 */
+	public static void holdRightClickAt(ClientGameTestContext context, TestServerContext server, Vec3 point,
+		BlockPos expected) {
+		lookAt(context, server, point);
+		requireLookingAt(context, server, point, expected);
+
+		context.getInput()
+			.holdMouse(1);
+	}
+
 	/** The same, from a chosen place, for the faces that cannot be seen from in front. */
 	public static void rightClickAt(ClientGameTestContext context, TestServerContext server, Vec3 point,
 		Vec3 from, BlockPos expected) {
 		lookAt(context, server, point, from);
 
+		requireLookingAt(context, server, point, expected);
+
+		context.getInput()
+			.pressMouse(1);
+	}
+
+	private static void requireLookingAt(ClientGameTestContext context, TestServerContext server, Vec3 point,
+		BlockPos expected) {
 		BlockPos looking = context.computeOnClient(
 			client -> client.hitResult instanceof BlockHitResult hit ? hit.getBlockPos() : null);
 
@@ -268,9 +291,6 @@ public final class ScreenTesting {
 					.get(0)
 					.position()
 					.toString()));
-
-		context.getInput()
-			.pressMouse(1);
 	}
 
 	/**
@@ -398,6 +418,14 @@ public final class ScreenTesting {
 	/** The value of one of the screen's own numbers, such as where it decided to put itself. */
 	public static int number(ClientGameTestContext context, String fieldName) {
 		return context.computeOnClient(client -> (Integer) read(client.gui.screen(), fieldName));
+	}
+
+	/** Moves the cursor to a point of the screen without clicking, for a board that is dragged across. */
+	public static void hoverAt(ClientGameTestContext context, double x, double y) {
+		double scale = scale(context);
+		context.getInput()
+			.setCursorPos(x * scale, y * scale);
+		context.waitTicks(BEAT_TICKS);
 	}
 
 	public static void hover(ClientGameTestContext context, Bounds widget) {

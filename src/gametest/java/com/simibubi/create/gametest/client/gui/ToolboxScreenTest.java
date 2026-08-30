@@ -3,7 +3,9 @@ package com.simibubi.create.gametest.client.gui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
+import org.lwjgl.glfw.GLFW;
 
+import com.simibubi.create.content.equipment.toolbox.RadialToolboxMenu;
 import com.simibubi.create.content.equipment.toolbox.ToolboxBlockEntity;
 import com.simibubi.create.content.equipment.toolbox.ToolboxScreen;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
@@ -28,6 +30,9 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
  * compartments are its own slots, laid out before the player's inventory is added after them. So the
  * first compartment is the first slot on the screen, and a pickaxe carried into it should be the pickaxe
  * the block is left holding.
+ * <p>
+ * The other way in is not a click at all: a key brings up a ring of whichever toolboxes are near enough
+ * to reach, which is how a player takes a tool out without walking over to the box.
  */
 @SharedWorld
 public class ToolboxScreenTest {
@@ -69,6 +74,31 @@ public class ToolboxScreenTest {
 		context.waitTicks(SETTLE_TICKS);
 
 		assertEquals(TOOL, inTheToolbox(server), "The tool put into the first compartment did not reach the block");
+	}
+
+	@ClientGameTest(screenshot = false)
+	@DisplayName("The toolbox key brings up the ring of nearby toolboxes")
+	void opensTheRingOfNearbyToolboxes(ClientGameTestContext context, TestSingleplayerContext singleplayer,
+		TestServerContext server) {
+		singleplayer.getClientLevel()
+			.waitForChunksRender();
+
+		ScreenTesting.clearGround(server, toolbox(), 4);
+		server.runCommand("setblock %d %d %d create:red_toolbox[facing=south]".formatted(toolbox().getX(),
+			toolbox().getY(), toolbox().getZ()));
+		context.waitTicks(SETTLE_TICKS);
+
+		// Nothing is clicked here. The ring is a key away, and what it offers is whichever toolboxes are
+		// near enough to reach - so the player is stood in front of this one first.
+		ScreenTesting.lookAtBlock(context, server, toolbox());
+		context.getInput()
+			.pressKey(GLFW.GLFW_KEY_LEFT_ALT);
+
+		ScreenTesting.waitForScreen(context, RadialToolboxMenu.class);
+		context.takeScreenshot(shot("toolbox_ring"));
+
+		ScreenTesting.closeWithEscape(context);
+		context.waitTicks(SETTLE_TICKS);
 	}
 
 	private Item inTheToolbox(TestServerContext server) {

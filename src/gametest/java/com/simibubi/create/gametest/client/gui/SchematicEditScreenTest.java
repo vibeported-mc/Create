@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.schematics.client.SchematicEditScreen;
+import com.simibubi.create.content.schematics.client.SchematicPromptScreen;
 
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
@@ -28,7 +29,10 @@ import net.minecraft.world.level.block.Rotation;
  * schematic is actually deployed and a schematic that reports no size is dropped before that happens.
  * What is being tested is the placement, not the printing.
  * <p>
- * Closing the screen does not write to the item directly. It hands the placement to the client's schematic
+ * The other screen here belongs to the Schematic and Quill: marking out two corners with it and clicking
+ * once more asks what to call the box between them, which is the step before anything is saved at all.
+ * <p>
+ * Closing the placement screen does not write to the item directly. It hands the placement to the client's schematic
  * handler, which sends it up a short while later, and the server writes it onto the stack in the hotbar
  * slot the schematic was held in - so the assertions wait for that to have happened.
  */
@@ -83,6 +87,53 @@ public class SchematicEditScreenTest {
 			"The position the screen showed is not where the schematic was left anchored");
 		assertEquals(Boolean.TRUE, held(server, AllDataComponents.SCHEMATIC_DEPLOYED, false),
 			"Confirming the placement did not leave the schematic deployed");
+	}
+
+	@ClientGameTest(screenshot = false)
+	@DisplayName("Marking out two corners with the quill asks for a name to save them under")
+	void promptsForANameOnceBothCornersAreSet(ClientGameTestContext context,
+		TestSingleplayerContext singleplayer, TestServerContext server) {
+		singleplayer.getClientLevel()
+			.waitForChunksRender();
+
+		ScreenTesting.clearGround(server, firstCorner(), 6);
+
+		// Two blocks stood up off the ground, so that each corner can be aimed at squarely. Aimed at along
+		// the floor instead, the crosshair lands on whichever square happens to be nearest.
+		server.runCommand("setblock %d %d %d minecraft:stone".formatted(firstCorner().getX(),
+			firstCorner().getY(), firstCorner().getZ()));
+		server.runCommand("setblock %d %d %d minecraft:stone".formatted(secondCorner().getX(),
+			secondCorner().getY(), secondCorner().getZ()));
+
+		server.runCommand("item replace entity @a hotbar.0 with create:schematic_and_quill");
+		context.runOnClient(client -> client.player.getInventory()
+			.setSelectedSlot(0));
+		context.waitTicks(SETTLE_TICKS);
+
+		// Three clicks, as a player makes them: one corner, the other corner, and then a third that asks
+		// what to call what is now boxed in between them.
+		ScreenTesting.rightClickBlock(context, server, firstCorner());
+		context.waitTicks(SETTLE_TICKS);
+
+		ScreenTesting.rightClickBlock(context, server, secondCorner());
+		context.waitTicks(SETTLE_TICKS);
+
+		ScreenTesting.rightClick(context);
+
+		ScreenTesting.waitForScreen(context, SchematicPromptScreen.class);
+		context.takeScreenshot(shot("schematic_prompt"));
+
+		ScreenTesting.closeWithEscape(context);
+		context.waitTicks(SETTLE_TICKS);
+	}
+
+	/** Two blocks a few apart, which is what the quill boxes in between. */
+	private BlockPos firstCorner() {
+		return new BlockPos(58, -58, 60);
+	}
+
+	private BlockPos secondCorner() {
+		return firstCorner().east(4);
 	}
 
 	/** The three coordinate boxes, read as the position they spell out. */
