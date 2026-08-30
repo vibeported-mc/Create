@@ -57,6 +57,17 @@ neoForge {
             systemProperty("forge.logging.markers", "REGISTRIES")
             jvmArgument("-XX:+IgnoreUnrecognizedVMOptions")
             jvmArgument("-XX:+AllowEnhancedClassRedefinition")
+
+            // -PguiBeat=<millis> rests that long after every click and scroll a gui test makes, so a
+            // run can be watched and followed. Off by default: a full run has nobody watching it.
+            if(project.hasProperty("guiBeat"))
+                systemProperty("create.gametest.gui.beatMillis", project.property("guiBeat"))
+
+            // -Pjdwp=<port> waits for a debugger to attach before the game starts, which is the only
+            // way to have breakpoints in place before a gametest has been and gone.
+            if(project.hasProperty("jdwp"))
+                jvmArgument("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:"
+                    + project.property("jdwp"))
             //jvmArgument("-XX:-OmitStackTraceInFastThrow") // uncomment when you get exceptions with null messages etc
             //jvmArgument("-XX:+UnlockCommercialFeatures") // uncomment for profiling
 
