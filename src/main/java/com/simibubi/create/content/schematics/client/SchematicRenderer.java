@@ -73,7 +73,7 @@ public class SchematicRenderer {
 		// submitted together here.
 		BlockEntityRenderHelper
 			.extractBlockEntities(renderedBlockEntities, shouldRenderBlockEntities, scratchErroredBlockEntities, null,
-				schematic, null, camera.pos, pt)
+				schematic, null, null, camera.pos, pt)
 			.submit(ms, queue, camera);
 
 		// Don't bother looping over errored BEs again.

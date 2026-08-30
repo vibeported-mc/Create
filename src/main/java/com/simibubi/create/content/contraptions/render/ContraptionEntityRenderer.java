@@ -149,8 +149,8 @@ public class ContraptionEntityRenderer<C extends AbstractContraptionEntity, S ex
 		clientContraption.scratchErroredBlockEntities.clear();
 		state.blockEntities = BlockEntityRenderHelper.extractBlockEntities(clientContraption.renderedBlockEntityView,
 			adjustRenderedBlockEntities, clientContraption.scratchErroredBlockEntities, renderWorld, level,
-			matrices.getLight(), entity.toLocalVector(entityRenderDispatcher.camera.position(), partialTicks),
-			partialTicks);
+			matrices.getModel(), matrices.getLight(),
+			entity.toLocalVector(entityRenderDispatcher.camera.position(), partialTicks), partialTicks);
 		clientContraption.shouldRenderBlockEntities.andNot(clientContraption.scratchErroredBlockEntities);
 
 		extractActors(level, renderWorld, contraption, matrices, state.actors);

@@ -45,9 +45,27 @@ public class BlockEntityRenderHelper {
 		BlockPos pos) {
 	}
 
-	public record Extracted(List<Entry> entries) {
+	public record Extracted(List<Entry> entries, @Nullable PoseStack model) {
 		@SuppressWarnings("unchecked")
 		public void submit(PoseStack ms, SubmitNodeCollector queue, CameraRenderState camera) {
+			ms.pushPose();
+
+			// The contraption's own transform - how it is turned and where its anchor sits. The structure
+			// mesh has it baked in when it is extracted, and so do the actors, but a block entity is drawn
+			// by its own renderer off the stack it is handed. Without it put back on here, such a block is
+			// drawn facing the way it was built and offset from the contraption's anchor, while everything
+			// around it turns.
+			if (model != null) {
+				ms.last()
+					.pose()
+					.mul(model.last()
+						.pose());
+				ms.last()
+					.normal()
+					.mul(model.last()
+						.normal());
+			}
+
 			for (Entry entry : entries) {
 				ms.pushPose();
 				TransformStack.of(ms)
@@ -56,6 +74,8 @@ public class BlockEntityRenderHelper {
 					camera);
 				ms.popPose();
 			}
+
+			ms.popPose();
 		}
 	}
 
@@ -66,10 +86,13 @@ public class BlockEntityRenderHelper {
 	 * @param blockEntities   The list of BlockEntities to extract.
 	 * @param shouldRenderBEs A BitSet marking which BlockEntities in the list should be rendered. This will not be modified.
 	 * @param erroredBEsOut   A BitSet to mark BlockEntities that error during extraction. This will be modified.
+	 * @param model           How the thing being drawn is placed and turned, or null if it is neither. Kept
+	 *                        for the submit phase, which cannot ask for it again.
 	 */
 	public static Extracted extractBlockEntities(List<BlockEntity> blockEntities, BitSet shouldRenderBEs,
 		BitSet erroredBEsOut, @javax.annotation.Nullable VirtualRenderWorld renderLevel, Level realLevel,
-		@javax.annotation.Nullable Matrix4f lightTransform, Vec3 cameraPosition, float pt) {
+		@javax.annotation.Nullable PoseStack model, @javax.annotation.Nullable Matrix4f lightTransform,
+		Vec3 cameraPosition, float pt) {
 		List<Entry> entries = new ArrayList<>();
 
 		for (int i = shouldRenderBEs.nextSetBit(0); i >= 0 && i < blockEntities.size(); i = shouldRenderBEs.nextSetBit(i + 1)) {
@@ -118,7 +141,30 @@ public class BlockEntityRenderHelper {
 			renderLevel.resetExternalLight();
 		}
 
-		return new Extracted(entries);
+		return new Extracted(entries, copyOf(model));
+	}
+
+	/**
+	 * The stack a transform is read from is reused and cleared as soon as extraction is over, so what the
+	 * submit phase needs is taken off it here.
+	 */
+	@Nullable
+	private static PoseStack copyOf(@javax.annotation.Nullable PoseStack model) {
+		if (model == null)
+			return null;
+
+		PoseStack copy = new PoseStack();
+
+		copy.last()
+			.pose()
+			.mul(model.last()
+				.pose());
+		copy.last()
+			.normal()
+			.mul(model.last()
+				.normal());
+
+		return copy;
 	}
 
 	/**
