@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.gametest.client.gui.ScreenTesting;
 
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -71,7 +71,7 @@ public class MixerTest {
 
 			for (int slot = 0; slot < basinBe.getOutputInventory()
 				.size(); slot++) {
-				ItemStack stack = ItemHandlerHelpers.getStackInSlot(basinBe.getOutputInventory(), slot);
+				ItemStack stack = ItemUtil.getStack(basinBe.getOutputInventory(), slot);
 
 				if (!stack.isEmpty())
 					return stack.getCount() + " " + stack.getHoverName()
@@ -109,7 +109,7 @@ public class MixerTest {
 
 			for (int slot = 0; slot < basinBe.getOutputInventory()
 				.size(); slot++) {
-				ItemStack stack = ItemHandlerHelpers.getStackInSlot(basinBe.getOutputInventory(), slot);
+				ItemStack stack = ItemUtil.getStack(basinBe.getOutputInventory(), slot);
 
 				if (!stack.isEmpty())
 					return stack;

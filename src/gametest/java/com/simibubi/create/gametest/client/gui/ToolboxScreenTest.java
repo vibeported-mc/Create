@@ -8,7 +8,7 @@ import org.lwjgl.glfw.GLFW;
 import com.simibubi.create.content.equipment.toolbox.RadialToolboxMenu;
 import com.simibubi.create.content.equipment.toolbox.ToolboxBlockEntity;
 import com.simibubi.create.content.equipment.toolbox.ToolboxScreen;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
@@ -109,7 +109,7 @@ public class ToolboxScreenTest {
 			if (!(be instanceof ToolboxBlockEntity toolboxBe))
 				throw new AssertionError("There is no toolbox at " + toolbox() + " but " + be);
 
-			return ItemHandlerHelpers.getStackInSlot(compartmentsOf(toolboxBe), FIRST_COMPARTMENT)
+			return ItemUtil.getStack(compartmentsOf(toolboxBe), FIRST_COMPARTMENT)
 				.getItem();
 		});
 	}

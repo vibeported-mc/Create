@@ -24,7 +24,7 @@ import com.simibubi.create.content.contraptions.actors.trainControls.ControlsHan
 import com.simibubi.create.content.contraptions.actors.psi.PortableStorageInterfaceBlock;
 import com.simibubi.create.content.contraptions.actors.psi.PortableStorageInterfaceBlockEntity;
 import com.simibubi.create.content.contraptions.glue.SuperGlueEntity;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
 import com.simibubi.create.content.kinetics.belt.item.BeltConnectorItem;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
@@ -696,7 +696,7 @@ public class TrainCircuitTest {
 					var items = carriage.storage.getAllItems();
 
 					for (int slot = 0; slot < items.size(); slot++)
-						found += ItemHandlerHelpers.getStackInSlot(items, slot)
+						found += ItemUtil.getStack(items, slot)
 							.getCount();
 				}
 

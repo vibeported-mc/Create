@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.schematics.table.SchematicTableBlockEntity;
 import com.simibubi.create.content.schematics.table.SchematicTableScreen;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
@@ -70,7 +70,7 @@ public class SchematicTableScreenTest {
 			if (!(be instanceof SchematicTableBlockEntity tableBe))
 				throw new AssertionError("There is no schematic table at " + table() + " but " + be);
 
-			ItemStack held = ItemHandlerHelpers.getStackInSlot(tableBe.inventory, INPUT_SLOT);
+			ItemStack held = ItemUtil.getStack(tableBe.inventory, INPUT_SLOT);
 
 			return AllItems.EMPTY_SCHEMATIC.isIn(held);
 		});

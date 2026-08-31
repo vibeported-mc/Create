@@ -8,8 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 
 import com.simibubi.create.content.equipment.blueprint.BlueprintEntity;
 import com.simibubi.create.content.equipment.blueprint.BlueprintScreen;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
@@ -104,9 +104,9 @@ public class BlueprintScreenTest {
 			// A blueprint keeps its sections to itself, so the one at the front is asked through its own
 			// class rather than by name.
 			Object section = ScreenTesting.invoke(hanging.get(0), "getSectionAt", Vec3.ZERO);
-			ItemStackHandler items = (ItemStackHandler) ScreenTesting.invoke(section, "getItems");
+			ItemStacksResourceHandler items = (ItemStacksResourceHandler) ScreenTesting.invoke(section, "getItems");
 
-			return ItemHandlerHelpers.getStackInSlot(items, 0)
+			return ItemUtil.getStack(items, 0)
 				.getItem();
 		});
 	}
