@@ -335,6 +335,12 @@ public class TestFluids {
 		Zombie firstZombie = helper.spawn(EntityTypes.ZOMBIE, firstSeat);
 		Zombie secondZombie = helper.spawn(EntityTypes.ZOMBIE, secondSeat);
 
+		// An open pipe reaches exactly one column of blocks, and these two are only ever meant to stand
+		// under it and be rained on. Left to themselves they wander, and a zombie one block to the side
+		// is a zombie the pipe cannot reach - which reads as the pipe having failed.
+		firstZombie.setNoAi(true);
+		secondZombie.setNoAi(true);
+
 		helper.pullLever(effects);
 
 		MutableBoolean stage1 = new MutableBoolean(true);
