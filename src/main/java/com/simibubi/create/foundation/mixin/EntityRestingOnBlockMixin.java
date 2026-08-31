@@ -2,38 +2,38 @@ package com.simibubi.create.foundation.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.simibubi.create.foundation.block.EntityRestingOnBlock;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Tell a block what has come to rest on it, the way moving used to.
+ * Tell a block what is moving on it, the way moving used to.
  * <p>
- * See {@link EntityRestingOnBlock} for why Create needs this back. The place is the one the game
- * itself used: straight after a move has worked out its fall, while it still knows the move was cut
- * short from below.
+ * See {@link EntityRestingOnBlock} for why Create needs this back. Rather than work out again which
+ * block that is, this reads the one the move is already holding - what the game calls the state the
+ * entity is being affected by - at the moment it decides whether the entity moves at all.
+ * <p>
+ * The place to put this was taken from Create Fly (github.com/zurrtum/create-fly), which had ported it
+ * already, and where the same hook is called {@code EntityControlBlock.onEntityMovement}.
  */
 @Mixin(Entity.class)
 public class EntityRestingOnBlockMixin {
 
-	@Inject(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"))
-	private void create$tellWhatIsUnderneath(MoverType type, Vec3 movement, CallbackInfo ci) {
-		Entity entity = (Entity) (Object) this;
+	@WrapOperation(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;canSimulateMovement()Z"))
+	private boolean create$updateEntityAfterFallOn(Entity entity, Operation<Boolean> original,
+		@Local BlockState restingOn) {
 
-		if (entity.isRemoved() || !entity.verticalCollision)
-			return;
+		if (!original.call(entity))
+			return false;
 
-		BlockPos restingOn = entity.getOnPosLegacy();
-
-		if (entity.level()
-			.getBlockState(restingOn)
-			.getBlock() instanceof EntityRestingOnBlock block)
+		if (restingOn.getBlock() instanceof EntityRestingOnBlock block)
 			block.updateEntityAfterFallOn(entity.level(), entity);
+
+		return true;
 	}
 }

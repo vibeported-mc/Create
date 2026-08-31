@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
  * The difference matters to anything that might decline the first time and want asking again: a chute
  * whose filter will only take flint refuses the gravel that lands on it, and a fan then washes that
  * gravel where it lies. Asked once, the chute never learns the answer changed. So Create asks for
- * itself, from the same place in a move the game used to.
+ * itself, from where the move already knows which block that is.
  */
 public interface EntityRestingOnBlock {
 

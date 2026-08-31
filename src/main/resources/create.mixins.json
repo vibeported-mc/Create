@@ -6,7 +6,8 @@
   "plugin": "com.simibubi.create.foundation.mixin.CreateMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "AbstractMinecartMixin",
+    "NewMinecartBehaviorMixin",
+    "OldMinecartBehaviorMixin",
     "ArmorTrimMixin",
     "BeehiveBlockMixin",
     "BlockItemMixin",
@@ -33,7 +34,6 @@
     "accessor.FluidInteractionRegistryAccessor",
     "accessor.GameTestHelperAccessor",
     "accessor.ItemEntityAccessor",
-    "accessor.MinecartBehaviorAccessor",
     "accessor.ItemFrameAccessor",
     "accessor.LivingEntityAccessor",
     "accessor.MappedRegistryAccessor",
