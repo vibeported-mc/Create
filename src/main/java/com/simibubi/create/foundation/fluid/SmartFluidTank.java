@@ -12,6 +12,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
  * A single tank that reports its contents whenever they change.
@@ -39,6 +40,26 @@ public class SmartFluidTank extends FluidStacksResourceHandler {
 
 	public int getCapacity() {
 		return capacity;
+	}
+
+	/**
+	 * Puts fluid in with no regard for capacity, and still inside the transaction.
+	 * <p>
+	 * A hose pulley empties a whole block at a time and has to put what is left of it somewhere, which
+	 * used to be done with a bare {@link #setFluid}: that writes past whatever transaction it is inside.
+	 * Widening the tank for the length of the call borrows the handler's own journal instead, so a pull
+	 * that ends up rolled back leaves nothing behind. Only for a caller that has nowhere else to put the
+	 * fluid - anything else should insert and respect what it is told it may.
+	 */
+	public int insertBeyondCapacity(FluidResource resource, int amount, TransactionContext transaction) {
+		int stated = capacity;
+		capacity = stated + amount;
+
+		try {
+			return insert(0, resource, amount, transaction);
+		} finally {
+			capacity = stated;
+		}
 	}
 
 	/**

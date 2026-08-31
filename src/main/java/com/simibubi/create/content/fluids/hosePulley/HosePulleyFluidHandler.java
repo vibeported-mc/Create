@@ -130,12 +130,19 @@ public class HosePulleyFluidHandler implements ResourceHandler<FluidResource> {
 		int drained = Math.min(amount, available);
 		int leftover = available - drained;
 
-		// Through the transaction rather than straight into the tank. set writes past the transaction
-		// it is inside, so a pass that only meant to ask what was available left the fluid behind while
-		// the pull that would have taken it out of the pool was rolled back: fluid out of nowhere, and
-		// a pool that never went down.
+		// GAMETEST FIX - the tank is pushed past the capacity it reports, which is what 1.21.1 did too.
+		// The honest shape is a buffer that admits it holds two buckets, but that is a number players
+		// read off the block, so it waits for a pass where the display can change with it.
+		//
+		// A block leaves the pool whole, so what is left of it after this caller is served has nowhere to
+		// go but the tank, over the top of what the tank says it holds. Anything that would not fit was
+		// being quietly dropped, a third of a bucket at a time, all the way across a transfer. It goes in
+		// through the transaction rather than by setting the tank outright: set writes past the
+		// transaction it is inside, so a pass that only meant to ask what was available left the fluid
+		// behind while the pull that would have taken it out of the pool was rolled back - fluid out of
+		// nowhere, and a pool that never went down.
 		if (leftover > held)
-			internalTank.insert(0, resource, leftover - held, transaction);
+			internalTank.insertBeyondCapacity(resource, leftover - held, transaction);
 		else if (leftover < held)
 			internalTank.extract(0, resource, held - leftover, transaction);
 
