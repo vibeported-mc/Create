@@ -2,7 +2,9 @@ package com.simibubi.create.infrastructure.gametest;
 
 import java.util.function.Consumer;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -22,16 +24,33 @@ import net.minecraft.network.chat.MutableComponent;
 public class CreateTestInstance extends GameTestInstance {
 
 	/**
-	 * Only here because every test instance must name a codec.
-	 * <p>
-	 * These tests are built in code and put into the registry as the game starts, never written to a data
-	 * file and read back, so there is nothing for a codec to do - and a method cannot be written down in
-	 * any case. Reading one out of a data file is a mistake worth saying so about.
+	 * The body of a test that came over the wire instead of being registered here.
 	 */
-	public static final MapCodec<CreateTestInstance> CODEC = MapCodec.unit(() -> {
+	private static final Consumer<CreateGameTestHelper> RECEIVED_NOT_REGISTERED = helper -> {
 		throw new UnsupportedOperationException(
-			"Create's game tests are registered in code, so there is none to read from a data file");
-	});
+			"This test was read from a registry rather than registered in code, so the method it should"
+				+ " call did not come with it. Run Create's game tests on the side that registers them.");
+	};
+
+	/**
+	 * What a test instance carries over the wire, which is everything about it except the method to call.
+	 * <p>
+	 * These tests are built in code rather than written out as data files, so it is tempting to think a
+	 * codec is never needed. It is: {@code minecraft:test_instance} is one of the registries a server
+	 * sends to a client as it joins, so every registered test is encoded and decoded on every connection.
+	 * A codec that refuses to decode takes the whole registry down with it, and the client is disconnected
+	 * with a protocol error before it ever reaches the world.
+	 * <p>
+	 * The method itself cannot be written down, so a test that arrives this way keeps everything the game
+	 * needs to list it and says so if anything tries to run it. Only the side that registered the test in
+	 * code can actually run it, which is the side that has the method.
+	 */
+	public static final MapCodec<CreateTestInstance> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+		.group(Codec.STRING.fieldOf("name")
+			.forGetter(test -> test.name),
+			TestData.CODEC.forGetter(CreateTestInstance::info))
+		.apply(instance, (name, data) -> new CreateTestInstance(name, RECEIVED_NOT_REGISTERED, data)));
+
 
 	private final String name;
 
