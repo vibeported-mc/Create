@@ -370,7 +370,14 @@ public class TestItems {
 		helper.succeedWhen(() -> helper.assertBlockProperty(lamp, RedstoneLampBlock.LIT, true));
 	}
 
-	@GameTest(template = "storages", timeoutTicks = CreateGameTestHelper.TEN_SECONDS)
+	/**
+	 * The chain this walks a chest's contents along takes most of the time it was given: the last stack
+	 * of the fourteen arrives somewhere around tick 170 to 215, and where in that range depends on the
+	 * order blocks happen to be ticked in, which is not the same from one run to the next. Upstream
+	 * finishes with as little as twenty ticks to spare. Ten seconds is not enough room for that; fifteen
+	 * is.
+	 */
+	@GameTest(template = "storages", timeoutTicks = CreateGameTestHelper.FIFTEEN_SECONDS)
 	public static void storages(CreateGameTestHelper helper) {
 		BlockPos lever = new BlockPos(12, 3, 2);
 		BlockPos startChest = new BlockPos(13, 3, 1);
