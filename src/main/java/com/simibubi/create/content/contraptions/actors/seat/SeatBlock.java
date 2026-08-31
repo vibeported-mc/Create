@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.actors.seat;
 
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.util.RandomSource;
@@ -48,7 +49,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.util.FakePlayer;
 
 @NullMarked
-public class SeatBlock extends Block implements ProperWaterloggedBlock {
+public class SeatBlock extends Block implements ProperWaterloggedBlock, EntityRestingOnBlock {
 
 	protected final DyeColor color;
 
@@ -91,8 +92,20 @@ public class SeatBlock extends Block implements ProperWaterloggedBlock {
 
 	@Override
 	public void fallOn(Level level, BlockState fallenOn, BlockPos fallenOnPos, Entity entity, double fallDistance) {
-		// Seats halve fall damage, and catch anything that can be seated.
+		// Seats halve fall damage.
 		super.fallOn(level, fallenOn, fallenOnPos, entity, fallDistance * 0.5);
+	}
+
+	/**
+	 * Anything that comes to rest on a seat sits down on it.
+	 * <p>
+	 * This has to be asked on every move the entity makes, not once as it lands. A mob led onto a seat,
+	 * or left standing where one is placed beneath it, never falls onto anything - and 1.21.1 asked the
+	 * block again for as long as the entity stayed put, through the {@code updateEntityAfterFallOn} that
+	 * 26.2 dropped. Seating from {@code fallOn} alone catches only a mob that happens to drop in.
+	 */
+	@Override
+	public void updateEntityAfterFallOn(Level level, Entity entity) {
 		BlockPos pos = entity.blockPosition();
 		if (!seats(entity, pos))
 			return;
