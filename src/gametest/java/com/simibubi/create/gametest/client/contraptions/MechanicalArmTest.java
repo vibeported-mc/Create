@@ -95,7 +95,12 @@ public class MechanicalArmTest {
 			world[0] = level;
 
 			((CreativeMotorBlockEntity) level.getBlockEntity(motor())).generatedSpeed.setValue(ARM_RPM);
-			depotAt(minecraftServer, takesFrom()).setHeldItem(new ItemStack(Items.COBBLESTONE));
+			DepotBlockEntity source = depotAt(minecraftServer, takesFrom());
+			source.setHeldItem(new ItemStack(Items.COBBLESTONE));
+			// setHeldItem only assigns - in game the callers that place an item send the update
+			// themselves, so seeding a depot straight from the server leaves the client showing an
+			// empty one until something else happens to sync it.
+			source.notifyUpdate();
 		});
 
 		context.waitTicks(SETTLE_TICKS);
@@ -117,10 +122,18 @@ public class MechanicalArmTest {
 		context.takeScreenshot(shot("mechanical_arm_before"));
 
 		int waited = 0;
+		boolean shotWhileCarrying = false;
 
 		while (waited < PATIENCE_TICKS && held(server, fills()).isEmpty()) {
-			context.waitTicks(20);
-			waited += 20;
+			context.waitTicks(5);
+			waited += 5;
+
+			// The arm is only worth photographing while it is actually carrying something, which is the
+			// window where the item has left the first depot and not yet reached the second.
+			if (!shotWhileCarrying && held(server, takesFrom()).isEmpty()) {
+				context.takeScreenshot(shot("mechanical_arm_carrying"));
+				shotWhileCarrying = true;
+			}
 		}
 
 		context.takeScreenshot(shot("mechanical_arm_after"));

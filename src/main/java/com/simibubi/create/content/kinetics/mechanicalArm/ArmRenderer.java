@@ -136,10 +136,8 @@ public class ArmRenderer extends KineticBlockEntityRenderer<ArmBlockEntity, ArmR
 			return;
 
 		ms.pushPose();
-		ms.last()
-			.pose()
-			.mul(state.itemTransform.last()
-				.pose());
+		ms.mulPose(state.itemTransform.last()
+			.pose());
 		state.heldItem.item()
 			.submit(ms, queue, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 		ms.popPose();

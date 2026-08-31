@@ -49,7 +49,11 @@ public class KineticBlockEntityRenderer<T extends KineticBlockEntity, S extends 
 	@Override
 	protected void extractSafe(T be, S state, float partialTicks, Vec3 cameraPosition) {
 		if (VisualizationManager.supportsVisualization(be.getLevel())) {
-			state.skip = true;
+			// Flywheel draws the rotating model, so this renderer contributes nothing - but the flag that
+			// skips submission belongs to the whole block entity, and subclasses draw more than the cog.
+			// The arm's held item, the ejector's contents and the cuckoo clock's doors all hang off a
+			// submit that has to keep happening. Drop only what this class would have added.
+			state.model = null;
 			return;
 		}
 
