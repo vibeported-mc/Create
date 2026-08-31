@@ -5,6 +5,9 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.IndexModifier;
@@ -172,6 +175,44 @@ public class ItemHandlerHelpers {
 
 	public static void deserializeNBT(ValueIOSerializable handler, HolderLookup.Provider registries, CompoundTag nbt) {
 		handler.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, nbt));
+
+		// GAMETEST FIX - a stopgap: what is written this way wants a datafixer, not a read-time fallback.
+		// An inventory written before the handler serialized through ValueIO kept its slots in an "Items"
+		// list, each naming its own "Slot"; read the new way that is not found and the whole inventory
+		// comes back empty, without complaint. Those are still about - in worlds from an older version, in
+		// schematics, in the structures the game tests are built from.
+		if (nbt.contains("Items") && handler instanceof ResourceHandler<?> handlingResources)
+			readLegacyItems(nbt, handlingResources);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void readLegacyItems(CompoundTag nbt, ResourceHandler<?> handlingResources) {
+
+		ResourceHandler<ItemResource> handler = (ResourceHandler<ItemResource>) handlingResources;
+
+		for (int i = 0; i < handler.size(); i++)
+			if (!getStackInSlot(handler, i).isEmpty())
+				return; // already read, whatever is in the list is the same thing said twice
+
+		for (Tag entry : nbt.getListOrEmpty("Items")) {
+			if (!(entry instanceof CompoundTag stackTag))
+				continue;
+
+			int slot = stackTag.getIntOr("Slot", -1);
+			ItemStack stack = legacyStack(stackTag);
+
+			if (slot >= 0 && slot < handler.size() && !stack.isEmpty())
+				setStackInSlot(handler, slot, stack);
+		}
+	}
+
+	/**
+	 * A stack from before an item carried components: a name and a count, and nothing else that survives.
+	 */
+	private static ItemStack legacyStack(CompoundTag stackTag) {
+		return BuiltInRegistries.ITEM.getOptional(Identifier.parse(stackTag.getStringOr("id", "minecraft:air")))
+			.map(item -> new ItemStack(item, stackTag.getByteOr("Count", (byte) 1)))
+			.orElse(ItemStack.EMPTY);
 	}
 
 }

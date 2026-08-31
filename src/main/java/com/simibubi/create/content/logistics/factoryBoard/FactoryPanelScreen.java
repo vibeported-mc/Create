@@ -222,7 +222,7 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 				craftingActive = !craftingActive;
 				init();
 				if (craftingActive) {
-					outputConfig.count = RecipeAccessors.result(availableCraftingRecipe, null)
+					outputConfig.count = RecipeAccessors.result(availableCraftingRecipe, minecraft.level)
 						.getCount();
 				}
 			});

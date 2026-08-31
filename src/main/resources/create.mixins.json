@@ -33,6 +33,7 @@
     "accessor.FluidInteractionRegistryAccessor",
     "accessor.GameTestHelperAccessor",
     "accessor.ItemEntityAccessor",
+    "accessor.MinecartBehaviorAccessor",
     "accessor.ItemFrameAccessor",
     "accessor.LivingEntityAccessor",
     "accessor.MappedRegistryAccessor",

@@ -77,7 +77,7 @@ public class BlueprintItem extends Item {
 
 		for (int i = 0; i < 9; i++)
 			ItemHandlerHelpers.setStackInSlot(inv, i, ItemStack.EMPTY);
-		ItemHandlerHelpers.setStackInSlot(inv, 9, RecipeAccessors.result(recipe, null));
+		ItemHandlerHelpers.setStackInSlot(inv, 9, RecipeAccessors.result(recipe, level));
 
 		if (recipe instanceof ShapedRecipe shapedRecipe) {
 			for (int row = 0; row < shapedRecipe.getHeight(); row++)
