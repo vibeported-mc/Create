@@ -80,10 +80,9 @@ public class ChainConveyorRenderer
 	@Override
 	protected void extractSafe(ChainConveyorBlockEntity be, ChainConveyorRenderState state, float partialTicks,
 		Vec3 cameraPosition) {
-		// The kinetic base skips everything when Flywheel is on, but the chains and packages are not
-		// instanced, so they are extracted either way.
+		// The chains are not instanced - each strand is generated at submit time from its two
+		// endpoints - so they are extracted whether or not Flywheel is drawing the wheel.
 		super.extractSafe(be, state, partialTicks, cameraPosition);
-		state.skip = false;
 
 		state.wheel = null;
 		state.parts.clear();
