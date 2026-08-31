@@ -1,5 +1,6 @@
 package com.simibubi.create.api.packager.unpacking;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import java.util.List;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
@@ -37,7 +38,12 @@ public interface UnpackingHandler {
 	 * @param items    the list of non-empty item stacks to unpack. May be freely modified
 	 * @param orderContext    the order context, if present
 	 * @param simulate true if the unpacking should only be simulated
+	 * @param parent the transaction this unpacking is part of, or null to start one of its own.
+	 *                    A packager is often asked to take a box from inside a transfer that is already
+	 *                    under way - a chute or a hopper inserting it - and work done there has to join
+	 *                    that transaction rather than open one of its own, which would throw.
 	 * @return true if all items have been unpacked successfully
 	 */
-	boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate);
+	boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items,
+		@Nullable PackageOrderWithCrafts orderContext, boolean simulate, @Nullable TransactionContext parent);
 }

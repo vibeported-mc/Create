@@ -1,5 +1,6 @@
 package com.simibubi.create.api.packager.unpacking;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +20,7 @@ public enum VoidingUnpackingHandler implements UnpackingHandler {
 	INSTANCE;
 
 	@Override
-	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate) {
+	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate, @Nullable TransactionContext parent) {
 		return true;
 	}
 }

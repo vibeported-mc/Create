@@ -1,5 +1,6 @@
 package com.simibubi.create.impl.unpacking;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
@@ -24,7 +25,7 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 	INSTANCE;
 
 	@Override
-	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate) {
+	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate, @Nullable TransactionContext parent) {
 		BlockEntity targetBE = level.getBlockEntity(pos);
 		if (targetBE == null)
 			return false;
@@ -40,7 +41,7 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 			 * already have correctly identified there to be enough space for everything.
 			 */
 			for (ItemStack itemStack : items)
-				try (Transaction transaction = Transaction.openRoot()) {
+				try (Transaction transaction = Transaction.open(parent)) {
 					int transferred = itemStack.copy().isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(targetInv, ItemResource.of(itemStack.copy()), itemStack.copy().getCount(), transaction);
 					transaction.commit();
 				}
@@ -58,7 +59,7 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 
 				boolean nothingWouldFit;
 
-				try (Transaction transaction = Transaction.openRoot()) {
+				try (Transaction transaction = Transaction.open(parent)) {
 					// never committed: this only asks whether the slot would take any of it
 					nothingWouldFit =
 						targetInv.insert(slot, ItemResource.of(toInsert), toInsert.getCount(), transaction) == 0;
@@ -76,7 +77,7 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 						items.set(boxSlot, ItemStack.EMPTY);
 
 					itemInSlot = toInsert;
-					try (Transaction transaction = Transaction.openRoot()) {
+					try (Transaction transaction = Transaction.open(parent)) {
 						int transferred2 = toInsert.isEmpty() ? 0 : targetInv.insert(slot, ItemResource.of(toInsert), toInsert.getCount(), transaction);
 						if (!simulate)
 							transaction.commit();
@@ -89,7 +90,7 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 
 				int insertedAmount;
 
-				try (Transaction transaction = Transaction.openRoot()) {
+				try (Transaction transaction = Transaction.open(parent)) {
 					insertedAmount = targetInv.insert(slot, ItemResource.of(toInsert), toInsert.getCount(), transaction);
 					if (!simulate)
 						transaction.commit();

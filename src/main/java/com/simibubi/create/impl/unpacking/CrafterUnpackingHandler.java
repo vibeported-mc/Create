@@ -1,5 +1,6 @@
 package com.simibubi.create.impl.unpacking;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
@@ -25,9 +26,9 @@ public enum CrafterUnpackingHandler implements UnpackingHandler {
 	INSTANCE;
 
 	@Override
-	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate) {
+	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate, @Nullable TransactionContext parent) {
 		if (!PackageOrderWithCrafts.hasCraftingInformation(orderContext))
-			return DEFAULT.unpack(level, pos, state, side, items, null, simulate);
+			return DEFAULT.unpack(level, pos, state, side, items, null, simulate, parent);
 
 		// Get item placement
 		List<BigItemStack> craftingContext = orderContext.getCraftingInformation();
@@ -59,7 +60,7 @@ public enum CrafterUnpackingHandler implements UnpackingHandler {
 					ItemStack toInsert = stack.copyWithCount(1);
 					int inserted;
 
-					try (Transaction transaction = Transaction.openRoot()) {
+					try (Transaction transaction = Transaction.open(parent)) {
 						inserted = inventory.insert(0, ItemResource.of(toInsert), toInsert.getCount(), transaction);
 						if (!simulate)
 							transaction.commit();

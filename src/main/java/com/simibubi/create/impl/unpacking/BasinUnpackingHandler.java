@@ -1,5 +1,6 @@
 package com.simibubi.create.impl.unpacking;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +20,7 @@ public enum BasinUnpackingHandler implements UnpackingHandler {
 	INSTANCE;
 
 	@Override
-	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate) {
+	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate, @Nullable TransactionContext parent) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (!(be instanceof BasinBlockEntity basin))
 			return false;
@@ -27,7 +28,7 @@ public enum BasinUnpackingHandler implements UnpackingHandler {
 		basin.inputInventory.packagerMode = true;
 
 		try {
-			return UnpackingHandler.DEFAULT.unpack(level, pos, state, side, items, orderContext, simulate);
+			return UnpackingHandler.DEFAULT.unpack(level, pos, state, side, items, orderContext, simulate, parent);
 		} finally {
 			basin.inputInventory.packagerMode = false;
 		}

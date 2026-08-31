@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.packager.repackager;
 
+import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -33,7 +35,7 @@ public class RepackagerBlockEntity extends PackagerBlockEntity {
 		repackageHelper = new PackageRepackageHelper();
 	}
 
-	public boolean unwrapBox(ItemStack box, boolean simulate) {
+	public boolean unwrapBox(ItemStack box, boolean simulate, @Nullable TransactionContext parent) {
 		if (animationTicks > 0)
 			return false;
 

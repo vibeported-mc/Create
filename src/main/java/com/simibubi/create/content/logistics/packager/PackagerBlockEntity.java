@@ -1,5 +1,6 @@
 package com.simibubi.create.content.logistics.packager;
 
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
@@ -363,7 +364,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 		}
 	}
 
-	public boolean unwrapBox(ItemStack box, boolean simulate) {
+	public boolean unwrapBox(ItemStack box, boolean simulate, @Nullable TransactionContext parent) {
 		if (animationTicks > 0)
 			return false;
 
@@ -382,7 +383,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 		UnpackingHandler handler = UnpackingHandler.REGISTRY.get(targetState);
 		UnpackingHandler toUse = handler != null ? handler : UnpackingHandler.DEFAULT;
 		// note: handler may modify the passed items
-		boolean unpacked = toUse.unpack(level, target, targetState, facing, items, orderContext, simulate);
+		boolean unpacked = toUse.unpack(level, target, targetState, facing, items, orderContext, simulate, parent);
 
 		if (unpacked && !simulate) {
 			computerBehaviour.prepareComputerEvent(new PackageEvent(box, "package_received"));

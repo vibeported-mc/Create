@@ -71,11 +71,11 @@ public class PackagerItemHandler implements ResourceHandler<ItemResource>, Index
 			return 0;
 
 		ItemStack box = resource.toStack(1);
-		if (!blockEntity.unwrapBox(box, true))
+		if (!blockEntity.unwrapBox(box, true, transaction))
 			return 0;
 
 		journal.updateSnapshots(transaction);
-		blockEntity.unwrapBox(box, false);
+		blockEntity.unwrapBox(box, false, transaction);
 		return 1;
 	}
 
