@@ -8,6 +8,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.entity.player.Inventory;
@@ -109,9 +110,28 @@ public class NbtValueIO {
 	 * Fill a player's inventory from a list written by {@link #saveInventory}.
 	 */
 	public static void loadInventory(Inventory inventory, ListTag list, HolderLookup.Provider registries) {
+		for (Tag entry : list)
+			if (entry instanceof CompoundTag stackTag)
+				unwrapLegacyEnchantments(stackTag);
+
 		CompoundTag tag = new CompoundTag();
 		tag.put(ITEMS, list);
 		inventory.load(fromTag(tag, registries).listOrEmpty(ITEMS, ItemStackWithSlot.CODEC));
+	}
+
+	/**
+	 * GAMETEST FIX - a stopgap: what is written this way wants a datafixer, not a read-time fallback.
+	 * <p>
+	 * An item written before 26.2 keeps what it is enchanted with one step further in, under "levels".
+	 * Read now, that shape is not recognised, and the item comes back unenchanted rather than unread -
+	 * a deployer holding a pickaxe of efficiency five swings it like a plain one.
+	 */
+	private static void unwrapLegacyEnchantments(CompoundTag stackTag) {
+		CompoundTag components = stackTag.getCompoundOrEmpty("components");
+		CompoundTag enchantments = components.getCompoundOrEmpty("minecraft:enchantments");
+
+		if (enchantments.contains("levels"))
+			components.put("minecraft:enchantments", enchantments.getCompoundOrEmpty("levels"));
 	}
 
 	private NbtValueIO() {
