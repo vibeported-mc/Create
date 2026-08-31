@@ -16,6 +16,8 @@ import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 
 import net.createmod.catnip.api.client.gui.ScreenOpener;
 import net.minecraft.client.player.LocalPlayer;
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -45,7 +47,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public class StationBlock extends Block implements IBE<StationBlockEntity>, IWrenchable, ProperWaterloggedBlock {
+public class StationBlock extends Block implements EntityRestingOnBlock, IBE<StationBlockEntity>, IWrenchable, ProperWaterloggedBlock {
 
 	public static final BooleanProperty ASSEMBLING = BooleanProperty.create("assembling");
 
@@ -95,9 +97,7 @@ public class StationBlock extends Block implements IBE<StationBlockEntity>, IWre
 	}
 
 	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
+	public void updateEntityAfterFallOn(Level worldIn, Entity entityIn) {
 		SharedDepotBlockMethods.onLanded(worldIn, entityIn);
 	}
 

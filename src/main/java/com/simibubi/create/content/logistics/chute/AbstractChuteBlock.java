@@ -15,6 +15,8 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.createmod.catnip.api.data.Iterate;
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -37,7 +39,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class AbstractChuteBlock extends Block implements IWrenchable, IBE<ChuteBlockEntity> {
+public abstract class AbstractChuteBlock extends Block implements EntityRestingOnBlock, IWrenchable, IBE<ChuteBlockEntity> {
 
 	public AbstractChuteBlock(Properties p_i48440_1_) {
 		super(p_i48440_1_);
@@ -79,31 +81,7 @@ public abstract class AbstractChuteBlock extends Block implements IWrenchable, I
 	}
 
 	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
-		takeIn(entityIn);
-	}
-
-	/**
-	 * Offer to take in whatever is lying on top of this chute.
-	 * <p>
-	 * Landing on a chute used to be asked about for as long as something rested there, through a hook the
-	 * game called from every move an entity made. 26.2 has no such hook, and what replaced it is only
-	 * called on the way down, once: an item turned away then - a fan is still busy washing the gravel this
-	 * chute will only accept as flint - was never asked about again and lay on the lid forever. So the
-	 * chute does the asking itself, for as long as something is up there.
-	 */
-	public static void offerRestingItems(Level level, BlockPos pos) {
-		if (level.isClientSide() || !(level.getBlockState(pos)
-			.getBlock() instanceof AbstractChuteBlock chute))
-			return;
-
-		for (Entity entity : level.getEntitiesOfClass(ItemEntity.class, new AABB(pos.above())))
-			chute.takeIn(entity);
-	}
-
-	private void takeIn(Entity entityIn) {
+	public void updateEntityAfterFallOn(Level worldIn, Entity entityIn) {
 		ItemStack stack = ItemHelper.fromItemEntity(entityIn);
 		if (stack.isEmpty())
 			return;

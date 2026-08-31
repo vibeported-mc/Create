@@ -12,6 +12,8 @@ import com.simibubi.create.foundation.blockEntity.ComparatorUtil;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
@@ -37,7 +39,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 
-public class ItemDrainBlock extends Block implements IWrenchable, IBE<ItemDrainBlockEntity> {
+public class ItemDrainBlock extends Block implements EntityRestingOnBlock, IWrenchable, IBE<ItemDrainBlockEntity> {
 
 	public ItemDrainBlock(Properties p_i48440_1_) {
 		super(p_i48440_1_);
@@ -69,9 +71,7 @@ public class ItemDrainBlock extends Block implements IWrenchable, IBE<ItemDrainB
 	}
 
 	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
+	public void updateEntityAfterFallOn(Level worldIn, Entity entityIn) {
 		if (!(entityIn instanceof ItemEntity itemEntity))
 			return;
 		if (!entityIn.isAlive())

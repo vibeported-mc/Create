@@ -17,6 +17,8 @@ import com.simibubi.create.foundation.damageTypes.CreateDamageSources;
 import net.createmod.catnip.api.placement.IPlacementHelper;
 import net.createmod.catnip.api.placement.PlacementHelpers;
 import net.createmod.catnip.api.placement.PlacementOffset;
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -48,7 +50,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 @NullMarked
-public class SawBlock extends DirectionalAxisKineticBlock implements IBE<SawBlockEntity> {
+public class SawBlock extends DirectionalAxisKineticBlock implements EntityRestingOnBlock, IBE<SawBlockEntity> {
 	public static final BooleanProperty FLIPPED = BooleanProperty.create("flipped");
 
 	private static final IPlacementHelper placementHelper = PlacementHelpers.register(new PlacementHelper());
@@ -163,9 +165,7 @@ public class SawBlock extends DirectionalAxisKineticBlock implements IBE<SawBloc
 	}
 
 	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
+	public void updateEntityAfterFallOn(Level worldIn, Entity entityIn) {
 		if (!(entityIn instanceof ItemEntity))
 			return;
 		if (entityIn.level().isClientSide())

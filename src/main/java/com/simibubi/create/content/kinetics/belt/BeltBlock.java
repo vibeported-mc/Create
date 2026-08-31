@@ -44,6 +44,8 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -99,7 +101,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.Tags;
 public class BeltBlock extends HorizontalKineticBlock
-	implements IBE<BeltBlockEntity>, SpecialBlockItemRequirement, TransformableBlock, ProperWaterloggedBlock {
+	implements IBE<BeltBlockEntity>, SpecialBlockItemRequirement, TransformableBlock, ProperWaterloggedBlock,
+	EntityRestingOnBlock {
 
 	public static final Property<BeltSlope> SLOPE = EnumProperty.create("slope", BeltSlope.class);
 	public static final Property<BeltPart> PART = EnumProperty.create("part", BeltPart.class);
@@ -167,9 +170,7 @@ public class BeltBlock extends HorizontalKineticBlock
 	}
 
 	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
+	public void updateEntityAfterFallOn(Level worldIn, Entity entityIn) {
 		BlockPos entityPosition = entityIn.blockPosition();
 		BlockPos beltPos = null;
 

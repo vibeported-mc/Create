@@ -11,6 +11,8 @@ import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
 import com.simibubi.create.foundation.block.IBE;
 
 import net.createmod.catnip.api.data.Iterate;
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -32,7 +34,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
-public class MillstoneBlock extends KineticBlock implements IBE<MillstoneBlockEntity>, ICogWheel {
+public class MillstoneBlock extends KineticBlock implements EntityRestingOnBlock, IBE<MillstoneBlockEntity>, ICogWheel {
 
 	public MillstoneBlock(Properties properties) {
 		super(properties);
@@ -84,9 +86,7 @@ public class MillstoneBlock extends KineticBlock implements IBE<MillstoneBlockEn
 	}
 
 	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
+	public void updateEntityAfterFallOn(Level worldIn, Entity entityIn) {
 
 		if (entityIn.level().isClientSide())
 			return;

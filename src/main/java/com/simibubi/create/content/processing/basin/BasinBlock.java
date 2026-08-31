@@ -21,6 +21,8 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.item.ItemHelper;
 
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -51,7 +53,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrenchable {
+public class BasinBlock extends Block implements EntityRestingOnBlock, IBE<BasinBlockEntity>, IWrenchable {
 
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING_HOPPER;
 
@@ -131,9 +133,7 @@ public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrencha
 	}
 
 	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
+	public void updateEntityAfterFallOn(Level worldIn, Entity entityIn) {
 		if (!worldIn.getBlockState(entityIn.blockPosition())
 			.is(this))
 			return;

@@ -16,6 +16,8 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.nbt.NBTHelper;
+import com.simibubi.create.foundation.block.EntityRestingOnBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -44,7 +46,7 @@ import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class CrushingWheelControllerBlock extends DirectionalBlock implements IBE<CrushingWheelControllerBlockEntity> {
+public class CrushingWheelControllerBlock extends DirectionalBlock implements EntityRestingOnBlock, IBE<CrushingWheelControllerBlockEntity> {
 
 	public CrushingWheelControllerBlock(Properties p_i48440_1_) {
 		super(p_i48440_1_);
@@ -114,9 +116,7 @@ public class CrushingWheelControllerBlock extends DirectionalBlock implements IB
 	}
 
 	@Override
-	public void fallOn(Level worldIn, BlockState fallenOn, BlockPos fallenOnPos, Entity entityIn,
-		double fallDistance) {
-		super.fallOn(worldIn, fallenOn, fallenOnPos, entityIn, fallDistance);
+	public void updateEntityAfterFallOn(Level worldIn, Entity entityIn) {
 		// Moved to onEntityCollision to allow for omnidirectional input
 	}
 

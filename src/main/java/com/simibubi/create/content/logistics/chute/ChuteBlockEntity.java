@@ -277,8 +277,6 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		if (entitySearchCooldown-- <= 0 && item.isEmpty()) {
 			entitySearchCooldown = 5;
 			findEntities(itemSpeed);
-			if (itemSpeed <= 0)
-				AbstractChuteBlock.offerRestingItems(level, worldPosition);
 		}
 
 		extractFromBelt(itemSpeed);

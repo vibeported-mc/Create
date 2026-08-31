@@ -20,6 +20,7 @@
     "PlayerMixin",
     "ProjectileUtilMixin",
     "SmithingMenuMixin",
+    "EntityRestingOnBlockMixin",
     "TestStructurePlacementMixin",
     "WaterWheelFluidSpreadMixin",
     "accessor.BlockBehaviourAccessor",
