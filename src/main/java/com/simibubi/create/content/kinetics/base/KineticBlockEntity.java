@@ -50,9 +50,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class KineticBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveHoveringInformation {
 
 	public @Nullable Long network;
@@ -596,7 +593,6 @@ public class KineticBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> VisualizationHelper.queueUpdate(this));
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void tickAudio() {
 		float componentSpeed = Math.abs(getSpeed());
 		if (componentSpeed == 0)

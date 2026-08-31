@@ -16,9 +16,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class TrainMapSyncPacket implements CustomPacketPayload {
 	public static final StreamCodec<FriendlyByteBuf, TrainMapSyncPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.BOOL, packet -> packet.light,
@@ -42,7 +39,6 @@ public class TrainMapSyncPacket implements CustomPacketPayload {
 		entries.add(Pair.of(trainId, data));
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		TrainMapSyncClient.receive(this);
 	}

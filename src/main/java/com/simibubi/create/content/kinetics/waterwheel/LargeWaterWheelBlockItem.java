@@ -17,9 +17,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class LargeWaterWheelBlockItem extends BlockItem {
 
 	public LargeWaterWheelBlockItem(Block pBlock, Properties pProperties) {
@@ -41,7 +38,6 @@ public class LargeWaterWheelBlockItem extends BlockItem {
 		return result;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void showBounds(BlockPlaceContext context) {
 		BlockPos pos = context.getClickedPos();
 		Axis axis = ((LargeWaterWheelBlock) getBlock()).getAxisForPlacement(context);

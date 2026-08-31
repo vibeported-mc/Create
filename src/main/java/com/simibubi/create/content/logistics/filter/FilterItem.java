@@ -30,9 +30,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public abstract class FilterItem extends Item implements MenuProvider, SupportsItemCopying {
 	public static ListFilterItem regular(Properties properties) {
 		return new ListFilterItem(properties);
@@ -59,7 +56,6 @@ public abstract class FilterItem extends Item implements MenuProvider, SupportsI
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
 		Consumer<Component> tooltip, TooltipFlag flagIn) {
 		if (AllKeys.shiftDown())

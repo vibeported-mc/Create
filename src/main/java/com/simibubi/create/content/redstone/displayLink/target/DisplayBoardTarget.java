@@ -16,9 +16,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class DisplayBoardTarget extends DisplayTarget {
 
 	@Override
@@ -87,7 +84,6 @@ public class DisplayBoardTarget extends DisplayTarget {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public AABB getMultiblockBounds(LevelAccessor level, BlockPos pos) {
 		AABB baseShape = super.getMultiblockBounds(level, pos);
 		BlockEntity be = level.getBlockEntity(pos);

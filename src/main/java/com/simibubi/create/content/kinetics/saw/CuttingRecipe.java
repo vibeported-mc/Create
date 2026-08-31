@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
@@ -20,8 +19,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 @NullMarked
 public class CuttingRecipe extends StandardProcessingRecipe<RecipeWrapper> implements IAssemblyRecipe {
 
@@ -56,7 +53,6 @@ public class CuttingRecipe extends StandardProcessingRecipe<RecipeWrapper> imple
 	public void addAssemblyIngredients(List<Ingredient> list) {}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public Component getDescriptionForAssembly() {
 		return CreateLang.translateDirect("recipe.assembly.cutting");
 	}

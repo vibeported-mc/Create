@@ -6,8 +6,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import io.netty.buffer.ByteBuf;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public record ContraptionDisassemblyPacket(int entityId, StructureTransform transform) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, ContraptionDisassemblyPacket> STREAM_CODEC = StreamCodec.composite(
@@ -16,7 +14,6 @@ public record ContraptionDisassemblyPacket(int entityId, StructureTransform tran
 			ContraptionDisassemblyPacket::new
 	);
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		AbstractContraptionEntity.handleDisassemblyPacket(this);
 	}

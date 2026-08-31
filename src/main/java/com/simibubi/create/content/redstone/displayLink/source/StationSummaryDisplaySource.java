@@ -25,9 +25,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class StationSummaryDisplaySource extends DisplaySource {
 
 	protected static final MutableComponent UNPREDICTABLE;
@@ -194,7 +191,6 @@ public class StationSummaryDisplaySource extends DisplaySource {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void initConfigurationWidgets(DisplayLinkContext context, ModularGuiLineBuilder builder,
 		boolean isFirstLine) {
 		if (isFirstLine) {

@@ -9,8 +9,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public record ContraptionColliderLockPacket(int contraption, double offset, int sender) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, ContraptionColliderLockPacket> STREAM_CODEC = StreamCodec.composite(
@@ -20,7 +18,6 @@ public record ContraptionColliderLockPacket(int contraption, double offset, int 
 	        ContraptionColliderLockPacket::new
 	);
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		ContraptionCollider.lockPacketReceived(contraption, sender, offset);
 	}

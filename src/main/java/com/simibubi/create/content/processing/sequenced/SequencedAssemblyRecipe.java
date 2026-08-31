@@ -42,8 +42,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 	protected SequencedAssemblyRecipeSerializer serializer;
@@ -230,7 +228,6 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 		return AllRecipeTypes.SEQUENCED_ASSEMBLY.getType();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static void addToTooltip(ItemTooltipEvent event) {
 		ItemStack stack = event.getItemStack();
 		if (!stack.has(AllDataComponents.SEQUENCED_ASSEMBLY))

@@ -47,8 +47,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.model.data.ModelData;
 
 public class TrackBlockEntity extends SmartBlockEntity implements TransformableBlockEntity, IMergeableBE {
@@ -244,7 +242,6 @@ public class TrackBlockEntity extends SmartBlockEntity implements TransformableB
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public AABB getRenderBoundingBox() {
 		return AABB.INFINITE;
 	}
@@ -355,13 +352,11 @@ public class TrackBlockEntity extends SmartBlockEntity implements TransformableB
 			.build();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void registerToCurveInteractionUnsafe() {
 		TrackBlockOutline.TRACKS_WITH_TURNS.get(level)
 			.put(worldPosition, this);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void removeFromCurveInteractionUnsafe() {
 		TrackBlockOutline.TRACKS_WITH_TURNS.get(level)
 			.remove(worldPosition);
@@ -399,7 +394,6 @@ public class TrackBlockEntity extends SmartBlockEntity implements TransformableB
 			FakeTrackBlock.keepAlive(level, targetPos);
 		}
 	}
-
 
 	@Override
 	public void destroy() {

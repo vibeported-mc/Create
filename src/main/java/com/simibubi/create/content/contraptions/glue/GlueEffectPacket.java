@@ -8,8 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public record GlueEffectPacket(BlockPos pos, Direction direction, boolean fullBlock) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, GlueEffectPacket> STREAM_CODEC = StreamCodec.composite(
@@ -19,7 +17,6 @@ public record GlueEffectPacket(BlockPos pos, Direction direction, boolean fullBl
 			GlueEffectPacket::new
 	);
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		if (!player.blockPosition().closerThan(pos, 100))
 			return;

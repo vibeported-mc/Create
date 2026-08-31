@@ -34,8 +34,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 public class FetchPackagesInstruction extends TextScheduleInstruction {
 
 	@Override
@@ -81,7 +79,6 @@ public class FetchPackagesInstruction extends TextScheduleInstruction {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	protected void modifyEditBox(FilteredEditBox box) {
 		box.setFilter(s -> {
 			int wildcards = 0;

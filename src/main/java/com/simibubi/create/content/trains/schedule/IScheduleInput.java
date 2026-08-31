@@ -14,8 +14,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public interface IScheduleInput {
 
@@ -52,10 +50,8 @@ public interface IScheduleInput {
 		return null;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public default void initConfigurationWidgets(ModularGuiLineBuilder builder) {};
 
-	@OnlyIn(Dist.CLIENT)
 	public default boolean renderSpecialIcon(GuiGraphicsExtractor graphics, int x, int y) {
 		return false;
 	}

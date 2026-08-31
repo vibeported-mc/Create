@@ -8,8 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public record FluidSplashPacket(BlockPos pos, FluidStack fluid) implements CustomPacketPayload {
@@ -19,7 +17,6 @@ public record FluidSplashPacket(BlockPos pos, FluidStack fluid) implements Custo
 	        FluidSplashPacket::new
 	);
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		if (player.position().distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) > 100)
 			return;

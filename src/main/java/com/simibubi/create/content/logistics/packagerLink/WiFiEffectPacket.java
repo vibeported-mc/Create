@@ -14,9 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public record WiFiEffectPacket(BlockPos pos) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, WiFiEffectPacket> STREAM_CODEC = BlockPos.STREAM_CODEC
 		.map(WiFiEffectPacket::new, WiFiEffectPacket::pos);
@@ -26,7 +23,6 @@ public record WiFiEffectPacket(BlockPos pos) implements CustomPacketPayload {
 		return AllPackets.PACKAGER_LINK_EFFECT.getType();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		BlockEntity blockEntity = Minecraft.getInstance().level.getBlockEntity(pos);
 			if (blockEntity instanceof PackagerLinkBlockEntity plbe)

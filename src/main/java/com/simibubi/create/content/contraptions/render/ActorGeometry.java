@@ -7,8 +7,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * One movement behaviour's contribution to a contraption, extracted and ready to queue.
@@ -18,7 +16,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * instance holds must already be a value rather than a view onto the contraption.
  */
 @FunctionalInterface
-@OnlyIn(Dist.CLIENT)
 public interface ActorGeometry {
 
 	void submit(PoseStack ms, SubmitNodeCollector queue);

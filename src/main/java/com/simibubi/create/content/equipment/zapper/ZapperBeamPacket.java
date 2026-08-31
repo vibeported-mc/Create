@@ -11,8 +11,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class ZapperBeamPacket extends ShootGadgetPacket {
 	public static final StreamCodec<ByteBuf, ZapperBeamPacket> STREAM_CODEC = StreamCodec.composite(
@@ -31,13 +29,11 @@ public class ZapperBeamPacket extends ShootGadgetPacket {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	protected ShootableGadgetRenderHandler getHandler() {
 		return CreateClient.ZAPPER_RENDER_HANDLER;
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	protected void handleAdditional() {
 		CreateClient.ZAPPER_RENDER_HANDLER.addBeam(new LaserBeam(location, target));
 	}

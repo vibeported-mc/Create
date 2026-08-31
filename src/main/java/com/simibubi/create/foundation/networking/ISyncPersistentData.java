@@ -12,8 +12,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public interface ISyncPersistentData {
 
@@ -34,7 +32,6 @@ public interface ISyncPersistentData {
 			this(entity.getId(), entity.getPersistentData());
 		}
 
-		@OnlyIn(Dist.CLIENT)
 		public void handle(LocalPlayer player) {
 			Entity entityByID = player.level().getEntity(entityId);
 			CompoundTag data = entityByID.getPersistentData();

@@ -30,9 +30,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class LecternControllerBlockEntity extends SmartBlockEntity {
 	private ItemContainerContents controllerData = ItemContainerContents.EMPTY;
 	private UUID user;
@@ -138,7 +135,6 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void tryToggleActive() {
 		if (user == null && Minecraft.getInstance().player.getUUID().equals(prevUser)) {
 			LinkedControllerClientHandler.deactivateInLectern();

@@ -42,8 +42,6 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class StationBlock extends Block implements EntityRestingOnBlock, IBE<StationBlockEntity>, IWrenchable, ProperWaterloggedBlock {
 
@@ -144,7 +142,6 @@ public class StationBlock extends Block implements EntityRestingOnBlock, IBE<Sta
 		return InteractionResult.SUCCESS;
 	}
 
-	@OnlyIn(value = Dist.CLIENT)
 	protected void displayScreen(StationBlockEntity be, Player player) {
 		if (!(player instanceof LocalPlayer))
 			return;

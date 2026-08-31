@@ -48,9 +48,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEntityBehaviour {
 
 	public static final BehaviourType<TrackTargetingBehaviour<?>> TYPE = new BehaviourType<>();
@@ -312,7 +309,6 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 		STATION, SIGNAL, DUAL_SIGNAL, OBSERVER;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	/**
 	 * The overlay's placement comes from {@code prepareTrackOverlay}, which walks the PoseStack, so
 	 * this stays a submit-time operation rather than being split into an extracted state.

@@ -16,9 +16,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public abstract class SingleLineDisplaySource extends DisplaySource {
 
 	protected abstract MutableComponent provideLine(DisplayLinkContext context, DisplayTargetStats stats);
@@ -26,13 +23,11 @@ public abstract class SingleLineDisplaySource extends DisplaySource {
 	protected abstract boolean allowsLabeling(DisplayLinkContext context);
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void initConfigurationWidgets(DisplayLinkContext context, ModularGuiLineBuilder builder, boolean isFirstLine) {
 		if (isFirstLine && allowsLabeling(context))
 			addLabelingTextBox(builder);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	protected void addLabelingTextBox(ModularGuiLineBuilder builder) {
 		builder.addTextInput(0, 137, (e, t) -> {
 			e.setValue("");

@@ -56,9 +56,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class CarriageContraptionEntity extends OrientedContraptionEntity {
 
 	private static final EntityDataAccessor<CarriageSyncData> CARRIAGE_DATA =
@@ -84,9 +81,7 @@ public class CarriageContraptionEntity extends OrientedContraptionEntity {
 
 	private Vec3 serverPrevPos;
 
-	@OnlyIn(Dist.CLIENT)
 	public CarriageSounds sounds;
-	@OnlyIn(Dist.CLIENT)
 	public CarriageParticles particles;
 
 	public CarriageContraptionEntity(EntityType<?> type, Level world) {
@@ -752,7 +747,6 @@ public class CarriageContraptionEntity extends OrientedContraptionEntity {
 		dimensional.updateRenderedCutoff();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void updateRenderedPortalCutoff() {
 		if (carriage == null)
 			return;

@@ -12,9 +12,6 @@ import net.minecraft.client.renderer.state.level.ParticleGroupRenderState;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.render.AllRenderPipelines;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 /**
  * The group train smoke is collected into.
  * <p>
@@ -22,7 +19,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * {@link ParticleRenderType} the engine has been told about, which happens through NeoForge's
  * RegisterParticleGroupsEvent in {@link com.simibubi.create.CreateClient}.
  */
-@OnlyIn(Dist.CLIENT)
 public class CubeParticleGroup extends ParticleGroup<CubeParticle> {
 
 	public static final ParticleRenderType TYPE = new ParticleRenderType(Create.ID + ":cube", "CU");

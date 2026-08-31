@@ -18,8 +18,6 @@ import net.createmod.catnip.api.lang.Lang;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.Registries;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterParticleGroupsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
@@ -55,7 +53,6 @@ public enum AllParticleTypes {
 		ParticleEntry.REGISTER.register(modEventBus);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static void registerFactories(RegisterParticleProvidersEvent event) {
 		for (AllParticleTypes particle : values())
 			particle.entry.registerFactory(event);
@@ -65,7 +62,6 @@ public enum AllParticleTypes {
 	 * 26.2 batches particles into groups that each extract a render state. Train smoke draws cubes
 	 * rather than the camera-facing quads the default group builds, so it brings its own.
 	 */
-	@OnlyIn(Dist.CLIENT)
 	public static void registerGroups(RegisterParticleGroupsEvent event) {
 		event.register(CubeParticleGroup.TYPE, CubeParticleGroup::new);
 	}
@@ -92,7 +88,6 @@ public enum AllParticleTypes {
 			object = REGISTER.register(name, () -> this.typeFactory.get().createType());
 		}
 
-		@OnlyIn(Dist.CLIENT)
 		public void registerFactory(RegisterParticleProvidersEvent event) {
 			typeFactory.get()
 				.register(object.get(), event);

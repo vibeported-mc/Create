@@ -48,9 +48,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ElevatorContactBlock extends WrenchableDirectionalBlock
 	implements IBE<ElevatorContactBlockEntity>, SpecialBlockItemRequirement {
 
@@ -246,7 +243,6 @@ public class ElevatorContactBlock extends WrenchableDirectionalBlock
 		return InteractionResult.SUCCESS;
 	}
 
-	@OnlyIn(value = Dist.CLIENT)
 	protected void displayScreen(ElevatorContactBlockEntity be, Player player) {
 		if (player instanceof LocalPlayer)
 			ScreenOpener

@@ -70,8 +70,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -452,7 +450,6 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		sendData();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public PartialModel getHandPose() {
 		return mode == Mode.PUNCH ? AllPartialModels.DEPLOYER_HAND_PUNCHING
 			: heldItem.isEmpty() ? AllPartialModels.DEPLOYER_HAND_POINTING : AllPartialModels.DEPLOYER_HAND_HOLDING;
@@ -527,7 +524,6 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		return true;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public float getHandOffset(float partialTicks) {
 		if (isVirtual())
 			return animatedOffset.getValue(partialTicks);

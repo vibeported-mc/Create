@@ -11,13 +11,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.shapes.Shapes;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public record HighlightPacket(BlockPos pos) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, HighlightPacket> STREAM_CODEC = BlockPos.STREAM_CODEC.map(HighlightPacket::new, p -> p.pos);
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		if (!player.level().isLoaded(pos)) {
 			return;

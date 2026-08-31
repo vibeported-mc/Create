@@ -7,9 +7,6 @@ import java.util.function.Supplier;
 
 import net.minecraft.world.item.Item;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 /**
  * The items Create draws itself.
  * <p>
@@ -18,7 +15,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * {@link com.simibubi.create.foundation.model.ModelSwapper} wraps each one's baked model so the
  * renderer is reached through the item's render state.
  */
-@OnlyIn(Dist.CLIENT)
 public class CustomRenderedItems {
 
 	private static final Map<Item, CustomRenderedItemModelRenderer> ITEMS = new IdentityHashMap<>();

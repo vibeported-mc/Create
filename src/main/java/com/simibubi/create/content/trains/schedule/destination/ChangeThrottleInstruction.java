@@ -20,8 +20,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class ChangeThrottleInstruction extends ScheduleInstruction {
 
@@ -63,7 +61,6 @@ public class ChangeThrottleInstruction extends ScheduleInstruction {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void initConfigurationWidgets(ModularGuiLineBuilder builder) {
 		builder.addScrollInput(0, 50, (si, l) -> {
 			si.withRange(5, 101)

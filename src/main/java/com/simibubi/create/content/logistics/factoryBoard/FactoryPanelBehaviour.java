@@ -85,8 +85,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.Tags.Items;
 
 public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuProvider {
@@ -438,7 +436,6 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 				return;
 
 			ItemStack item = source.getFilter();
-
 
 			Map<ItemStack, ItemStackConnections> networkItemCounts = consolidated.computeIfAbsent(source.network, $ -> new Object2ObjectOpenCustomHashMap<>(ItemStackLinkedSet.TYPE_AND_TAG));
 			networkItemCounts.computeIfAbsent(item, $ -> new ItemStackConnections(item));
@@ -1062,7 +1059,6 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 		};
 	}
 
-	@OnlyIn(value = Dist.CLIENT)
 	public void displayScreen(Player player) {
 		if (player instanceof LocalPlayer)
 			ScreenOpener.open(new FactoryPanelScreen(this));

@@ -113,8 +113,6 @@ import com.simibubi.create.infrastructure.debugInfo.ServerDebugInfoPacket;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Clientbound payload handlers.
@@ -124,7 +122,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * client-only types cannot live on it. The handlers stay as ordinary methods on each payload and are
  * wired up here, from a class that only ever loads on the client.
  */
-@OnlyIn(Dist.CLIENT)
 public class CreateClientPayloadHandlers {
 
 	public static void register() {

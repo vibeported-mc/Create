@@ -33,9 +33,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class WhistleBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
 	public WeakReference<FluidTankBlockEntity> source;
@@ -126,10 +123,8 @@ public class WhistleBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 			.orElse(WhistleSize.MEDIUM);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	protected WhistleSoundInstance soundInstance;
 
-	@OnlyIn(Dist.CLIENT)
 	protected void tickAudio(WhistleSize size, boolean powered) {
 		if (!powered) {
 			if (soundInstance != null) {

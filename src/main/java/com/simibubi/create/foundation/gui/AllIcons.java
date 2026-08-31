@@ -18,8 +18,6 @@ import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class AllIcons implements ScreenElement {
 
@@ -185,7 +183,6 @@ public class AllIcons implements ScreenElement {
 		return new AllIcons(x = 0, ++y);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void render(GuiGraphicsExtractor graphics, int x, int y) {
 		graphics.blit(RenderPipelines.GUI_TEXTURED, ICON_ATLAS, x, y, iconX, iconY, 16, 16, 256, 256);
@@ -198,12 +195,10 @@ public class AllIcons implements ScreenElement {
 	 * geometry node. The record holds everything it needs, which keeps it safe to draw from whatever
 	 * thread the queue gets to it on.
 	 */
-	@OnlyIn(Dist.CLIENT)
 	public void submit(PoseStack ms, SubmitNodeCollector queue, int color) {
 		queue.submitCustomGeometry(ms, RenderTypes.text(ICON_ATLAS), new IconGeometry(iconX, iconY, color));
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private record IconGeometry(int iconX, int iconY, int color)
 		implements SubmitNodeCollector.CustomGeometryRenderer {
 		@Override
@@ -232,8 +227,6 @@ public class AllIcons implements ScreenElement {
 		}
 	}
 
-
-	@OnlyIn(Dist.CLIENT)
 	public DelegatedStencilElement asStencil() {
 		return new DelegatedStencilElement().withStencilRenderer((ms, w, h, alpha) -> this.render(ms, 0, 0)).withBounds(16, 16);
 	}

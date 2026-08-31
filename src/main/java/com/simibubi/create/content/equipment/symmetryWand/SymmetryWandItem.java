@@ -43,8 +43,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
@@ -146,7 +144,6 @@ public class SymmetryWandItem extends Item {
 		return InteractionResult.SUCCESS.heldItemTransformedTo(wand);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void openWandGUI(ItemStack wand, InteractionHand hand) {
 		ScreenOpener.open(new SymmetryWandScreen(wand, hand));
 	}

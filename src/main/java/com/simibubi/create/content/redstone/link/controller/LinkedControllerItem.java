@@ -30,8 +30,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 public class LinkedControllerItem extends Item implements MenuProvider {
 
 	public LinkedControllerItem(Properties properties) {
@@ -102,12 +100,10 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 		return InteractionResult.PASS;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void toggleBindMode(BlockPos pos) {
 		LinkedControllerClientHandler.toggleBindMode(pos);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void toggleActive() {
 		LinkedControllerClientHandler.toggle();
 	}

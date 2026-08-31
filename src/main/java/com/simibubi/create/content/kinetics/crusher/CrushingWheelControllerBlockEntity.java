@@ -50,8 +50,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 public class CrushingWheelControllerBlockEntity extends SmartBlockEntity implements Clearable {
@@ -267,7 +265,6 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void tickAudio() {
 		float pitch = Mth.clamp((crushingspeed / 256f) + .45f, .85f, 1f);
 		if (entityUUID == null && ItemUtil.getStack(inventory, 0)

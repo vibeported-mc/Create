@@ -17,9 +17,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class AllPotatoProjectileRenderModes {
 	
 	static {
@@ -42,7 +39,6 @@ public class AllPotatoProjectileRenderModes {
 		public static final MapCodec<Billboard> CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
 		public void transform(PoseStack ms, Context context) {
 			Vec3 diff = context.toCamera();
 
@@ -63,7 +59,6 @@ public class AllPotatoProjectileRenderModes {
 		public static final MapCodec<Tumble> CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
 		public void transform(PoseStack ms, Context context) {
 			Billboard.INSTANCE.transform(ms, context);
 			TransformStack.of(ms)
@@ -84,7 +79,6 @@ public class AllPotatoProjectileRenderModes {
 		).apply(instance, TowardMotion::new));
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
 		public void transform(PoseStack ms, Context context) {
 			Vec3 diff = context.deltaMovement();
 			TransformStack.of(ms)
@@ -108,7 +102,6 @@ public class AllPotatoProjectileRenderModes {
 		).apply(instance, StuckToEntity::new));
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
 		public void transform(PoseStack ms, Context context) {
 			TransformStack.of(ms).rotateYDegrees(AngleHelper.deg(Mth.atan2(offset.x, offset.z)));
 		}

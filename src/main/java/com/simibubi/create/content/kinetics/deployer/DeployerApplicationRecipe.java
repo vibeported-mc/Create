@@ -23,9 +23,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class DeployerApplicationRecipe extends ItemApplicationRecipe implements IAssemblyRecipe {
 
 	public DeployerApplicationRecipe(ItemApplicationRecipeParams params) {
@@ -57,7 +54,6 @@ public class DeployerApplicationRecipe extends ItemApplicationRecipe implements 
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public Component getDescriptionForAssembly() {
 		ItemStack[] matchingStacks = ItemHelper.getItems(ingredients.get(1));
 		if (matchingStacks.length == 0) {

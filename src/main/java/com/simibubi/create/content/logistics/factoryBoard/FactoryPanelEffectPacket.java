@@ -13,9 +13,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public record FactoryPanelEffectPacket(FactoryPanelPosition fromPos, FactoryPanelPosition toPos, boolean success) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, FactoryPanelEffectPacket> STREAM_CODEC = StreamCodec.composite(
 		FactoryPanelPosition.STREAM_CODEC, FactoryPanelEffectPacket::fromPos,
@@ -29,7 +26,6 @@ public record FactoryPanelEffectPacket(FactoryPanelPosition fromPos, FactoryPane
 		return AllPackets.FACTORY_PANEL_EFFECT.getType();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		ClientLevel level = Minecraft.getInstance().level;
 		BlockState blockState = level.getBlockState(fromPos.pos());

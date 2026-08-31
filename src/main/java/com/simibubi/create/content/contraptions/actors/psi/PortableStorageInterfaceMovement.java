@@ -27,9 +27,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class PortableStorageInterfaceMovement implements MovementBehaviour {
 
 	static final String _workingPos_ = "WorkingPos";
@@ -55,7 +52,6 @@ public class PortableStorageInterfaceMovement implements MovementBehaviour {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
 		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (!VisualizationManager.supportsVisualization(context.world))

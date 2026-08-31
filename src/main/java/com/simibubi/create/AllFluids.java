@@ -1,8 +1,6 @@
 package com.simibubi.create;
 
 import net.neoforged.neoforge.client.fluid.FluidTintSource;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.api.distmarker.Dist;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.client.renderer.block.FluidModel;
 import java.util.List;
@@ -134,7 +132,6 @@ public class AllFluids {
 	 * The textures follow the same naming the fluid builders use, and the tint is whatever the fluid
 	 * type reports.
 	 */
-	@OnlyIn(Dist.CLIENT)
 	/**
 	 * Registrate already registers a model for every fluid it builds, and 26.2 rejects a second
 	 * registration for the same fluid, so the tint 26.2 moved out of the fluid type travels with that
@@ -263,8 +260,6 @@ public class AllFluids {
 
 			};
 		}
-
-
 
 		protected abstract int getTintColor(FluidStack stack);
 

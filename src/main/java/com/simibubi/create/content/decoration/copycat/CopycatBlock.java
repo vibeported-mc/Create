@@ -48,8 +48,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 
@@ -240,7 +238,6 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	// Connected Textures
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public BlockState getAppearance(BlockState state, BlockAndLightGetter level, BlockPos pos, Direction side,
 									@Nullable BlockState queryState, @Nullable BlockPos queryPos) {
 
@@ -359,12 +356,10 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 
 	//
 
-	@OnlyIn(Dist.CLIENT)
 	public static List<BlockTintSource> wrappedColor() {
 		return List.of(new WrappedBlockColor());
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static class WrappedBlockColor implements BlockTintSource {
 
 		@Override

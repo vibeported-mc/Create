@@ -44,9 +44,6 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class SchematicItem extends Item {
 
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -70,7 +67,6 @@ public class SchematicItem extends Item {
 	}
 
 	@Override
-	@OnlyIn(value = Dist.CLIENT)
 	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
 		Consumer<Component> tooltip, TooltipFlag flagIn) {
 		if (stack.has(AllDataComponents.SCHEMATIC_FILE)) {
@@ -160,7 +156,6 @@ public class SchematicItem extends Item {
 		return true;
 	}
 
-	@OnlyIn(value = Dist.CLIENT)
 	protected void displayBlueprintScreen() {
 		ScreenOpener.open(new SchematicEditScreen());
 	}

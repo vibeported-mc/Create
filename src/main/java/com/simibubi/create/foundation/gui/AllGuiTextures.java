@@ -10,9 +10,6 @@ import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public enum AllGuiTextures implements ScreenElement, TextureSheetSegment {
 
 	// Inventories
@@ -299,12 +296,10 @@ public enum AllGuiTextures implements ScreenElement, TextureSheetSegment {
 		return location;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void render(GuiGraphicsExtractor graphics, int x, int y) {
 		graphics.blit(RenderPipelines.GUI_TEXTURED, location, x, y, startX, startY, width, height, 256, 256);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void render(GuiGraphicsExtractor graphics, int x, int y, Color c) {
 		UIRenderHelper.drawColoredTexture(graphics, bind(), c, x, y, startX, startY, width, height);
 	}

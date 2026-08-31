@@ -42,9 +42,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class BeltSlicer {
 
 	public static class Feedback {
@@ -457,7 +454,6 @@ public class BeltSlicer {
 		return subtract.dot(beltVector) > 0 == (part == BeltPart.END);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static void tickHoveringInformation() {
 		Minecraft mc = Minecraft.getInstance();
 		HitResult target = mc.hitResult;

@@ -19,9 +19,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ContraptionControlsMovement implements MovementBehaviour {
 
 	@Override
@@ -144,7 +141,6 @@ public class ContraptionControlsMovement implements MovementBehaviour {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void extractInContraption(MovementContext ctx, VirtualRenderWorld renderWorld, ContraptionMatrices matrices, List<ActorGeometry> out) {
 		ContraptionControlsRenderer.extractInContraption(ctx, renderWorld, matrices, out);
 	}

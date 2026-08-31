@@ -22,8 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 /**
  * MovementBehaviors, also known as Actors, provide behavior to blocks mounted on contraptions.
  * Blocks may be associated with a behavior through {@link #REGISTRY}.
@@ -121,11 +119,9 @@ public interface MovementBehaviour {
 	 * Collect this actor's geometry. 26.2 runs this on the client thread, ahead of submission, so
 	 * this is the only place the contraption and its virtual level may be read.
 	 */
-	@OnlyIn(Dist.CLIENT)
 	default void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
 		ContraptionMatrices matrices, List<ActorGeometry> out) {}
 
-	@OnlyIn(Dist.CLIENT)
 	@Nullable
 	default ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld,
 		MovementContext movementContext) {

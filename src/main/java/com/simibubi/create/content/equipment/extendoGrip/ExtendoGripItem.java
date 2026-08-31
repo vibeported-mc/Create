@@ -39,8 +39,6 @@ import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -137,7 +135,6 @@ public class ExtendoGripItem extends Item {
 	}
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public static void dontMissEntitiesWhenYouHaveHighReachDistance(InputEvent.InteractionKeyMappingTriggered event) {
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;
@@ -270,7 +267,6 @@ public class ExtendoGripItem extends Item {
 	}
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public static void notifyServerOfLongRangeAttacks(AttackEntityEvent event) {
 		Entity entity = event.getEntity();
 		Entity target = event.getTarget();
@@ -282,7 +278,6 @@ public class ExtendoGripItem extends Item {
 	}
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public static void notifyServerOfLongRangeInteractions(PlayerInteractEvent.EntityInteract event) {
 		Entity entity = event.getEntity();
 		Entity target = event.getTarget();
@@ -293,7 +288,6 @@ public class ExtendoGripItem extends Item {
 			ClientNetworkHelper.INSTANCE
 				.sendToServer(new ExtendoGripInteractionPacket(target, event.getHand(), event.getLocation()));
 	}
-
 
 	public static boolean isHoldingExtendoGrip(Player player) {
 		boolean inOff = AllItems.EXTENDO_GRIP.isIn(player.getOffhandItem());

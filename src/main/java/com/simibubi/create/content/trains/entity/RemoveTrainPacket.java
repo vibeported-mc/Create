@@ -6,8 +6,6 @@ import java.util.UUID;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.CreateClient;
 import io.netty.buffer.ByteBuf;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,7 +17,6 @@ public record RemoveTrainPacket(UUID id) implements CustomPacketPayload {
 		this(train.id);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		CreateClient.RAILWAYS.trains.remove(this.id);
 	}

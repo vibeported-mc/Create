@@ -27,9 +27,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class GantryContraptionEntity extends AbstractContraptionEntity {
 
 	Direction movementAxis;
@@ -204,7 +201,6 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void applyLocalTransforms(PoseStack matrixStack, float partialTicks) {
 	}
 
@@ -229,7 +225,6 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 				new GantryContraptionUpdatePacket(getId(), getAxisCoord(), axisMotion, sequencedOffsetLimit));
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static void handlePacket(GantryContraptionUpdatePacket packet) {
 		Entity entity = Minecraft.getInstance().level.getEntity(packet.entityID());
 		if (!(entity instanceof GantryContraptionEntity ce))

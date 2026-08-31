@@ -12,8 +12,6 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.LivingEntity;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
 import org.jspecify.annotations.Nullable;
@@ -25,7 +23,6 @@ import org.jspecify.annotations.Nullable;
  * on the entity - its head slot, its type, whether it is a train conductor. NeoForge lets a mod add
  * to any renderer's state, which is where this is worked out.
  */
-@OnlyIn(Dist.CLIENT)
 public record HatRenderData(PartialModel hat, TrainHatInfo info) {
 
 	public static final ContextKey<HatRenderData> KEY = new ContextKey<>(Create.asResource("hat"));

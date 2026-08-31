@@ -22,9 +22,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ClipboardBlockItem extends BlockItem implements SupportsItemCopying {
 
 	public ClipboardBlockItem(Block pBlock, Properties pProperties) {
@@ -69,7 +66,6 @@ public class ClipboardBlockItem extends BlockItem implements SupportsItemCopying
 		return InteractionResult.SUCCESS.heldItemTransformedTo(heldItem);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void openScreen(Player player, DataComponentMap components) {
 		if (Minecraft.getInstance().player == player)
 			ScreenOpener.open(new ClipboardScreen(player.getInventory().getSelectedSlot(), components, null));

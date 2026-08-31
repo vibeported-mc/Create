@@ -42,9 +42,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class BlazeBurnerBlockEntity extends SmartBlockEntity {
 
 	public static final int MAX_HEAT_CAPACITY = 10000;
@@ -59,7 +56,6 @@ public class BlazeBurnerBlockEntity extends SmartBlockEntity {
 	protected FuelType activeFuel;
 	protected int remainingBurnTime;
 	protected LerpedFloat headAngle;
-
 
 	public BlazeBurnerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -139,13 +135,11 @@ public class BlazeBurnerBlockEntity extends SmartBlockEntity {
 		return null;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private boolean shouldTickAnimation() {
 		// Offload the animation tick to the visual when flywheel in enabled
 		return !VisualizationManager.supportsVisualization(level);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	void tickAnimation() {
 		boolean active = getHeatLevelFromBlock().isAtLeast(HeatLevel.FADING) && isValidBlockAbove();
 

@@ -29,9 +29,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ElevatorControlsHandler {
 
 	private static ControlsSlot slot = new ElevatorControlsSlot();
@@ -48,7 +45,6 @@ public class ElevatorControlsHandler {
 
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static boolean onScroll(double delta) {
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;

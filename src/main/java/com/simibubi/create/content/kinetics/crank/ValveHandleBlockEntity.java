@@ -36,9 +36,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ValveHandleBlockEntity extends HandCrankBlockEntity {
 
 	public ScrollValueBehaviour angleInput;
@@ -143,13 +140,11 @@ public class ValveHandleBlockEntity extends HandCrankBlockEntity {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public SuperByteBuffer getRenderedHandle() {
 		return CachedBuffers.block(getBlockState());
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public boolean shouldRenderShaft() {
 		return false;
 	}

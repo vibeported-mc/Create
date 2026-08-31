@@ -35,9 +35,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class GlobalRailwayManager {
 
 	public Map<UUID, TrackGraph> trackNetworks;
@@ -295,7 +292,6 @@ public class GlobalRailwayManager {
 		return m.getValue();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private void clientManager(MutableObject<GlobalRailwayManager> m) {
 		m.setValue(CreateClient.RAILWAYS);
 	}

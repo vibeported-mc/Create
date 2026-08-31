@@ -38,9 +38,6 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopying {
 
 	public ScheduleItem(Properties pProperties) {
@@ -128,7 +125,6 @@ public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopy
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
 		Consumer<Component> tooltip, TooltipFlag flagIn) {
 		Schedule schedule = getSchedule(context.registries(), stack);

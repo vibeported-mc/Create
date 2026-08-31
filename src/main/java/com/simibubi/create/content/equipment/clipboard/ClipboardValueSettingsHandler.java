@@ -31,8 +31,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -47,7 +45,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClick
 public class ClipboardValueSettingsHandler {
 
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
 	public static void drawCustomBlockSelection(ExtractBlockOutlineRenderStateEvent event) {
 		Minecraft mc = Minecraft.getInstance();
 		if (!(mc.hitResult instanceof BlockHitResult target))
@@ -88,7 +85,6 @@ public class ClipboardValueSettingsHandler {
 		});
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static void clientTick() {
 		Minecraft mc = Minecraft.getInstance();
 		if (!(mc.hitResult instanceof BlockHitResult target))

@@ -19,9 +19,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public abstract class TrainHUDUpdatePacket implements CustomPacketPayload {
 	protected final UUID trainId;
 
@@ -58,7 +55,6 @@ public abstract class TrainHUDUpdatePacket implements CustomPacketPayload {
 			super(trainId, throttle, speed, fuelTicks);
 		}
 
-		@OnlyIn(Dist.CLIENT)
 		public void handle(LocalPlayer player) {
 			Train train = Create.RAILWAYS.sided(null).trains.get(trainId);
 			if (train == null)

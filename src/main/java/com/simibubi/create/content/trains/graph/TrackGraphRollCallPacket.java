@@ -20,9 +20,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public record TrackGraphRollCallPacket(List<Entry> entries) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, TrackGraphRollCallPacket> STREAM_CODEC = CatnipStreamCodecBuilders.list(Entry.STREAM_CODEC).map(
 					TrackGraphRollCallPacket::new, TrackGraphRollCallPacket::entries
@@ -36,7 +33,6 @@ public record TrackGraphRollCallPacket(List<Entry> entries) implements CustomPac
 		return new TrackGraphRollCallPacket(entries);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		GlobalRailwayManager manager = Create.RAILWAYS.sided(null);
 		Set<UUID> unusedIds = new HashSet<>(manager.trackNetworks.keySet());

@@ -18,9 +18,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ControlsMovementBehaviour implements MovementBehaviour {
 
 	// TODO: rendering the levers should be specific to Carriage Contraptions -
@@ -55,7 +52,6 @@ public class ControlsMovementBehaviour implements MovementBehaviour {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
 		ContraptionMatrices matrices, List<ActorGeometry> out) {
 		if (!(context.temporaryData instanceof LeverAngles angles))

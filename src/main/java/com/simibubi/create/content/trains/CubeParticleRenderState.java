@@ -12,9 +12,6 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 /**
  * The extracted state for {@link CubeParticle}.
  * <p>
@@ -23,7 +20,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * vertex format the quad renderer already uses, so this extends the vanilla state and swaps out the
  * geometry rather than needing a feature renderer of its own.
  */
-@OnlyIn(Dist.CLIENT)
 public class CubeParticleRenderState extends QuadParticleRenderState {
 
 	private final FloatArrayList positions = new FloatArrayList();

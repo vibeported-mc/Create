@@ -49,9 +49,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ClipboardScreen extends AbstractSimiScreen {
 	public ClipboardContent content;
 
@@ -776,7 +773,6 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		return new Rect2i(i, k, j - i, l - k);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	static class DisplayCache {
 		static final DisplayCache EMPTY = new DisplayCache("", new Pos2i(0, 0), true, new int[] { 0 },
 			new LineInfo[] { new LineInfo(Style.EMPTY, "", 0, 0) }, new Rect2i[0]);
@@ -834,7 +830,6 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	static class LineInfo {
 		final Style style;
 		final String contents;
@@ -852,7 +847,6 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	record Pos2i(int x, int y) {
 	}
 

@@ -45,9 +45,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public abstract class ZapperItem extends Item implements CustomArmPoseItem, BlockBreakingItem {
 
 	public ZapperItem(Properties properties) {
@@ -55,7 +52,6 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem, Bloc
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
 		Consumer<Component> tooltip, TooltipFlag flagIn) {
 		if (stack.has(AllDataComponents.SHAPER_BLOCK_USED)) {
@@ -178,7 +174,6 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem, Bloc
 	protected abstract boolean activate(Level world, Player player, ItemStack item, BlockState stateToUse,
 		BlockHitResult raytrace, CompoundTag data);
 
-	@OnlyIn(Dist.CLIENT)
 	protected abstract void openHandgunGUI(ItemStack item, InteractionHand hand);
 
 	protected abstract int getCooldownDelay(ItemStack item);

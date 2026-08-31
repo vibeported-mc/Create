@@ -20,8 +20,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 
@@ -44,7 +42,6 @@ public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 	}
 
 	@Override
-	@OnlyIn(value = Dist.CLIENT)
 	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
 		ContraptionMatrices matrices, List<ActorGeometry> out) {
         if (!VisualizationManager.supportsVisualization(context.world))

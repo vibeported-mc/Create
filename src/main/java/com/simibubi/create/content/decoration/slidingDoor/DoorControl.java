@@ -18,9 +18,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public enum DoorControl {
 
 	ALL, NORTH, EAST, SOUTH, WEST, NONE;
@@ -46,7 +43,6 @@ public enum DoorControl {
 		};
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static Pair<ScrollInput, Label> createWidget(int x, int y, Consumer<DoorControl> callback,
 		DoorControl initial) {
 

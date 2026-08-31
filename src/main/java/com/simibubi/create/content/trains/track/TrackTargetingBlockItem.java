@@ -43,9 +43,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class TrackTargetingBlockItem extends BlockItem {
 
 	private EdgePointType<?> type;
@@ -174,7 +171,6 @@ public class TrackTargetingBlockItem extends BlockItem {
 		return type;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public boolean useOnCurve(BezierPointSelection selection, ItemStack stack) {
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;

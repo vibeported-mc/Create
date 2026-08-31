@@ -17,9 +17,6 @@ import net.createmod.catnip.api.client.render.SuperByteBufferCache.Compartment;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 /**
  * Cached buffers for Flywheel's partial models.
  * <p>
@@ -27,7 +24,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * dependency and {@link PartialModel} is a Flywheel type, so they belong here now. The block-state
  * buffers stay in Catnip; only the partial-model ones moved.
  */
-@OnlyIn(Dist.CLIENT)
 public class CachedBufferer {
 
 	public static final Compartment<PartialModel> PARTIAL = new Compartment<>();

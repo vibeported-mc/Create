@@ -12,9 +12,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public record LimbSwingUpdatePacket(int entityId, Vec3 position, float limbSwing) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, LimbSwingUpdatePacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, LimbSwingUpdatePacket::entityId,
@@ -23,7 +20,6 @@ public record LimbSwingUpdatePacket(int entityId, Vec3 position, float limbSwing
 	        LimbSwingUpdatePacket::new
 	);
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		Entity entity = player.level().getEntity(entityId);
 		if (entity == null)

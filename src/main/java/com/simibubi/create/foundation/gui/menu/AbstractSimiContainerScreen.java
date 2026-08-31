@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-
 import org.lwjgl.glfw.GLFW;
 
 import com.simibubi.create.foundation.gui.AllGuiTextures;
@@ -31,11 +30,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 @NullMarked
-@OnlyIn(Dist.CLIENT)
 public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
 
 	protected int windowXOffset, windowYOffset;

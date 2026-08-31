@@ -6,8 +6,6 @@ import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class PeculiarBellBlockEntity extends AbstractBellBlockEntity {
 
@@ -16,7 +14,6 @@ public class PeculiarBellBlockEntity extends AbstractBellBlockEntity {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public PartialModel getBellModel() {
 		return AllPartialModels.PECULIAR_BELL;
 	}

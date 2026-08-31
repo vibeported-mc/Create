@@ -23,9 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 /**
  * Ex: Pistons, bearings <br>
  * Controlled Contraption Entities can rotate around one axis and translate.
@@ -240,7 +237,6 @@ public class ControlledContraptionEntity extends AbstractContraptionEntity {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void applyLocalTransforms(PoseStack matrixStack, float partialTicks) {
 		float angle = getAngle(partialTicks);
 		Axis axis = getRotationAxis();

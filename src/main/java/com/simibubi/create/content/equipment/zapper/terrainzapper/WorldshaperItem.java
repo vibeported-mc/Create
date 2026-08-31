@@ -20,8 +20,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 public class WorldshaperItem extends ZapperItem {
@@ -31,7 +29,6 @@ public class WorldshaperItem extends ZapperItem {
 	}
 
 	@Override
-	@OnlyIn(value = Dist.CLIENT)
 	protected void openHandgunGUI(ItemStack item, InteractionHand hand) {
 		ScreenOpener.open(new WorldshaperScreen(item, hand));
 	}

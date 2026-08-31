@@ -8,8 +8,6 @@ import com.mojang.serialization.MapCodec;
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 // TODO: 1.21.1+ - Move into api package
 public interface PotatoProjectileRenderMode {
@@ -28,14 +26,12 @@ public interface PotatoProjectileRenderMode {
 	 * @param age            ticks alive, including the partial tick
 	 * @param randomSeed     stable per projectile, for the modes that wobble
 	 */
-	@OnlyIn(Dist.CLIENT)
 	record Context(Vec3 toCamera, Vec3 deltaMovement, float age, int randomSeed) {
 		public int random(int maxValue) {
 			return (randomSeed * 31) % maxValue;
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	void transform(PoseStack ms, Context context);
 
 	MapCodec<? extends PotatoProjectileRenderMode> codec();

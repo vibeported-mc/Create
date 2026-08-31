@@ -31,8 +31,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -79,7 +77,6 @@ public class SymmetryHandler {
 	 * are partials, so they go through the same cached-buffer path as the rest of Create rather than
 	 * through the block tesselator.
 	 */
-	@OnlyIn(Dist.CLIENT)
 	public static void onSubmitFeatures(LevelRenderState state, SubmitNodeCollector queue, PoseStack ms) {
 		Minecraft mc = Minecraft.getInstance();
 		LocalPlayer player = mc.player;
@@ -117,7 +114,6 @@ public class SymmetryHandler {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {
 		Minecraft mc = Minecraft.getInstance();

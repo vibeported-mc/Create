@@ -28,9 +28,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public abstract class SymmetryMirror {
 	public static final String EMPTY = "empty";
 	public static final String PLANE = "plane";
@@ -115,7 +112,6 @@ public abstract class SymmetryMirror {
 
 	public abstract String typeName();
 
-	@OnlyIn(Dist.CLIENT)
 	public abstract PartialModel getModel();
 
 	public void applyModelTransform(PoseStack ms) {}

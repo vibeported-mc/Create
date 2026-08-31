@@ -4,10 +4,7 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class SuperGlueRenderer extends EntityRenderer<SuperGlueEntity, EntityRenderState> {
 
 	public SuperGlueRenderer(EntityRendererProvider.Context context) {

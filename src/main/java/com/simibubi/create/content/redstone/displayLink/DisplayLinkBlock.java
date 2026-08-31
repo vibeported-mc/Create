@@ -45,9 +45,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class DisplayLinkBlock extends WrenchableDirectionalBlock implements IBE<DisplayLinkBlockEntity> {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -153,7 +150,6 @@ public class DisplayLinkBlock extends WrenchableDirectionalBlock implements IBE<
 		return InteractionResult.SUCCESS;
 	}
 
-	@OnlyIn(value = Dist.CLIENT)
 	protected void displayScreen(DisplayLinkBlockEntity be, Player player) {
 		if (!(player instanceof LocalPlayer))
 			return;

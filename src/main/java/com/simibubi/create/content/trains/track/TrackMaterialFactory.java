@@ -14,8 +14,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.Tags.Items;
 import net.neoforged.neoforge.common.crafting.CompoundIngredient;
 
@@ -39,13 +37,9 @@ public class TrackMaterialFactory {
 	@Nullable
 	private TrackMaterial.TrackType.TrackBlockFactory customFactory = null;
 
-	@OnlyIn(Dist.CLIENT)
 	private TrackMaterial.TrackModelHolder modelHolder;
-	@OnlyIn(Dist.CLIENT)
 	private PartialModel tieModel;
-	@OnlyIn(Dist.CLIENT)
 	private PartialModel leftSegmentModel;
-	@OnlyIn(Dist.CLIENT)
 	private PartialModel rightSegmentModel;
 
 	public TrackMaterialFactory(Identifier id) {

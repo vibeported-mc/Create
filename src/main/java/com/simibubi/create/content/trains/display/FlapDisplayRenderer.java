@@ -37,8 +37,6 @@ import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class FlapDisplayRenderer
 	extends KineticBlockEntityRenderer<FlapDisplayBlockEntity, FlapDisplayRenderer.FlapDisplayRenderState> {
@@ -56,7 +54,6 @@ public class FlapDisplayRenderer
 
 	public record SectionSnapshot(FlapDisplaySection section, String text) {
 	}
-
 
 	private final Font font;
 
@@ -166,7 +163,6 @@ public class FlapDisplayRenderer
 	/**
 	 * Turns a line's characters into glyph drawables, grouped by the render type each one needs.
 	 */
-	@OnlyIn(Dist.CLIENT)
 	static class FlapDisplayRenderOutput implements FormattedCharSink {
 
 		final Map<RenderType, List<TextRenderable>> glyphs = new IdentityHashMap<>();

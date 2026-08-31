@@ -56,8 +56,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
@@ -275,27 +273,23 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 		return entry -> PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> registerCTBehviour(entry, behavior));
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private static <T extends Block> void registerCasingConnectivity(T entry,
 																	 BiConsumer<T, CasingConnectivity> consumer) {
 		consumer.accept(entry, CreateClient.CASING_CONNECTIVITY);
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private static void registerBlockModel(Block entry,
 										   Supplier<NonNullFunction<BlockStateModel, ? extends BlockStateModel>> func) {
 		CreateClient.MODEL_SWAPPER.getCustomBlockModels()
 			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), func.get());
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private static void registerItemModel(Item entry,
 										  Supplier<NonNullFunction<ItemModel, ? extends ItemModel>> func) {
 		CreateClient.MODEL_SWAPPER.getCustomItemModels()
 			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), func.get());
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	private static void registerCTBehviour(Block entry, Supplier<ConnectedTextureBehaviour> behaviorSupplier) {
 		ConnectedTextureBehaviour behavior = behaviorSupplier.get();
 		CreateClient.MODEL_SWAPPER.getCustomBlockModels()

@@ -5,8 +5,6 @@ import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.material.FluidState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.fluid.FluidTintSource;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -17,7 +15,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
  * baked {@link FluidModel} held by the model manager, keyed on the fluid state. Create renders fluid
  * from a {@link FluidStack} in a dozen places, so the lookup lives here rather than being repeated.
  */
-@OnlyIn(Dist.CLIENT)
 public class FluidAppearance {
 
 	public static FluidModel modelOf(FluidStack fluidStack) {

@@ -15,9 +15,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class SteamJetParticleData implements ParticleOptions, ICustomParticleDataWithSprite<SteamJetParticleData> {
 
 	public static final MapCodec<SteamJetParticleData> CODEC = RecordCodecBuilder.mapCodec(i -> i
@@ -49,7 +46,6 @@ public class SteamJetParticleData implements ParticleOptions, ICustomParticleDat
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public SpriteParticleRegistration<SteamJetParticleData> getMetaFactory() {
 		return SteamJetParticle.Factory::new;
 	}

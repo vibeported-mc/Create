@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
-
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
@@ -25,8 +24,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class DestinationInstruction extends TextScheduleInstruction {
 
@@ -70,7 +67,6 @@ public class DestinationInstruction extends TextScheduleInstruction {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	protected void modifyEditBox(FilteredEditBox box) {
 		box.setFilter(s -> {
 			int wildcards = 0;
@@ -94,7 +90,6 @@ public class DestinationInstruction extends TextScheduleInstruction {
 			runtime.startCooldown();
 			return null;
 		}
-
 
 		for (GlobalStation globalStation : train.graph.getPoints(EdgePointType.STATION)) {
 			if (!globalStation.name.matches(regex))

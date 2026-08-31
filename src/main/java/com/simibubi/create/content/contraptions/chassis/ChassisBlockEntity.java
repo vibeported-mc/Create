@@ -40,9 +40,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class ChassisBlockEntity extends SmartBlockEntity {
 
 	ScrollValueBehaviour range;
@@ -268,7 +265,6 @@ public class ChassisBlockEntity extends SmartBlockEntity {
 		}
 
 		@Override
-		@OnlyIn(Dist.CLIENT)
 		public void newSettingHovered(ValueSettings valueSetting) {
 			if (!level.isClientSide())
 				return;

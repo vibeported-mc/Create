@@ -21,8 +21,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public abstract class TrainEditPacket implements CustomPacketPayload {
 	protected final UUID id;
@@ -86,7 +84,6 @@ public abstract class TrainEditPacket implements CustomPacketPayload {
 			super(id, name, iconType, mapColor);
 		}
 
-		@OnlyIn(Dist.CLIENT)
 		public void handle(LocalPlayer player) {
 			handleSided(null);
 		}

@@ -24,8 +24,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class BogeyStyle {
 	public final Identifier id;
@@ -37,7 +35,6 @@ public class BogeyStyle {
 	public final CompoundTag defaultData;
 	private final Map<BogeySizes.BogeySize, Supplier<? extends AbstractBogeyBlock<?>>> sizes;
 
-	@OnlyIn(Dist.CLIENT)
 	private Map<BogeySizes.BogeySize, SizeRenderer> sizeRenderers;
 
 	public BogeyStyle(Identifier id, Identifier cycleGroup, Component displayName,
@@ -86,7 +83,6 @@ public class BogeyStyle {
 	 * Collect this bogey's geometry. 26.2 runs this on the client thread, ahead of submission; see
 	 * {@link BogeyRenderer}.
 	 */
-	@OnlyIn(Dist.CLIENT)
 	public void extract(BogeySize size, float partialTick, int light, float wheelAngle,
 		@Nullable CompoundTag bogeyData, boolean inContraption, List<BogeyRenderer.Part> out) {
 		if (bogeyData == null)
@@ -101,7 +97,6 @@ public class BogeyStyle {
 	 * The drop onto the rail is a pose transform rather than part of the geometry, so it belongs
 	 * here rather than in extraction.
 	 */
-	@OnlyIn(Dist.CLIENT)
 	public static void submit(List<BogeyRenderer.Part> parts, PoseStack poseStack, SubmitNodeCollector queue) {
 		poseStack.pushPose();
 		poseStack.translate(0, -1.5 - 1 / 128f, 0);
@@ -109,7 +104,6 @@ public class BogeyStyle {
 		poseStack.popPose();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	@Nullable
 	public BogeyVisual createVisual(BogeySize size, VisualizationContext ctx, float partialTick, boolean inContraption) {
 		SizeRenderer renderer = sizeRenderers == null ? null : sizeRenderers.get(size);
@@ -119,7 +113,6 @@ public class BogeyStyle {
 		return null;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public record SizeRenderer(BogeyRenderer renderer, BogeyVisualizer visualizer) {
 	}
 

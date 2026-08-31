@@ -58,9 +58,6 @@ import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class Carriage {
 	public static final StreamCodec<RegistryFriendlyByteBuf, Carriage> STREAM_CODEC = StreamCodec.composite(
 			CarriageBogey.STREAM_CODEC, carriage -> carriage.bogeys.getFirst(),
@@ -841,7 +838,6 @@ public class Carriage {
 			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> invalidate(cce));
 		}
 
-		@OnlyIn(Dist.CLIENT)
 		private void invalidate(CarriageContraptionEntity entity) {
 			// Update the portal cutoff first to ensure it's reflected in the updated mesh.
 			entity.updateRenderedPortalCutoff();

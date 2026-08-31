@@ -16,9 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public record ArmPlacementPacket(ListTag tag, BlockPos pos) implements SelfHandlingPayload {
 	public static final StreamCodec<FriendlyByteBuf, ArmPlacementPacket> STREAM_CODEC = StreamCodec.composite(
 			CatnipStreamCodecs.COMPOUND_LIST_TAG, ArmPlacementPacket::tag,
@@ -61,7 +58,6 @@ public record ArmPlacementPacket(ListTag tag, BlockPos pos) implements SelfHandl
 			return AllPackets.S_PLACE_ARM.getType();
 		}
 
-		@OnlyIn(Dist.CLIENT)
 		public void handle(LocalPlayer player) {
 			ArmInteractionPointHandler.flushSettings(pos);
 		}

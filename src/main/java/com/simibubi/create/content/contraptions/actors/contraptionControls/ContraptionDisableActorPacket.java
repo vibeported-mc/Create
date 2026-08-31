@@ -13,9 +13,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public record ContraptionDisableActorPacket(int entityId, ItemStack filter, boolean enable) implements CustomPacketPayload {
 	public static final StreamCodec<RegistryFriendlyByteBuf, ContraptionDisableActorPacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, ContraptionDisableActorPacket::entityId,
@@ -24,7 +21,6 @@ public record ContraptionDisableActorPacket(int entityId, ItemStack filter, bool
 	        ContraptionDisableActorPacket::new
 	);
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		Entity entityByID = player.level().getEntity(entityId);
 		if (!(entityByID instanceof AbstractContraptionEntity ace))

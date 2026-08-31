@@ -16,9 +16,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public record PackageDestroyPacket(Vec3 location, ItemStack box) implements CustomPacketPayload {
 	public static final StreamCodec<RegistryFriendlyByteBuf, PackageDestroyPacket> STREAM_CODEC = StreamCodec.composite(
 		CatnipStreamCodecs.VEC3, PackageDestroyPacket::location,
@@ -31,7 +28,6 @@ public record PackageDestroyPacket(Vec3 location, ItemStack box) implements Cust
 		return AllPackets.PACKAGE_DESTROYED.getType();
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public void handle(LocalPlayer player) {
 		ClientLevel level = Minecraft.getInstance().level;
 		Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, level.getRandom(), .125f);

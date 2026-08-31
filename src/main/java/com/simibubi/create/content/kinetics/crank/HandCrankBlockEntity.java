@@ -19,9 +19,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 public class HandCrankBlockEntity extends GeneratingKineticBlockEntity {
 
 	public int inUse;
@@ -100,7 +97,6 @@ public class HandCrankBlockEntity extends GeneratingKineticBlockEntity {
 		}
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public SuperByteBuffer getRenderedHandle() {
 		BlockState blockState = getBlockState();
 		Direction facing = blockState.getOptionalValue(HandCrankBlock.FACING)
@@ -108,7 +104,6 @@ public class HandCrankBlockEntity extends GeneratingKineticBlockEntity {
 		return CachedBufferer.partialFacing(AllPartialModels.HAND_CRANK_HANDLE, blockState, facing.getOpposite());
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public boolean shouldRenderShaft() {
 		return true;
 	}
@@ -120,7 +115,6 @@ public class HandCrankBlockEntity extends GeneratingKineticBlockEntity {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void tickAudio() {
 		super.tickAudio();
 		if (inUse > 0 && AnimationTickHolder.getTicks() % 10 == 0) {
