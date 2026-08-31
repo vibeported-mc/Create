@@ -2,12 +2,18 @@ package com.simibubi.create.foundation.item;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.simibubi.create.foundation.transfer.Transactions;
+
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
@@ -21,6 +27,27 @@ public class ContainerItemHandler implements ModifiableItemHandler {
 
 	private final Container container;
 	private final ResourceHandler<ItemResource> wrapped;
+	private final SnapshotJournal<List<ItemStack>> directWrites = new SnapshotJournal<>() {
+
+		@Override
+		protected List<ItemStack> createSnapshot() {
+			List<ItemStack> contents = new ArrayList<>(container.getContainerSize());
+
+			for (int slot = 0; slot < container.getContainerSize(); slot++)
+				contents.add(container.getItem(slot)
+					.copy());
+
+			return contents;
+		}
+
+		@Override
+		protected void revertToSnapshot(List<ItemStack> snapshot) {
+			for (int slot = 0; slot < snapshot.size(); slot++)
+				container.setItem(slot, snapshot.get(slot));
+
+			container.setChanged();
+		}
+	};
 
 	/**
 	 * The handler if its slots can already be written, or the block's own container seen that way.
@@ -50,8 +77,22 @@ public class ContainerItemHandler implements ModifiableItemHandler {
 		this.wrapped = VanillaContainerWrapper.of(container);
 	}
 
+	/**
+	 * Writes a slot outright, and takes back the write if the transaction it is inside is thrown away.
+	 * <p>
+	 * The transactional half of this handler is looked after by what it wraps, but this half writes to
+	 * the container directly, and a write that outlives a rolled back transaction is a write out of
+	 * nowhere. So the container's contents are noted down before the first such write of a transaction
+	 * and put back if that transaction does not commit. Called with no transaction running - which is
+	 * how mounting and unmounting use it - there is nothing to note and it simply writes.
+	 */
 	@Override
 	public void set(int index, ItemResource resource, int amount) {
+		TransactionContext transaction = Transactions.current();
+
+		if (transaction != null)
+			directWrites.updateSnapshots(transaction);
+
 		container.setItem(index, resource.toStack(amount));
 		container.setChanged();
 	}
@@ -99,13 +140,6 @@ public class ContainerItemHandler implements ModifiableItemHandler {
 	@Override
 	public int extract(ItemResource resource, int amount, TransactionContext transaction) {
 		return wrapped.extract(resource, amount, transaction);
-	}
-
-	/**
-	 * The stack in a slot, without a copy - the container's own.
-	 */
-	public ItemStack getStackInSlot(int index) {
-		return container.getItem(index);
 	}
 
 }

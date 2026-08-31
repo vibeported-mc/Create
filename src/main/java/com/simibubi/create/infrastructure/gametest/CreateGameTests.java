@@ -8,6 +8,8 @@ import com.simibubi.create.infrastructure.gametest.tests.TestItems;
 import com.simibubi.create.infrastructure.gametest.tests.TestMisc;
 import com.simibubi.create.infrastructure.gametest.tests.TestProcessing;
 import com.simibubi.create.infrastructure.gametest.tests.TestRegressions;
+import com.simibubi.create.infrastructure.gametest.tests.TestTransferFluids;
+import com.simibubi.create.infrastructure.gametest.tests.TestTransferItems;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -34,7 +36,7 @@ public class CreateGameTests {
 
 	private static final Class<?>[] testHolders =
 		{ TestContraptions.class, TestFluids.class, TestItems.class, TestMisc.class, TestProcessing.class,
-			TestRegressions.class };
+			TestRegressions.class, TestTransferFluids.class, TestTransferItems.class };
 
 	/**
 	 * Every test instance must name a kind of test it is, and the kinds live in a registry of their own.
