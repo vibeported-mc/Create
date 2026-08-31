@@ -63,6 +63,24 @@ public class FluidHandlerHelpers {
 	/**
 	 * Drain up to {@code maxDrain} of whatever the handler holds first.
 	 */
+	/**
+	 * Takes fluid out of one named tank, rather than wherever the handler happens to keep it.
+	 * <p>
+	 * What a tank holds used to be handed out as the tank's own stack, so a caller could shrink it and
+	 * the tank would have less; it is built fresh for the asking now, and shrinking it changes nothing.
+	 * Anything that used to help itself that way has to ask properly, and say which tank.
+	 */
+	public static int drainFrom(ResourceHandler<FluidResource> handler, int tank, FluidStack resource, int amount) {
+		if (resource.isEmpty() || amount <= 0)
+			return 0;
+
+		try (Transaction transaction = Transactions.open()) {
+			int drained = handler.extract(tank, FluidResource.of(resource), amount, transaction);
+			transaction.commit();
+			return drained;
+		}
+	}
+
 	public static FluidStack drain(ResourceHandler<FluidResource> handler, int maxDrain, boolean simulate) {
 		if (maxDrain <= 0)
 			return FluidStack.EMPTY;

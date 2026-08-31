@@ -125,7 +125,7 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 						continue;
 					int drainedAmount = Math.min(amountRequired, fluidStack.getAmount());
 					if (!simulate) {
-						fluidStack.shrink(drainedAmount);
+						FluidHandlerHelpers.drainFrom(availableFluids, tank, fluidStack, drainedAmount);
 						fluidsAffected = true;
 					}
 					amountRequired -= drainedAmount;
