@@ -277,6 +277,8 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		if (entitySearchCooldown-- <= 0 && item.isEmpty()) {
 			entitySearchCooldown = 5;
 			findEntities(itemSpeed);
+			if (itemSpeed <= 0)
+				AbstractChuteBlock.offerRestingItems(level, worldPosition);
 		}
 
 		extractFromBelt(itemSpeed);
@@ -530,6 +532,12 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	}
 
 	public void setItem(ItemStack stack, float insertionPos) {
+		String n = stack.getItem().toString();
+		if (n.contains("flint") || n.contains("cooked_beef") || n.contains("soul_sand") || n.contains("iron_ingot")
+			|| n.contains("gravel") || n.contains("beef") || n.contains("sand") || n.contains("raw_iron"))
+			new Exception("[T] SETITEM " + worldPosition.getY() + " " + stack + " at " + insertionPos)
+				.printStackTrace(System.out);
+
 		item = stack;
 		itemPosition.startWithValue(insertionPos);
 		invVersionTracker.reset();

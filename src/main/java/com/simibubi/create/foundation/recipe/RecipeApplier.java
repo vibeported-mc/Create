@@ -60,7 +60,10 @@ public class RecipeApplier {
 
 			}
 		} else {
-			ItemStack out = RecipeAccessors.result(recipe, null)
+			// The level is what a recipe outside Create's own resolves its result against - a smoking or
+			// blasting recipe asked without one hands back nothing, so a fan would finish cooking an item
+			// and produce air. Create's own recipes carry their result outright and never noticed.
+			ItemStack out = RecipeAccessors.result(recipe, level)
 				.copy();
 			stacks = ItemHelper.multipliedOutput(stackIn, out);
 		}
