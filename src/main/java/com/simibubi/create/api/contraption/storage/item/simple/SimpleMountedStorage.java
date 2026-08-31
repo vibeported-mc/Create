@@ -4,6 +4,7 @@ import com.simibubi.create.foundation.item.ItemStackHandler;
 import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import com.simibubi.create.foundation.item.ContainerItemHandler;
 import com.simibubi.create.foundation.item.ModifiableItemHandler;
 import java.util.Optional;
 import java.util.function.Function;
@@ -50,7 +51,8 @@ public class SimpleMountedStorage extends WrapperMountedItemStorage<ItemStackHan
 		if (be == null)
 			return;
 
-		ResourceHandler<ItemResource> cap = level.getCapability(Capabilities.Item.BLOCK, pos, null);
+		ResourceHandler<ItemResource> cap =
+			ContainerItemHandler.writable(level.getCapability(Capabilities.Item.BLOCK, pos, null), be);
 		if (cap != null) {
 			validate(cap).ifPresent(handler -> {
 				for (int i = 0; i < handler.size(); i++) {

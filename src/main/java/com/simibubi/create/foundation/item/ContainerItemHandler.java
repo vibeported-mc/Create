@@ -1,6 +1,9 @@
 package com.simibubi.create.foundation.item;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.world.Container;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -18,6 +21,29 @@ public class ContainerItemHandler implements ModifiableItemHandler {
 
 	private final Container container;
 	private final ResourceHandler<ItemResource> wrapped;
+
+	/**
+	 * The handler if its slots can already be written, or the block's own container seen that way.
+	 * <p>
+	 * 1.21.1 handed out an {@code InvWrapper} for a plain container, which was modifiable, so a block
+	 * that is only a container could be mounted on a contraption and written back on disassembly. Its
+	 * replacement is transactional only, so the container behind it is wrapped instead. That is the
+	 * whole inventory, without whatever a sided view would have hidden - which is what mounting wants,
+	 * since it carries the block's contents off and has to put all of them back.
+	 */
+	@Nullable
+	public static ModifiableItemHandler writable(@Nullable ResourceHandler<ItemResource> handler,
+		@Nullable BlockEntity be) {
+
+		if (handler instanceof ModifiableItemHandler modifiable)
+			return modifiable;
+
+		if (be instanceof Container container
+			&& (handler == null || handler.size() == container.getContainerSize()))
+			return new ContainerItemHandler(container);
+
+		return null;
+	}
 
 	public ContainerItemHandler(Container container) {
 		this.container = container;

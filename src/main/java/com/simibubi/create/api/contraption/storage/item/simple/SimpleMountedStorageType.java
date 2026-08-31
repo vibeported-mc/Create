@@ -2,7 +2,7 @@ package com.simibubi.create.api.contraption.storage.item.simple;
 
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import com.simibubi.create.foundation.item.ContainerItemHandler;
 import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
@@ -35,7 +35,7 @@ public abstract class SimpleMountedStorageType<T extends SimpleMountedStorage> e
 	protected ResourceHandler<ItemResource> getHandler(Level level, BlockEntity be) {
 		ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, be.getBlockPos(), null);
 		// make sure the handler is modifiable so new contents can be moved over on disassembly
-		return handler instanceof ModifiableItemHandler modifiable ? modifiable : null;
+		return ContainerItemHandler.writable(handler, be);
 	}
 
 	protected SimpleMountedStorage createStorage(ResourceHandler<ItemResource> handler) {
