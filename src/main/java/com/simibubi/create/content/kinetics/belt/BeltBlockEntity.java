@@ -110,7 +110,7 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 	@Override
 	public void tick() {
 		// Init belt
-		if (beltLength == 0 || !hasValidController())
+		if (beltLength == 0)
 			BeltBlock.initBelt(level, worldPosition);
 
 		super.tick();
@@ -304,22 +304,6 @@ public class BeltBlockEntity extends KineticBlockEntity implements Clearable {
 
 	public BlockPos getController() {
 		return controller == null ? worldPosition : controller;
-	}
-
-	/**
-	 * GAMETEST FIX - a stopgap: the position saved for the head is what really wants correcting.
-	 * <p>
-	 * Whether the segment this belt thinks is in charge of it is a belt at all.
-	 * <p>
-	 * Which segment that is gets written down as a plain position, so a belt saved in one place and put
-	 * down in another - out of a structure, a schematic, anything that carries blocks - comes back naming
-	 * a spot in the world it was built in, where there is no belt and possibly nothing at all. A belt in
-	 * that state turns and carries nothing, since every segment but the head refuses what it is handed.
-	 * <p>
-	 * Saying so is what lets it work itself out again from the blocks that are actually around it.
-	 */
-	public boolean hasValidController() {
-		return isController() || getControllerBE() != null;
 	}
 
 	public boolean isController() {
