@@ -1,6 +1,8 @@
 package com.simibubi.create.api.contraption.storage.item.menu;
 
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -27,7 +29,8 @@ public class MountedStorageMenus {
 	);
 
 	@Nullable
-	public static MenuProvider createGeneric(Component menuName, ModifiableItemHandler handler,
+	public static MenuProvider createGeneric(Component menuName, ResourceHandler<ItemResource> handler,
+											 IndexModifier<ItemResource> writable,
 											 Predicate<Player> stillValid, Consumer<Player> onClose) {
 		int rows = handler.size() / 9;
 		if (rows < 1 || rows > 6)
@@ -38,18 +41,19 @@ public class MountedStorageMenus {
 			return null;
 
 		MenuType<?> type = GENERIC_CHEST_MENUS.get(rows - 1);
-		Container wrapper = new StorageInteractionWrapper(handler, stillValid, onClose);
+		Container wrapper = new StorageInteractionWrapper(handler, writable, stillValid, onClose);
 		MenuConstructor constructor = (id, inv, player) -> new ChestMenu(type, id, inv, wrapper, rows);
 		return new SimpleMenuProvider(constructor, menuName);
 	}
 
 	@Nullable
-	public static MenuProvider createGeneric9x9(Component name, ModifiableItemHandler handler,
+	public static MenuProvider createGeneric9x9(Component name, ResourceHandler<ItemResource> handler,
+												IndexModifier<ItemResource> writable,
 												Predicate<Player> stillValid, Consumer<Player> onClose) {
 		if (handler.size() != 9)
 			return null;
 
-		Container wrapper = new StorageInteractionWrapper(handler, stillValid, onClose);
+		Container wrapper = new StorageInteractionWrapper(handler, writable, stillValid, onClose);
 		MenuConstructor constructor = (id, inv, player) -> new DispenserMenu(id, inv, wrapper);
 		return new SimpleMenuProvider(constructor, name);
 	}

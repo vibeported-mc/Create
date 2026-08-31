@@ -1,8 +1,13 @@
 package com.simibubi.create.content.fluids.transfer;
 
-import com.simibubi.create.foundation.fluid.ItemFluidAccess;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.List;
@@ -34,7 +39,7 @@ public class GenericItemEmptying {
 		if (capability == null)
 			return false;
 		for (int i = 0; i < capability.size(); i++) {
-			if (FluidHandlerHelpers.getFluidInTank(capability, i)
+			if (FluidUtil.getStack(capability, i)
 				.getAmount() > 0)
 				return true;
 		}
@@ -61,12 +66,21 @@ public class GenericItemEmptying {
 
 		ItemStack split = stack.copy();
 		split.setCount(1);
-		ItemFluidAccess access = new ItemFluidAccess(split);
-		ResourceHandler<FluidResource> capability = access.handler();
+		// One slot the fluid handler is allowed to swap the item inside: filling a bucket
+		// changes which item is held, and an access over a bare stack refuses that.
+		ItemStacksResourceHandler carrier = new ItemStacksResourceHandler(1);
+		carrier.set(0, ItemResource.of(split), split.getCount());
+		ItemAccess access = ItemAccess.forHandlerIndex(carrier, 0);
+		ResourceHandler<FluidResource> capability = access.getCapability(Capabilities.Fluid.ITEM);
 		if (capability == null)
 			return Pair.of(resultingFluid, resultingItem);
-		resultingFluid = FluidHandlerHelpers.drain(capability, 1000, simulate);
-		resultingItem = access.result()
+		try (Transaction transaction = Transaction.openRoot()) {
+			ResourceStack<FluidResource> transferred = ResourceHandlerUtil.extractFirst(capability, resource -> true, 1000, transaction);
+			resultingFluid = transferred == null ? FluidStack.EMPTY : transferred.resource().toStack(transferred.amount());
+			if (!simulate)
+				transaction.commit();
+		}
+		resultingItem = ItemUtil.getStack(carrier, 0)
 			.copy();
 		if (!simulate)
 			stack.shrink(1);

@@ -36,8 +36,8 @@ public class Curios {
 	}
 
 	// Curios 16 still exposes its slots through NeoForge's legacy IItemHandlerModifiable rather than
-	// the new ResourceHandler, so these read the stacks directly instead of going through
-	// ItemHandlerHelpers like the rest of Create does.
+	// the new ResourceHandler, so these read the stacks directly instead of going through ItemUtil
+	// like the rest of Create does.
 	public static void init(IEventBus modEventBus) {
 		modEventBus.addListener(Curios::onClientSetup);
 

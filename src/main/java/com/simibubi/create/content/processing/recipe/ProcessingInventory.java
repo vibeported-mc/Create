@@ -1,19 +1,16 @@
 package com.simibubi.create.content.processing.recipe;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.function.Consumer;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
-
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class ProcessingInventory extends ItemStackHandler {
+public class ProcessingInventory extends ItemStacksResourceHandler {
 	public float remainingTime;
 	public float recipeDuration;
 	public boolean appliedRecipe;
@@ -54,7 +51,7 @@ public class ProcessingInventory extends ItemStackHandler {
 	public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
 		int inserted = super.insert(index, resource, amount, transaction);
 		if (index == 0 && inserted > 0)
-			callback.accept(ItemHandlerHelpers.getStackInSlot(this, index));
+			callback.accept(ItemUtil.getStack(this, index));
 		return inserted;
 	}
 

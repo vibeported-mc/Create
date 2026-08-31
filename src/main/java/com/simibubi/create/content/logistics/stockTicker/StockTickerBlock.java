@@ -1,6 +1,8 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.mojang.serialization.MapCodec;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllPartialModels;
@@ -68,11 +70,21 @@ public class StockTickerBlock extends HorizontalDirectionalBlock implements IBE<
 				return InteractionResult.SUCCESS;
 
 			if (!level.isClientSide() && !stbe.receivedPayments.isEmpty()) {
-				for (int i = 0; i < stbe.receivedPayments.size(); i++)
+				for (int i = 0; i < stbe.receivedPayments.size(); i++) {
+					ItemStack payment;
+
+					try (Transaction transaction = Transaction.openRoot()) {
+						ItemResource held = stbe.receivedPayments.getResource(i);
+						int taken = held.isEmpty() ? 0
+							: stbe.receivedPayments.extract(i, held, ItemUtil.getStack(stbe.receivedPayments, i)
+								.getCount(), transaction);
+						payment = taken <= 0 ? ItemStack.EMPTY : held.toStack(taken);
+						transaction.commit();
+					}
+
 					player.getInventory()
-						.placeItemBackInInventory(
-							ItemHandlerHelpers.extractItem(stbe.receivedPayments, i, ItemHandlerHelpers.getStackInSlot(stbe.receivedPayments, i)
-								.getCount(), false));
+						.placeItemBackInInventory(payment);
+				}
 				AllSoundEvents.playItemPickup(player);
 				return InteractionResult.SUCCESS;
 			}

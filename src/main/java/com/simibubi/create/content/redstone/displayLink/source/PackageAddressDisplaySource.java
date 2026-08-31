@@ -1,6 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
@@ -43,7 +43,7 @@ public class PackageAddressDisplaySource extends SingleLineDisplaySource {
 		}
 
 		for (int i = 0; i < handler.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
+			ItemStack stack = ItemUtil.getStack(handler, i);
 			if (PackageItem.isPackage(stack) && filteringBehaviour.test(stack))
 				return Component.literal(PackageItem.getAddress(stack));
 		}

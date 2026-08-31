@@ -1,15 +1,17 @@
 package com.simibubi.create.content.processing.basin;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import com.simibubi.create.foundation.item.SmartInventory;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
-import com.simibubi.create.Create;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
@@ -28,7 +30,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -102,7 +103,12 @@ public class BasinBlock extends Block implements EntityRestingOnBlock, IBE<Basin
 				if (stack.getItem().equals(Items.SPONGE)) {
 					ResourceHandler<FluidResource> fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, pos, null);
 					if (fluidHandler != null) {
-					FluidStack drained = FluidHandlerHelpers.drain(fluidHandler, Integer.MAX_VALUE, false);
+					FluidStack drained;
+					try (Transaction transaction = Transaction.openRoot()) {
+						ResourceStack<FluidResource> transferred = ResourceHandlerUtil.extractFirst(fluidHandler, resource -> true, Integer.MAX_VALUE, transaction);
+						drained = transferred == null ? FluidStack.EMPTY : transferred.resource().toStack(transferred.amount());
+						transaction.commit();
+					}
 					if (!drained.isEmpty()) {
 							return InteractionResult.SUCCESS;
 						}
@@ -111,18 +117,19 @@ public class BasinBlock extends Block implements EntityRestingOnBlock, IBE<Basin
 				return InteractionResult.TRY_WITH_EMPTY_HAND;
 			}
 
-			ModifiableItemHandler inv = be.itemCapability;
-			if (inv == null)
-				inv = new ItemStackHandler(1);
+			// The two real inventories rather than the combined capability in front of them: emptying
+			// writes slots outright, and only the inventories themselves can be written that way.
 			boolean success = false;
-			for (int slot = 0; slot < inv.size(); slot++) {
-				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inv, slot);
-				if (stackInSlot.isEmpty())
-					continue;
-				player.getInventory()
-					.placeItemBackInInventory(stackInSlot);
-				ItemHandlerHelpers.setStackInSlot(inv, slot, ItemStack.EMPTY);
-				success = true;
+			for (SmartInventory inv : be.getInvs()) {
+				for (int slot = 0; slot < inv.size(); slot++) {
+					ItemStack stackInSlot = ItemUtil.getStack(inv, slot);
+					if (stackInSlot.isEmpty())
+						continue;
+					player.getInventory()
+						.placeItemBackInInventory(stackInSlot);
+					inv.set(slot, ItemResource.EMPTY, 0);
+					success = true;
+				}
 			}
 			if (success)
 				level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f,
@@ -142,8 +149,17 @@ public class BasinBlock extends Block implements EntityRestingOnBlock, IBE<Basin
 		if (!entityIn.isAlive())
 			return;
 		withBlockEntityDo(worldIn, entityIn.blockPosition(), be -> {
-			ItemStack insertItem = ItemHandlerHelpers.insertItem(be.inputInventory, itemEntity.getItem()
-				.copy(), false);
+			ItemStack dropped = itemEntity.getItem()
+				.copy();
+			ItemStack insertItem;
+
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = dropped.isEmpty() ? 0
+					: be.inputInventory.insert(ItemResource.of(dropped), dropped.getCount(), transaction);
+				insertItem = transferred == dropped.getCount() ? ItemStack.EMPTY
+					: dropped.copyWithCount(dropped.getCount() - transferred);
+				transaction.commit();
+			}
 			if (insertItem.isEmpty()) {
 				itemEntity.discard();
 				return;

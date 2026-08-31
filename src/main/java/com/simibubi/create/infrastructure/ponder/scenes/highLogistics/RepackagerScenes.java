@@ -1,6 +1,7 @@
 package com.simibubi.create.infrastructure.ponder.scenes.highLogistics;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
@@ -387,7 +388,11 @@ public class RepackagerScenes {
 					ResourceHandler<ItemResource> handler = be.getLevel().getCapability(Capabilities.Item.BLOCK, be.getBlockPos(), null);
 					if (handler == null)
 						return;
-					ItemHandlerHelpers.insertItemStacked(handler, stack, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						if (!stack.isEmpty())
+							ResourceHandlerUtil.insertStacking(handler, ItemResource.of(stack), stack.getCount(), transaction);
+						transaction.commit();
+					}
 				});
 	}
 

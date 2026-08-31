@@ -1,6 +1,7 @@
 package com.simibubi.create.content.fluids;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.lang.ref.WeakReference;
@@ -37,19 +38,40 @@ public abstract class FlowSource {
 		ResourceHandler<FluidResource> tank = tankCache.getCapability();
 		if (tank == null)
 			return FluidStack.EMPTY;
-		FluidStack immediateFluid = FluidHandlerHelpers.drain(tank, 1, true);
+		FluidStack immediateFluid = FluidStack.EMPTY;
+
+		for (int i = 0; i < tank.size(); i++) {
+			FluidResource held = tank.getResource(i);
+			if (held.isEmpty())
+				continue;
+
+			// never committed: this only looks at what could be taken
+			try (Transaction transaction = Transaction.openRoot()) {
+				int drained = tank.extract(held, 1, transaction);
+				if (drained <= 0)
+					continue;
+				immediateFluid = held.toStack(drained);
+			}
+
+			break;
+		}
 		if (extractionPredicate.test(immediateFluid))
 			return immediateFluid;
 
 		for (int i = 0; i < tank.size(); i++) {
-			FluidStack contained = FluidHandlerHelpers.getFluidInTank(tank, i);
+			FluidStack contained = FluidUtil.getStack(tank, i);
 			if (contained.isEmpty())
 				continue;
 			if (!extractionPredicate.test(contained))
 				continue;
 			FluidStack toExtract = contained.copy();
 			toExtract.setAmount(1);
-			return FluidHandlerHelpers.drain(tank, toExtract, true);
+			try (Transaction transaction = Transaction.openRoot()) {
+				FluidResource wanted = FluidResource.of(toExtract);
+				int transferred = tank.extract(wanted, toExtract.getAmount(), transaction);
+				// simulated: the transaction is dropped, so nothing was really taken
+				return transferred <= 0 ? FluidStack.EMPTY : wanted.toStack(transferred);
+			}
 		}
 
 		return FluidStack.EMPTY;

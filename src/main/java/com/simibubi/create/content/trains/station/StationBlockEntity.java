@@ -1,6 +1,5 @@
 package com.simibubi.create.content.trains.station;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import com.simibubi.create.foundation.utility.ComponentJson;
 import net.createmod.catnip.api.network.NetworkHelper;
 import net.minecraft.core.UUIDUtil;

@@ -1,6 +1,5 @@
 package com.simibubi.create.content.trains.observer;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.core.UUIDUtil;
 import java.util.UUID;
 

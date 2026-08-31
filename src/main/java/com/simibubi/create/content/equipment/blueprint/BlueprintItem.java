@@ -1,12 +1,11 @@
 package com.simibubi.create.content.equipment.blueprint;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.minecraft.tags.TagKey;
 import java.util.Optional;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.simibubi.create.AllDataComponents;
@@ -19,9 +18,7 @@ import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.HangingEntity;
@@ -72,21 +69,25 @@ public class BlueprintItem extends Item {
 		return InteractionResult.SUCCESS;
 	}
 
-	public static void assignCompleteRecipe(Level level, ItemStackHandler inv, Recipe<?> recipe) {
+	public static void assignCompleteRecipe(Level level, ItemStacksResourceHandler inv, Recipe<?> recipe) {
 		List<Ingredient> ingredients = RecipeAccessors.ingredients(recipe);
 
 		for (int i = 0; i < 9; i++)
-			ItemHandlerHelpers.setStackInSlot(inv, i, ItemStack.EMPTY);
-		ItemHandlerHelpers.setStackInSlot(inv, 9, RecipeAccessors.result(recipe, level));
+			inv.set(i, ItemResource.EMPTY, 0);
+		ItemStack stack = RecipeAccessors.result(recipe, level);
+		inv.set(9, ItemResource.of(stack), stack.getCount());
 
 		if (recipe instanceof ShapedRecipe shapedRecipe) {
 			for (int row = 0; row < shapedRecipe.getHeight(); row++)
-				for (int col = 0; col < shapedRecipe.getWidth(); col++)
-					ItemHandlerHelpers.setStackInSlot(inv, row * 3 + col,
-						convertIngredientToFilter(ingredients.get(row * shapedRecipe.getWidth() + col)));
+				for (int col = 0; col < shapedRecipe.getWidth(); col++) {
+					ItemStack filter = convertIngredientToFilter(ingredients.get(row * shapedRecipe.getWidth() + col));
+					inv.set(row * 3 + col, ItemResource.of(filter), filter.getCount());
+				}
 		} else {
-			for (int i = 0; i < ingredients.size(); i++)
-				ItemHandlerHelpers.setStackInSlot(inv, i, convertIngredientToFilter(ingredients.get(i)));
+			for (int i = 0; i < ingredients.size(); i++) {
+				ItemStack filter = convertIngredientToFilter(ingredients.get(i));
+				inv.set(i, ItemResource.of(filter), filter.getCount());
+			}
 		}
 	}
 
@@ -113,9 +114,11 @@ public class BlueprintItem extends Item {
 			return stacks.get(0);
 
 		ItemStack result = AllItems.FILTER.asStack();
-		ItemStackHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
-		for (int i = 0; i < stacks.size(); i++)
-			ItemHandlerHelpers.setStackInSlot(filterItems, i, stacks.get(i));
+		ItemStacksResourceHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
+		for (int i = 0; i < stacks.size(); i++) {
+			ItemStack stack = stacks.get(i);
+			filterItems.set(i, ItemResource.of(stack), stack.getCount());
+		}
 		result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));
 		// A compound ingredient's members were matched exactly, so the filter it becomes does too.
 		if (isCompoundIngredient)

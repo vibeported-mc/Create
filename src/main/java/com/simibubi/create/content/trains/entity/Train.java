@@ -1,13 +1,14 @@
 package com.simibubi.create.content.trains.entity;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.utility.ComponentJson;
 import net.createmod.catnip.api.network.NetworkHelper;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -67,7 +68,6 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -250,7 +250,12 @@ public class Train {
 					for (int slot = 0; slot < inv.size(); slot++) {
 						if (shouldActivate)
 							break;
-						ItemStack extractItem = ItemHandlerHelpers.extractItem(inv, slot, 1, true);
+						ItemStack extractItem;
+						try (Transaction transaction = Transaction.openRoot()) {
+							ItemResource transferredResource = inv.getResource(slot);
+							int transferred = transferredResource.isEmpty() ? 0 : inv.extract(slot, transferredResource, 1, transaction);
+							extractItem = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+						}
 						if (extractItem.isEmpty())
 							continue;
 						shouldActivate |= filter.test(level, extractItem);
@@ -262,7 +267,11 @@ public class Train {
 					for (int slot = 0; slot < tank.size(); slot++) {
 						if (shouldActivate)
 							break;
-						FluidStack drain = FluidHandlerHelpers.drain(tank, 1, true);
+						FluidStack drain;
+						try (Transaction transaction = Transaction.openRoot()) {
+							ResourceStack<FluidResource> transferred2 = ResourceHandlerUtil.extractFirst(tank, resource -> true, 1, transaction);
+							drain = transferred2 == null ? FluidStack.EMPTY : transferred2.resource().toStack(transferred2.amount());
+						}
 						if (drain.isEmpty())
 							continue;
 						shouldActivate |= filter.test(level, drain);
@@ -365,7 +374,6 @@ public class Train {
 						entries++;
 					}
 				}
-
 
 				if (entries > 0)
 					actual = total / entries;
@@ -1127,16 +1135,29 @@ public class Train {
 				continue;
 
 			for (int slot = 0; slot < fuelItems.size(); slot++) {
-				ItemStack stack = ItemHandlerHelpers.extractItem(fuelItems, slot, 1, true);
+				ItemStack stack;
+				try (Transaction transaction = Transaction.openRoot()) {
+					ItemResource transferred3Resource = fuelItems.getResource(slot);
+					int transferred3 = transferred3Resource.isEmpty() ? 0 : fuelItems.extract(slot, transferred3Resource, 1, transaction);
+					stack = transferred3 <= 0 ? ItemStack.EMPTY : transferred3Resource.toStack(transferred3);
+				}
 				int burnTime = stack.getBurnTime(null, level.fuelValues());
 				if (burnTime <= 0)
 					continue;
 
-				stack = ItemHandlerHelpers.extractItem(fuelItems, slot, 1, false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ItemResource transferred4Resource = fuelItems.getResource(slot);
+					int transferred4 = transferred4Resource.isEmpty() ? 0 : fuelItems.extract(slot, transferred4Resource, 1, transaction);
+					stack = transferred4 <= 0 ? ItemStack.EMPTY : transferred4Resource.toStack(transferred4);
+					transaction.commit();
+				}
 				fuelTicks += burnTime * stack.getCount();
 				ItemStack containerItem = ItemHelper.getCraftingRemainder(stack);
 				if (!containerItem.isEmpty())
-					ItemHandlerHelpers.insertItemStacked(fuelItems, containerItem, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						int transferred = containerItem.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(fuelItems, ItemResource.of(containerItem), containerItem.getCount(), transaction);
+						transaction.commit();
+					}
 				return;
 			}
 		}

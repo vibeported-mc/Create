@@ -1,7 +1,6 @@
 package com.simibubi.create.content.trains.schedule.condition;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.List;
@@ -50,7 +49,7 @@ public class FluidThresholdCondition extends CargoThresholdCondition {
 		for (Carriage carriage : train.carriages) {
 			ResourceHandler<FluidResource> fluids = carriage.storage.getFluids();
 			for (int i = 0; i < fluids.size(); i++) {
-				FluidStack fluidInTank = FluidHandlerHelpers.getFluidInTank(fluids, i);
+				FluidStack fluidInTank = FluidUtil.getStack(fluids, i);
 				if (!compareStack.test(level, fluidInTank))
 					continue;
 				foundFluid += fluidInTank.getAmount();

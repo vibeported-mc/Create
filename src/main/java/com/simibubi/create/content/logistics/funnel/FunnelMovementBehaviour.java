@@ -1,6 +1,8 @@
 package com.simibubi.create.content.logistics.funnel;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
 
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
@@ -107,8 +109,14 @@ public class FunnelMovementBehaviour implements MovementBehaviour {
 			ItemStack toInsert = ItemHelper.fromItemEntity(entity);
 			if (!filter.test(context.world, toInsert))
 				continue;
-			ItemStack remainder =
-				ItemHandlerHelpers.insertItemStacked(context.contraption.getStorage().getAllItems(), toInsert, false);
+			ItemStack remainder;
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = ResourceHandlerUtil.insertStacking(context.contraption.getStorage()
+					.getAllItems(), ItemResource.of(toInsert), toInsert.getCount(), transaction);
+				remainder = transferred == toInsert.getCount() ? ItemStack.EMPTY
+					: toInsert.copyWithCount(toInsert.getCount() - transferred);
+				transaction.commit();
+			}
 			if (remainder.getCount() == toInsert.getCount())
 				continue;
 			if (remainder.isEmpty()) {

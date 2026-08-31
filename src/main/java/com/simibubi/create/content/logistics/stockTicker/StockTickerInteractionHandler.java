@@ -1,6 +1,9 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,7 +140,7 @@ public class StockTickerInteractionHandler {
 		for (BigItemStack entry : paymentEntries.getStacksByCount())
 			occupiedSlots += Mth.ceil(entry.count / (float) entry.stack.getMaxStackSize());
 		for (int i = 0; i < tickerBE.receivedPayments.size(); i++)
-			if (ItemHandlerHelpers.getStackInSlot(tickerBE.receivedPayments, i)
+			if (ItemUtil.getStack(tickerBE.receivedPayments, i)
 				.isEmpty())
 				occupiedSlots--;
 
@@ -185,7 +188,12 @@ public class StockTickerInteractionHandler {
 			if (simulate)
 				continue;
 
-			toTransfer.forEach(s -> ItemHandlerHelpers.insertItemStacked(tickerBE.receivedPayments, s, false));
+			try (Transaction transaction = Transaction.openRoot()) {
+				for (ItemStack payment : toTransfer)
+					ResourceHandlerUtil.insertStacking(tickerBE.receivedPayments, ItemResource.of(payment),
+						payment.getCount(), transaction);
+				transaction.commit();
+			}
 		}
 
 		tickerBE.broadcastPackageRequest(RequestType.PLAYER, order, null, ShoppingListItem.getAddress(mainHandItem));

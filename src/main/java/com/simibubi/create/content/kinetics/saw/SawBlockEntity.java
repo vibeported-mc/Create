@@ -1,11 +1,14 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import com.simibubi.create.foundation.utility.NbtValueIO;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.foundation.utility.RegistryNbt;
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import net.minecraft.tags.BlockItemTags;
 import net.minecraft.world.item.ItemStackTemplate;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jspecify.annotations.NullMarked;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -118,7 +121,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 
 	@Override
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
+		compound.put("Inventory", NbtValueIO.serialize(inventory, registries));
 		compound.putInt("RecipeIndex", recipeIndex);
 		super.write(compound, registries, clientPacket);
 
@@ -131,7 +134,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
-		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
+		NbtValueIO.deserialize(inventory, compound.getCompoundOrEmpty("Inventory"), registries);
 		recipeIndex = compound.getIntOr("RecipeIndex", 0);
 		if (compound.contains("PlayEvent"))
 			playEvent = compound.read("PlayEvent", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(registries)).orElse(ItemStack.EMPTY);
@@ -178,7 +181,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 			return;
 		if (inventory.remainingTime == -1) {
 			if (!inventory.isEmpty() && !inventory.appliedRecipe)
-				start(ItemHandlerHelpers.getStackInSlot(inventory, 0));
+				start(ItemUtil.getStack(inventory, 0));
 			return;
 		}
 
@@ -186,12 +189,12 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 		inventory.remainingTime -= processingSpeed;
 
 		if (inventory.remainingTime > 0)
-			spawnParticles(ItemHandlerHelpers.getStackInSlot(inventory, 0));
+			spawnParticles(ItemUtil.getStack(inventory, 0));
 
 		if (inventory.remainingTime < 5 && !inventory.appliedRecipe) {
 			if (level.isClientSide() && !isVirtual())
 				return;
-			playEvent = ItemHandlerHelpers.getStackInSlot(inventory, 0);
+			playEvent = ItemUtil.getStack(inventory, 0);
 			applyRecipe();
 			inventory.appliedRecipe = true;
 			inventory.recipeDuration = 20;
@@ -207,14 +210,14 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 		inventory.remainingTime = 0;
 
 		for (int slot = 0; slot < inventory.size(); slot++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(inventory, slot);
+			ItemStack stack = ItemUtil.getStack(inventory, slot);
 			if (stack.isEmpty())
 				continue;
 			ItemStack tryExportingToBeltFunnel = getBehaviour(DirectBeltInputBehaviour.TYPE)
 				.tryExportingToBeltFunnel(stack, itemMovementFacing.getOpposite(), false);
 			if (tryExportingToBeltFunnel != null) {
 				if (tryExportingToBeltFunnel.getCount() != stack.getCount()) {
-					ItemHandlerHelpers.setStackInSlot(inventory, slot, tryExportingToBeltFunnel);
+					inventory.set(slot, ItemResource.of(tryExportingToBeltFunnel), tryExportingToBeltFunnel.getCount());
 					notifyUpdate();
 					return;
 				}
@@ -232,13 +235,13 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 			if (level.isClientSide() && !isVirtual())
 				return;
 			for (int slot = 0; slot < inventory.size(); slot++) {
-				ItemStack stack = ItemHandlerHelpers.getStackInSlot(inventory, slot);
+				ItemStack stack = ItemUtil.getStack(inventory, slot);
 				if (stack.isEmpty())
 					continue;
 				ItemStack remainder = behaviour.handleInsertion(stack, itemMovementFacing, false);
 				if (ItemStack.matches(remainder, stack))
 					continue;
-				ItemHandlerHelpers.setStackInSlot(inventory, slot, remainder);
+				inventory.set(slot, ItemResource.of(remainder), remainder.getCount());
 				changed = true;
 			}
 			if (changed) {
@@ -255,7 +258,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 		Vec3 outMotion = itemMovement.scale(.0625)
 			.add(0, .125, 0);
 		for (int slot = 0; slot < inventory.size(); slot++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(inventory, slot);
+			ItemStack stack = ItemUtil.getStack(inventory, slot);
 			if (stack.isEmpty())
 				continue;
 			ItemEntity entityIn = new ItemEntity(level, outPos.x, outPos.y, outPos.z, stack);
@@ -338,19 +341,21 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 	}
 
 	private void applyRecipe() {
-		ItemStack input = ItemHandlerHelpers.getStackInSlot(inventory, 0);
+		ItemStack input = ItemUtil.getStack(inventory, 0);
 		List<ItemStack> list = new ArrayList<>();
 
 		if (PackageItem.isPackage(input)) {
 			inventory.clear();
-			ItemStackHandler results = PackageItem.getContents(input);
+			ItemStacksResourceHandler results = PackageItem.getContents(input);
 			for (int i = 0; i < results.size(); i++) {
-				ItemStack stack = ItemHandlerHelpers.getStackInSlot(results, i);
+				ItemStack stack = ItemUtil.getStack(results, i);
 				if (!stack.isEmpty())
 					ItemHelper.addToList(stack, list);
 			}
-			for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++)
-				ItemHandlerHelpers.setStackInSlot(inventory, slot + 1, list.get(slot));
+			for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++) {
+				ItemStack stack = list.get(slot);
+				inventory.set(slot + 1, ItemResource.of(stack), stack.getCount());
+			}
 			return;
 		}
 
@@ -383,14 +388,16 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 				ItemHelper.addToList(ItemHelper.getCraftingRemainder(input), list);
 		}
 
-		for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++)
-			ItemHandlerHelpers.setStackInSlot(inventory, slot + 1, list.get(slot));
+		for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++) {
+			ItemStack stack = list.get(slot);
+			inventory.set(slot + 1, ItemResource.of(stack), stack.getCount());
+		}
 
 		award(AllAdvancements.SAW_PROCESSING);
 	}
 
 	private List<RecipeHolder<? extends Recipe<?>>> getRecipes() {
-		Optional<RecipeHolder<CuttingRecipe>> assemblyRecipe = SequencedAssemblyRecipe.getRecipe(level, ItemHandlerHelpers.getStackInSlot(inventory, 0),
+		Optional<RecipeHolder<CuttingRecipe>> assemblyRecipe = SequencedAssemblyRecipe.getRecipe(level, ItemUtil.getStack(inventory, 0),
 			AllRecipeTypes.CUTTING.getType(), CuttingRecipe.class);
 		if (assemblyRecipe.isPresent() && filtering.test(assemblyRecipe.get().value()
 			.getResultItem(level.registryAccess())))
@@ -402,7 +409,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 		List<RecipeHolder<? extends Recipe<?>>> startedSearch = RecipeFinder.get(cuttingRecipesKey, level, types);
 		return startedSearch.stream()
 			.filter(RecipeConditions.outputMatchesFilter(filtering))
-			.filter(RecipeConditions.firstIngredientMatches(ItemHandlerHelpers.getStackInSlot(inventory, 0)))
+			.filter(RecipeConditions.firstIngredientMatches(ItemUtil.getStack(inventory, 0)))
 			.filter(r -> !AllRecipeTypes.shouldIgnoreInAutomation(r))
 			.collect(Collectors.toList());
 	}
@@ -418,8 +425,17 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements C
 			return;
 
 		inventory.clear();
-		ItemStack remainder = ItemHandlerHelpers.insertItem(inventory, 0, entity.getItem()
-			.copy(), false);
+		ItemStack sawn = entity.getItem()
+			.copy();
+		ItemStack remainder;
+
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = sawn.isEmpty() ? 0
+				: inventory.insert(0, ItemResource.of(sawn), sawn.getCount(), transaction);
+			remainder = transferred == sawn.getCount() ? ItemStack.EMPTY
+				: sawn.copyWithCount(sawn.getCount() - transferred);
+			transaction.commit();
+		}
 		if (remainder.isEmpty())
 			entity.discard();
 		else

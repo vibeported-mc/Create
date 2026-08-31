@@ -1,6 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
@@ -31,7 +31,7 @@ public class FluidAmountDisplaySource extends SingleLineDisplaySource {
 
 		long collected = 0;
 		for (int i = 0; i < handler.size(); i++) {
-			FluidStack stack = FluidHandlerHelpers.getFluidInTank(handler, i);
+			FluidStack stack = FluidUtil.getStack(handler, i);
 			if (stack.isEmpty())
 				continue;
 			if (!filteringBehaviour.test(stack))

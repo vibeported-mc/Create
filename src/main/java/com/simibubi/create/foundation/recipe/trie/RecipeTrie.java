@@ -1,10 +1,10 @@
 package com.simibubi.create.foundation.recipe.trie;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class RecipeTrie<R extends Recipe<?>> {
 
 		if (itemStorage != null) {
 			for (int slot = 0; slot < itemStorage.size(); slot++) {
-				ItemStack item = ItemHandlerHelpers.getStackInSlot(itemStorage, slot);
+				ItemStack item = ItemUtil.getStack(itemStorage, slot);
 				if (item.isEmpty()) continue;
 
 				variants.add(new AbstractVariant.AbstractItem(item.getItem()));
@@ -71,7 +71,7 @@ public class RecipeTrie<R extends Recipe<?>> {
 
 		if (fluidStorage != null) {
 			for (int tank = 0; tank < fluidStorage.size(); tank++) {
-				FluidStack fluid = FluidHandlerHelpers.getFluidInTank(fluidStorage, tank);
+				FluidStack fluid = FluidUtil.getStack(fluidStorage, tank);
 				if (fluid.isEmpty()) continue;
 
 				variants.add(new AbstractVariant.AbstractFluid(fluid.getFluid()));

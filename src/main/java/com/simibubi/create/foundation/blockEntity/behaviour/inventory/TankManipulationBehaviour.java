@@ -1,6 +1,7 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.inventory;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.function.Predicate;
@@ -35,13 +36,19 @@ public class TankManipulationBehaviour extends CapManipulationBehaviourBase<Reso
 		ResourceHandler<FluidResource> inventory = getInventory();
 		Predicate<FluidStack> filterTest = getFilterTest(Predicates.alwaysTrue());
 		for (int i = 0; i < inventory.size(); i++) {
-			FluidStack fluidInTank = FluidHandlerHelpers.getFluidInTank(inventory, i);
+			FluidStack fluidInTank = FluidUtil.getStack(inventory, i);
 			if (fluidInTank.isEmpty())
 				continue;
 			if (!filterTest.test(fluidInTank))
 				continue;
-			FluidStack drained =
-				FluidHandlerHelpers.drain(inventory, fluidInTank, simulateNext);
+			FluidStack drained;
+			try (Transaction transaction = Transaction.openRoot()) {
+				FluidResource wanted = FluidResource.of(fluidInTank);
+				int transferred = inventory.extract(wanted, fluidInTank.getAmount(), transaction);
+				drained = transferred <= 0 ? FluidStack.EMPTY : wanted.toStack(transferred);
+				if (!simulateNext)
+					transaction.commit();
+			}
 			if (!drained.isEmpty())
 				return drained;
 		}

@@ -1,14 +1,13 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.minecraft.client.Minecraft;
 import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.logistics.AddressEditBox;
 import com.simibubi.create.content.logistics.BigItemStack;
@@ -57,7 +56,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 		super.containerTick();
 		addressBox.tick();
 		for (int i = 0; i < amounts.size(); i++)
-			if (ItemHandlerHelpers.getStackInSlot(menu.ghostInventory, i)
+			if (ItemUtil.getStack(menu.ghostInventory, i)
 				.isEmpty())
 				amounts.set(i, 1);
 	}
@@ -133,7 +132,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 		for (int i = 0; i < amounts.size(); i++) {
 			int inputX = x + 27 + i * 20;
 			int inputY = y + 28;
-			ItemStack itemStack = ItemHandlerHelpers.getStackInSlot(menu.ghostInventory, i);
+			ItemStack itemStack = ItemUtil.getStack(menu.ghostInventory, i);
 			if (itemStack.isEmpty())
 				continue;
 			Matrix3x2fStack ms = graphics.pose();
@@ -185,7 +184,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 			int inputX = x + 27 + i * 20;
 			int inputY = y + 28;
 			if (mouseX >= inputX && mouseX < inputX + 16 && mouseY >= inputY && mouseY < inputY + 16) {
-				ItemStack itemStack = ItemHandlerHelpers.getStackInSlot(menu.ghostInventory, i);
+				ItemStack itemStack = ItemUtil.getStack(menu.ghostInventory, i);
 				if (itemStack.isEmpty())
 					return true;
 				amounts.set(i,

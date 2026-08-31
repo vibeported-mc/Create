@@ -1,6 +1,8 @@
 package com.simibubi.create.impl.unpacking;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
@@ -38,12 +40,15 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 			 * already have correctly identified there to be enough space for everything.
 			 */
 			for (ItemStack itemStack : items)
-				ItemHandlerHelpers.insertItemStacked(targetInv, itemStack.copy(), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					int transferred = itemStack.copy().isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(targetInv, ItemResource.of(itemStack.copy()), itemStack.copy().getCount(), transaction);
+					transaction.commit();
+				}
 			return true;
 		}
 
 		for (int slot = 0; slot < targetInv.size(); slot++) {
-			ItemStack itemInSlot = ItemHandlerHelpers.getStackInSlot(targetInv, slot);
+			ItemStack itemInSlot = ItemUtil.getStack(targetInv, slot);
 			int itemsAddedToSlot = 0;
 
 			for (int boxSlot = 0; boxSlot < items.size(); boxSlot++) {
@@ -51,12 +56,19 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 				if (toInsert.isEmpty())
 					continue;
 
-				if (ItemHandlerHelpers.insertItem(targetInv, slot, toInsert, true)
-					.getCount() == toInsert.getCount())
+				boolean nothingWouldFit;
+
+				try (Transaction transaction = Transaction.openRoot()) {
+					// never committed: this only asks whether the slot would take any of it
+					nothingWouldFit =
+						targetInv.insert(slot, ItemResource.of(toInsert), toInsert.getCount(), transaction) == 0;
+				}
+
+				if (nothingWouldFit)
 					continue;
 
 				if (itemInSlot.isEmpty()) {
-					int maxStackSize = ItemHandlerHelpers.getSlotLimit(targetInv, slot);
+					int maxStackSize = targetInv.getCapacityAsInt(slot, ItemResource.EMPTY);
 					if (maxStackSize < toInsert.getCount()) {
 						toInsert.shrink(maxStackSize);
 						toInsert = toInsert.copyWithCount(maxStackSize);
@@ -64,16 +76,25 @@ public enum DefaultUnpackingHandler implements UnpackingHandler {
 						items.set(boxSlot, ItemStack.EMPTY);
 
 					itemInSlot = toInsert;
-					ItemHandlerHelpers.insertItem(targetInv, slot, toInsert, simulate);
+					try (Transaction transaction = Transaction.openRoot()) {
+						int transferred2 = toInsert.isEmpty() ? 0 : targetInv.insert(slot, ItemResource.of(toInsert), toInsert.getCount(), transaction);
+						if (!simulate)
+							transaction.commit();
+					}
 					continue;
 				}
 
 				if (!ItemStack.isSameItemSameComponents(toInsert, itemInSlot))
 					continue;
 
-				int insertedAmount = toInsert.getCount() - ItemHandlerHelpers.insertItem(targetInv, slot, toInsert, simulate)
-					.getCount();
-				int slotLimit = Math.min(itemInSlot.getMaxStackSize(), ItemHandlerHelpers.getSlotLimit(targetInv, slot));
+				int insertedAmount;
+
+				try (Transaction transaction = Transaction.openRoot()) {
+					insertedAmount = targetInv.insert(slot, ItemResource.of(toInsert), toInsert.getCount(), transaction);
+					if (!simulate)
+						transaction.commit();
+				}
+				int slotLimit = Math.min(itemInSlot.getMaxStackSize(), targetInv.getCapacityAsInt(slot, ItemResource.EMPTY));
 				int insertableAmountWithPreviousItems =
 					Math.min(toInsert.getCount(), slotLimit - itemInSlot.getCount() - itemsAddedToSlot);
 

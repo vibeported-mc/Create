@@ -1,6 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
@@ -30,7 +30,14 @@ public class ItemCountDisplaySource extends NumericSingleLineDisplaySource {
 
 		int collected = 0;
 		for (int i = 0; i < handler.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.extractItem(handler, i, ItemHandlerHelpers.getSlotLimit(handler, i), true);
+			ItemStack stack;
+			try (Transaction transaction = Transaction.openRoot()) {
+				ItemResource transferredResource = handler.getResource(i);
+				int transferred = transferredResource.isEmpty() ? 0
+					: handler.extract(i, transferredResource, handler.getCapacityAsInt(i, ItemResource.EMPTY),
+						transaction);
+				stack = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+			}
 			if (stack.isEmpty())
 				continue;
 			if (!filteringBehaviour.test(stack))

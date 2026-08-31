@@ -1,10 +1,10 @@
 package com.simibubi.create.content.kinetics.crafter;
 
 import com.simibubi.create.foundation.item.CombinedItemHandler;
-import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import com.simibubi.create.foundation.item.CombinedItemHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import static com.simibubi.create.content.kinetics.base.HorizontalKineticBlock.HORIZONTAL_FACING;
 
 import java.util.ArrayList;
@@ -29,7 +29,6 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -178,7 +177,7 @@ public class ConnectedInputHandler {
 
 		public ResourceHandler<ItemResource> getItemHandler(Level world, BlockPos pos) {
 			List<Inventory> inventories = this.getInventories(world, pos);
-			return new CombinedItemHandler(inventories.toArray(ModifiableItemHandler[]::new));
+			return new CombinedItemHandler(inventories);
 		}
 
 		public List<Inventory> getInventories(Level world, BlockPos pos) {

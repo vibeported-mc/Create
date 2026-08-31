@@ -1,6 +1,9 @@
 package com.simibubi.create.content.trains.station;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import com.simibubi.create.foundation.utility.NbtValueIO;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.lang.ref.WeakReference;
@@ -25,8 +28,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
@@ -70,7 +71,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 		NBTHelper.iterateCompoundList(portList, c -> {
 			GlobalPackagePort port = new GlobalPackagePort();
 			port.address = c.getStringOr("Address", "");
-			ItemHandlerHelpers.deserializeNBT(port.offlineBuffer, registries, c.getCompoundOrEmpty("OfflineBuffer"));
+			NbtValueIO.deserialize(port.offlineBuffer, c.getCompoundOrEmpty("OfflineBuffer"), registries);
 			port.primed = c.getBooleanOr("Primed", false);
 			connectedPorts.put(NBTHelper.readBlockPos(c, "Pos"), port);
 		});
@@ -94,7 +95,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 		nbt.put("Ports", NBTHelper.writeCompoundList(connectedPorts.entrySet(), e -> {
 			CompoundTag c = new CompoundTag();
 			c.putString("Address", e.getValue().address);
-			c.put("OfflineBuffer", ItemHandlerHelpers.serializeNBT(e.getValue().offlineBuffer, registries));
+			c.put("OfflineBuffer", NbtValueIO.serialize(e.getValue().offlineBuffer, registries));
 			c.putBoolean("Primed", e.getValue().primed);
 			c.store("Pos", BlockPos.CODEC, e.getKey());
 			return c;
@@ -190,19 +191,32 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 				}
 
 				for (int slot = 0; slot < postboxInventory.size(); slot++) {
-					ItemStack stack = ItemHandlerHelpers.getStackInSlot(postboxInventory, slot);
+					ItemStack stack = ItemUtil.getStack(postboxInventory, slot);
 					if (!PackageItem.isPackage(stack))
 						continue;
 					if (PackageItem.matchAddress(stack, port.address))
 						continue;
 
-					ItemStack result = ItemHandlerHelpers.insertItemStacked(carriageInventory, stack, false);
+					boolean sent;
+
+					// Taken out of the postbox and put into the carriage together, so a package that
+					// only half fits stays where it was rather than going missing.
+					try (Transaction transaction = Transaction.openRoot()) {
+						ItemResource packaged = ItemResource.of(stack);
+						sent = ResourceHandlerUtil.insertStacking(carriageInventory, packaged, stack.getCount(),
+							transaction) == stack.getCount();
+
+						if (sent) {
+							if (!packaged.isEmpty())
+								postboxInventory.extract(slot, packaged, stack.getCount(), transaction);
+							transaction.commit();
+						}
+					}
+
 					if (box != null)
 						box.computerBehaviour.prepareComputerEvent(new PackageEvent(stack, "package_sent"));
-					if (!result.isEmpty())
+					if (!sent)
 						continue;
-
-					ItemHandlerHelpers.setStackInSlot(postboxInventory, slot, ItemStack.EMPTY);
 
 					if (box == null) {
 						port.primed = true;
@@ -216,7 +230,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 
 			// Export to station
 			for (int slot = 0; slot < carriageInventory.size(); slot++) {
-				ItemStack stack = ItemHandlerHelpers.getStackInSlot(carriageInventory, slot);
+				ItemStack stack = ItemUtil.getStack(carriageInventory, slot);
 				if (!PackageItem.isPackage(stack))
 					continue;
 
@@ -235,13 +249,25 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 						box = ppbe;
 					}
 
-					ItemStack result = ItemHandlerHelpers.insertItemStacked(postboxInventory, stack, false);
+					boolean received;
+
+					// Likewise on the way back: out of the carriage and into the postbox at once.
+					try (Transaction transaction = Transaction.openRoot()) {
+						ItemResource packaged = ItemResource.of(stack);
+						received = ResourceHandlerUtil.insertStacking(postboxInventory, packaged, stack.getCount(),
+							transaction) == stack.getCount();
+
+						if (received) {
+							if (!packaged.isEmpty())
+								carriageInventory.extract(slot, packaged, stack.getCount(), transaction);
+							transaction.commit();
+						}
+					}
+
 					if (box != null)
 						box.computerBehaviour.prepareComputerEvent(new PackageEvent(stack, "package_received"));
-					if (!result.isEmpty())
+					if (!received)
 						continue;
-
-					ItemHandlerHelpers.setStackInSlot(carriageInventory, slot, ItemStack.EMPTY);
 
 					if (box == null) {
 						port.primed = true;

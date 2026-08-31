@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.Capabilities;
 public abstract class BasinOperatingBlockEntity extends KineticBlockEntity {
 
 	public DeferralBehaviour basinChecker;

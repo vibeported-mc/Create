@@ -1,7 +1,9 @@
 package com.simibubi.create.content.logistics.packagePort.frogport;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.foundation.utility.RegistryNbt;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
@@ -48,7 +50,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 public class FrogportBlockEntity extends PackagePortBlockEntity implements IHaveHoveringInformation {
@@ -139,7 +140,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 		if (isAnimationInProgress())
 			return;
 		for (int i = 0; i < inventory.size(); i++)
-			if (ItemHandlerHelpers.getStackInSlot(inventory, i)
+			if (ItemUtil.getStack(inventory, i)
 				.isEmpty()) {
 				sendAnticipate = true;
 				sendData();
@@ -210,8 +211,14 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 		}
 
 		if (!currentlyDepositing) {
-			if (!ItemHandlerHelpers.insertItem(inventory, animatedPackage.copy(), false)
-				.isEmpty())
+			int stowed;
+
+			try (Transaction transaction = Transaction.openRoot()) {
+				stowed = inventory.insert(ItemResource.of(animatedPackage), animatedPackage.getCount(), transaction);
+				transaction.commit();
+			}
+
+			if (stowed != animatedPackage.getCount())
 				drop(animatedPackage);
 			else
 				computerBehaviour.prepareComputerEvent(new PackageEvent(animatedPackage, "package_received"));
@@ -267,7 +274,7 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 
 		boolean empty = true;
 		for (int i = 0; i < itemHandler.size(); i++)
-			if (!ItemHandlerHelpers.getStackInSlot(itemHandler, i)
+			if (!ItemUtil.getStack(itemHandler, i)
 				.isEmpty())
 				empty = false;
 		if (empty)
@@ -277,12 +284,26 @@ public class FrogportBlockEntity extends PackagePortBlockEntity implements IHave
 			return;
 
 		for (int i = 0; i < itemHandler.size(); i++) {
-			ItemStack stackInSlot = ItemHandlerHelpers.extractItem(itemHandler, i, 1, true);
+			ItemStack stackInSlot;
+			try (Transaction transaction = Transaction.openRoot()) {
+				ItemResource transferredResource = itemHandler.getResource(i);
+				int transferred = transferredResource.isEmpty() ? 0 : itemHandler.extract(i, transferredResource, 1, transaction);
+				stackInSlot = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+			}
 			if (stackInSlot.isEmpty())
 				continue;
-			ItemStack remainder = ItemHandlerHelpers.insertItemStacked(handler, stackInSlot, false);
+			ItemStack remainder;
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred2 = stackInSlot.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(handler, ItemResource.of(stackInSlot), stackInSlot.getCount(), transaction);
+				remainder = transferred2 == stackInSlot.getCount() ? ItemStack.EMPTY : stackInSlot.copyWithCount(stackInSlot.getCount() - transferred2);
+				transaction.commit();
+			}
 			if (remainder.isEmpty()) {
-				ItemHandlerHelpers.extractItem(itemHandler, i, 1, false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ItemResource transferredResource = itemHandler.getResource(i);
+					int transferred = transferredResource.isEmpty() ? 0 : itemHandler.extract(i, transferredResource, 1, transaction);
+					transaction.commit();
+				}
 				level.blockEntityChanged(worldPosition);
 			} else
 				failedLastExport = true;

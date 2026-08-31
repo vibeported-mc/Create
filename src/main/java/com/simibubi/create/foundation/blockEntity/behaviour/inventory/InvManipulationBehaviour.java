@@ -1,6 +1,7 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.inventory;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.function.Predicate;
@@ -90,7 +91,12 @@ public class InvManipulationBehaviour extends CapManipulationBehaviourBase<Resou
 		ResourceHandler<ItemResource> inventory = targetCapability;
 		if (inventory == null)
 			return stack;
-		return ItemHandlerHelpers.insertItemStacked(inventory, stack, shouldSimulate);
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = stack.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(inventory, ItemResource.of(stack), stack.getCount(), transaction);
+			if (!shouldSimulate)
+				transaction.commit();
+			return transferred == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - transferred);
+		}
 	}
 
 	protected Predicate<ItemStack> getFilterTest(Predicate<ItemStack> customFilter) {

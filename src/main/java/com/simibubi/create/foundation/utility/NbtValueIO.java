@@ -1,5 +1,13 @@
 package com.simibubi.create.foundation.utility;
 
+import net.neoforged.neoforge.transfer.StacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
 import java.util.function.Consumer;
 
 import com.mojang.serialization.MapCodec;
@@ -88,6 +96,61 @@ public class NbtValueIO {
 	 */
 	public static void deserialize(ValueIOSerializable target, CompoundTag tag, HolderLookup.Provider registries) {
 		target.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, tag));
+
+		// GAMETEST FIX - a stopgap: what is written this way wants a datafixer, not a read-time fallback.
+		// An inventory written before the handler serialized through ValueIO kept its slots in an "Items"
+		// list, each naming its own "Slot"; read the new way that is not found and the whole inventory
+		// comes back empty, without complaint. Those are still about - in worlds from an older version, in
+		// schematics, in the structures the game tests are built from.
+		if (tag.contains(ITEMS) && target instanceof ResourceHandler<?> handlingResources)
+			readLegacyItems(tag, handlingResources);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void readLegacyItems(CompoundTag tag, ResourceHandler<?> handlingResources) {
+		ResourceHandler<ItemResource> handler = (ResourceHandler<ItemResource>) handlingResources;
+
+		for (int slot = 0; slot < handler.size(); slot++)
+			if (!ItemUtil.getStack(handler, slot)
+				.isEmpty())
+				return; // already read, whatever is in the list is the same thing said twice
+
+		for (Tag entry : tag.getListOrEmpty(ITEMS)) {
+			if (!(entry instanceof CompoundTag stackTag))
+				continue;
+
+			int slot = stackTag.getIntOr("Slot", -1);
+			ItemStack stack = legacyStack(stackTag);
+
+			if (slot >= 0 && slot < handler.size() && !stack.isEmpty())
+				writeSlot(handler, slot, stack);
+		}
+	}
+
+	/**
+	 * Writing a slot directly, whichever shape the handler offers it in.
+	 * <p>
+	 * 26.2 puts direct writes on {@link IndexModifier}, which {@code StacksResourceHandler} provides
+	 * as a plain method without declaring the interface - so both are accepted rather than the caller
+	 * having to know which it is holding.
+	 */
+	@SuppressWarnings("unchecked")
+	private static void writeSlot(ResourceHandler<ItemResource> handler, int slot, ItemStack stack) {
+		ItemResource resource = ItemResource.of(stack);
+
+		if (handler instanceof IndexModifier<?> modifier)
+			((IndexModifier<ItemResource>) modifier).set(slot, resource, stack.getCount());
+		else if (handler instanceof StacksResourceHandler<?, ?> stacks)
+			((StacksResourceHandler<?, ItemResource>) stacks).set(slot, resource, stack.getCount());
+	}
+
+	/**
+	 * A stack from before an item carried components: a name and a count, and nothing else that survives.
+	 */
+	private static ItemStack legacyStack(CompoundTag stackTag) {
+		return BuiltInRegistries.ITEM.getOptional(Identifier.parse(stackTag.getStringOr("id", "minecraft:air")))
+			.map(item -> new ItemStack(item, stackTag.getByteOr("Count", (byte) 1)))
+			.orElse(ItemStack.EMPTY);
 	}
 
 	private static final String ITEMS = "Items";

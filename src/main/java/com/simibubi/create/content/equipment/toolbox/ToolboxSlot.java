@@ -1,7 +1,9 @@
 package com.simibubi.create.content.equipment.toolbox;
 
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.world.item.ItemStack;
@@ -12,7 +14,7 @@ public class ToolboxSlot extends ResourceHandlerSlot {
 	private ToolboxMenu toolboxMenu;
 	private boolean isVisible;
 
-	public ToolboxSlot(ToolboxMenu menu, ModifiableItemHandler itemHandler, int index, int xPosition, int yPosition,
+	public ToolboxSlot(ToolboxMenu menu, ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition,
 		boolean isVisible) {
 		super(itemHandler, itemHandler::set, index, xPosition, yPosition);
 		this.toolboxMenu = menu;
@@ -31,8 +33,12 @@ public class ToolboxSlot extends ResourceHandlerSlot {
 		maxAdd.setCount(maxInput);
 
 		ResourceHandler<ItemResource> handler = this.getResourceHandler();
-		ItemStack currentStack = ItemHandlerHelpers.getStackInSlot(handler, index);
-		ItemStack remainder = ItemHandlerHelpers.insertItem(handler, index, maxAdd, true);
+		ItemStack currentStack = ItemUtil.getStack(handler, index);
+		ItemStack remainder;
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = maxAdd.isEmpty() ? 0 : handler.insert(index, ItemResource.of(maxAdd), maxAdd.getCount(), transaction);
+			remainder = transferred == maxAdd.getCount() ? ItemStack.EMPTY : maxAdd.copyWithCount(maxAdd.getCount() - transferred);
+		}
 		int current = currentStack.getCount();
 		int added = maxInput - remainder.getCount();
 		return current + added;

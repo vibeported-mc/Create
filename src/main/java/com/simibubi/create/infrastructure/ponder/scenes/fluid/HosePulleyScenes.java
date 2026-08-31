@@ -1,6 +1,6 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.Collections;
@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.simibubi.create.content.fluids.hosePulley.HosePulleyBlockEntity;
-import com.simibubi.create.content.fluids.hosePulley.HosePulleyFluidHandler;
 import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
@@ -128,7 +127,10 @@ public class HosePulleyScenes {
 		scene.world().modifyBlockEntity(util.grid().at(1, 5, 1), HosePulleyBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				FluidHandlerHelpers.fill(ifh, new FluidStack(Fluids.WATER, 100), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ifh.insert(FluidResource.of(new FluidStack(Fluids.WATER, 100)), new FluidStack(Fluids.WATER, 100).getAmount(), transaction);
+					transaction.commit();
+				}
 		});
 
 		scene.idle(20);
@@ -232,7 +234,10 @@ public class HosePulleyScenes {
 		scene.world().modifyBlockEntity(util.grid().at(1, 6, 1), HosePulleyBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				FluidHandlerHelpers.fill(ifh, new FluidStack(Fluids.WATER, 100), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ifh.insert(FluidResource.of(new FluidStack(Fluids.WATER, 100)), new FluidStack(Fluids.WATER, 100).getAmount(), transaction);
+					transaction.commit();
+				}
 		});
 		scene.world().propagatePipeChange(util.grid().at(3, 2, 1));
 
@@ -348,7 +353,10 @@ public class HosePulleyScenes {
 		scene.world().modifyBlockEntity(util.grid().at(1, 3, 2), HosePulleyBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				FluidHandlerHelpers.fill(ifh, new FluidStack(Fluids.WATER, 1000), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ifh.insert(FluidResource.of(new FluidStack(Fluids.WATER, 1000)), new FluidStack(Fluids.WATER, 1000).getAmount(), transaction);
+					transaction.commit();
+				}
 		});
 		scene.world().setKineticSpeed(hose, 0);
 		scene.world().modifyBlock(pumpPos, s -> s.setValue(PumpBlock.FACING, Direction.DOWN), true);
@@ -365,7 +373,12 @@ public class HosePulleyScenes {
 
 		scene.idle(60);
 
-		scene.world().modifyBlockEntity(util.grid().at(4, 1, 1), FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), new FluidStack(Fluids.WATER, 24000), false));
+		scene.world().modifyBlockEntity(util.grid().at(4, 1, 1), FluidTankBlockEntity.class, be -> {
+			try (Transaction transaction = Transaction.openRoot()) {
+				be.getTankInventory().insert(FluidResource.of(new FluidStack(Fluids.WATER, 24000)), new FluidStack(Fluids.WATER, 24000).getAmount(), transaction);
+				transaction.commit();
+			}
+		});
 
 		scene.idle(20);
 

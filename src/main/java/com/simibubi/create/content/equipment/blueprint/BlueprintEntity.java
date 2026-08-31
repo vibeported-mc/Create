@@ -1,6 +1,8 @@
 package com.simibubi.create.content.equipment.blueprint;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -8,9 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import com.simibubi.create.foundation.utility.NbtValueIO;
-import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,7 +35,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -67,11 +66,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
@@ -295,13 +291,13 @@ public class BlueprintEntity extends HangingEntity
 
 		Vec3 hitVec = rayTrace.get();
 		BlueprintSection sectionAt = getSectionAt(hitVec.subtract(position()));
-		ItemStackHandler items = sectionAt.getItems();
+		ItemStacksResourceHandler items = sectionAt.getItems();
 
-		if (ItemHandlerHelpers.getStackInSlot(items, 9)
+		if (ItemUtil.getStack(items, 9)
 			.isEmpty())
 			return super.skipAttackInteraction(source);
 		for (int i = 0; i < items.size(); i++)
-			ItemHandlerHelpers.setStackInSlot(items, i, ItemStack.EMPTY);
+			items.set(i, ItemResource.EMPTY, 0);
 		sectionAt.save(items);
 		return true;
 	}
@@ -364,9 +360,9 @@ public class BlueprintEntity extends HangingEntity
 
 		boolean holdingWrench = AllItems.WRENCH.isIn(player.getItemInHand(hand));
 		BlueprintSection section = getSectionAt(vec);
-		ItemStackHandler items = section.getItems();
+		ItemStacksResourceHandler items = section.getItems();
 
-		if (!holdingWrench && !level().isClientSide() && !ItemHandlerHelpers.getStackInSlot(items, 9)
+		if (!holdingWrench && !level().isClientSide() && !ItemUtil.getStack(items, 9)
 			.isEmpty()) {
 
 			ResourceHandler<ItemResource> playerInv = PlayerInventoryWrapper.of(player.getInventory());
@@ -382,16 +378,22 @@ public class BlueprintEntity extends HangingEntity
 
 				Search:
 				for (int i = 0; i < 9; i++) {
-					FilterItemStack requestedItem = FilterItemStack.of(ItemHandlerHelpers.getStackInSlot(items, i));
+					FilterItemStack requestedItem = FilterItemStack.of(ItemUtil.getStack(items, i));
 					if (requestedItem.isEmpty()) {
 						craftingGrid.put(i, ItemStack.EMPTY);
 						continue;
 					}
 
 					for (int slot = 0; slot < playerInv.size(); slot++) {
-						if (!requestedItem.test(level(), ItemHandlerHelpers.getStackInSlot(playerInv, slot)))
+						if (!requestedItem.test(level(), ItemUtil.getStack(playerInv, slot)))
 							continue;
-						ItemStack currentItem = ItemHandlerHelpers.extractItem(playerInv, slot, 1, false);
+						ItemStack currentItem;
+						try (Transaction transaction = Transaction.openRoot()) {
+							ItemResource transferredResource = playerInv.getResource(slot);
+							int transferred = transferredResource.isEmpty() ? 0 : playerInv.extract(slot, transferredResource, 1, transaction);
+							currentItem = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+							transaction.commit();
+						}
 						if (stacksTaken.containsKey(slot))
 							stacksTaken.get(slot)
 								.grow(1);
@@ -441,7 +443,10 @@ public class BlueprintEntity extends HangingEntity
 
 				if (!success) {
 					for (Entry<Integer, ItemStack> entry : stacksTaken.entrySet())
-						ItemHandlerHelpers.insertItem(playerInv, entry.getKey(), entry.getValue(), false);
+						try (Transaction transaction = Transaction.openRoot()) {
+							int transferred = entry.getValue().isEmpty() ? 0 : playerInv.insert(entry.getKey(), ItemResource.of(entry.getValue()), entry.getValue().getCount(), transaction);
+							transaction.commit();
+						}
 					break;
 				}
 
@@ -528,23 +533,23 @@ public class BlueprintEntity extends HangingEntity
 		public Couple<ItemStack> getDisplayItems() {
 			if (cachedDisplayItems != null)
 				return cachedDisplayItems;
-			ItemStackHandler items = getItems();
-			return cachedDisplayItems = Couple.create(ItemHandlerHelpers.getStackInSlot(items, 9), ItemHandlerHelpers.getStackInSlot(items, 10));
+			ItemStacksResourceHandler items = getItems();
+			return cachedDisplayItems = Couple.create(ItemUtil.getStack(items, 9), ItemUtil.getStack(items, 10));
 		}
 
-		public ItemStackHandler getItems() {
-			ItemStackHandler newInv = new ItemStackHandler(11);
+		public ItemStacksResourceHandler getItems() {
+			ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(11);
 			CompoundTag list = getOrCreateRecipeCompound();
 			CompoundTag invNBT = list.getCompoundOrEmpty(index + "");
 			inferredIcon = list.getBooleanOr("InferredIcon", false);
 			if (!invNBT.isEmpty())
-				ItemHandlerHelpers.deserializeNBT(newInv, registryAccess(), invNBT);
+				NbtValueIO.deserialize(newInv, invNBT, registryAccess());
 			return newInv;
 		}
 
-		public void save(ItemStackHandler inventory) {
+		public void save(ItemStacksResourceHandler inventory) {
 			CompoundTag list = getOrCreateRecipeCompound();
-			list.put(index + "", ItemHandlerHelpers.serializeNBT(inventory, registryAccess()));
+			list.put(index + "", NbtValueIO.serialize(inventory, registryAccess()));
 			list.putBoolean("InferredIcon", inferredIcon);
 			cachedDisplayItems = null;
 			if (!level().isClientSide())

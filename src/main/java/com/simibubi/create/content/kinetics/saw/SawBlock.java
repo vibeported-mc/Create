@@ -1,7 +1,7 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jspecify.annotations.NullMarked;
 import java.util.List;
 import java.util.function.Predicate;
@@ -24,7 +24,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -138,7 +137,7 @@ public class SawBlock extends DirectionalAxisKineticBlock implements EntityResti
 
 		return onBlockEntityUseItemOn(level, pos, be -> {
 			for (int i = 0; i < be.inventory.size(); i++) {
-				ItemStack heldItemStack = ItemHandlerHelpers.getStackInSlot(be.inventory, i);
+				ItemStack heldItemStack = ItemUtil.getStack(be.inventory, i);
 				if (!level.isClientSide() && !heldItemStack.isEmpty())
 					player.getInventory()
 						.placeItemBackInInventory(heldItemStack);

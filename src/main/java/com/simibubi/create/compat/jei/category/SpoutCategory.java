@@ -1,8 +1,11 @@
 package com.simibubi.create.compat.jei.category;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
-import com.simibubi.create.foundation.fluid.ItemFluidAccess;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.NullMarked;
@@ -74,7 +77,7 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 				continue;
 
 			int numTanks = capability.size();
-			FluidStack existingFluid = numTanks == 1 ? FluidHandlerHelpers.getFluidInTank(capability, 0) : FluidStack.EMPTY;
+			FluidStack existingFluid = numTanks == 1 ? FluidUtil.getStack(capability, 0) : FluidStack.EMPTY;
 
 			for (FluidStack fluidStack : fluidStacks) {
 				// Hoist the fluid equality check to avoid the work of copying the stack + populating capabilities
@@ -86,15 +89,22 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 				// Filling a bucket swaps the item out from under the handler, which an access over a bare
 				// stack refuses to do; the filled item is read back out of the access afterwards rather
 				// than being handed over as a container.
-				ItemFluidAccess access = new ItemFluidAccess(copy);
-				ResourceHandler<FluidResource> fhi = access.handler();
+				// One slot the fluid handler is allowed to swap the item inside: filling a bucket
+				// changes which item is held, and an access over a bare stack refuses that.
+				ItemStacksResourceHandler carrier = new ItemStacksResourceHandler(1);
+				carrier.set(0, ItemResource.of(copy), copy.getCount());
+				ItemAccess access = ItemAccess.forHandlerIndex(carrier, 0);
+				ResourceHandler<FluidResource> fhi = access.getCapability(Capabilities.Fluid.ITEM);
 				if (fhi != null) {
 					if (!GenericItemFilling.isFluidHandlerValid(copy, fhi))
 						continue;
 					FluidStack fluidCopy = fluidStack.copy();
 					fluidCopy.setAmount(1000);
-					FluidHandlerHelpers.fill(fhi, fluidCopy, false);
-					ItemStack container = access.result();
+					try (Transaction transaction = Transaction.openRoot()) {
+						int transferred = fluidCopy.isEmpty() ? 0 : fhi.insert(FluidResource.of(fluidCopy), fluidCopy.getAmount(), transaction);
+						transaction.commit();
+					}
+					ItemStack container = ItemUtil.getStack(carrier, 0);
 					if (ItemHelper.sameItem(container, copy))
 						continue;
 					if (container.isEmpty())

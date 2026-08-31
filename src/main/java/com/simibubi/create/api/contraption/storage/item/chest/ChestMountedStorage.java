@@ -1,12 +1,11 @@
 package com.simibubi.create.api.contraption.storage.item.chest;
 
-import net.neoforged.neoforge.transfer.CombinedResourceHandler;
-import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import com.simibubi.create.foundation.item.CombinedItemHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.foundation.item.CombinedItemHandler;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
@@ -15,7 +14,6 @@ import com.simibubi.create.api.contraption.storage.item.MountedItemStorage;
 import com.simibubi.create.api.contraption.storage.item.MountedItemStorageType;
 import com.simibubi.create.api.contraption.storage.item.simple.SimpleMountedStorage;
 import com.simibubi.create.content.contraptions.Contraption;
-import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -51,14 +49,14 @@ public class ChestMountedStorage extends SimpleMountedStorage {
 		// the capability will include both sides of chests, but mounted storage is 1:1
 		if (be instanceof Container container && this.size() == container.getContainerSize()) {
 			for (int slot = 0; slot < this.size(); slot++)
-				container.setItem(slot, ItemHandlerHelpers.getStackInSlot(this, slot)
+				container.setItem(slot, ItemUtil.getStack(this, slot)
 					.copy());
 			container.setChanged();
 		}
 	}
 
 	@Override
-	protected ModifiableItemHandler getHandlerForMenu(StructureBlockInfo info, Contraption contraption) {
+	protected ResourceHandler<ItemResource> getHandlerForMenu(StructureBlockInfo info, Contraption contraption) {
 		BlockState state = info.state();
 		ChestType type = state.getValue(ChestBlock.TYPE);
 		if (type == ChestType.SINGLE)

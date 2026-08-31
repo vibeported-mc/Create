@@ -1,9 +1,11 @@
 package com.simibubi.create.content.kinetics.millstone;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.kinetics.base.KineticBlock;
@@ -17,7 +19,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -59,22 +60,22 @@ public class MillstoneBlock extends KineticBlock implements EntityRestingOnBlock
 
 		withBlockEntityDo(level, pos, millstone -> {
 			boolean emptyOutput = true;
-			ModifiableItemHandler inv = millstone.outputInv;
+			ItemStacksResourceHandler inv = millstone.outputInv;
 			for (int slot = 0; slot < inv.size(); slot++) {
-				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inv, slot);
+				ItemStack stackInSlot = ItemUtil.getStack(inv, slot);
 				if (!stackInSlot.isEmpty())
 					emptyOutput = false;
 				player.getInventory()
 					.placeItemBackInInventory(stackInSlot);
-				ItemHandlerHelpers.setStackInSlot(inv, slot, ItemStack.EMPTY);
+				inv.set(slot, ItemResource.EMPTY, 0);
 			}
 
 			if (emptyOutput) {
 				inv = millstone.inputInv;
 				for (int slot = 0; slot < inv.size(); slot++) {
 					player.getInventory()
-						.placeItemBackInInventory(ItemHandlerHelpers.getStackInSlot(inv, slot));
-					ItemHandlerHelpers.setStackInSlot(inv, slot, ItemStack.EMPTY);
+						.placeItemBackInInventory(ItemUtil.getStack(inv, slot));
+					inv.set(slot, ItemResource.EMPTY, 0);
 				}
 			}
 
@@ -107,7 +108,12 @@ public class MillstoneBlock extends KineticBlock implements EntityRestingOnBlock
 		if (capability == null)
 			return;
 
-		ItemStack remainder = ItemHandlerHelpers.insertItem(capability, 0, itemEntity.getItem(), false);
+		ItemStack remainder;
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = itemEntity.getItem().isEmpty() ? 0 : capability.insert(0, ItemResource.of(itemEntity.getItem()), itemEntity.getItem().getCount(), transaction);
+			remainder = transferred == itemEntity.getItem().getCount() ? ItemStack.EMPTY : itemEntity.getItem().copyWithCount(itemEntity.getItem().getCount() - transferred);
+			transaction.commit();
+		}
 		if (remainder.isEmpty())
 			itemEntity.discard();
 		if (remainder.getCount() < itemEntity.getItem()

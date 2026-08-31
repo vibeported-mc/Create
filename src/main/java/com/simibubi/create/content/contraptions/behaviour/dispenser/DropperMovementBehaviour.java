@@ -1,6 +1,6 @@
 package com.simibubi.create.content.contraptions.behaviour.dispenser;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.function.Predicate;
@@ -40,10 +40,10 @@ public class DropperMovementBehaviour implements MovementBehaviour {
 		}
 
 		// copy because dispense behaviors will modify it directly
-		ItemStack stack = ItemHandlerHelpers.getStackInSlot(storage, slot).copy();
+		ItemStack stack = ItemUtil.getStack(storage, slot).copy();
 		MountedDispenseBehavior behavior = getDispenseBehavior(context, pos, stack);
 		ItemStack remainder = behavior.dispense(stack, context, pos);
-		ItemHandlerHelpers.setStackInSlot(storage, slot, remainder);
+		storage.set(slot, ItemResource.of(remainder), remainder.getCount());
 	}
 
 	protected MountedDispenseBehavior getDispenseBehavior(MovementContext context, BlockPos pos, ItemStack stack) {
@@ -56,14 +56,14 @@ public class DropperMovementBehaviour implements MovementBehaviour {
 	private static int getSlot(MountedItemStorage storage, RandomSource random, ResourceHandler<ItemResource> contraptionInventory) {
 		IntList filledSlots = new IntArrayList();
 		for (int i = 0; i < storage.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(storage, i);
+			ItemStack stack = ItemUtil.getStack(storage, i);
 			if (stack.isEmpty())
 				continue;
 
 			if (stack.getCount() == 1 && stack.getMaxStackSize() != 1) {
 				stack = tryTopOff(stack, contraptionInventory);
 				if (stack != null) {
-					ItemHandlerHelpers.setStackInSlot(storage, i, stack);
+					storage.set(i, ItemResource.of(stack), stack.getCount());
 				} else {
 					continue;
 				}

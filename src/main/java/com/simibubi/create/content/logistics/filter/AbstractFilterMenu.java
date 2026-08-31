@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.filter;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.foundation.gui.menu.HeldItemGhostItemMenu;
 import com.simibubi.create.foundation.item.ItemHelper;
@@ -40,7 +40,7 @@ public abstract class AbstractFilterMenu extends HeldItemGhostItemMenu {
 	@Override
 	protected void saveData(ItemStack contentHolder) {
 		for (int i = 0; i < ghostInventory.size(); i++) {
-			if (!ItemHandlerHelpers.getStackInSlot(ghostInventory, i).isEmpty()) {
+			if (!ItemUtil.getStack(ghostInventory, i).isEmpty()) {
 				contentHolder.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(ghostInventory));
 				return;
 			}

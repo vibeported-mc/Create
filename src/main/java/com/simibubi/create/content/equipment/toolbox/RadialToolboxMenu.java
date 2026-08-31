@@ -1,11 +1,11 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static com.simibubi.create.content.equipment.toolbox.ToolboxInventory.STACKS_PER_COMPARTMENT;
 
 import java.util.List;
@@ -14,15 +14,12 @@ import org.jetbrains.annotations.Nullable;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.gui.AbstractSimiScreen;
 import net.createmod.catnip.api.client.gui.element.GuiGameElement;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
@@ -142,7 +139,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 					ItemStack stackInSlot = inv.filters.get(slot);
 
 					if (!stackInSlot.isEmpty()) {
-						boolean empty = ItemHandlerHelpers.getStackInSlot(inv, slot * STACKS_PER_COMPARTMENT)
+						boolean empty = ItemUtil.getStack(inv, slot * STACKS_PER_COMPARTMENT)
 							.isEmpty();
 
 						(empty ? AllGuiTextures.TOOLBELT_INACTIVE_SLOT : AllGuiTextures.TOOLBELT_SLOT)
@@ -263,7 +260,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 		ItemStack stackInSlot = inv.filters.get(selected);
 		if (stackInSlot.isEmpty())
 			return;
-		if (ItemHandlerHelpers.getStackInSlot(inv, selected * STACKS_PER_COMPARTMENT)
+		if (ItemUtil.getStack(inv, selected * STACKS_PER_COMPARTMENT)
 			.isEmpty())
 			return;
 
@@ -285,7 +282,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 				if (state == State.SELECT_ITEM || state == State.SELECT_ITEM_UNEQUIP) {
 					ToolboxInventory inv = selectedBox.inventory;
 					ItemStack stackInSlot = inv.filters.get(scrollSlot);
-					if (!stackInSlot.isEmpty() && !ItemHandlerHelpers.getStackInSlot(inv, scrollSlot * STACKS_PER_COMPARTMENT)
+					if (!stackInSlot.isEmpty() && !ItemUtil.getStack(inv, scrollSlot * STACKS_PER_COMPARTMENT)
 						.isEmpty())
 						break;
 				}
@@ -367,7 +364,7 @@ public class RadialToolboxMenu extends AbstractSimiScreen {
 				if (state == State.SELECT_ITEM || state == State.SELECT_ITEM_UNEQUIP) {
 					ToolboxInventory inv = selectedBox.inventory;
 					ItemStack stackInSlot = inv.filters.get(i);
-					if (stackInSlot.isEmpty() || ItemHandlerHelpers.getStackInSlot(inv, i * STACKS_PER_COMPARTMENT)
+					if (stackInSlot.isEmpty() || ItemUtil.getStack(inv, i * STACKS_PER_COMPARTMENT)
 						.isEmpty())
 						return false;
 				}

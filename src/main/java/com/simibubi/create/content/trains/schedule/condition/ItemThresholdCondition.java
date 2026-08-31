@@ -1,8 +1,8 @@
 package com.simibubi.create.content.trains.schedule.condition;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -49,7 +49,7 @@ public class ItemThresholdCondition extends CargoThresholdCondition {
 		for (Carriage carriage : train.carriages) {
 			ResourceHandler<ItemResource> items = carriage.storage.getAllItems();
 			for (int i = 0; i < items.size(); i++) {
-				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(items, i);
+				ItemStack stackInSlot = ItemUtil.getStack(items, i);
 				if (!stack.test(level, stackInSlot))
 					continue;
 

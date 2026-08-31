@@ -1,13 +1,23 @@
 package com.simibubi.create.foundation.item;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class ItemHandlerWrapper implements ModifiableItemHandler {
+/**
+ * A handler that stands in front of another one, so a subclass can say no.
+ * <p>
+ * Only the indexed insert and extract are delegated, deliberately. {@link ResourceHandler}'s
+ * whole-handler insert and extract are left at their defaults, which walk the slots and call the
+ * indexed ones - so a subclass that refuses a transfer refuses it whichever way it is asked for.
+ * NeoForge's {@code DelegatingResourceHandler} forwards those two straight to the handler behind it,
+ * which would step over the subclass entirely.
+ */
+public class ItemHandlerWrapper implements ResourceHandler<ItemResource> {
 
-	private ModifiableItemHandler wrapped;
+	private ResourceHandler<ItemResource> wrapped;
 
-	public ItemHandlerWrapper(ModifiableItemHandler wrapped) {
+	public ItemHandlerWrapper(ResourceHandler<ItemResource> wrapped) {
 		this.wrapped = wrapped;
 	}
 
@@ -44,11 +54,6 @@ public class ItemHandlerWrapper implements ModifiableItemHandler {
 	@Override
 	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
 		return wrapped.extract(index, resource, amount, transaction);
-	}
-
-	@Override
-	public void set(int index, ItemResource resource, int amount) {
-		wrapped.set(index, resource, amount);
 	}
 
 }

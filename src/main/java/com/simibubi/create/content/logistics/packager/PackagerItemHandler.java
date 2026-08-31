@@ -1,7 +1,8 @@
 package com.simibubi.create.content.logistics.packager;
 
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import com.simibubi.create.content.logistics.box.PackageItem;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -15,7 +16,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
  * {@link SnapshotJournal}. Insertion also unwraps the package into the attached inventory, which is
  * itself transactional, so both roll back together.
  */
-public class PackagerItemHandler implements ModifiableItemHandler {
+public class PackagerItemHandler implements ResourceHandler<ItemResource>, IndexModifier<ItemResource> {
 
 	private final PackagerBlockEntity blockEntity;
 	private final HeldBoxJournal journal = new HeldBoxJournal();

@@ -1,9 +1,9 @@
 package com.simibubi.create.content.schematics.cannon;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.Minecraft;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static net.minecraft.ChatFormatting.BLUE;
 import static net.minecraft.ChatFormatting.DARK_PURPLE;
 import static net.minecraft.ChatFormatting.GRAY;
@@ -290,7 +290,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 		renderFuelBar(graphics, x, y, amount);
 		renderChecklistPrinterProgress(graphics, x, y, be.bookPrintingProgress);
 
-		if (!ItemHandlerHelpers.getStackInSlot(be.inventory, 0)
+		if (!ItemUtil.getStack(be.inventory, 0)
 			.isEmpty())
 			renderBlueprintHighlight(graphics, x, y);
 
@@ -389,7 +389,7 @@ public class SchematicannonScreen extends AbstractSimiContainerScreen<Schematica
 
 	protected List<Component> getFuelLevelTooltip(SchematicannonBlockEntity be) {
 		int shotsLeft = be.remainingFuel;
-		int shotsLeftWithItems = shotsLeft + ItemHandlerHelpers.getStackInSlot(be.inventory, 4)
+		int shotsLeftWithItems = shotsLeft + ItemUtil.getStack(be.inventory, 4)
 			.getCount() * be.getShotsPerGunpowder();
 		List<Component> tooltip = new ArrayList<>();
 

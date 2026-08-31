@@ -1,19 +1,17 @@
 package com.simibubi.create.api.contraption.storage.item;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
  * Partial implementation of a MountedItemStorage that wraps an item handler.
  */
-public abstract class WrapperMountedItemStorage<T extends ModifiableItemHandler> extends MountedItemStorage {
+public abstract class WrapperMountedItemStorage<T extends ItemStacksResourceHandler> extends MountedItemStorage {
 	protected final T wrapped;
 
 	protected WrapperMountedItemStorage(MountedItemStorageType<?> type, T wrapped) {
@@ -61,11 +59,12 @@ public abstract class WrapperMountedItemStorage<T extends ModifiableItemHandler>
 		this.wrapped.set(index, resource, amount);
 	}
 
-	public static ItemStackHandler copyToItemStackHandler(ResourceHandler<ItemResource> handler) {
-		ItemStackHandler copy = new ItemStackHandler(handler.size());
+	public static ItemStacksResourceHandler copyToItemStackHandler(ResourceHandler<ItemResource> handler) {
+		ItemStacksResourceHandler copy = new ItemStacksResourceHandler(handler.size());
 		for (int i = 0; i < handler.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
-			ItemHandlerHelpers.setStackInSlot(copy, i, stack.copy());
+			ItemStack stack = ItemUtil.getStack(handler, i)
+				.copy();
+			copy.set(i, ItemResource.of(stack), stack.getCount());
 		}
 		return copy;
 	}

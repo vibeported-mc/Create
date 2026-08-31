@@ -1,10 +1,13 @@
 package com.simibubi.create.foundation.fluid;
 
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
 import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jetbrains.annotations.Nullable;
@@ -132,14 +135,24 @@ public class FluidHelper {
 		ResourceHandler<FluidResource> capability = worldIn.getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 		FluidStack fluidStack = emptyingResult.getFirst();
 
-		if (capability == null || fluidStack.getAmount() != FluidHandlerHelpers.fill(capability, fluidStack, true))
+		if (capability == null)
 			return false;
+
+		try (Transaction transaction = Transaction.openRoot()) {
+			// never committed: this only asks whether the block would take all of it
+			if (capability.insert(FluidResource.of(fluidStack), fluidStack.getAmount(),
+				transaction) != fluidStack.getAmount())
+				return false;
+		}
 		if (worldIn.isClientSide())
 			return true;
 
 		ItemStack copyOfHeld = heldItem.copy();
 		emptyingResult = GenericItemEmptying.emptyItem(worldIn, copyOfHeld, false);
-		FluidHandlerHelpers.fill(capability, fluidStack, false);
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = fluidStack.isEmpty() ? 0 : capability.insert(FluidResource.of(fluidStack), fluidStack.getAmount(), transaction);
+			transaction.commit();
+		}
 
 		if (!player.isCreative() && !(be instanceof CreativeFluidTankBlockEntity)) {
 			if (copyOfHeld.isEmpty())
@@ -164,7 +177,7 @@ public class FluidHelper {
 			return false;
 
 		for (int i = 0; i < capability.size(); i++) {
-			FluidStack fluid = FluidHandlerHelpers.getFluidInTank(capability, i);
+			FluidStack fluid = FluidUtil.getStack(capability, i);
 			if (fluid.isEmpty())
 				continue;
 			int requiredAmountForItem = GenericItemFilling.getRequiredAmountForItem(world, heldItem, fluid.copy());
@@ -182,7 +195,11 @@ public class FluidHelper {
 
 			FluidStack copy = fluid.copy();
 			copy.setAmount(requiredAmountForItem);
-			FluidHandlerHelpers.drain(capability, copy, false);
+			try (Transaction transaction = Transaction.openRoot()) {
+				if (!copy.isEmpty())
+					capability.extract(FluidResource.of(copy), copy.getAmount(), transaction);
+				transaction.commit();
+			}
 
 			if (!player.isCreative())
 				player.getInventory()
@@ -216,12 +233,12 @@ public class FluidHelper {
 		for (int tankSlot = 0; tankSlot < fluidTank.size(); tankSlot++) {
 			for (int slot = 0; slot < fluidItem.size(); slot++) {
 
-				FluidStack fluidInTank = FluidHandlerHelpers.getFluidInTank(fluidTank, tankSlot);
-				int tankCapacity = FluidHandlerHelpers.getTankCapacity(fluidTank, tankSlot) - fluidInTank.getAmount();
+				FluidStack fluidInTank = FluidUtil.getStack(fluidTank, tankSlot);
+				int tankCapacity = fluidTank.getCapacityAsInt(tankSlot, FluidResource.EMPTY) - fluidInTank.getAmount();
 				boolean tankEmpty = fluidInTank.isEmpty();
 
-				FluidStack fluidInItem = FluidHandlerHelpers.getFluidInTank(fluidItem, tankSlot);
-				int itemCapacity = FluidHandlerHelpers.getTankCapacity(fluidItem, tankSlot) - fluidInItem.getAmount();
+				FluidStack fluidInItem = FluidUtil.getStack(fluidItem, tankSlot);
+				int itemCapacity = fluidItem.getCapacityAsInt(tankSlot, FluidResource.EMPTY) - fluidInItem.getAmount();
 				boolean itemEmpty = fluidInItem.isEmpty();
 
 				boolean undecided = lockedExchange == null;
@@ -236,7 +253,15 @@ public class FluidHelper {
 				if (((tankEmpty || itemCapacity <= 0) && canMoveToTank)
 					|| undecided && preferred == FluidExchange.ITEM_TO_TANK) {
 
-					int amount = FluidHandlerHelpers.fill(fluidTank, FluidHandlerHelpers.drain(fluidItem, Math.min(maxTransferAmountPerTank, tankCapacity), false), false);
+					int amount;
+
+					try (Transaction transaction = Transaction.openRoot()) {
+						ResourceStack<FluidResource> drained = ResourceHandlerUtil.extractFirst(fluidItem,
+							resource -> true, Math.min(maxTransferAmountPerTank, tankCapacity), transaction);
+						amount = drained == null ? 0
+							: fluidTank.insert(drained.resource(), drained.amount(), transaction);
+						transaction.commit();
+					}
 					if (amount > 0) {
 						lockedExchange = FluidExchange.ITEM_TO_TANK;
 						if (singleOp)
@@ -249,7 +274,15 @@ public class FluidHelper {
 				if (((itemEmpty || tankCapacity <= 0) && canMoveToItem)
 					|| undecided && preferred == FluidExchange.TANK_TO_ITEM) {
 
-					int amount = FluidHandlerHelpers.fill(fluidItem, FluidHandlerHelpers.drain(fluidTank, Math.min(maxTransferAmountPerTank, itemCapacity), false), false);
+					int amount;
+
+					try (Transaction transaction = Transaction.openRoot()) {
+						ResourceStack<FluidResource> drained = ResourceHandlerUtil.extractFirst(fluidTank,
+							resource -> true, Math.min(maxTransferAmountPerTank, itemCapacity), transaction);
+						amount = drained == null ? 0
+							: fluidItem.insert(drained.resource(), drained.amount(), transaction);
+						transaction.commit();
+					}
 					if (amount > 0) {
 						lockedExchange = FluidExchange.TANK_TO_ITEM;
 						if (singleOp)

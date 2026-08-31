@@ -1,8 +1,8 @@
 package com.simibubi.create.content.logistics.packagePort;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.item.ItemHandlerWrapper;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -11,7 +11,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 public class PackagePortAutomationInventoryWrapper extends ItemHandlerWrapper {
 	private final PackagePortBlockEntity ppbe;
 
-	public PackagePortAutomationInventoryWrapper(ModifiableItemHandler wrapped, PackagePortBlockEntity ppbe) {
+	public PackagePortAutomationInventoryWrapper(ResourceHandler<ItemResource> wrapped, PackagePortBlockEntity ppbe) {
 		super(wrapped);
 		this.ppbe = ppbe;
 	}

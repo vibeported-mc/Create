@@ -1,8 +1,8 @@
 package com.simibubi.create.foundation.gui.menu;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperCategoryMenu;
@@ -23,13 +23,13 @@ public record GhostItemSubmitPacket(ItemStack item, int slot) implements SelfHan
 	@Override
 	public void handle(ServerPlayer player) {
 		if (player.containerMenu instanceof GhostItemMenu<?> menu) {
-			ItemHandlerHelpers.setStackInSlot(menu.ghostInventory, slot, item);
+			menu.ghostInventory.set(slot, ItemResource.of(item), item.getCount());
 			menu.getSlot(36 + slot)
 					.setChanged();
 			}
 			if (player.containerMenu instanceof StockKeeperCategoryMenu menu
 				&& (item.isEmpty() || item.getItem() instanceof FilterItem)) {
-				ItemHandlerHelpers.setStackInSlot(menu.proxyInventory, slot, item);
+				menu.proxyInventory.set(slot, ItemResource.of(item), item.getCount());
 				menu.getSlot(36 + slot)
 					.setChanged();
 		}

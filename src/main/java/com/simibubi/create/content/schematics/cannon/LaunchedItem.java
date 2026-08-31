@@ -6,7 +6,6 @@ import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.entity.EntitySpawnRequest;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.util.ProblemReporter;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -27,7 +26,6 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

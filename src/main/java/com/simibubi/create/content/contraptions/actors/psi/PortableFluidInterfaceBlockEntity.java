@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
 public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceBlockEntity {
 
 	protected ResourceHandler<FluidResource> capability;
@@ -100,7 +99,7 @@ public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceB
 		public int extract(int tank, FluidResource resource, int amount, TransactionContext transaction) {
 			if (!canTransfer())
 				return 0;
-			int drained = wrapped.extract(tank, resource, amount, transaction);
+			int drained = resource.isEmpty() ? 0 : wrapped.extract(tank, resource, amount, transaction);
 			if (drained > 0)
 				keepAlive();
 			return drained;

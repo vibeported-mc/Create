@@ -1,24 +1,23 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.CommitCallback;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.RootCommitJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.foundation.item.ItemHandlerWrapper;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBlockEntity {
 
-	protected ModifiableItemHandler capability;
+	protected ResourceHandler<ItemResource> capability;
 
 	public PortableItemInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -51,8 +50,8 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 		super.stopTransferring();
 	}
 
-	private ModifiableItemHandler createEmptyHandler() {
-		return new InterfaceItemHandler(new ItemStackHandler(0));
+	private ResourceHandler<ItemResource> createEmptyHandler() {
+		return new InterfaceItemHandler(new ItemStacksResourceHandler(0));
 	}
 
 	@Override
@@ -62,10 +61,10 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 
 	class InterfaceItemHandler extends ItemHandlerWrapper {
 
-		private final CommitCallback transferred =
-			new CommitCallback(PortableItemInterfaceBlockEntity.this::onContentTransferred);
+		private final RootCommitJournal transferred =
+			new RootCommitJournal(PortableItemInterfaceBlockEntity.this::onContentTransferred);
 
-		public InterfaceItemHandler(ModifiableItemHandler wrapped) {
+		public InterfaceItemHandler(ResourceHandler<ItemResource> wrapped) {
 			super(wrapped);
 		}
 
@@ -73,7 +72,7 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 		public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
 			if (!canTransfer())
 				return 0;
-			int extracted = super.extract(index, resource, amount, transaction);
+			int extracted = resource.isEmpty() ? 0 : super.extract(index, resource, amount, transaction);
 			if (extracted > 0)
 				afterTransfer(transaction);
 			return extracted;
@@ -94,7 +93,7 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 		 * transaction is actually kept.
 		 */
 		private void afterTransfer(TransactionContext transaction) {
-			transferred.arm(transaction);
+			transferred.updateSnapshots(transaction);
 		}
 
 	}

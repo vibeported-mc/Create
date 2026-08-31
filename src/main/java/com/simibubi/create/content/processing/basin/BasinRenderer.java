@@ -1,19 +1,19 @@
 package com.simibubi.create.content.processing.basin;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.foundation.item.EmptyItemHandler;
+import net.neoforged.neoforge.transfer.EmptyResourceHandler;
 import com.simibubi.create.content.logistics.depot.DepotRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour.TankSegment;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
@@ -90,9 +90,9 @@ public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity, Ba
 			.hashCode();
 		state.bobPhase = AnimationTickHolder.getRenderTime(basin.getLevel()) / 12f;
 
-		ModifiableItemHandler inv = basin.itemCapability;
+		ResourceHandler<ItemResource> inv = basin.itemCapability;
 		if (inv == null)
-			inv = EmptyItemHandler.INSTANCE;
+			inv = EmptyResourceHandler.instance();
 
 		int itemCount = 0;
 		for (int slot = 0; slot < inv.size(); slot++)
@@ -104,7 +104,7 @@ public class BasinRenderer extends SmartBlockEntityRenderer<BasinBlockEntity, Ba
 		state.itemCount = itemCount;
 
 		for (int slot = 0; slot < inv.size(); slot++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(inv, slot);
+			ItemStack stack = ItemUtil.getStack(inv, slot);
 			if (stack.isEmpty())
 				continue;
 			state.ingredients.add(new StackedItem(

@@ -1,9 +1,9 @@
 package com.simibubi.create.content.kinetics.belt;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.util.RandomSource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
@@ -55,7 +55,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
@@ -91,7 +90,6 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
@@ -221,7 +219,12 @@ public class BeltBlock extends HorizontalKineticBlock
 				ResourceHandler<ItemResource> handler = worldIn.getCapability(Capabilities.Item.BLOCK, pos, state, be, null);
 				if (handler == null)
 					return;
-				ItemStack remainder = ItemHandlerHelpers.insertItem(handler, 0, asItem, false);
+				ItemStack remainder;
+				try (Transaction transaction = Transaction.openRoot()) {
+					int transferred = asItem.isEmpty() ? 0 : handler.insert(0, ItemResource.of(asItem), asItem.getCount(), transaction);
+					remainder = transferred == asItem.getCount() ? ItemStack.EMPTY : asItem.copyWithCount(asItem.getCount() - transferred);
+					transaction.commit();
+				}
 				if (remainder.isEmpty())
 					entityIn.discard();
 				else if (entityIn instanceof ItemEntity itemEntity && remainder.getCount() != itemEntity.getItem().getCount())
@@ -282,7 +285,12 @@ public class BeltBlock extends HorizontalKineticBlock
 			ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, belt.getBlockPos(), null);
 			if (handler == null)
 				return InteractionResult.TRY_WITH_EMPTY_HAND;
-			ItemStack remainder = ItemHandlerHelpers.insertItem(handler, 0, toInsert, false);
+			ItemStack remainder;
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred2 = toInsert.isEmpty() ? 0 : handler.insert(0, ItemResource.of(toInsert), toInsert.getCount(), transaction);
+				remainder = transferred2 == toInsert.getCount() ? ItemStack.EMPTY : toInsert.copyWithCount(toInsert.getCount() - transferred2);
+				transaction.commit();
+			}
 			if (remainder.isEmpty()) {
 				stack.shrink(1);
 				return InteractionResult.SUCCESS;

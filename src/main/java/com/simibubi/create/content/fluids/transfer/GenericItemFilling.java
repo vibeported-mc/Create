@@ -1,9 +1,12 @@
 package com.simibubi.create.content.fluids.transfer;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.fluid.BucketResourceHandler;
-import com.simibubi.create.foundation.fluid.ItemFluidAccess;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllFluids;
@@ -63,8 +66,8 @@ public class GenericItemFilling {
 		if (!isFluidHandlerValid(stack, capability))
 			return false;
 		for (int i = 0; i < capability.size(); i++) {
-			if (FluidHandlerHelpers.getFluidInTank(capability, i)
-				.getAmount() < FluidHandlerHelpers.getTankCapacity(capability, i))
+			if (FluidUtil.getStack(capability, i)
+				.getAmount() < capability.getCapacityAsInt(i, FluidResource.EMPTY))
 				return true;
 		}
 		return false;
@@ -84,13 +87,17 @@ public class GenericItemFilling {
 				.getBucket();
 			if (filledBucket == null || filledBucket == Items.AIR)
 				return -1;
-			if (!FluidHandlerHelpers.getFluidInTank(capability, 0)
+			if (!FluidUtil.getStack(capability, 0)
 				.isEmpty())
 				return -1;
 			return 1000;
 		}
 
-		int filled = FluidHandlerHelpers.fill(capability, availableFluid, true);
+		int filled;
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = availableFluid.isEmpty() ? 0 : capability.insert(FluidResource.of(availableFluid), availableFluid.getAmount(), transaction);
+			filled = transferred;
+		}
 		return filled == 0 ? -1 : filled;
 	}
 
@@ -129,12 +136,19 @@ public class GenericItemFilling {
 
 		ItemStack split = stack.copy();
 		split.setCount(1);
-		ItemFluidAccess access = new ItemFluidAccess(split);
-		ResourceHandler<FluidResource> capability = access.handler();
+		// One slot the fluid handler is allowed to swap the item inside: filling a bucket
+		// changes which item is held, and an access over a bare stack refuses that.
+		ItemStacksResourceHandler carrier = new ItemStacksResourceHandler(1);
+		carrier.set(0, ItemResource.of(split), split.getCount());
+		ItemAccess access = ItemAccess.forHandlerIndex(carrier, 0);
+		ResourceHandler<FluidResource> capability = access.getCapability(Capabilities.Fluid.ITEM);
 		if (capability == null)
 			return ItemStack.EMPTY;
-		FluidHandlerHelpers.fill(capability, toFill, false);
-		ItemStack container = access.result()
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = toFill.isEmpty() ? 0 : capability.insert(FluidResource.of(toFill), toFill.getAmount(), transaction);
+			transaction.commit();
+		}
+		ItemStack container = ItemUtil.getStack(carrier, 0)
 			.copy();
 		stack.shrink(1);
 		return container;

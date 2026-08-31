@@ -1,7 +1,8 @@
 package com.simibubi.create.content.logistics.packager.repackager;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,9 +59,9 @@ public class PackageRepackageHelper {
 					orderContext = context;
 			}
 
-			ItemStackHandler contents = PackageItem.getContents(box);
+			ItemStacksResourceHandler contents = PackageItem.getContents(box);
 			for (int slot = 0; slot < contents.size(); slot++)
-				summary.add(ItemHandlerHelpers.getStackInSlot(contents, slot));
+				summary.add(ItemUtil.getStack(contents, slot));
 		}
 
 		List<BigItemStack> orderedStacks = new ArrayList<>();
@@ -115,19 +116,19 @@ public class PackageRepackageHelper {
 		}
 
 		int currentSlot = 0;
-		ItemStackHandler target = new ItemStackHandler(PackageItem.SLOTS);
+		ItemStacksResourceHandler target = new ItemStacksResourceHandler(PackageItem.SLOTS);
 
 		for (ItemStack item : outputSlots) {
-			ItemHandlerHelpers.setStackInSlot(target, currentSlot++, item);
+			target.set(currentSlot++, ItemResource.of(item), item.getCount());
 			if (currentSlot < PackageItem.SLOTS)
 				continue;
 			exportingPackages.add(new BigItemStack(PackageItem.containing(target), 1));
-			target = new ItemStackHandler(PackageItem.SLOTS);
+			target = new ItemStacksResourceHandler(PackageItem.SLOTS);
 			currentSlot = 0;
 		}
 
 		for (int slot = 0; slot < target.size(); slot++)
-			if (!ItemHandlerHelpers.getStackInSlot(target, slot)
+			if (!ItemUtil.getStack(target, slot)
 				.isEmpty()) {
 				exportingPackages.add(new BigItemStack(PackageItem.containing(target), 1));
 				break;
@@ -190,10 +191,12 @@ public class PackageRepackageHelper {
 				packagesToCreate++;
 			}
 			
-			ItemStackHandler target = new ItemStackHandler(PackageItem.SLOTS);
+			ItemStacksResourceHandler target = new ItemStacksResourceHandler(PackageItem.SLOTS);
 			List<BigItemStack> stacks = craftingEntry.pattern().stacks();
-			for (int currentSlot = 0; currentSlot < Math.min(stacks.size(), target.size()); currentSlot++)
-				ItemHandlerHelpers.setStackInSlot(target, currentSlot, stacks.get(currentSlot).stack.copyWithCount(1));
+			for (int currentSlot = 0; currentSlot < Math.min(stacks.size(), target.size()); currentSlot++) {
+				ItemStack stack = stacks.get(currentSlot).stack.copyWithCount(1);
+				target.set(currentSlot, ItemResource.of(stack), stack.getCount());
+			}
 			
 			ItemStack box = PackageItem.containing(target);
 			PackageItem.setOrder(box, r.nextInt(), 0, true, 0, true,

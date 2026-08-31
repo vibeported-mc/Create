@@ -1,7 +1,8 @@
 package com.simibubi.create.content.logistics.box;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.foundation.utility.RegistryNbt;
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.mixin.accessor.ItemEntityAccessor;
 import net.minecraft.world.entity.InterpolationHandler;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -9,9 +10,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.item.ItemHelper;
 import net.createmod.catnip.api.network.NetworkHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.lang.ref.WeakReference;
-import java.util.Collections;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +55,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -381,9 +379,9 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 	@Override
 	protected void dropAllDeathLoot(ServerLevel level, DamageSource pDamageSource) {
 		super.dropAllDeathLoot(level, pDamageSource);
-		ItemStackHandler contents = PackageItem.getContents(box);
+		ItemStacksResourceHandler contents = PackageItem.getContents(box);
 		for (int i = 0; i < contents.size(); i++) {
-			ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(contents, i);
+			ItemStack itemstack = ItemUtil.getStack(contents, i);
 
 			if (itemstack.getItem() instanceof SpawnEggItem sei) {
 				EntityType<?> entitytype = sei.getType(itemstack);

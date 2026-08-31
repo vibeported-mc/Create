@@ -1,6 +1,5 @@
 package com.simibubi.create.compat.thresholdSwitch;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.compat.Mods;
@@ -21,6 +20,6 @@ public class StorageDrawers implements ThresholdSwitchCompat {
 		if (slot == 0)
 			return 0;
 
-		return ItemHandlerHelpers.getSlotLimit(inv, slot);
+		return inv.getCapacityAsInt(slot, ItemResource.EMPTY);
 	}
 }

@@ -1,14 +1,13 @@
 package com.simibubi.create.content.kinetics.mechanicalArm;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.server.level.ServerLevel;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import java.util.Optional;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -51,8 +50,6 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CampfireCookingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
@@ -584,13 +581,24 @@ public class AllArmInteractionPointTypes {
 		@Override
 		public ItemStack insert(ArmBlockEntity armBlockEntity, ItemStack stack, boolean simulate) {
 			ResourceHandler<ItemResource> handler = new WorldlyContainerWrapper(getContainer(), Direction.UP);
-			return ItemHandlerHelpers.insertItem(handler, stack, simulate);
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = stack.isEmpty() ? 0 : handler.insert(ItemResource.of(stack), stack.getCount(), transaction);
+				if (!simulate)
+					transaction.commit();
+				return transferred == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - transferred);
+			}
 		}
 
 		@Override
 		public ItemStack extract(ArmBlockEntity armBlockEntity, int slot, int amount, boolean simulate) {
 			ResourceHandler<ItemResource> handler = new WorldlyContainerWrapper(getContainer(), Direction.DOWN);
-			return ItemHandlerHelpers.extractItem(handler, slot, amount, simulate);
+			try (Transaction transaction = Transaction.openRoot()) {
+				ItemResource transferred2Resource = handler.getResource(slot);
+				int transferred2 = transferred2Resource.isEmpty() ? 0 : handler.extract(slot, transferred2Resource, amount, transaction);
+				if (!simulate)
+					transaction.commit();
+				return transferred2 <= 0 ? ItemStack.EMPTY : transferred2Resource.toStack(transferred2);
+			}
 		}
 
 		@Override

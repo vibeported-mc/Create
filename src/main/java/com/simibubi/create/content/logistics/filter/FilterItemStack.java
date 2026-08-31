@@ -1,8 +1,8 @@
 package com.simibubi.create.content.logistics.filter;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ItemHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,9 +127,9 @@ public class FilterItemStack {
 			boolean hasFilterItems = filter.has(AllDataComponents.FILTER_ITEMS);
 
 			containedItems = new ArrayList<>();
-			ItemStackHandler items = ((ListFilterItem) filter.getItem()).getFilterItemHandler(filter);
+			ItemStacksResourceHandler items = ((ListFilterItem) filter.getItem()).getFilterItemHandler(filter);
 			for (int i = 0; i < items.size(); i++) {
-				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(items, i);
+				ItemStack stackInSlot = ItemUtil.getStack(items, i);
 				if (!stackInSlot.isEmpty())
 					containedItems.add(FilterItemStack.of(stackInSlot));
 			}

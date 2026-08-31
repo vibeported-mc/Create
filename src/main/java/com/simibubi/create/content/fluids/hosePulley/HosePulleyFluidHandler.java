@@ -96,7 +96,8 @@ public class HosePulleyFluidHandler implements ResourceHandler<FluidResource> {
 
 		if (diff <= 0) {
 			// The deposited bucket was made up partly from what the tank already held.
-			internalTank.extract(0, resource, -diff, transaction);
+			if (!resource.isEmpty())
+				internalTank.extract(0, resource, -diff, transaction);
 			return amount;
 		}
 
@@ -144,7 +145,8 @@ public class HosePulleyFluidHandler implements ResourceHandler<FluidResource> {
 		if (leftover > held)
 			internalTank.insertBeyondCapacity(resource, leftover - held, transaction);
 		else if (leftover < held)
-			internalTank.extract(0, resource, held - leftover, transaction);
+			if (!resource.isEmpty())
+				internalTank.extract(0, resource, held - leftover, transaction);
 
 		return drained;
 	}

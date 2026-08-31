@@ -1,8 +1,9 @@
 package com.simibubi.create.content.logistics.itemHatch;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.LevelReader;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
@@ -32,7 +33,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -134,12 +134,20 @@ public class ItemHatchBlock extends HorizontalDirectionalBlock
 				.isEmpty() && !filter.test(item))
 				continue;
 
-			ItemStack remainder = ItemHandlerHelpers.insertItemStacked(targetInv, item, true);
+			ItemStack remainder;
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = item.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(targetInv, ItemResource.of(item), item.getCount(), transaction);
+				remainder = transferred == item.getCount() ? ItemStack.EMPTY : item.copyWithCount(item.getCount() - transferred);
+			}
 			if (remainder.getCount() == item.getCount())
 				continue;
 
 			ItemStack extracted = inventory.removeItem(i, item.getCount() - remainder.getCount());
-			remainder = ItemHandlerHelpers.insertItemStacked(targetInv, extracted, false);
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred2 = extracted.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(targetInv, ItemResource.of(extracted), extracted.getCount(), transaction);
+				remainder = transferred2 == extracted.getCount() ? ItemStack.EMPTY : extracted.copyWithCount(extracted.getCount() - transferred2);
+				transaction.commit();
+			}
 			anyInserted = true;
 
 			// remainder might not be empty in itemhandler edge cases

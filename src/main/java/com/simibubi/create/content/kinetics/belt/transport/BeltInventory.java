@@ -1,6 +1,5 @@
 package com.simibubi.create.content.kinetics.belt.transport;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import static com.simibubi.create.content.kinetics.belt.transport.BeltTunnelInteractionHandler.flapTunnel;
 
 import java.util.Collections;
@@ -29,7 +28,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;

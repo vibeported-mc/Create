@@ -1,12 +1,13 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.utility.RegistryNbt;
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import com.simibubi.create.foundation.utility.NbtValueIO;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import net.minecraft.core.UUIDUtil;
 import static com.simibubi.create.content.kinetics.base.DirectionalKineticBlock.FACING;
 
@@ -44,7 +45,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -87,7 +87,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 	protected FilteringBehaviour filtering;
 	protected boolean redstoneLocked;
 	protected UUID owner;
-	private ModifiableItemHandler invHandler;
+	private ResourceHandler<ItemResource> invHandler;
 	private ListTag deferredInventoryList;
 
 	private LerpedFloat animatedOffset;
@@ -438,7 +438,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		super.writeSafe(tag, registries);
 	}
 
-	private ModifiableItemHandler createHandler() {
+	private ResourceHandler<ItemResource> createHandler() {
 		return new DeployerItemHandler(this);
 	}
 
@@ -554,7 +554,7 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 		animatedOffset.setValue(offset);
 	}
 
-	ItemStackHandler recipeInv = new ItemStackHandler(2);
+	ItemStacksResourceHandler recipeInv = new ItemStacksResourceHandler(2);
 
 	@Nullable
 	public RecipeHolder<? extends Recipe<? extends RecipeInput>> getRecipe(ItemStack stack) {
@@ -569,8 +569,8 @@ public class DeployerBlockEntity extends KineticBlockEntity implements Clearable
 			}
 		}
 
-		ItemHandlerHelpers.setStackInSlot(recipeInv, 0, stack);
-		ItemHandlerHelpers.setStackInSlot(recipeInv, 1, heldItemMainhand);
+		recipeInv.set(0, ItemResource.of(stack), stack.getCount());
+		recipeInv.set(1, ItemResource.of(heldItemMainhand), heldItemMainhand.getCount());
 
 		DeployerRecipeSearchEvent event = new DeployerRecipeSearchEvent(this, new RecipeWrapper(IItemHandler.of(recipeInv)));
 

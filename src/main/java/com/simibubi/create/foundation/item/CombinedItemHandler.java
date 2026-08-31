@@ -1,27 +1,45 @@
 package com.simibubi.create.foundation.item;
 
+import java.util.SequencedCollection;
+
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
 /**
- * Several item handlers seen as one, slots and all.
+ * Several item handlers seen as one, whose slots can also be written.
  * <p>
- * NeoForge's own combined handler only offers the transactional half of the API; Create hands these
- * out where slots also get written directly, so the direct write is routed to whichever handler owns
- * the slot.
+ * This is not a stand-in for anything 26.2 provides. {@link CombinedResourceHandler} covers only the
+ * transactional half of the API, and the three methods that say which handler owns a slot are
+ * protected, so routing a direct write to the right one can only be done from a subclass. Create
+ * hands combined inventories to menus, to contraption disassembly and to the millstone and basin,
+ * all of which write slots outright, so the routing has to live somewhere.
+ * <p>
+ * A write lands on whichever handler owns that slot, and is dropped if that handler cannot take one -
+ * the same thing the combined handler does when a slot refuses a transfer.
  */
-public class CombinedItemHandler extends CombinedResourceHandler<ItemResource> implements ModifiableItemHandler {
+public class CombinedItemHandler extends CombinedResourceHandler<ItemResource>
+	implements IndexModifier<ItemResource> {
 
 	@SafeVarargs
-	public CombinedItemHandler(ModifiableItemHandler... handlers) {
+	public CombinedItemHandler(ResourceHandler<ItemResource>... handlers) {
+		super(handlers);
+	}
+
+	public CombinedItemHandler(SequencedCollection<? extends ResourceHandler<ItemResource>> handlers) {
 		super(handlers);
 	}
 
 	@Override
 	public void set(int index, ItemResource resource, int amount) {
 		int handlerIndex = getHandlerIndex(index);
-		if (getHandlerFromIndex(handlerIndex) instanceof ModifiableItemHandler modifiable)
-			modifiable.set(getSlotFromIndex(index, handlerIndex), resource, amount);
+
+		if (getHandlerFromIndex(handlerIndex) instanceof IndexModifier<?> modifier) {
+			@SuppressWarnings("unchecked")
+			IndexModifier<ItemResource> writable = (IndexModifier<ItemResource>) modifier;
+			writable.set(getSlotFromIndex(index, handlerIndex), resource, amount);
+		}
 	}
 
 }

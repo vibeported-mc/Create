@@ -1,30 +1,35 @@
 package com.simibubi.create.content.trains.station;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+
 import com.simibubi.create.Create;
 
 public class GlobalPackagePort {
 	public String address = "";
-	public ItemStackHandler offlineBuffer = new ItemStackHandler(18);
+	public ItemStacksResourceHandler offlineBuffer = new ItemStacksResourceHandler(18);
 	public boolean primed = false;
 	private boolean restoring = false;
 
-	public void restoreOfflineBuffer(ModifiableItemHandler inventory) {
+	public void restoreOfflineBuffer(IndexModifier<ItemResource> inventory) {
 		if (!primed) return;
 
 		restoring = true;
 
 		for (int slot = 0; slot < offlineBuffer.size(); slot++) {
-			ItemHandlerHelpers.setStackInSlot(inventory, slot, ItemHandlerHelpers.getStackInSlot(offlineBuffer, slot));
+			ItemStack stack = ItemUtil.getStack(offlineBuffer, slot);
+			inventory.set(slot, ItemResource.of(stack), stack.getCount());
 		}
 
 		restoring = false;
 		primed = false;
 	}
 
-	public void saveOfflineBuffer(ModifiableItemHandler inventory) {
+	public void saveOfflineBuffer(ResourceHandler<ItemResource> inventory) {
 		/*
 		 * Each time restoreOfflineBuffer changes a slot, the inventory
 		 * calls this method. We must filter out those calls to prevent
@@ -35,7 +40,8 @@ public class GlobalPackagePort {
 
 		// TODO: Call save method on individual slots rather than iterating
 		for (int slot = 0; slot < inventory.size(); slot++) {
-			ItemHandlerHelpers.setStackInSlot(offlineBuffer, slot, ItemHandlerHelpers.getStackInSlot(inventory, slot));
+			ItemStack stack = ItemUtil.getStack(inventory, slot);
+			offlineBuffer.set(slot, ItemResource.of(stack), stack.getCount());
 		}
 
 		Create.RAILWAYS.markTracksDirty();

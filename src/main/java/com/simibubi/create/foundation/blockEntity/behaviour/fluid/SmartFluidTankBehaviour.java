@@ -2,7 +2,6 @@ package com.simibubi.create.foundation.blockEntity.behaviour.fluid;
 
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.neoforged.neoforge.transfer.ResourceHandler;
-import com.simibubi.create.foundation.transfer.Transactions;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -22,7 +21,6 @@ import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.neoforged.neoforge.fluids.FluidStack;
 public class SmartFluidTankBehaviour extends BlockEntityBehaviour {
 
@@ -221,9 +219,9 @@ public class SmartFluidTankBehaviour extends BlockEntityBehaviour {
 		 * Fill past the insertion lock, for the machine that owns the tank rather than a pipe
 		 * attached to it.
 		 */
-		public int forceFill(FluidStack resource, boolean simulate) {
-			try (Transaction transaction = Transactions.open()) {
-				int filled = super.insert(FluidResource.of(resource), resource.getAmount(), transaction);
+		public int forceFill(FluidStack resource, boolean simulate, TransactionContext parent) {
+			try (Transaction transaction = Transaction.open(parent)) {
+				int filled = resource.isEmpty() ? 0 : super.insert(FluidResource.of(resource), resource.getAmount(), transaction);
 				if (!simulate)
 					transaction.commit();
 				return filled;

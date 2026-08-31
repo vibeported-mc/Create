@@ -1,14 +1,15 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.AllPackets;
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,10 +60,18 @@ public record ToolboxEquipPacket(BlockPos toolboxPos, int slot, int hotbarSlot) 
 		if (!playerStack.isEmpty() && !ToolboxInventory.canItemsShareCompartment(playerStack,
 				toolboxBlockEntity.inventory.filters.get(slot))) {
 			toolboxBlockEntity.inventory.inLimitedMode(inventory -> {
-				ItemStack remainder = ItemHandlerHelpers.insertItemStacked(inventory, playerStack, false);
+				ItemStack remainder;
+				try (Transaction transaction = Transaction.openRoot()) {
+					int transferred = playerStack.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(inventory, ItemResource.of(playerStack), playerStack.getCount(), transaction);
+					remainder = transferred == playerStack.getCount() ? ItemStack.EMPTY : playerStack.copyWithCount(playerStack.getCount() - transferred);
+					transaction.commit();
+				}
 				if (!remainder.isEmpty())
-					remainder = ItemHandlerHelpers.insertItemStacked(new ItemReturnInvWrapper(player.getInventory()),
-							remainder, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						int transferred2 = remainder.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(new ItemReturnInvWrapper(player.getInventory()), ItemResource.of(remainder), remainder.getCount(), transaction);
+						remainder = transferred2 == remainder.getCount() ? ItemStack.EMPTY : remainder.copyWithCount(remainder.getCount() - transferred2);
+						transaction.commit();
+					}
 				if (remainder.getCount() != playerStack.getCount())
 					player.getInventory().setItem(hotbarSlot, remainder);
 			});

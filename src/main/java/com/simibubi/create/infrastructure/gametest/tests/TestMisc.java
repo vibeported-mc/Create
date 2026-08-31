@@ -1,7 +1,7 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.world.item.DyeColor;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.world.entity.EntityTypes;
 import static com.simibubi.create.infrastructure.gametest.CreateGameTestHelper.FIFTEEN_SECONDS;
 
@@ -20,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import com.simibubi.create.infrastructure.gametest.GameTest;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -51,7 +50,7 @@ public class TestMisc {
 		// setup cannon
 		BlockPos cannonPos = new BlockPos(3, 2, 6);
 		SchematicannonBlockEntity cannon = helper.getBlockEntity(AllBlockEntityTypes.SCHEMATICANNON.get(), cannonPos);
-		ItemHandlerHelpers.setStackInSlot(cannon.inventory, 0, schematic);
+		cannon.inventory.set(0, ItemResource.of(schematic), schematic.getCount());
 		// run
 		cannon.state = State.RUNNING;
 		cannon.statusMsg = "running";

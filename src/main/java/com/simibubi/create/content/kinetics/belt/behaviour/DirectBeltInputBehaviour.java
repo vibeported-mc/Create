@@ -1,6 +1,7 @@
 package com.simibubi.create.content.kinetics.belt.behaviour;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.function.Supplier;
@@ -73,7 +74,12 @@ public class DirectBeltInputBehaviour extends BlockEntityBehaviour {
 		ResourceHandler<ItemResource> lazy = blockEntity.getLevel().getCapability(Capabilities.Item.BLOCK, blockEntity.getBlockPos(), side);
 		if (lazy == null)
 			return inserted.stack;
-		return ItemHandlerHelpers.insertItemStacked(lazy, inserted.stack.copy(), simulate);
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = inserted.stack.copy().isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(lazy, ItemResource.of(inserted.stack.copy()), inserted.stack.copy().getCount(), transaction);
+			if (!simulate)
+				transaction.commit();
+			return transferred == inserted.stack.copy().getCount() ? ItemStack.EMPTY : inserted.stack.copy().copyWithCount(inserted.stack.copy().getCount() - transferred);
+		}
 	}
 
 	// TODO: verify that this side is consistent across all calls

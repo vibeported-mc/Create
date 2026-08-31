@@ -1,14 +1,13 @@
 package com.simibubi.create.content.trains.schedule.destination;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.foundation.gui.widget.FilteredEditBox;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
-
 
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.Create;
@@ -27,7 +26,6 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.api.data.Glob;
 import net.createmod.catnip.api.data.Pair;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -135,7 +133,7 @@ public class FetchPackagesInstruction extends TextScheduleInstruction {
 					postboxInventory = ppbe.inventory;
 
 				for (int slot = 0; slot < postboxInventory.size(); slot++) {
-					ItemStack stack = ItemHandlerHelpers.getStackInSlot(postboxInventory, slot);
+					ItemStack stack = ItemUtil.getStack(postboxInventory, slot);
 					if (!PackageItem.isPackage(stack))
 						continue;
 					if (PackageItem.matchAddress(stack, port.address))

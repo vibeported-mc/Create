@@ -1,8 +1,10 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import com.simibubi.create.foundation.utility.NbtValueIO;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.minecraft.core.component.DataComponentGetter;
 import com.simibubi.create.foundation.utility.ComponentJson;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.core.UUIDUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -286,7 +288,7 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
+		NbtValueIO.deserialize(inventory, compound.getCompoundOrEmpty("Inventory"), registries);
 		super.read(compound, registries, clientPacket);
 		if (compound.contains("UniqueId"))
 			this.uniqueId = compound.read("UniqueId", UUIDUtil.CODEC).orElse(null);
@@ -299,7 +301,7 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 		if (uniqueId == null)
 			uniqueId = UUID.randomUUID();
 
-		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
+		compound.put("Inventory", NbtValueIO.serialize(inventory, registries));
 		compound.store("UniqueId", UUIDUtil.CODEC, uniqueId);
 
 		if (customName != null)
@@ -335,8 +337,10 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 	public void readInventory(ToolboxInventory inv) {
 		if (inv != null) {
 			this.inventory.filters = new ArrayList<>(inv.filters);
-			for (int i = 0; i < inv.size(); i++)
-				ItemHandlerHelpers.setStackInSlot(this.inventory, i, ItemHandlerHelpers.getStackInSlot(inv, i));
+			for (int i = 0; i < inv.size(); i++) {
+				ItemStack stack = ItemUtil.getStack(inv, i);
+				this.inventory.set(i, ItemResource.of(stack), stack.getCount());
+			}
 		}
 	}
 

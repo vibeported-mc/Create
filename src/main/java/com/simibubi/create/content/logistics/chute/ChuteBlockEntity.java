@@ -1,8 +1,9 @@
 package com.simibubi.create.content.logistics.chute;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.world.item.ItemStackTemplate;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.NullMarked;
@@ -375,7 +376,13 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 				return false;
 			if (invVersionTracker.stillWaiting(capBelow))
 				return false;
-			ItemStack remainder = ItemHandlerHelpers.insertItemStacked(capBelow, item, simulate);
+			ItemStack remainder;
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = item.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(capBelow, ItemResource.of(item), item.getCount(), transaction);
+				remainder = transferred == item.getCount() ? ItemStack.EMPTY : item.copyWithCount(item.getCount() - transferred);
+				if (!simulate)
+					transaction.commit();
+			}
 			ItemStack held = getItem();
 			if (!simulate)
 				setItem(remainder, itemPosition.getValue(0));
@@ -432,7 +439,13 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 				int countBefore = item.getCount();
 				if (invVersionTracker.stillWaiting(capAbove))
 					return false;
-				ItemStack remainder = ItemHandlerHelpers.insertItemStacked(capAbove, item, simulate);
+				ItemStack remainder;
+				try (Transaction transaction = Transaction.openRoot()) {
+					int transferred2 = item.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(capAbove, ItemResource.of(item), item.getCount(), transaction);
+					remainder = transferred2 == item.getCount() ? ItemStack.EMPTY : item.copyWithCount(item.getCount() - transferred2);
+					if (!simulate)
+						transaction.commit();
+				}
 				if (!simulate)
 					item = remainder;
 				if (countBefore != remainder.getCount())
@@ -530,12 +543,6 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	}
 
 	public void setItem(ItemStack stack, float insertionPos) {
-		String n = stack.getItem().toString();
-		if (n.contains("flint") || n.contains("cooked_beef") || n.contains("soul_sand") || n.contains("iron_ingot")
-			|| n.contains("gravel") || n.contains("beef") || n.contains("sand") || n.contains("raw_iron"))
-			new Exception("[T] SETITEM " + worldPosition.getY() + " " + stack + " at " + insertionPos)
-				.printStackTrace(System.out);
-
 		item = stack;
 		itemPosition.startWithValue(insertionPos);
 		invVersionTracker.reset();

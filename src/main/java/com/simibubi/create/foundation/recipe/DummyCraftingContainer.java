@@ -1,13 +1,12 @@
 package com.simibubi.create.foundation.recipe;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 public class DummyCraftingContainer extends TransientCraftingContainer {
@@ -63,7 +62,7 @@ public class DummyCraftingContainer extends TransientCraftingContainer {
 		NonNullList<ItemStack> inv = NonNullList.create();
 
 		for (int slot = 0; slot < itemHandler.size(); slot++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(itemHandler, slot);
+			ItemStack stack = ItemUtil.getStack(itemHandler, slot);
 
 			if (stack.isEmpty())
 				continue;

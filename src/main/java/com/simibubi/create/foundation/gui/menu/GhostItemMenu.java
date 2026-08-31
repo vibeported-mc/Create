@@ -1,7 +1,7 @@
 package com.simibubi.create.foundation.gui.menu;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 
 public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearableMenu {
 
-	public ItemStackHandler ghostInventory;
+	public ItemStacksResourceHandler ghostInventory;
 
 	protected GhostItemMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {
 		super(type, id, inv, extraData);
@@ -22,7 +22,7 @@ public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearable
 		super(type, id, inv, contentHolder);
 	}
 
-	protected abstract ItemStackHandler createGhostInventory();
+	protected abstract ItemStacksResourceHandler createGhostInventory();
 
 	protected abstract boolean allowRepeats();
 
@@ -74,7 +74,7 @@ public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearable
 		int slot = slotId - 36;
 		if (clickTypeIn == ContainerInput.CLONE) {
 			if (player.isCreative() && held.isEmpty()) {
-				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(ghostInventory, slot)
+				ItemStack stackInSlot = ItemUtil.getStack(ghostInventory, slot)
 						.copy();
 				stackInSlot.setCount(stackInSlot.getMaxStackSize());
 				setCarried(stackInSlot);
@@ -104,7 +104,7 @@ public abstract class GhostItemMenu<T> extends MenuBase<T> implements IClearable
 			Slot slot = this.slots.get(index);
 			ItemStack stackToInsert = slot.getItem();
 			for (int i = 0; i < ghostInventory.size(); i++) {
-				ItemStack stack = ItemHandlerHelpers.getStackInSlot(ghostInventory, i);
+				ItemStack stack = ItemUtil.getStack(ghostInventory, i);
 				if (!allowRepeats() && ItemStack.isSameItemSameComponents(stack, stackToInsert))
 					break;
 				if (stack.isEmpty()) {

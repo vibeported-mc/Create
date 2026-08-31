@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
@@ -33,8 +33,8 @@ public class FactoryPanelSetItemMenu extends GhostItemMenu<FactoryPanelBehaviour
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
-		return new ItemStackHandler(1);
+	protected ItemStacksResourceHandler createGhostInventory() {
+		return new ItemStacksResourceHandler(1);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class FactoryPanelSetItemMenu extends GhostItemMenu<FactoryPanelBehaviour
 
 	@Override
 	protected void saveData(FactoryPanelBehaviour contentHolder) {
-		if (!contentHolder.setFilter(ItemHandlerHelpers.getStackInSlot(ghostInventory, 0))) {
+		if (!contentHolder.setFilter(ItemUtil.getStack(ghostInventory, 0))) {
 			player.sendOverlayMessage(CreateLang.translateDirect("logistics.filter.invalid_item"));
 			AllSoundEvents.DENY.playOnServer(player.level(), player.blockPosition(), 1, 1);
 			return;

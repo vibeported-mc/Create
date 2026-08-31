@@ -1,5 +1,6 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.foundation.render.RenderLevels;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import net.minecraft.util.LightCoordsUtil;
@@ -13,7 +14,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringR
 import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.ArrayList;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING;
@@ -37,8 +37,6 @@ import net.createmod.catnip.api.client.render.CachedBuffers;
 import net.createmod.catnip.api.client.render.SuperByteBuffer;
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.math.AngleHelper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -46,7 +44,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity, SawRenderer.SawRenderState> {
@@ -182,7 +179,7 @@ public class SawRenderer extends SafeBlockEntityRenderer<SawBlockEntity, SawRend
 
 		int renderedI = 0;
 		for (int i = 0; i < be.inventory.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(be.inventory, i);
+			ItemStack stack = ItemUtil.getStack(be.inventory, i);
 			if (stack.isEmpty())
 				continue;
 

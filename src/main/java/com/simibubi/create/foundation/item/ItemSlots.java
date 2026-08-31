@@ -1,9 +1,10 @@
 package com.simibubi.create.foundation.item;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntFunction;
@@ -74,9 +75,9 @@ public class ItemSlots {
 		return this.map.keySet().intStream().max().orElse(-1);
 	}
 
-	public <T extends ModifiableItemHandler> T toHandler(IntFunction<T> factory) {
+	public <T extends ItemStacksResourceHandler> T toHandler(IntFunction<T> factory) {
 		T handler = factory.apply(this.size);
-		this.forEach((slot, stack) -> ItemHandlerHelpers.setStackInSlot(handler, slot, stack));
+		this.forEach((slot, stack) -> handler.set(slot, ItemResource.of(stack), stack.getCount()));
 		return handler;
 	}
 
@@ -84,7 +85,7 @@ public class ItemSlots {
 		ItemSlots slots = new ItemSlots();
 		slots.setSize(handler.size());
 		for (int i = 0; i < handler.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
+			ItemStack stack = ItemUtil.getStack(handler, i);
 			if (!stack.isEmpty()) {
 				slots.set(i, stack.copy());
 			}

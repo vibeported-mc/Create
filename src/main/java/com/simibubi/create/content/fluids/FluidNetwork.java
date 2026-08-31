@@ -1,6 +1,7 @@
 package com.simibubi.create.content.fluids;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.lang.ref.WeakReference;
@@ -195,18 +196,42 @@ public class FluidNetwork {
 
 			FluidStack transfer = FluidStack.EMPTY;
 			for (int i = 0; i < sourceCap.size(); i++) {
-				FluidStack contained = FluidHandlerHelpers.getFluidInTank(sourceCap, i);
+				FluidStack contained = FluidUtil.getStack(sourceCap, i);
 				if (contained.isEmpty())
 					continue;
 				if (!FluidStack.isSameFluidSameComponents(contained, fluid))
 					continue;
 				FluidStack toExtract = FluidHelper.copyStackWithAmount(contained, flowSpeed);
-				transfer = FluidHandlerHelpers.drain(sourceCap, toExtract, action);
+				try (Transaction transaction = Transaction.openRoot()) {
+					FluidResource wanted = FluidResource.of(toExtract);
+					int transferred = toExtract.isEmpty() ? 0
+						: sourceCap.extract(wanted, toExtract.getAmount(), transaction);
+					transfer = transferred <= 0 ? FluidStack.EMPTY : wanted.toStack(transferred);
+					if (!action)
+						transaction.commit();
+				}
 				break;
 			}
 
 			if (transfer.isEmpty()) {
-				FluidStack genericExtract = FluidHandlerHelpers.drain(sourceCap, flowSpeed, action);
+				FluidStack genericExtract = FluidStack.EMPTY;
+
+				for (int tank = 0; tank < sourceCap.size(); tank++) {
+					FluidResource held = sourceCap.getResource(tank);
+					if (held.isEmpty())
+						continue;
+
+					try (Transaction transaction = Transaction.openRoot()) {
+						int drained = sourceCap.extract(held, flowSpeed, transaction);
+						if (drained <= 0)
+							continue;
+						if (!action)
+							transaction.commit();
+						genericExtract = held.toStack(drained);
+					}
+
+					break;
+				}
 				if (!genericExtract.isEmpty() && FluidStack.isSameFluidSameComponents(genericExtract, fluid))
 					transfer = genericExtract;
 			}
@@ -248,7 +273,13 @@ public class FluidNetwork {
 
 					FluidStack divided = transfer.copy();
 					divided.setAmount(simulatedTransfer);
-					int fill = FluidHandlerHelpers.fill(targetHandler, divided, action);
+					int fill;
+					try (Transaction transaction = Transaction.openRoot()) {
+						int transferred3 = divided.isEmpty() ? 0 : targetHandler.insert(FluidResource.of(divided), divided.getAmount(), transaction);
+						fill = transferred3;
+						if (!action)
+							transaction.commit();
+					}
 
 					if (simulate) {
 						accumulatedFill.put(targetHandler, Integer.valueOf(fill));

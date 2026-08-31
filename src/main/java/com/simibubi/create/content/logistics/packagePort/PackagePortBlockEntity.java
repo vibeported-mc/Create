@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.packagePort;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public abstract class PackagePortBlockEntity extends SmartBlockEntity implements
 
 	public boolean isBackedUp() {
 		for (int i = 0; i < inventory.size(); i++)
-			if (ItemHandlerHelpers.getStackInSlot(inventory, i)
+			if (ItemUtil.getStack(inventory, i)
 				.isEmpty())
 				return false;
 		return true;
@@ -118,7 +118,7 @@ public abstract class PackagePortBlockEntity extends SmartBlockEntity implements
 			target.deregister(this, level, worldPosition);
 		super.destroy();
 		for (int i = 0; i < inventory.size(); i++)
-			drop(ItemHandlerHelpers.getStackInSlot(inventory, i));
+			drop(ItemUtil.getStack(inventory, i));
 	}
 
 	public void drop(ItemStack box) {

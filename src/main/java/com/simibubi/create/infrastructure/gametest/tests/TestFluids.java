@@ -1,14 +1,13 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.world.entity.EntityTypes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
@@ -29,7 +28,6 @@ import com.simibubi.create.infrastructure.gametest.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -37,7 +35,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FarmlandBlock;
@@ -70,8 +67,11 @@ public class TestFluids {
 			ResourceHandler<FluidResource> storage = helper.fluidStorageAt(pulleyPos);
 			if (storage instanceof HosePulleyFluidHandler hose) {
 				ResourceHandler<FluidResource> internalTank = hose.getInternalTank();
-				if (!FluidHandlerHelpers.drain(internalTank, 1, true).isEmpty())
-					helper.fail("Pulley not empty");
+				try (Transaction transaction = Transaction.openRoot()) {
+					// never committed: this only asks whether anything is left in there
+					if (ResourceHandlerUtil.extractFirst(internalTank, resource -> true, 1, transaction) != null)
+						helper.fail("Pulley not empty");
+				}
 			} else {
 				helper.fail("Not a pulley");
 			}
@@ -227,7 +227,12 @@ public class TestFluids {
 		List<BlockPos> chests = List.of(new BlockPos(6, 4, 2), new BlockPos(6, 4, 3));
 		List<BlockPos> deployers = chests.stream().map(pos -> pos.below(2)).toList();
 		helper.runAfterDelay(3, () -> chests.forEach(chest ->
-				planks.forEach(plank -> ItemHandlerHelpers.insertItem(helper.itemStorageAt(chest), new ItemStack(plank), false))
+				planks.forEach(plank -> {
+					try (Transaction transaction = Transaction.openRoot()) {
+						helper.itemStorageAt(chest).insert(ItemResource.of(new ItemStack(plank)), new ItemStack(plank).getCount(), transaction);
+						transaction.commit();
+					}
+				})
 		));
 
 		BlockPos smallWheel = new BlockPos(4, 2, 2);
@@ -255,7 +260,10 @@ public class TestFluids {
 			deployers.forEach(pos -> {
 				ResourceHandler<ItemResource> handler = helper.itemStorageAt(pos);
 				for (int i = 0; i < handler.size(); i++) {
-					ItemHandlerHelpers.extractItem(handler, i, Integer.MAX_VALUE, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						handler.extract(i, handler.getResource(i), Integer.MAX_VALUE, transaction);
+						transaction.commit();
+					}
 				}
 			});
 			if (!planks.isEmpty())

@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.item;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.Collection;
@@ -22,7 +22,7 @@ public class CountedItemStackList {
 
 	public CountedItemStackList(ResourceHandler<ItemResource> inventory, FilteringBehaviour filteringBehaviour) {
 		for (int slot = 0; slot < inventory.size(); slot++) {
-			ItemStack extractItem = ItemHandlerHelpers.getStackInSlot(inventory, slot);
+			ItemStack extractItem = ItemUtil.getStack(inventory, slot);
 			if (filteringBehaviour.test(extractItem))
 				add(extractItem);
 		}

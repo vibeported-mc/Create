@@ -1,11 +1,12 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.minecraft.client.Minecraft;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,8 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
@@ -109,7 +108,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 
 		editingIndex = index;
 		editingItem = index == -1 ? ItemStack.EMPTY : schedule.get(index);
-		ItemHandlerHelpers.setStackInSlot(menu.proxyInventory, 0, editingItem);
+		menu.proxyInventory.set(0, ItemResource.of(editingItem), editingItem.getCount());
 		ClientNetworkHelper.INSTANCE.sendToServer(new GhostItemSubmitPacket(editingItem, 0));
 
 		addRenderableWidget(editorConfirm);
@@ -125,7 +124,7 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 		removeWidget(editorConfirm);
 		removeWidget(editorEditBox);
 
-		ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(menu.proxyInventory, 0)
+		ItemStack stackInSlot = ItemUtil.getStack(menu.proxyInventory, 0)
 			.copy();
 		boolean empty = stackInSlot.isEmpty();
 
@@ -160,8 +159,8 @@ public class StockKeeperCategoryScreen extends AbstractSimiContainerScreen<Stock
 			.equals(CreateLang.translate("gui.stock_ticker.new_category")
 				.string()))
 			return;
-		if (ItemHandlerHelpers.getStackInSlot(menu.proxyInventory, 0).has(DataComponents.CUSTOM_NAME))
-			editorEditBox.setValue(ItemHandlerHelpers.getStackInSlot(menu.proxyInventory, 0)
+		if (ItemUtil.getStack(menu.proxyInventory, 0).has(DataComponents.CUSTOM_NAME))
+			editorEditBox.setValue(ItemUtil.getStack(menu.proxyInventory, 0)
 				.getHoverName()
 				.getString());
 	}

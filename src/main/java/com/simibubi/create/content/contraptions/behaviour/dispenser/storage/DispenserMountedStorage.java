@@ -1,8 +1,9 @@
 package com.simibubi.create.content.contraptions.behaviour.dispenser.storage;
 
+import net.neoforged.neoforge.transfer.IndexModifier;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -33,9 +34,10 @@ public class DispenserMountedStorage extends SimpleMountedStorage {
 
 	@Override
 	@Nullable
-	protected MenuProvider createMenuProvider(Component name, ModifiableItemHandler handler,
+	protected MenuProvider createMenuProvider(Component name, ResourceHandler<ItemResource> handler,
+		IndexModifier<ItemResource> writable,
 											  Predicate<Player> stillValid, Consumer<Player> onClose) {
-		return MountedStorageMenus.createGeneric9x9(name, handler, stillValid, onClose);
+		return MountedStorageMenus.createGeneric9x9(name, handler, writable, stillValid, onClose);
 	}
 
 	@Override

@@ -1,9 +1,9 @@
 package com.simibubi.create.content.logistics.filter;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.foundation.utility.RegistryNbt;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.AllPackets;
@@ -46,11 +46,12 @@ public record FilterScreenPacket(Option option, @Nullable CompoundTag data) impl
 				c.respectNBT = true;
 			if (this.option == Option.IGNORE_DATA)
 				c.respectNBT = false;
-			if (this.option == Option.UPDATE_FILTER_ITEM)
-				ItemHandlerHelpers.setStackInSlot(c.ghostInventory, tag.getIntOr("Slot", 0),
-					tag.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(player.level()
-						.registryAccess()))
-						.orElse(ItemStack.EMPTY));
+			if (this.option == Option.UPDATE_FILTER_ITEM) {
+				ItemStack stack = tag.read("Item", ItemStack.OPTIONAL_CODEC, RegistryNbt.ops(player.level()
+					.registryAccess()))
+					.orElse(ItemStack.EMPTY);
+				c.ghostInventory.set(tag.getIntOr("Slot", 0), ItemResource.of(stack), stack.getCount());
+			}
 		}
 
 		if (player.containerMenu instanceof AttributeFilterMenu c) {

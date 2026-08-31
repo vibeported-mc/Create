@@ -1,11 +1,11 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.AllMountedStorageTypes;
 import com.simibubi.create.api.contraption.storage.item.MountedItemStorage;
 import com.simibubi.create.api.contraption.storage.item.simple.SimpleMountedStorage;
 import com.simibubi.create.foundation.item.ContainerItemHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.transfer.Transactions;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTest;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
@@ -38,9 +38,13 @@ public class TestTransferItems {
 	 * A transaction that is not committed must leave a container as it found it.
 	 * <p>
 	 * There is no counterpart to this on 1.21.1: {@link ContainerItemHandler} is new in the port, so
-	 * nothing can be compared against, and what it must obey is the transfer API's own rule - work done
-	 * inside a transaction that is thrown away has to be thrown away with it. Both ways of writing to it
-	 * are asked here, the transactional one and the direct one.
+	 * nothing can be compared against.
+	 * <p>
+	 * The two halves of the API answer this differently, and deliberately so. Insert and extract are
+	 * transactional and are undone. Writing a slot through {@code IndexModifier} is not - it takes no
+	 * transaction and NeoForge's own {@code StacksResourceHandler} does not journal it either - so a
+	 * direct write stands whatever happens to the transaction around it. Both are asserted here, so
+	 * that the difference is recorded rather than discovered.
 	 */
 	@GameTest(template = "belt_coaster", timeoutTicks = CreateGameTestHelper.TEN_SECONDS)
 	public static void containerHandlerHonoursRollback(CreateGameTestHelper helper) {
@@ -55,18 +59,21 @@ public class TestTransferItems {
 			ContainerItemHandler handler = new ContainerItemHandler(chest);
 
 			// Inserting and then throwing the transaction away.
-			try (Transaction transaction = Transactions.open()) {
+			try (Transaction transaction = Transaction.openRoot()) {
 				handler.insert(ItemResource.of(new ItemStack(Items.GOLD_INGOT)), 5, transaction);
 			}
 
 			expect(helper, chest, "after a rolled back insert");
 
-			// Writing a slot outright and then throwing the transaction away.
-			try (Transaction transaction = Transactions.open()) {
+			// Writing a slot outright is not transactional, and stands.
+			try (Transaction transaction = Transaction.openRoot()) {
 				handler.set(0, ItemResource.of(new ItemStack(Items.GOLD_INGOT)), 64);
 			}
 
-			expect(helper, chest, "after a rolled back slot write");
+			ItemStack written = chest.getItem(0);
+			if (!written.is(Items.GOLD_INGOT) || written.getCount() != 64)
+				helper.fail("Chest holds " + written + " after a direct slot write, not the 64 gold it was given"
+					+ " - a write through IndexModifier takes no transaction and is not rolled back");
 
 			helper.succeed();
 		});
@@ -124,8 +131,14 @@ public class TestTransferItems {
 		mounted = reserialize(helper, mounted, what);
 
 		// Used while the contraption travels: some taken out, something new put in.
-		ItemHandlerHelpers.extractItem(mounted, 0, 4, false);
-		ItemHandlerHelpers.insertItemStacked(mounted, new ItemStack(Items.REDSTONE, 20), false);
+		try (Transaction transaction = Transaction.openRoot()) {
+			mounted.extract(0, mounted.getResource(0), 4, transaction);
+			transaction.commit();
+		}
+		try (Transaction transaction = Transaction.openRoot()) {
+			ResourceHandlerUtil.insertStacking(mounted, ItemResource.of(new ItemStack(Items.REDSTONE, 20)), new ItemStack(Items.REDSTONE, 20).getCount(), transaction);
+			transaction.commit();
+		}
 
 		// Disassembly: the block is placed back empty and the contraption writes into it.
 		container.clearContent();
@@ -155,7 +168,7 @@ public class TestTransferItems {
 	private static int countOf(MountedItemStorage storage, Item item) {
 		int total = 0;
 		for (int slot = 0; slot < storage.size(); slot++) {
-			ItemStack held = ItemHandlerHelpers.getStackInSlot(storage, slot);
+			ItemStack held = ItemUtil.getStack(storage, slot);
 			if (held.is(item))
 				total += held.getCount();
 		}

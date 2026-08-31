@@ -1,15 +1,15 @@
 package com.simibubi.create.content.schematics.table;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import com.simibubi.create.foundation.utility.NbtValueIO;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.item.ItemHelper;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+
 import java.util.List;
 
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
-import com.simibubi.create.foundation.utility.IInteractionChecker;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -31,7 +31,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 	public float uploadingProgress;
 	public boolean sendUpdate;
 
-	public class SchematicTableInventory extends ItemStackHandler {
+	public class SchematicTableInventory extends ItemStacksResourceHandler {
 		public SchematicTableInventory() {
 			super(2);
 		}
@@ -52,7 +52,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
+		NbtValueIO.deserialize(inventory, compound.getCompoundOrEmpty("Inventory"), registries);
 		super.read(compound, registries, clientPacket);
 		if (!clientPacket)
 			return;
@@ -69,7 +69,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 
 	@Override
 	protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
+		compound.put("Inventory", NbtValueIO.serialize(inventory, registries));
 		super.write(compound, registries, clientPacket);
 		if (clientPacket && isUploading) {
 			compound.putBoolean("Uploading", true);
@@ -80,7 +80,8 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 
 	@Override
 	public void clearContent() {
-		inventory.getStacks().clear();
+		for (int slot = 0; slot < inventory.size(); slot++)
+			inventory.set(slot, ItemResource.EMPTY, 0);
 	}
 
 	@Override
@@ -97,7 +98,7 @@ public class SchematicTableBlockEntity extends SmartBlockEntity implements MenuP
 		uploadingProgress = 0;
 		uploadingSchematic = schematic;
 		sendUpdate = true;
-		ItemHandlerHelpers.setStackInSlot(inventory, 0, ItemStack.EMPTY);
+		inventory.set(0, ItemResource.EMPTY, 0);
 	}
 
 	public void finishUpload() {

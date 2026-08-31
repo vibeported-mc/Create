@@ -1,7 +1,13 @@
 package com.simibubi.create.compat.jei.category;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
-import com.simibubi.create.foundation.fluid.ItemFluidAccess;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.NullMarked;
@@ -66,13 +72,22 @@ public class ItemDrainCategory extends CreateRecipeCategory<EmptyingRecipe> {
 
 			// A fluid handler no longer hands back a container item of its own; it writes the emptied
 			// item through the access it was opened on, which is read back once the drain is done.
-			ItemFluidAccess access = new ItemFluidAccess(stack.copy());
-			ResourceHandler<FluidResource> capability = access.handler();
+			// One slot the fluid handler is allowed to swap the item inside: filling a bucket
+			// changes which item is held, and an access over a bare stack refuses that.
+			ItemStacksResourceHandler carrier = new ItemStacksResourceHandler(1);
+			carrier.set(0, ItemResource.of(stack.copy()), stack.copy().getCount());
+			ItemAccess access = ItemAccess.forHandlerIndex(carrier, 0);
+			ResourceHandler<FluidResource> capability = access.getCapability(Capabilities.Fluid.ITEM);
 			if (capability == null)
 				continue;
 
-			FluidStack extracted = FluidHandlerHelpers.drain(capability, 1000, false);
-			ItemStack result = access.result();
+			FluidStack extracted;
+			try (Transaction transaction = Transaction.openRoot()) {
+				ResourceStack<FluidResource> transferred = ResourceHandlerUtil.extractFirst(capability, resource -> true, 1000, transaction);
+				extracted = transferred == null ? FluidStack.EMPTY : transferred.resource().toStack(transferred.amount());
+				transaction.commit();
+			}
+			ItemStack result = ItemUtil.getStack(carrier, 0);
 			if (extracted.isEmpty())
 				continue;
 			if (result.isEmpty())

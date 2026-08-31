@@ -1,6 +1,7 @@
 package com.simibubi.create.infrastructure.ponder.scenes;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlockEntity;
@@ -351,7 +352,13 @@ public class ArmScenes {
 			BlockPos funnelPos = util.grid().at(5 - index % 3, 1 + index / 3, 2);
 			scene.world().flapFunnel(funnelPos, false);
 			scene.world().instructArm(armPos, Phase.SEARCH_INPUTS, i == 3 ? ItemStack.EMPTY : sand, -1);
-			scene.world().modifyBlockEntity(funnelPos.north(), MechanicalCrafterBlockEntity.class, mct -> ItemHandlerHelpers.insertItem(mct.getInventory(), 0, sand.copy(), false));
+			scene.world().modifyBlockEntity(funnelPos.north(), MechanicalCrafterBlockEntity.class, mct -> {
+				try (Transaction transaction = Transaction.openRoot()) {
+					if (!sand.isEmpty())
+						mct.getInventory().insert(0, ItemResource.of(sand), sand.getCount(), transaction);
+					transaction.commit();
+				}
+			});
 			scene.idle(10);
 		}
 
@@ -370,7 +377,13 @@ public class ArmScenes {
 			BlockPos funnelPos = util.grid().at(3 + index % 3, 1 + index / 3, 2);
 			scene.world().flapFunnel(funnelPos, false);
 			scene.world().instructArm(armPos, Phase.SEARCH_INPUTS, i == 4 ? ItemStack.EMPTY : sulphur, -1);
-			scene.world().modifyBlockEntity(funnelPos.north(), MechanicalCrafterBlockEntity.class, mct -> ItemHandlerHelpers.insertItem(mct.getInventory(), 0, sulphur.copy(), false));
+			scene.world().modifyBlockEntity(funnelPos.north(), MechanicalCrafterBlockEntity.class, mct -> {
+				try (Transaction transaction = Transaction.openRoot()) {
+					if (!sulphur.isEmpty())
+						mct.getInventory().insert(0, ItemResource.of(sulphur), sulphur.getCount(), transaction);
+					transaction.commit();
+				}
+			});
 			scene.idle(10);
 		}
 

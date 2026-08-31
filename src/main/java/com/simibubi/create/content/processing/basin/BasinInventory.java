@@ -43,7 +43,7 @@ public class BasinInventory extends SmartInventory {
 
 	@Override
 	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-		int extracted = super.extract(index, resource, amount, transaction);
+		int extracted = resource.isEmpty() ? 0 : super.extract(index, resource, amount, transaction);
 		if (extracted > 0)
 			blockEntity.notifyChangeOfContents();
 		return extracted;

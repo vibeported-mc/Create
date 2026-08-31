@@ -1,9 +1,8 @@
 package com.simibubi.create.content.equipment.blueprint;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllMenuTypes;
@@ -77,13 +76,13 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 		Optional<RecipeHolder<CraftingRecipe>> optional = RecipeFinder.find(RecipeType.CRAFTING, craftingInventory.asCraftInput(), player.level());
 
 		if (!optional.isPresent()) {
-			if (ItemHandlerHelpers.getStackInSlot(ghostInventory, 9)
+			if (ItemUtil.getStack(ghostInventory, 9)
 				.isEmpty())
 				return;
 			if (!contentHolder.inferredIcon)
 				return;
 
-			ItemHandlerHelpers.setStackInSlot(ghostInventory, 9, ItemStack.EMPTY);
+			ghostInventory.set(9, ItemResource.EMPTY, 0);
 			serverplayerentity.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 36 + 9, ItemStack.EMPTY));
 			contentHolder.inferredIcon = false;
 			return;
@@ -91,7 +90,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 		CraftingRecipe icraftingrecipe = optional.get().value();
 		ItemStack itemstack = icraftingrecipe.assemble(craftingInventory.asCraftInput());
-		ItemHandlerHelpers.setStackInSlot(ghostInventory, 9, itemstack);
+		ghostInventory.set(9, ItemResource.of(itemstack), itemstack.getCount());
 		contentHolder.inferredIcon = true;
 		ItemStack toSend = itemstack.copy();
 		toSend.set(AllDataComponents.INFERRED_FROM_RECIPE, true);
@@ -108,7 +107,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
+	protected ItemStacksResourceHandler createGhostInventory() {
 		return contentHolder.getItems();
 	}
 
@@ -141,11 +140,11 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 	static class BlueprintCraftingInventory extends TransientCraftingContainer {
 
-		public BlueprintCraftingInventory(AbstractContainerMenu menu, ItemStackHandler items) {
+		public BlueprintCraftingInventory(AbstractContainerMenu menu, ItemStacksResourceHandler items) {
 			super(menu, 3, 3);
 			for (int y = 0; y < 3; y++) {
 				for (int x = 0; x < 3; x++) {
-					ItemStack stack = ItemHandlerHelpers.getStackInSlot(items, y * 3 + x);
+					ItemStack stack = ItemUtil.getStack(items, y * 3 + x);
 					setItem(y * 3 + x, stack == null ? ItemStack.EMPTY : stack.copy());
 				}
 			}
@@ -157,7 +156,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 
 		private int index;
 
-		public BlueprintCraftSlot(ItemStackHandler itemHandler, int index, int xPosition, int yPosition) {
+		public BlueprintCraftSlot(ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, itemHandler::set, index, xPosition, yPosition);
 			this.index = index;
 		}

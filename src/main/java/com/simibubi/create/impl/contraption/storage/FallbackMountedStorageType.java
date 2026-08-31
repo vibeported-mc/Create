@@ -1,5 +1,6 @@
 package com.simibubi.create.impl.contraption.storage;
 
+import net.neoforged.neoforge.transfer.IndexModifier;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.api.contraption.storage.item.simple.SimpleMountedStorageType;
@@ -15,6 +16,7 @@ public class FallbackMountedStorageType extends SimpleMountedStorageType<Fallbac
 	@Override
 	protected ResourceHandler<ItemResource> getHandler(Level level, BlockEntity be) {
 		ResourceHandler<ItemResource> handler = super.getHandler(level, be);
-		return handler != null && FallbackMountedStorage.isValid(handler) ? handler : null;
+		return handler instanceof IndexModifier<?> writable && FallbackMountedStorage.isValid(writable) ? handler
+			: null;
 	}
 }

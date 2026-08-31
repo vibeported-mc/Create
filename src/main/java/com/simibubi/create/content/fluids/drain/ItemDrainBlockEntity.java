@@ -1,8 +1,8 @@
 package com.simibubi.create.content.fluids.drain;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.minecraft.world.Containers;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -244,7 +244,16 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 		if (processingTicks > 5) {
 			internalTank.allowInsertion();
-			if (FluidHandlerHelpers.fill(internalTank.getPrimaryHandler(), fluidFromItem, true) != fluidFromItem.getAmount()) {
+			boolean wouldAllFit;
+
+			try (Transaction transaction = Transaction.openRoot()) {
+				// never committed: this only asks whether the tank could take all of it
+				wouldAllFit = internalTank.getPrimaryHandler()
+					.insert(FluidResource.of(fluidFromItem), fluidFromItem.getAmount(),
+						transaction) == fluidFromItem.getAmount();
+			}
+
+			if (!wouldAllFit) {
 				internalTank.forbidInsertion();
 				processingTicks = FILLING_TIME;
 				return true;
@@ -263,7 +272,10 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		else
 			heldItem = null;
 		internalTank.allowInsertion();
-		FluidHandlerHelpers.fill(internalTank.getPrimaryHandler(), fluidFromItem, false);
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = fluidFromItem.isEmpty() ? 0 : internalTank.getPrimaryHandler().insert(FluidResource.of(fluidFromItem), fluidFromItem.getAmount(), transaction);
+			transaction.commit();
+		}
 		internalTank.forbidInsertion();
 		notifyUpdate();
 		return true;

@@ -1,6 +1,5 @@
 package com.simibubi.create.content.contraptions.minecart.capability;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

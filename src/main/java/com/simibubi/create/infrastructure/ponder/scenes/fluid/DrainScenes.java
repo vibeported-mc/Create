@@ -1,6 +1,7 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.content.fluids.drain.ItemDrainBlockEntity;
@@ -59,7 +60,10 @@ public class DrainScenes {
 				.allowInsertion();
 			ResourceHandler<FluidResource> fh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (fh != null)
-				FluidHandlerHelpers.fill(fh, new FluidStack(Fluids.LAVA, 1000), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					fh.insert(FluidResource.of(new FluidStack(Fluids.LAVA, 1000)), new FluidStack(Fluids.LAVA, 1000).getAmount(), transaction);
+					transaction.commit();
+				}
 		});
 		scene.idle(10);
 
@@ -74,7 +78,10 @@ public class DrainScenes {
 			be -> {
 				ResourceHandler<FluidResource> fh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (fh != null)
-					FluidHandlerHelpers.drain(fh, 500, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						ResourceHandlerUtil.extractFirst(fh, resource -> true, 500, transaction);
+						transaction.commit();
+					}
 			});
 
 		scene.world().moveSection(drainLink, util.vector().of(1, 0, 0), 7);

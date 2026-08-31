@@ -2,11 +2,10 @@ package com.simibubi.create.content.kinetics.crafter;
 
 import com.simibubi.create.foundation.item.ItemHelper;
 import net.minecraft.world.item.ItemStackTemplate;
-import com.simibubi.create.foundation.item.CommitCallback;
+import net.neoforged.neoforge.transfer.transaction.RootCommitJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.minecraft.world.level.block.Block;
 import com.simibubi.create.AllItems;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import static com.simibubi.create.content.kinetics.base.HorizontalKineticBlock.HORIZONTAL_FACING;
@@ -67,7 +66,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 
 		private MechanicalCrafterBlockEntity blockEntity;
 
-		private final CommitCallback insertSound = new CommitCallback(() -> blockEntity.getLevel()
+		private final RootCommitJournal insertSound = new RootCommitJournal(() -> blockEntity.getLevel()
 			.playSound(null, blockEntity.getBlockPos(), SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .25f,
 				.5f));
 
@@ -92,7 +91,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 			int inserted = super.insert(index, resource, amount, transaction);
 			// The click only plays once the transfer is actually kept.
 			if (inserted > 0)
-				insertSound.arm(transaction);
+				insertSound.updateSnapshots(transaction);
 			return inserted;
 		}
 
@@ -484,7 +483,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 			dropItem(ejectPos, inventory.getItem(0));
 		phase = Phase.IDLE;
 		groupedItems = new GroupedItems();
-		ItemHandlerHelpers.setStackInSlot(inventory, 0, ItemStack.EMPTY);
+		inventory.set(0, ItemResource.EMPTY, 0);
 		sendData();
 	}
 
@@ -532,7 +531,7 @@ public class MechanicalCrafterBlockEntity extends KineticBlockEntity implements 
 	protected void begin() {
 		phase = Phase.ACCEPTING;
 		groupedItems = new GroupedItems(inventory.getItem(0));
-		ItemHandlerHelpers.setStackInSlot(inventory, 0, ItemStack.EMPTY);
+		inventory.set(0, ItemResource.EMPTY, 0);
 		if (RecipeGridHandler.getPrecedingCrafters(this)
 			.isEmpty()) {
 			phase = Phase.ASSEMBLING;

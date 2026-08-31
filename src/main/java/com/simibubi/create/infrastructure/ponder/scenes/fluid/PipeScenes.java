@@ -1,6 +1,6 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllBlocks;
@@ -72,7 +72,13 @@ public class PipeScenes {
 		scene.idle(5);
 		scene.world().showSection(tank2, Direction.DOWN);
 		FluidStack content = new FluidStack(Fluids.LAVA, 10000);
-		scene.world().modifyBlockEntity(util.grid().at(4, 1, 2), FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), content, false));
+		scene.world().modifyBlockEntity(util.grid().at(4, 1, 2), FluidTankBlockEntity.class, be -> {
+			try (Transaction transaction = Transaction.openRoot()) {
+				if (!content.isEmpty())
+					be.getTankInventory().insert(FluidResource.of(content), content.getAmount(), transaction);
+				transaction.commit();
+			}
+		});
 		scene.idle(10);
 
 		for (int i = 4; i >= 1; i--) {
@@ -224,9 +230,12 @@ public class PipeScenes {
 		scene.world().setKineticSpeed(util.select().position(pumpPos), 32);
 		BlockPos drainPos = util.grid().at(1, 1, 2);
 		scene.world().modifyBlockEntity(drainPos, ItemDrainBlockEntity.class,
-			be -> FluidHandlerHelpers.fill(be.getBehaviour(SmartFluidTankBehaviour.TYPE)
-				.allowInsertion()
-				.getPrimaryHandler(), new FluidStack(Fluids.WATER, 1500), false));
+			be -> {
+				try (Transaction transaction = Transaction.openRoot()) {
+					be.getBehaviour(SmartFluidTankBehaviour.TYPE).allowInsertion().getPrimaryHandler().insert(FluidResource.of(new FluidStack(Fluids.WATER, 1500)), new FluidStack(Fluids.WATER, 1500).getAmount(), transaction);
+					transaction.commit();
+				}
+			});
 
 		scene.idle(50);
 		scene.overlay().showOutline(PonderPalette.MEDIUM, new Object(), drain, 40);
@@ -495,7 +504,10 @@ public class PipeScenes {
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				FluidHandlerHelpers.fill(ifh, new FluidStack(NeoForgeMod.MILK.get(), 1000), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ifh.insert(FluidResource.of(new FluidStack(NeoForgeMod.MILK.get(), 1000)), new FluidStack(NeoForgeMod.MILK.get(), 1000).getAmount(), transaction);
+					transaction.commit();
+				}
 		});
 
 		scene.world().setBlock(util.grid().at(3, 1, 3), AllBlocks.FLUID_PIPE.get()
@@ -579,7 +591,11 @@ public class PipeScenes {
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				FluidHandlerHelpers.fill(ifh, chocolate, false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					if (!chocolate.isEmpty())
+						ifh.insert(FluidResource.of(chocolate), chocolate.getAmount(), transaction);
+					transaction.commit();
+				}
 		});
 		scene.idle(10);
 

@@ -1,8 +1,10 @@
 package com.simibubi.create.infrastructure.gametest;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.Arrays;
@@ -294,7 +296,10 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 */
 	public FluidStack getTankContents(BlockPos tank) {
 		ResourceHandler<FluidResource> handler = fluidStorageAt(tank);
-		return FluidHandlerHelpers.drain(handler, Integer.MAX_VALUE, true);
+		try (Transaction transaction = Transaction.openRoot()) {
+			ResourceStack<FluidResource> transferred = ResourceHandlerUtil.extractFirst(handler, resource -> true, Integer.MAX_VALUE, transaction);
+			return transferred == null ? FluidStack.EMPTY : transferred.resource().toStack(transferred.amount());
+		}
 	}
 
 	/**
@@ -304,7 +309,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 		ResourceHandler<FluidResource> handler = fluidStorageAt(pos);
 		long total = 0;
 		for (int i = 0; i < handler.size(); i++) {
-			total += FluidHandlerHelpers.getTankCapacity(handler, i);
+			total += handler.getCapacityAsInt(i, FluidResource.EMPTY);
 		}
 		return total;
 	}
@@ -363,7 +368,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 		ResourceHandler<ItemResource> handler = itemStorageAt(pos);
 		Object2LongMap<Item> map = new Object2LongArrayMap<>();
 		for (int i = 0; i < handler.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
+			ItemStack stack = ItemUtil.getStack(handler, i);
 			if (stack.isEmpty())
 				continue;
 			Item item = stack.getItem();
@@ -381,7 +386,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 		ResourceHandler<ItemResource> storage = itemStorageAt(pos);
 		long total = 0;
 		for (int i = 0; i < storage.size(); i++) {
-			total += ItemHandlerHelpers.getStackInSlot(storage, i).getCount();
+			total += ItemUtil.getStack(storage, i).getCount();
 		}
 		return total;
 	}
@@ -394,7 +399,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 		boolean noneFound = true;
 		for (int i = 0; i < handler.size(); i++) {
 			for (Item item : items) {
-				if (ItemHandlerHelpers.getStackInSlot(handler, i).is(item)) {
+				if (ItemUtil.getStack(handler, i).is(item)) {
 					noneFound = false;
 					break;
 				}
@@ -411,7 +416,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 		ResourceHandler<ItemResource> handler = itemStorageAt(pos);
 		Object2LongMap<Item> map = new Object2LongArrayMap<>(content);
 		for (int i = 0; i < handler.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
+			ItemStack stack = ItemUtil.getStack(handler, i);
 			if (stack.isEmpty())
 				continue;
 			Item item = stack.getItem();
@@ -441,7 +446,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 	public void assertContainerEmpty(@NotNull BlockPos pos) {
 		ResourceHandler<ItemResource> storage = itemStorageAt(pos);
 		for (int i = 0; i < storage.size(); i++) {
-			if (!ItemHandlerHelpers.getStackInSlot(storage, i).isEmpty())
+			if (!ItemUtil.getStack(storage, i).isEmpty())
 				fail("Storage not empty");
 		}
 	}

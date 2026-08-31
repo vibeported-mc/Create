@@ -1,8 +1,8 @@
 package com.simibubi.create.content.redstone.thresholdSwitch;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
@@ -165,7 +165,7 @@ public class ThresholdSwitchBlockEntity extends SmartBlockEntity implements Clea
 				} else {
 					invVersionTracker.awaitNewVersion(inv);
 					for (int slot = 0; slot < inv.size(); slot++) {
-						ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inv, slot);
+						ItemStack stackInSlot = ItemUtil.getStack(inv, slot);
 
 						int finalSlot = slot;
 						long space = COMPAT
@@ -173,7 +173,7 @@ public class ThresholdSwitchBlockEntity extends SmartBlockEntity implements Clea
 							.filter(compat -> compat.isFromThisMod(targetBlockEntity))
 							.map(compat -> compat.getSpaceInSlot(inv, finalSlot))
 							.findFirst()
-							.orElseGet(() -> (long) Math.min(stackInSlot.getOrDefault(DataComponents.MAX_STACK_SIZE, 64), ItemHandlerHelpers.getSlotLimit(inv, finalSlot)));
+							.orElseGet(() -> (long) Math.min(stackInSlot.getOrDefault(DataComponents.MAX_STACK_SIZE, 64), inv.getCapacityAsInt(finalSlot, ItemResource.EMPTY)));
 
 						int count = stackInSlot.getCount();
 						if (space == 0)
@@ -190,8 +190,8 @@ public class ThresholdSwitchBlockEntity extends SmartBlockEntity implements Clea
 				// Fluid inventory
 				ResourceHandler<FluidResource> tank = observedTank.getInventory();
 				for (int slot = 0; slot < tank.size(); slot++) {
-					FluidStack stackInSlot = FluidHandlerHelpers.getFluidInTank(tank, slot);
-					int space = FluidHandlerHelpers.getTankCapacity(tank, slot);
+					FluidStack stackInSlot = FluidUtil.getStack(tank, slot);
+					int space = tank.getCapacityAsInt(slot, FluidResource.EMPTY);
 					int count = stackInSlot.getAmount();
 					if (space == 0)
 						continue;

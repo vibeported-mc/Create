@@ -1,8 +1,10 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.simibubi.create.AllPackets;
@@ -53,7 +55,12 @@ public record ToolboxDisposeAllPacket(BlockPos toolboxPos) implements SelfHandli
 				}
 
 				ItemStack itemStack = player.getInventory().getItem(i);
-				ItemStack remainder = ItemHandlerHelpers.insertItemStacked(toolbox.inventory, itemStack, false);
+				ItemStack remainder;
+				try (Transaction transaction = Transaction.openRoot()) {
+					int transferred = itemStack.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(toolbox.inventory, ItemResource.of(itemStack), itemStack.getCount(), transaction);
+					remainder = transferred == itemStack.getCount() ? ItemStack.EMPTY : itemStack.copyWithCount(itemStack.getCount() - transferred);
+					transaction.commit();
+				}
 				if (remainder.getCount() != itemStack.getCount())
 					player.getInventory().setItem(i, remainder);
 			}

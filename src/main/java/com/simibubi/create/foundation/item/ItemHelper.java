@@ -1,15 +1,16 @@
 package com.simibubi.create.foundation.item;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
 import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -48,7 +49,7 @@ public class ItemHelper {
 
 	public static void dropContents(Level world, BlockPos pos, ResourceHandler<ItemResource> inv) {
 		for (int slot = 0; slot < inv.size(); slot++)
-			Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ItemHandlerHelpers.getStackInSlot(inv, slot));
+			Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ItemUtil.getStack(inv, slot));
 	}
 
 	public static List<ItemStack> multipliedOutput(ItemStack in, ItemStack out) {
@@ -82,7 +83,7 @@ public class ItemHelper {
 		if (h1.size() != h2.size())
 			return false;
 		for (int slot = 0; slot < h1.size(); slot++) {
-			if (ItemHandlerHelpers.getStackInSlot(h1, slot) != ItemHandlerHelpers.getStackInSlot(h2, slot))
+			if (ItemUtil.getStack(h1, slot) != ItemUtil.getStack(h2, slot))
 				return false;
 		}
 		return true;
@@ -103,12 +104,12 @@ public class ItemHelper {
 		int totalSlots = inv.size();
 
 		for (int j = 0; j < inv.size(); ++j) {
-			int slotLimit = ItemHandlerHelpers.getSlotLimit(inv, j);
+			int slotLimit = inv.getCapacityAsInt(j, ItemResource.EMPTY);
 			if (slotLimit == 0) {
 				totalSlots--;
 				continue;
 			}
-			ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(inv, j);
+			ItemStack itemstack = ItemUtil.getStack(inv, j);
 			if (!itemstack.isEmpty()) {
 				f += (float) itemstack.getCount() / (float) Math.min(slotLimit, itemstack.getMaxStackSize());
 				++i;
@@ -198,12 +199,17 @@ public class ItemHelper {
 			extracting = ItemStack.EMPTY;
 
 			for (int slot = 0; slot < inv.size(); slot++) {
-				ItemStack slotStack = ItemHandlerHelpers.getStackInSlot(inv, slot);
+				ItemStack slotStack = ItemUtil.getStack(inv, slot);
 				if (slotStack.isEmpty())
 					continue;
 				int amountToExtractFromThisSlot =
 					Math.min(maxExtractionCount - extracting.getCount(), slotStack.getMaxStackSize());
-				ItemStack stack = ItemHandlerHelpers.extractItem(inv, slot, amountToExtractFromThisSlot, true);
+				ItemStack stack;
+				try (Transaction transaction = Transaction.openRoot()) {
+					ItemResource transferredResource = inv.getResource(slot);
+					int transferred = transferredResource.isEmpty() ? 0 : inv.extract(slot, transferredResource, amountToExtractFromThisSlot, transaction);
+					stack = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+				}
 
 				if (stack.isEmpty())
 					continue;
@@ -220,7 +226,11 @@ public class ItemHelper {
 					extracting.grow(stack.getCount());
 
 				if (!simulate && hasEnoughItems)
-					ItemHandlerHelpers.extractItem(inv, slot, stack.getCount(), false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						ItemResource transferredResource = inv.getResource(slot);
+						int transferred = transferredResource.isEmpty() ? 0 : inv.extract(slot, transferredResource, stack.getCount(), transaction);
+						transaction.commit();
+					}
 
 				if (extracting.getCount() >= maxExtractionCount) {
 					if (checkHasEnoughItems) {
@@ -259,7 +269,7 @@ public class ItemHelper {
 
 		for (int slot = 0; slot < inv.size(); slot++) {
 			if (extracting.isEmpty()) {
-				ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(inv, slot);
+				ItemStack stackInSlot = ItemUtil.getStack(inv, slot);
 				if (stackInSlot.isEmpty() || !test.test(stackInSlot))
 					continue;
 				int maxExtractionCountForItem = amountFunction.apply(stackInSlot);
@@ -268,7 +278,12 @@ public class ItemHelper {
 				maxExtractionCount = Math.min(maxExtractionCount, maxExtractionCountForItem);
 			}
 
-			ItemStack stack = ItemHandlerHelpers.extractItem(inv, slot, maxExtractionCount - extracting.getCount(), true);
+			ItemStack stack;
+			try (Transaction transaction = Transaction.openRoot()) {
+				ItemResource transferred2Resource = inv.getResource(slot);
+				int transferred2 = transferred2Resource.isEmpty() ? 0 : inv.extract(slot, transferred2Resource, maxExtractionCount - extracting.getCount(), transaction);
+				stack = transferred2 <= 0 ? ItemStack.EMPTY : transferred2Resource.toStack(transferred2);
+			}
 
 			if (!test.test(stack))
 				continue;
@@ -281,7 +296,11 @@ public class ItemHelper {
 				extracting.grow(stack.getCount());
 
 			if (!simulate)
-				ItemHandlerHelpers.extractItem(inv, slot, stack.getCount(), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ItemResource transferred2Resource = inv.getResource(slot);
+					int transferred2 = transferred2Resource.isEmpty() ? 0 : inv.extract(slot, transferred2Resource, stack.getCount(), transaction);
+					transaction.commit();
+				}
 			if (extracting.getCount() >= maxExtractionCount)
 				break;
 		}
@@ -298,12 +317,12 @@ public class ItemHelper {
 		if (slot == -1)
 			return ItemStack.EMPTY;
 		else
-			return ItemHandlerHelpers.getStackInSlot(inv, slot);
+			return ItemUtil.getStack(inv, slot);
 	}
 
 	public static int findFirstMatchingSlotIndex(ResourceHandler<ItemResource> inv, Predicate<ItemStack> test) {
 		for (int slot = 0; slot < inv.size(); slot++) {
-			ItemStack toTest = ItemHandlerHelpers.getStackInSlot(inv, slot);
+			ItemStack toTest = ItemUtil.getStack(inv, slot);
 			if (test.test(toTest))
 				return slot;
 		}
@@ -319,17 +338,23 @@ public class ItemHelper {
 		return entityIn instanceof ItemEntity itemEntity ? itemEntity.getItem() : ItemStack.EMPTY;
 	}
 
-	public static void fillItemStackHandler(ItemContainerContents contents, ItemStackHandler inv) {
+	public static void fillItemStackHandler(ItemContainerContents contents, ItemStacksResourceHandler inv) {
 		List<ItemStack> itemStacks = contents.allItemsCopyStream()
 			.toList();
 
 		for (int i = 0; i < itemStacks.size(); i++) {
-			ItemHandlerHelpers.setStackInSlot(inv, i, itemStacks.get(i));
+			ItemStack stack = itemStacks.get(i);
+			inv.set(i, ItemResource.of(stack), stack.getCount());
 		}
 	}
 
-	public static ItemContainerContents containerContentsFromHandler(ItemStackHandler handler) {
-		return ItemContainerContents.fromItems(handler.getStacks());
+	public static ItemContainerContents containerContentsFromHandler(ItemStacksResourceHandler handler) {
+		List<ItemStack> contents = new ArrayList<>(handler.size());
+
+		for (int slot = 0; slot < handler.size(); slot++)
+			contents.add(ItemUtil.getStack(handler, slot));
+
+		return ItemContainerContents.fromItems(contents);
 	}
 
 	public static ItemStack limitCountToMaxStackSize(ItemStack stack, boolean simulate) {
@@ -343,24 +368,25 @@ public class ItemHelper {
 		return remainder;
 	}
 
-	public static void copyContents(ResourceHandler<ItemResource> from, ModifiableItemHandler to) {
+	public static void copyContents(ResourceHandler<ItemResource> from, ItemStacksResourceHandler to) {
 		if (from.size() != to.size()) {
 			throw new IllegalArgumentException("Slot count mismatch");
 		}
 
 		for (int slot = to.size() - 1; slot >= 0; slot--) {
-			ItemHandlerHelpers.setStackInSlot(to, slot, ItemStack.EMPTY);
+			to.set(slot, ItemResource.EMPTY, 0);
 		}
 
 		for (int i = 0; i < from.size(); i++) {
-			ItemHandlerHelpers.setStackInSlot(to, i, ItemHandlerHelpers.getStackInSlot(from, i).copy());
+			ItemStack stack = ItemUtil.getStack(from, i).copy();
+			to.set(i, ItemResource.of(stack), stack.getCount());
 		}
 	}
 
-	public static List<ItemStack> getNonEmptyStacks(ItemStackHandler handler) {
+	public static List<ItemStack> getNonEmptyStacks(ItemStacksResourceHandler handler) {
 		List<ItemStack> stacks = new ArrayList<>();
 		for (int i = 0; i < handler.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, i);
+			ItemStack stack = ItemUtil.getStack(handler, i);
 			if (!stack.isEmpty()) {
 				stacks.add(stack);
 			}

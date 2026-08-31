@@ -1,6 +1,8 @@
 package com.simibubi.create.content.fluids.tank;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -29,7 +31,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -229,7 +230,10 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		tankInventory.setCapacity(blocks * getCapacityMultiplier());
 		int overflow = tankInventory.getFluidAmount() - tankInventory.getCapacity();
 		if (overflow > 0)
-			FluidHandlerHelpers.drain(tankInventory, overflow, false);
+			try (Transaction transaction = Transaction.openRoot()) {
+				ResourceStack<FluidResource> transferred = ResourceHandlerUtil.extractFirst(tankInventory, resource -> true, overflow, transaction);
+				transaction.commit();
+			}
 		forceFluidLevelUpdate = true;
 	}
 
@@ -434,7 +438,10 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 
 			tankInventory.readFromNBT(registries, compound.getCompoundOrEmpty("TankContent"));
 			if (tankInventory.getSpace() < 0)
-				FluidHandlerHelpers.drain(tankInventory, -tankInventory.getSpace(), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ResourceStack<FluidResource> transferred2 = ResourceHandlerUtil.extractFirst(tankInventory, resource -> true, -tankInventory.getSpace(), transaction);
+					transaction.commit();
+				}
 		}
 
 		boiler.read(compound.getCompoundOrEmpty("Boiler"), width * width * height);

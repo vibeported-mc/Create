@@ -1,8 +1,8 @@
 package com.simibubi.create.api.contraption.dispenser;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.CombinedResourceHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import com.simibubi.create.foundation.item.CombinedItemHandler;
 import com.simibubi.create.api.registry.SimpleRegistry;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.impl.contraption.dispenser.DispenserBehaviorConverter;
@@ -65,11 +65,21 @@ public interface MountedDispenseBehavior {
 	static void placeItemInInventory(ItemStack stack, MovementContext context, BlockPos pos) {
 		ItemStack toInsert = stack.copy();
 		// try inserting into own inventory first
-		ItemStack remainder = ItemHandlerHelpers.insertItem(context.getItemStorage(), toInsert, false);
+		ItemStack remainder;
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = toInsert.isEmpty() ? 0 : context.getItemStorage().insert(ItemResource.of(toInsert), toInsert.getCount(), transaction);
+			remainder = transferred == toInsert.getCount() ? ItemStack.EMPTY : toInsert.copyWithCount(toInsert.getCount() - transferred);
+			transaction.commit();
+		}
 		if (!remainder.isEmpty()) {
 			// next, try the whole contraption inventory
-			CombinedResourceHandler<ItemResource> contraption = context.contraption.getStorage().getAllItems();
-			ItemStack newRemainder = ItemHandlerHelpers.insertItem(contraption, remainder, false);
+			CombinedItemHandler contraption = context.contraption.getStorage().getAllItems();
+			ItemStack newRemainder;
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred2 = remainder.isEmpty() ? 0 : contraption.insert(ItemResource.of(remainder), remainder.getCount(), transaction);
+				newRemainder = transferred2 == remainder.getCount() ? ItemStack.EMPTY : remainder.copyWithCount(remainder.getCount() - transferred2);
+				transaction.commit();
+			}
 			if (!newRemainder.isEmpty()) {
 				// if there's *still* something left, dispense into world
 				DefaultMountedDispenseBehavior.INSTANCE.dispense(remainder, context, pos);

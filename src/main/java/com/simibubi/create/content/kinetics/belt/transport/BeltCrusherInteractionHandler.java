@@ -1,6 +1,8 @@
 package com.simibubi.create.content.kinetics.belt.transport;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.content.kinetics.belt.BeltHelper;
 import com.simibubi.create.content.kinetics.crusher.CrushingWheelControllerBlock;
 import com.simibubi.create.content.kinetics.crusher.CrushingWheelControllerBlockEntity;
@@ -51,7 +53,12 @@ public class BeltCrusherInteractionHandler {
 
 			ItemStack toInsert = currentItem.stack.copy();
 
-			ItemStack remainder = ItemHandlerHelpers.insertItemStacked(crusherBE.inventory, toInsert, false);
+			ItemStack remainder;
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = toInsert.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(crusherBE.inventory, ItemResource.of(toInsert), toInsert.getCount(), transaction);
+				remainder = transferred == toInsert.getCount() ? ItemStack.EMPTY : toInsert.copyWithCount(toInsert.getCount() - transferred);
+				transaction.commit();
+			}
 			if (ItemStack.matches(toInsert, remainder))
 				return true;
 

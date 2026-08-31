@@ -1,6 +1,6 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
@@ -365,7 +365,10 @@ public class TestItems {
 		helper.assertBlockProperty(lamp, RedstoneLampBlock.LIT, false);
 		ResourceHandler<ItemResource> chestStorage = helper.itemStorageAt(chest);
 		for (int i = 0; i < 18; i++) { // insert 18 stacks
-			ItemHandlerHelpers.insertItem(chestStorage, new ItemStack(Items.DIAMOND, 64), false);
+			try (Transaction transaction = Transaction.openRoot()) {
+				chestStorage.insert(ItemResource.of(new ItemStack(Items.DIAMOND, 64)), new ItemStack(Items.DIAMOND, 64).getCount(), transaction);
+				transaction.commit();
+			}
 		}
 		helper.succeedWhen(() -> helper.assertBlockProperty(lamp, RedstoneLampBlock.LIT, true));
 	}

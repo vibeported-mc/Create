@@ -1,23 +1,25 @@
 package com.simibubi.create.foundation.blockEntity.behaviour.inventory;
 
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class VersionedInventoryWrapper implements ModifiableItemHandler {
+public class VersionedInventoryWrapper implements ResourceHandler<ItemResource>, IndexModifier<ItemResource> {
 
 	public static final AtomicInteger idGenerator = new AtomicInteger();
 
-	private ModifiableItemHandler inventory;
+	private ResourceHandler<ItemResource> inventory;
+	private IndexModifier<ItemResource> writable;
 	private int version;
 	private int id;
 
-	public VersionedInventoryWrapper(ModifiableItemHandler inventory) {
+	public <H extends ResourceHandler<ItemResource> & IndexModifier<ItemResource>> VersionedInventoryWrapper(H inventory) {
 		this.id = idGenerator.getAndIncrement();
 		this.inventory = inventory;
+		this.writable = inventory;
 		this.version = 0;
 	}
 
@@ -77,7 +79,7 @@ public class VersionedInventoryWrapper implements ModifiableItemHandler {
 
 	@Override
 	public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-		int extracted = inventory.extract(index, resource, amount, transaction);
+		int extracted = resource.isEmpty() ? 0 : inventory.extract(index, resource, amount, transaction);
 		if (extracted > 0)
 			incrementVersion();
 		return extracted;
@@ -87,7 +89,7 @@ public class VersionedInventoryWrapper implements ModifiableItemHandler {
 	public void set(int index, ItemResource resource, int amount) {
 		ItemResource previousResource = inventory.getResource(index);
 		long previousAmount = inventory.getAmountAsLong(index);
-		inventory.set(index, resource, amount);
+		writable.set(index, resource, amount);
 
 		if (resource.equals(previousResource) && amount == previousAmount)
 			return;

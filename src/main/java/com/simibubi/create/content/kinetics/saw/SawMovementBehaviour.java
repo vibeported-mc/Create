@@ -1,8 +1,9 @@
 package com.simibubi.create.content.kinetics.saw;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
@@ -82,7 +83,12 @@ public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 	}
 
 	public void dropItemFromCutTree(MovementContext context, BlockPos pos, ItemStack stack) {
-		ItemStack remainder = ItemHandlerHelpers.insertItem(context.contraption.getStorage().getAllItems(), stack, false);
+		ItemStack remainder;
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = stack.isEmpty() ? 0 : context.contraption.getStorage().getAllItems().insert(ItemResource.of(stack), stack.getCount(), transaction);
+			remainder = transferred == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - transferred);
+			transaction.commit();
+		}
 		if (remainder.isEmpty())
 			return;
 

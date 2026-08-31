@@ -1,12 +1,13 @@
 package com.simibubi.create.content.kinetics.crusher;
 
+import com.simibubi.create.foundation.utility.NbtValueIO;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,6 @@ import com.simibubi.create.foundation.sound.SoundScapes.AmbienceGroup;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.math.VecHelper;
-import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -36,7 +36,6 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Clearable;
@@ -137,10 +136,10 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 		if (!hasEntity()) {
 
 			float processingSpeed =
-				Mth.clamp((speed) / (!inventory.appliedRecipe ? (float) Math.log(ItemHandlerHelpers.getStackInSlot(inventory, 0)
+				Mth.clamp((speed) / (!inventory.appliedRecipe ? (float) Math.log(ItemUtil.getStack(inventory, 0)
 					.getCount()) / (float) Math.log(2) : 1), .25f, 20);
 			inventory.remainingTime -= processingSpeed;
-			spawnParticles(ItemHandlerHelpers.getStackInSlot(inventory, 0));
+			spawnParticles(ItemUtil.getStack(inventory, 0));
 
 			if (level.isClientSide())
 				return;
@@ -169,13 +168,13 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 					if (!behaviour.canInsertFromSide(facing))
 						return;
 					for (int slot = 0; slot < inventory.size(); slot++) {
-						ItemStack stack = ItemHandlerHelpers.getStackInSlot(inventory, slot);
+						ItemStack stack = ItemUtil.getStack(inventory, slot);
 						if (stack.isEmpty())
 							continue;
 						ItemStack remainder = behaviour.handleInsertion(stack, facing, false);
 						if (ItemStack.matches(remainder, stack))
 							continue;
-						ItemHandlerHelpers.setStackInSlot(inventory, slot, remainder);
+						inventory.set(slot, ItemResource.of(remainder), remainder.getCount());
 						changed = true;
 					}
 					if (changed) {
@@ -188,7 +187,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 
 			// Eject Items
 			for (int slot = 0; slot < inventory.size(); slot++) {
-				ItemStack stack = ItemHandlerHelpers.getStackInSlot(inventory, slot);
+				ItemStack stack = ItemUtil.getStack(inventory, slot);
 				if (stack.isEmpty())
 					continue;
 				ItemEntity entityIn = new ItemEntity(level, outPos.x, outPos.y, outPos.z, stack);
@@ -271,7 +270,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	@OnlyIn(Dist.CLIENT)
 	public void tickAudio() {
 		float pitch = Mth.clamp((crushingspeed / 256f) + .45f, .85f, 1f);
-		if (entityUUID == null && ItemHandlerHelpers.getStackInSlot(inventory, 0)
+		if (entityUUID == null && ItemUtil.getStack(inventory, 0)
 			.isEmpty())
 			return;
 		SoundScapes.play(AmbienceGroup.CRUSHING, worldPosition, pitch);
@@ -279,9 +278,10 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 
 	private void intakeItem(ItemEntity itemEntity) {
 		inventory.clear();
-		ItemHandlerHelpers.setStackInSlot(inventory, 0, itemEntity.getItem()
-			.copy());
-		itemInserted(ItemHandlerHelpers.getStackInSlot(inventory, 0));
+		ItemStack stack = itemEntity.getItem()
+			.copy();
+		inventory.set(0, ItemResource.of(stack), stack.getCount());
+		itemInserted(ItemUtil.getStack(inventory, 0));
 		itemEntity.discard();
 		level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2 | 16);
 	}
@@ -308,7 +308,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 
 		List<ItemStack> list = new ArrayList<>();
 		if (recipe.isPresent()) {
-			ItemStack input = ItemHandlerHelpers.getStackInSlot(inventory, 0);
+			ItemStack input = ItemUtil.getStack(inventory, 0);
 			int rolls = input.getCount();
 			inventory.clear();
 			for (int roll = 0; roll < rolls; roll++) {
@@ -321,8 +321,10 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 			if (ItemHelper.hasCraftingRemainder(input)) {
 				ItemHelper.addToList(ItemHelper.getCraftingRemainder(input), list);
 			}
-			for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++)
-				ItemHandlerHelpers.setStackInSlot(inventory, slot + 1, list.get(slot));
+			for (int slot = 0; slot < list.size() && slot + 1 < inventory.size(); slot++) {
+				ItemStack stack = list.get(slot);
+				inventory.set(slot + 1, ItemResource.of(stack), stack.getCount());
+			}
 		} else {
 			inventory.clear();
 		}
@@ -340,7 +342,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		if (hasEntity())
 			compound.store("Entity", UUIDUtil.CODEC, entityUUID);
-		compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
+		compound.put("Inventory", NbtValueIO.serialize(inventory, registries));
 		compound.putFloat("Speed", crushingspeed);
 		super.write(compound, registries, clientPacket);
 	}
@@ -354,7 +356,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 			this.searchForEntity = true;
 		}
 		crushingspeed = compound.getFloatOr("Speed", 0);
-		ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
+		NbtValueIO.deserialize(inventory, compound.getCompoundOrEmpty("Inventory"), registries);
 	}
 
 	@Override

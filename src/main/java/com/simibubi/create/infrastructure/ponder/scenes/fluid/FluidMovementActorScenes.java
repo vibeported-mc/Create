@@ -1,6 +1,7 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllFluids;
@@ -53,7 +54,10 @@ public class FluidMovementActorScenes {
 		scene.world().modifyBlockEntity(st, type, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				FluidHandlerHelpers.fill(ifh, FluidHelper.copyStackWithAmount(chocolate, 10000), false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ifh.insert(FluidResource.of(FluidHelper.copyStackWithAmount(chocolate, 10000)), FluidHelper.copyStackWithAmount(chocolate, 10000).getAmount(), transaction);
+					transaction.commit();
+				}
 		});
 
 		BlockPos bearing = util.grid().at(5, 1, 2);
@@ -150,12 +154,19 @@ public class FluidMovementActorScenes {
 			scene.world().modifyBlockEntity(st, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					FluidHandlerHelpers.drain(ifh, 1000, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						ResourceHandlerUtil.extractFirst(ifh, resource -> true, 1000, transaction);
+						transaction.commit();
+					}
 			});
 			scene.world().modifyBlockEntity(ct1, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					FluidHandlerHelpers.fill(ifh, chocolate, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						if (!chocolate.isEmpty())
+							ifh.insert(FluidResource.of(chocolate), chocolate.getAmount(), transaction);
+						transaction.commit();
+					}
 			});
 			scene.idle(2);
 		}
@@ -163,12 +174,19 @@ public class FluidMovementActorScenes {
 			scene.world().modifyBlockEntity(st, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					FluidHandlerHelpers.drain(ifh, 1000, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						ResourceHandlerUtil.extractFirst(ifh, resource -> true, 1000, transaction);
+						transaction.commit();
+					}
 			});
 			scene.world().modifyBlockEntity(ct2, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					FluidHandlerHelpers.fill(ifh, chocolate, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						if (!chocolate.isEmpty())
+							ifh.insert(FluidResource.of(chocolate), chocolate.getAmount(), transaction);
+						transaction.commit();
+					}
 			});
 			scene.idle(2);
 		}
@@ -187,12 +205,19 @@ public class FluidMovementActorScenes {
 			scene.world().modifyBlockEntity(ct2, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					FluidHandlerHelpers.drain(ifh, 1000, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						ResourceHandlerUtil.extractFirst(ifh, resource -> true, 1000, transaction);
+						transaction.commit();
+					}
 			});
 			scene.world().modifyBlockEntity(st, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					FluidHandlerHelpers.fill(ifh, chocolate, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						if (!chocolate.isEmpty())
+							ifh.insert(FluidResource.of(chocolate), chocolate.getAmount(), transaction);
+						transaction.commit();
+					}
 			});
 			scene.idle(2);
 		}
@@ -200,12 +225,19 @@ public class FluidMovementActorScenes {
 			scene.world().modifyBlockEntity(ct1, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					FluidHandlerHelpers.drain(ifh, 1000, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						ResourceHandlerUtil.extractFirst(ifh, resource -> true, 1000, transaction);
+						transaction.commit();
+					}
 			});
 			scene.world().modifyBlockEntity(st, type, be -> {
 				ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (ifh != null)
-					FluidHandlerHelpers.fill(ifh, chocolate, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						if (!chocolate.isEmpty())
+							ifh.insert(FluidResource.of(chocolate), chocolate.getAmount(), transaction);
+						transaction.commit();
+					}
 			});
 			scene.idle(2);
 		}
@@ -213,7 +245,10 @@ public class FluidMovementActorScenes {
 		scene.world().modifyBlockEntity(util.grid().at(2, 2, 3), type, be -> {
 			ResourceHandler<FluidResource> ifh = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 			if (ifh != null)
-				FluidHandlerHelpers.drain(ifh, 8000, false);
+				try (Transaction transaction = Transaction.openRoot()) {
+					ResourceHandlerUtil.extractFirst(ifh, resource -> true, 8000, transaction);
+					transaction.commit();
+				}
 		});
 		scene.idle(50);
 

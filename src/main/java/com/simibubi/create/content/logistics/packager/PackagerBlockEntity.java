@@ -1,8 +1,10 @@
 package com.simibubi.create.content.logistics.packager;
 
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.foundation.utility.RegistryNbt;
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.HashSet;
@@ -55,7 +57,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -215,13 +216,13 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 		}
 
 		if (targetInv instanceof BottomlessItemHandler bih) {
-			availableItems.add(ItemHandlerHelpers.getStackInSlot(bih, 0), BigItemStack.INF);
+			availableItems.add(ItemUtil.getStack(bih, 0), BigItemStack.INF);
 			this.availableItems = availableItems;
 			return availableItems;
 		}
 
 		for (int slot = 0; slot < targetInv.size(); slot++) {
-			availableItems.add(ItemHandlerHelpers.getStackInSlot(targetInv, slot));
+			availableItems.add(ItemUtil.getStack(targetInv, slot));
 		}
 
 		invVersionTracker.awaitNewVersion(targetInventory.getInventory());
@@ -368,7 +369,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 
 		Objects.requireNonNull(this.level);
 
-		ItemStackHandler contents = PackageItem.getContents(box);
+		ItemStacksResourceHandler contents = PackageItem.getContents(box);
 		List<ItemStack> items = ItemHelper.getNonEmptyStacks(contents);
 		if (items.isEmpty())
 			return true;
@@ -403,7 +404,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 			return;
 
 		boolean anyItemPresent = false;
-		ItemStackHandler extractedItems = new ItemStackHandler(PackageItem.SLOTS);
+		ItemStacksResourceHandler extractedItems = new ItemStacksResourceHandler(PackageItem.SLOTS);
 		ItemStack extractedPackageItem = ItemStack.EMPTY;
 		PackagingRequest nextRequest = null;
 		String fixedAddress = null;
@@ -438,7 +439,12 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 
 				for (int slot = 0; slot < targetInv.size(); slot++) {
 					int initialCount = requestQueue ? Math.min(64, nextRequest.getCount()) : 64;
-					ItemStack extracted = ItemHandlerHelpers.extractItem(targetInv, slot, initialCount, true);
+					ItemStack extracted;
+					try (Transaction transaction = Transaction.openRoot()) {
+						ItemResource transferredResource = targetInv.getResource(slot);
+						int transferred = transferredResource.isEmpty() ? 0 : targetInv.extract(slot, transferredResource, initialCount, transaction);
+						extracted = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+					}
 					if (extracted.isEmpty())
 						continue;
 					if (requestQueue && !ItemStack.isSameItemSameComponents(extracted, nextRequest.item()))
@@ -450,10 +456,15 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 						continue;
 
 					anyItemPresent = true;
-					int leftovers = ItemHandlerHelpers.insertItemStacked(extractedItems, extracted.copy(), false)
-						.getCount();
-					int transferred = extracted.getCount() - leftovers;
-					ItemHandlerHelpers.extractItem(targetInv, slot, transferred, false);
+					int transferred;
+
+					try (Transaction transaction = Transaction.openRoot()) {
+						transferred = ResourceHandlerUtil.insertStacking(extractedItems, ItemResource.of(extracted),
+							extracted.getCount(), transaction);
+						if (transferred > 0)
+							targetInv.extract(slot, targetInv.getResource(slot), transferred, transaction);
+						transaction.commit();
+					}
 
 					if (extracted.getItem() instanceof PackageItem)
 						extractedPackageItem = extracted;
@@ -620,7 +631,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 
 	@Override
 	public void clearContent() {
-		ItemHandlerHelpers.setStackInSlot(inventory, 0, ItemStack.EMPTY);
+		inventory.set(0, ItemResource.EMPTY, 0);
 		queuedExitingPackages.clear();
 	}
 
@@ -672,11 +683,11 @@ public class PackagerBlockEntity extends SmartBlockEntity implements Clearable {
 		// If a contained ItemStack instance is the same, we can be pretty sure these
 		// inventories are the same (works for compound inventories)
 		for (int i = 0; i < second.size(); i++) {
-			ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(second, i);
+			ItemStack stackInSlot = ItemUtil.getStack(second, i);
 			if (stackInSlot.isEmpty())
 				continue;
 			for (int j = 0; j < first.size(); j++)
-				if (stackInSlot == ItemHandlerHelpers.getStackInSlot(first, j))
+				if (stackInSlot == ItemUtil.getStack(first, j))
 					return true;
 			break;
 		}

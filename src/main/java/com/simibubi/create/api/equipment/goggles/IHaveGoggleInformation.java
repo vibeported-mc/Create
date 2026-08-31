@@ -1,6 +1,6 @@
 package com.simibubi.create.api.equipment.goggles;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.List;
@@ -42,7 +42,7 @@ public non-sealed interface IHaveGoggleInformation extends IHaveCustomOverlayIco
 
 		boolean isEmpty = true;
 		for (int i = 0; i < handler.size(); i++) {
-			FluidStack fluidStack = FluidHandlerHelpers.getFluidInTank(handler, i);
+			FluidStack fluidStack = FluidUtil.getStack(handler, i);
 			if (fluidStack.isEmpty())
 				continue;
 
@@ -55,7 +55,7 @@ public non-sealed interface IHaveGoggleInformation extends IHaveCustomOverlayIco
 					.add(mb)
 					.style(ChatFormatting.GOLD))
 				.text(ChatFormatting.GRAY, " / ")
-				.add(CreateLang.number(FluidHandlerHelpers.getTankCapacity(handler, i))
+				.add(CreateLang.number(handler.getCapacityAsInt(i, FluidResource.EMPTY))
 					.add(mb)
 					.style(ChatFormatting.DARK_GRAY))
 				.forGoggles(tooltip, 1);
@@ -73,7 +73,7 @@ public non-sealed interface IHaveGoggleInformation extends IHaveCustomOverlayIco
 			return true;
 
 		CreateLang.translate("gui.goggles.fluid_container.capacity")
-			.add(CreateLang.number(FluidHandlerHelpers.getTankCapacity(handler, 0))
+			.add(CreateLang.number(handler.getCapacityAsInt(0, FluidResource.EMPTY))
 				.add(mb)
 				.style(ChatFormatting.GOLD))
 			.style(ChatFormatting.GRAY)

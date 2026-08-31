@@ -1,13 +1,14 @@
 package com.simibubi.create.content.equipment.toolbox;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.CommitCallback;
+import net.neoforged.neoforge.transfer.transaction.RootCommitJournal;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,17 +25,14 @@ import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemSlots;
 
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.api.nbt.NBTHelper;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 
 // TODO - This should use NonNullList<ItemStack>
-public class ToolboxInventory extends ItemStackHandler {
+public class ToolboxInventory extends ItemStacksResourceHandler {
 	public static final int STACKS_PER_COMPARTMENT = 4;
 	public static final Codec<ToolboxInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		ItemSlots.maxSizeCodec(8 * STACKS_PER_COMPARTMENT).fieldOf("items").forGetter(ItemSlots::fromHandler),
@@ -87,7 +85,7 @@ public class ToolboxInventory extends ItemStackHandler {
 		ItemStack sample = ItemStack.EMPTY;
 
 		for (int i = 0; i < STACKS_PER_COMPARTMENT; i++) {
-			ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + i);
+			ItemStack stackInSlot = ItemUtil.getStack(this, compartment * STACKS_PER_COMPARTMENT + i);
 			totalCount += stackInSlot.getCount();
 			if (!shouldBeEmpty)
 				shouldBeEmpty = stackInSlot.isEmpty() || stackInSlot.getCount() != stackInSlot.getMaxStackSize();
@@ -103,14 +101,14 @@ public class ToolboxInventory extends ItemStackHandler {
 		settling = true;
 		if (!sample.isStackable()) {
 			for (int i = 0; i < STACKS_PER_COMPARTMENT; i++) {
-				if (!ItemHandlerHelpers.getStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + i).isEmpty())
+				if (!ItemUtil.getStack(this, compartment * STACKS_PER_COMPARTMENT + i).isEmpty())
 					continue;
 				for (int j = i + 1; j < STACKS_PER_COMPARTMENT; j++) {
-					ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + j);
+					ItemStack stackInSlot = ItemUtil.getStack(this, compartment * STACKS_PER_COMPARTMENT + j);
 					if (stackInSlot.isEmpty())
 						continue;
-					ItemHandlerHelpers.setStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + i, stackInSlot);
-					ItemHandlerHelpers.setStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + j, ItemStack.EMPTY);
+					this.set(compartment * STACKS_PER_COMPARTMENT + i, ItemResource.of(stackInSlot), stackInSlot.getCount());
+					this.set(compartment * STACKS_PER_COMPARTMENT + j, ItemResource.EMPTY, 0);
 					break;
 				}
 			}
@@ -118,7 +116,7 @@ public class ToolboxInventory extends ItemStackHandler {
 			for (int i = 0; i < STACKS_PER_COMPARTMENT; i++) {
 				ItemStack copy = totalCount <= 0 ? ItemStack.EMPTY
 					: sample.copyWithCount(Math.min(totalCount, sample.getMaxStackSize()));
-				ItemHandlerHelpers.setStackInSlot(this, compartment * STACKS_PER_COMPARTMENT + i, copy);
+				this.set(compartment * STACKS_PER_COMPARTMENT + i, ItemResource.of(copy), copy.getCount());
 				totalCount -= copy.getCount();
 			}
 		}
@@ -156,7 +154,7 @@ public class ToolboxInventory extends ItemStackHandler {
 		// An empty compartment takes on the first thing put into it as its filter, but only once the
 		// insertion is actually kept.
 		if (inserted > 0)
-			new CommitCallback(() -> claimCompartment(slot, resource)).arm(transaction);
+			new RootCommitJournal(() -> claimCompartment(slot, resource)).updateSnapshots(transaction);
 		return inserted;
 	}
 
@@ -210,7 +208,12 @@ public class ToolboxInventory extends ItemStackHandler {
 
 		for (int i = STACKS_PER_COMPARTMENT - 1; i >= 0; i--) {
 			int slot = compartment * STACKS_PER_COMPARTMENT + i;
-			stack = ItemHandlerHelpers.insertItem(this, slot, stack, simulate);
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = stack.isEmpty() ? 0 : this.insert(slot, ItemResource.of(stack), stack.getCount(), transaction);
+				stack = transferred == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - transferred);
+				if (!simulate)
+					transaction.commit();
+			}
 			if (stack.isEmpty())
 				return ItemStack.EMPTY;
 		}
@@ -227,7 +230,14 @@ public class ToolboxInventory extends ItemStackHandler {
 
 		for (int i = STACKS_PER_COMPARTMENT - 1; i >= 0; i--) {
 			int slot = compartment * STACKS_PER_COMPARTMENT + i;
-			ItemStack extracted = ItemHandlerHelpers.extractItem(this, slot, remaining, simulate);
+			ItemStack extracted;
+			try (Transaction transaction = Transaction.openRoot()) {
+				ItemResource transferred2Resource = this.getResource(slot);
+				int transferred2 = transferred2Resource.isEmpty() ? 0 : this.extract(slot, transferred2Resource, remaining, transaction);
+				extracted = transferred2 <= 0 ? ItemStack.EMPTY : transferred2Resource.toStack(transferred2);
+				if (!simulate)
+					transaction.commit();
+			}
 			remaining -= extracted.getCount();
 			if (!extracted.isEmpty())
 				lastValid = extracted;
@@ -263,7 +273,7 @@ public class ToolboxInventory extends ItemStackHandler {
 	private static ToolboxInventory deserialize(ItemSlots slots, List<ItemStack> filters) {
 		ToolboxInventory inventory = new ToolboxInventory(null);
 		inventory.settling = true;
-		slots.forEach((slot, stack) -> ItemHandlerHelpers.setStackInSlot(inventory, slot, stack));
+		slots.forEach((slot, stack) -> inventory.set(slot, ItemResource.of(stack), stack.getCount()));
 		inventory.settling = false;
 		inventory.filters = new ArrayList<>(filters);
 		return inventory;

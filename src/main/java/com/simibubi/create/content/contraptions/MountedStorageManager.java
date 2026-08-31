@@ -1,13 +1,14 @@
 package com.simibubi.create.content.contraptions;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.item.CombinedItemHandler;
 import com.simibubi.create.foundation.utility.RegistryNbt;
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.createmod.catnip.api.network.NetworkHelper;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.CombinedResourceHandler;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import com.simibubi.create.foundation.item.CombinedItemHandler;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +47,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerPlayer;
@@ -76,7 +76,7 @@ public class MountedStorageManager {
 	private ImmutableMap<BlockPos, SyncedMountedStorage> syncedItems;
 	private ImmutableMap<BlockPos, SyncedMountedStorage> syncedFluids;
 
-	private List<ModifiableItemHandler> externalHandlers;
+	private List<ResourceHandler<ItemResource>> externalHandlers;
 	protected CombinedItemHandler allItems;
 
 	// ticks until storage can sync again
@@ -366,9 +366,10 @@ public class MountedStorageManager {
 		}
 	}
 
-	public void attachExternal(ModifiableItemHandler externalStorage) {
+	public void attachExternal(ResourceHandler<ItemResource> externalStorage) {
 		this.externalHandlers.add(externalStorage);
-		ModifiableItemHandler[] all = new ModifiableItemHandler[this.externalHandlers.size() + 1];
+		@SuppressWarnings("unchecked")
+		ResourceHandler<ItemResource>[] all = new ResourceHandler[this.externalHandlers.size() + 1];
 		all[0] = this.items;
 		for (int i = 0; i < this.externalHandlers.size(); i++) {
 			all[i + 1] = this.externalHandlers.get(i);
@@ -457,8 +458,8 @@ public class MountedStorageManager {
 				this.addStorage(DepotMountedStorage.fromLegacy(registries, data), pos);
 			} else {
 				// we can create a fallback storage safely, it will be validated before unmounting
-				ItemStackHandler handler = new ItemStackHandler(0);
-				ItemHandlerHelpers.deserializeNBT(handler, registries, data);
+				ItemStacksResourceHandler handler = new ItemStacksResourceHandler(0);
+				NbtValueIO.deserialize(handler, data, registries);
 				this.addStorage(new FallbackMountedStorage(handler), pos);
 			}
 		});

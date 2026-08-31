@@ -324,7 +324,7 @@ public class OpenEndedPipe extends FlowSource {
 			if (!wasPulling)
 				wasPulling = true;
 
-			int drainedFromInternal = super.extract(tank, resource, amount, transaction);
+			int drainedFromInternal = resource.isEmpty() ? 0 : super.extract(tank, resource, amount, transaction);
 			if (drainedFromInternal > 0)
 				return drainedFromInternal;
 

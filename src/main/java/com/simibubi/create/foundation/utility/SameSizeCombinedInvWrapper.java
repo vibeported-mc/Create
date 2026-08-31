@@ -1,12 +1,14 @@
 package com.simibubi.create.foundation.utility;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import com.simibubi.create.foundation.item.CombinedItemHandler;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 /**
  * Specialized combined inventory wrapper with faster slot -> inv lookup
  * for the case when all inventories are the same size.
  *
- * <p>For context, CombinedResourceHandler<ItemResource> implements this lookup by doing a linear scan of base indices per-inventory.
+ * <p>For context, CombinedItemHandler implements this lookup by doing a linear scan of base indices per-inventory.
  * We could optimize this by using a binary search, however for vaults we control all the inventories going into
  * this and know that they all have the same number of slots. Just dividing by the number of slots per inventory
  * is sufficient to get the inventory index.
@@ -18,7 +20,7 @@ public class SameSizeCombinedInvWrapper extends CombinedItemHandler {
 	private final int numSlotsPerInv;
 	private final int numCombinedSlots;
 
-	private SameSizeCombinedInvWrapper(int numSlotsPerInv, ModifiableItemHandler... itemHandler) {
+	private SameSizeCombinedInvWrapper(int numSlotsPerInv, ResourceHandler<ItemResource>... itemHandler) {
 		super(itemHandler);
 
 		this.numSlotsPerInv = numSlotsPerInv;
@@ -29,7 +31,7 @@ public class SameSizeCombinedInvWrapper extends CombinedItemHandler {
 	 * Create a SameSizeCombinedInvWrapper if all item handlers actually have the same size.
 	 * Otherwise, falls back to the parent class.
 	 */
-	public static CombinedItemHandler create(ModifiableItemHandler... itemHandler) {
+	public static CombinedItemHandler create(ResourceHandler<ItemResource>... itemHandler) {
 		if (itemHandler.length == 0) {
 			// No need to subclass here.
 			// Early out because we need to validate that all slots have the same length.

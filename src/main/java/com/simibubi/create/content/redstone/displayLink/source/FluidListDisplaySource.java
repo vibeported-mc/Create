@@ -1,6 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink.source;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.Comparator;
@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
@@ -29,7 +28,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 public class FluidListDisplaySource extends ValueListDisplaySource {
 
-
 	@Override
 	protected Stream<IntAttached<MutableComponent>> provideEntries(DisplayLinkContext context, int maxRows) {
 		BlockEntity sourceBE = context.getSourceBlockEntity();
@@ -43,12 +41,11 @@ public class FluidListDisplaySource extends ValueListDisplaySource {
 		if (handler == null)
 			return Stream.empty();
 
-
 		Map<Fluid, Integer> fluids = new HashMap<>();
 		Map<Fluid, FluidStack> fluidNames = new HashMap<>();
 
 		for (int i = 0; i < handler.size(); i++) {
-			FluidStack stack = FluidHandlerHelpers.getFluidInTank(handler, i);
+			FluidStack stack = FluidUtil.getStack(handler, i);
 			if (stack.isEmpty())
 				continue;
 			if (!filteringBehaviour.test(stack))

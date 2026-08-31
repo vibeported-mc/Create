@@ -1,6 +1,5 @@
 package com.simibubi.create.content.logistics.chute;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jspecify.annotations.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;

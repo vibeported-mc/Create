@@ -1,6 +1,7 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.fluids.pipes.FluidPipeBlock;
@@ -181,7 +182,12 @@ public class PumpScenes {
 		Selection megapipe2 = util.select().fromTo(3, 3, 1, 5, 6, 2);
 
 		scene.world().modifyBlock(pumpPos, s -> s.setValue(PumpBlock.FACING, Direction.WEST), false);
-		scene.world().modifyBlockEntity(util.grid().at(0, 1, 2), FluidTankBlockEntity.class, be -> FluidHandlerHelpers.drain(be.getTankInventory(), 3000, false));
+		scene.world().modifyBlockEntity(util.grid().at(0, 1, 2), FluidTankBlockEntity.class, be -> {
+			try (Transaction transaction = Transaction.openRoot()) {
+				ResourceHandlerUtil.extractFirst(be.getTankInventory(), resource -> true, 3000, transaction);
+				transaction.commit();
+			}
+		});
 		scene.world().multiplyKineticSpeed(util.select().everywhere(), 0.125f);
 
 		BlockPos east = pumpPos.east();

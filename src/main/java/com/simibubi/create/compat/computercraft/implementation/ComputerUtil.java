@@ -1,6 +1,6 @@
 package com.simibubi.create.compat.computercraft.implementation;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
@@ -297,7 +297,7 @@ public class ComputerUtil {
 		Map<Integer, Map<String, ?>> result = new HashMap<>();
 		var size = inventory.size();
 		for (var i = 0; i < size; i++) {
-			var stack = ItemHandlerHelpers.getStackInSlot(inventory, i);
+			var stack = ItemUtil.getStack(inventory, i);
 			if (!stack.isEmpty()) result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(GlobalRegistryAccess.getOrThrow(), stack));
 		}
 
@@ -309,7 +309,7 @@ public class ComputerUtil {
 		int maxSlots = inventory.size();
 		if (slot < 1 || slot > maxSlots)
 			throw new LuaException(String.format("Slot " + slot + " out of range, available slots between " + 1 + " and " + maxSlots));
-		var stack = ItemHandlerHelpers.getStackInSlot(inventory, slot - 1);
+		var stack = ItemUtil.getStack(inventory, slot - 1);
 		return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(GlobalRegistryAccess.getOrThrow(), stack);
 	}
 

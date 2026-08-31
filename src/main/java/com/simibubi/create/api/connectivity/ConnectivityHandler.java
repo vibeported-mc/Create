@@ -1,6 +1,9 @@
 package com.simibubi.create.api.connectivity;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -257,10 +260,16 @@ public class ConnectivityHandler {
 							}
 							if (be instanceof IMultiBlockEntityContainer.Fluid ifluidBE && ifluidBE.hasTank()
 								&& beTank != null) {
-								FluidHandlerHelpers.fill(beTank, fluidAt, false);
+								try (Transaction transaction = Transaction.openRoot()) {
+									int transferred = fluidAt.isEmpty() ? 0 : beTank.insert(FluidResource.of(fluidAt), fluidAt.getAmount(), transaction);
+									transaction.commit();
+								}
 							}
 						}
-						FluidHandlerHelpers.drain(tankAt, tankAt.getCapacity(), false);
+						try (Transaction transaction = Transaction.openRoot()) {
+							ResourceStack<FluidResource> transferred2 = ResourceHandlerUtil.extractFirst(tankAt, resource -> true, tankAt.getCapacity(), transaction);
+							transaction.commit();
+						}
 					}
 
 					splitMultiAndInvalidate(part, cache, false);
@@ -346,7 +355,10 @@ public class ConnectivityHandler {
 							copy.setAmount(split);
 							toDistribute.shrink(split);
 							if (tank != null)
-								FluidHandlerHelpers.fill(tank, copy, false);
+								try (Transaction transaction = Transaction.openRoot()) {
+									int transferred3 = copy.isEmpty() ? 0 : tank.insert(FluidResource.of(copy), copy.getAmount(), transaction);
+									transaction.commit();
+								}
 						}
 					}
 					if (tryReconnect) {

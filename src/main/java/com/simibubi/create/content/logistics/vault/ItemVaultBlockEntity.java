@@ -1,12 +1,13 @@
 package com.simibubi.create.content.logistics.vault;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.EmptyItemHandler;
+import com.simibubi.create.foundation.utility.NbtValueIO;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.EmptyResourceHandler;
 import com.simibubi.create.foundation.item.ItemHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+
 import java.util.List;
 
 import com.simibubi.create.AllBlockEntityTypes;
@@ -28,7 +29,6 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -45,7 +45,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 	protected ICapabilityProvider<ResourceHandler<ItemResource>> itemCapability = null;
 	protected InventoryIdentifier invId;
 
-	protected ItemStackHandler inventory;
+	protected ItemStacksResourceHandler inventory;
 	protected BlockPos controller;
 	protected BlockPos lastKnownPos;
 	protected boolean updateConnectivity;
@@ -55,7 +55,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 	public ItemVaultBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 
-		inventory = new ItemStackHandler(AllConfigs.server().logistics.vaultCapacity.get()) {
+		inventory = new ItemStacksResourceHandler(AllConfigs.server().logistics.vaultCapacity.get()) {
 			@Override
 			protected void onContentsChanged(int slot, ItemStack previousContents) {
 				super.onContentsChanged(slot, previousContents);
@@ -286,7 +286,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 		}
 
 		if (!clientPacket) {
-			ItemHandlerHelpers.deserializeNBT(inventory, registries, compound.getCompoundOrEmpty("Inventory"));
+			NbtValueIO.deserialize(inventory, compound.getCompoundOrEmpty("Inventory"), registries);
 			return;
 		}
 
@@ -314,16 +314,17 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 
 		if (!clientPacket) {
 			compound.putString("StorageType", "CombinedInv");
-			compound.put("Inventory", ItemHandlerHelpers.serializeNBT(inventory, registries));
+			compound.put("Inventory", NbtValueIO.serialize(inventory, registries));
 		}
 	}
 
 	@Override
 	public void clearContent() {
-		inventory.getStacks().clear();
+		for (int slot = 0; slot < inventory.size(); slot++)
+			inventory.set(slot, ItemResource.EMPTY, 0);
 	}
 
-	public ItemStackHandler getInventoryOfBlock() {
+	public ItemStacksResourceHandler getInventoryOfBlock() {
 		return inventory;
 	}
 
@@ -333,9 +334,11 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 		return this.invId;
 	}
 
-	public void applyInventoryToBlock(ItemStackHandler handler) {
-		for (int i = 0; i < inventory.size(); i++)
-			ItemHandlerHelpers.setStackInSlot(inventory, i, i < handler.size() ? ItemHandlerHelpers.getStackInSlot(handler, i) : ItemStack.EMPTY);
+	public void applyInventoryToBlock(ItemStacksResourceHandler handler) {
+		for (int i = 0; i < inventory.size(); i++) {
+			ItemStack stack = i < handler.size() ? ItemUtil.getStack(handler, i) : ItemStack.EMPTY;
+			inventory.set(i, ItemResource.of(stack), stack.getCount());
+		}
 	}
 
 	private void initCapability() {
@@ -358,7 +361,8 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 		}
 
 		boolean alongZ = ItemVaultBlock.getVaultBlockAxis(getBlockState()) == Axis.Z;
-		ModifiableItemHandler[] invs = new ModifiableItemHandler[length * radius * radius];
+		@SuppressWarnings("unchecked")
+		ResourceHandler<ItemResource>[] invs = new ResourceHandler[length * radius * radius];
 		for (int yOffset = 0; yOffset < length; yOffset++) {
 			for (int xOffset = 0; xOffset < radius; xOffset++) {
 				for (int zOffset = 0; zOffset < radius; zOffset++) {
@@ -367,7 +371,7 @@ public class ItemVaultBlockEntity extends SmartBlockEntity implements IMultiBloc
 					ItemVaultBlockEntity vaultAt =
 						ConnectivityHandler.partAt(AllBlockEntityTypes.ITEM_VAULT.get(), level, vaultPos);
 					invs[yOffset * radius * radius + xOffset * radius + zOffset] =
-						vaultAt != null ? vaultAt.inventory : EmptyItemHandler.INSTANCE;
+						vaultAt != null ? vaultAt.inventory : EmptyResourceHandler.instance();
 				}
 			}
 		}

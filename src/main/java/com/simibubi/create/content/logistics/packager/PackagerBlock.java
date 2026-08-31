@@ -1,8 +1,8 @@
 package com.simibubi.create.content.logistics.packager;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import org.jspecify.annotations.Nullable;
 import net.minecraft.world.level.redstone.Orientation;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -202,7 +202,7 @@ public class PackagerBlock extends WrenchableDirectionalBlock implements IBE<Pac
 	@Override
 	public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos, Direction direction) {
 		return getBlockEntityOptional(pLevel, pPos).map(pbe -> {
-				boolean empty = ItemHandlerHelpers.getStackInSlot(pbe.inventory, 0)
+				boolean empty = ItemUtil.getStack(pbe.inventory, 0)
 					.isEmpty();
 				if (pbe.animationTicks != 0)
 					empty = false;

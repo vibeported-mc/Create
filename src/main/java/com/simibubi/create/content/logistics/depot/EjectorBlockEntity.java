@@ -1,10 +1,12 @@
 package com.simibubi.create.content.logistics.depot;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import com.simibubi.create.foundation.item.ItemHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,8 +43,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -241,12 +241,12 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 					transportedItemStack.stack = remainder;
 			}
 
-			ItemStackHandler outputs = depotBehaviour.processingOutputBuffer;
+			ItemStacksResourceHandler outputs = depotBehaviour.processingOutputBuffer;
 			for (int i = 0; i < outputs.size(); i++) {
 				ItemStack remainder =
-					directOutput.tryExportingToBeltFunnel(ItemHandlerHelpers.getStackInSlot(outputs, i), funnelFacing, false);
+					directOutput.tryExportingToBeltFunnel(ItemUtil.getStack(outputs, i), funnelFacing, false);
 				if (remainder != null)
-					ItemHandlerHelpers.setStackInSlot(outputs, i, remainder);
+					outputs.set(i, ItemResource.of(remainder), remainder.getCount());
 			}
 			return;
 		}
@@ -271,9 +271,15 @@ public class EjectorBlockEntity extends KineticBlockEntity {
 			addToLaunchedItems(transportedItemStack.stack);
 		depotBehaviour.incoming.clear();
 
-		ItemStackHandler outputs = depotBehaviour.processingOutputBuffer;
+		ItemStacksResourceHandler outputs = depotBehaviour.processingOutputBuffer;
 		for (int i = 0; i < outputs.size(); i++) {
-			ItemStack extractItem = ItemHandlerHelpers.extractItem(outputs, i, 64, false);
+			ItemStack extractItem;
+			try (Transaction transaction = Transaction.openRoot()) {
+				ItemResource transferredResource = outputs.getResource(i);
+				int transferred = transferredResource.isEmpty() ? 0 : outputs.extract(i, transferredResource, 64, transaction);
+				extractItem = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+				transaction.commit();
+			}
 			if (!extractItem.isEmpty())
 				addToLaunchedItems(extractItem);
 		}

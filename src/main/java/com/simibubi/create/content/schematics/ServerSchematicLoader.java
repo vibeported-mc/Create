@@ -1,6 +1,7 @@
 package com.simibubi.create.content.schematics;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -258,8 +259,9 @@ public class ServerSchematicLoader {
 				if (table == null)
 					return;
 				table.finishUpload();
-				ItemHandlerHelpers.setStackInSlot(table.inventory, 1, SchematicItem.create(world, schematic, player.getGameProfile()
-					.name()));
+				ItemStack stack = SchematicItem.create(world, schematic, player.getGameProfile()
+					.name());
+				table.inventory.set(1, ItemResource.of(stack), stack.getCount());
 
 			} catch (IOException e) {
 				Create.LOGGER.error("Exception Thrown when finishing Upload: {}", playerSchematicId, e);

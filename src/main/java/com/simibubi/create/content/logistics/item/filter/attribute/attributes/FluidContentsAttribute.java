@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.item.filter.attribute.attributes;
 
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public record FluidContentsAttribute(@Nullable Fluid fluid) implements ItemAttri
 
 		if (capability != null) {
 			for (int i = 0; i < capability.size(); i++) {
-				fluids.add(FluidHandlerHelpers.getFluidInTank(capability, i).getFluid());
+				fluids.add(FluidUtil.getStack(capability, i).getFluid());
 			}
 		}
 

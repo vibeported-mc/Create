@@ -1,8 +1,8 @@
 package com.simibubi.create.content.trains.schedule.destination;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -87,7 +87,7 @@ public class DeliverPackagesInstruction extends ScheduleInstruction {
 
 			// Export to station
 			for (int slot = 0; slot < carriageInventory.size(); slot++) {
-				ItemStack stack = ItemHandlerHelpers.getStackInSlot(carriageInventory, slot);
+				ItemStack stack = ItemUtil.getStack(carriageInventory, slot);
 				if (!PackageItem.isPackage(stack))
 					continue;
 				if (firstPackage == null)

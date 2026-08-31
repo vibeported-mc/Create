@@ -1,15 +1,13 @@
 package com.simibubi.create.content.logistics.filter;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import org.joml.Matrix3x2fStack;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 import com.simibubi.create.content.logistics.filter.FilterScreenPacket.Option;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
@@ -30,7 +28,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
@@ -113,7 +110,7 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterM
 		attributeSelector = new SelectionScrollInput(x + 39, y + 26, 137, 18);
 		attributeSelector.forOptions(Arrays.asList(CommonComponents.EMPTY));
 		attributeSelector.removeCallback();
-		referenceItemChanged(ItemHandlerHelpers.getStackInSlot(menu.ghostInventory, 0));
+		referenceItemChanged(ItemUtil.getStack(menu.ghostInventory, 0));
 
 		addRenderableWidget(attributeSelector);
 		addRenderableWidget(attributeSelectorLabel);
@@ -182,7 +179,7 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterM
 
 	@Override
 	public void renderForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-		ItemStack stack = ItemHandlerHelpers.getStackInSlot(menu.ghostInventory, 1);
+		ItemStack stack = ItemUtil.getStack(menu.ghostInventory, 1);
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
 		matrixStack.translate((float) (0), (float) (0));
@@ -196,7 +193,7 @@ public class AttributeFilterScreen extends AbstractFilterScreen<AttributeFilterM
 	@Override
 	protected void containerTick() {
 		super.containerTick();
-		ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(menu.ghostInventory, 0);
+		ItemStack stackInSlot = ItemUtil.getStack(menu.ghostInventory, 0);
 		if (!ItemStack.matches(stackInSlot, lastItemScanned))
 			referenceItemChanged(stackInSlot);
 	}

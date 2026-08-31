@@ -1,8 +1,9 @@
 package com.simibubi.create.api.behaviour.movement;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,7 +82,11 @@ public interface MovementBehaviour {
 	default void collectOrDropItem(MovementContext context, ItemStack stack) {
 		ItemStack remainder;
 		if (AllConfigs.server().kinetics.moveItemsToStorage.get())
-			remainder = ItemHandlerHelpers.insertItem(context.contraption.getStorage().getAllItems(), stack, false);
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = stack.isEmpty() ? 0 : context.contraption.getStorage().getAllItems().insert(ItemResource.of(stack), stack.getCount(), transaction);
+				remainder = transferred == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - transferred);
+				transaction.commit();
+			}
 		else
 			remainder = stack;
 		if (remainder.isEmpty())

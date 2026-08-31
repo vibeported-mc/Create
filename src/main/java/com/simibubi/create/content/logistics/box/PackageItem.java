@@ -1,10 +1,13 @@
 package com.simibubi.create.content.logistics.box;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.function.Consumer;
 import net.minecraft.world.item.ItemStackTemplate;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +19,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllEntityTypes;
 import com.simibubi.create.AllSoundEvents;
-import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.box.PackageStyles.PackageStyle;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.item.ItemHelper;
@@ -86,12 +88,17 @@ public class PackageItem extends Item {
 	}
 
 	public static ItemStack containing(List<ItemStack> stacks) {
-		ItemStackHandler newInv = new ItemStackHandler(9);
-		stacks.forEach(s -> ItemHandlerHelpers.insertItemStacked(newInv, s, false));
+		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(9);
+		try (Transaction transaction = Transaction.openRoot()) {
+			for (ItemStack stack : stacks)
+				if (!stack.isEmpty())
+					ResourceHandlerUtil.insertStacking(newInv, ItemResource.of(stack), stack.getCount(), transaction);
+			transaction.commit();
+		}
 		return containing(newInv);
 	}
 
-	public static ItemStack containing(ItemStackHandler stacks) {
+	public static ItemStack containing(ItemStacksResourceHandler stacks) {
 		ItemStack box = PackageStyles.getRandomBox();
 		box.set(AllDataComponents.PACKAGE_CONTENTS, ItemHelper.containerContentsFromHandler(stacks));
 		return box;
@@ -210,8 +217,8 @@ public class PackageItem extends Item {
 		return 1;
 	}
 
-	public static ItemStackHandler getContents(ItemStack box) {
-		ItemStackHandler newInv = new ItemStackHandler(9);
+	public static ItemStacksResourceHandler getContents(ItemStack box) {
+		ItemStacksResourceHandler newInv = new ItemStacksResourceHandler(9);
 		ItemContainerContents contents = box.getOrDefault(AllDataComponents.PACKAGE_CONTENTS, ItemContainerContents.EMPTY);
 		ItemHelper.fillItemStackHandler(contents, newInv);
 		return newInv;
@@ -245,9 +252,9 @@ public class PackageItem extends Item {
 
 		int visibleNames = 0;
 		int skippedNames = 0;
-		ItemStackHandler contents = getContents(stack);
+		ItemStacksResourceHandler contents = getContents(stack);
 		for (int i = 0; i < contents.size(); i++) {
-			ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(contents, i);
+			ItemStack itemstack = ItemUtil.getStack(contents, i);
 			if (itemstack.isEmpty())
 				continue;
 			if (itemstack.getItem() instanceof SpawnEggItem)
@@ -284,14 +291,14 @@ public class PackageItem extends Item {
 
 	public InteractionResult open(Level worldIn, Player playerIn, InteractionHand handIn) {
 		ItemStack box = playerIn.getItemInHand(handIn);
-		ItemStackHandler contents = getContents(box);
+		ItemStacksResourceHandler contents = getContents(box);
 		ItemStack particle = box.copy();
 
 		playerIn.setItemInHand(handIn, box.getCount() <= 1 ? ItemStack.EMPTY : box.copyWithCount(box.getCount() - 1));
 
 		if (!worldIn.isClientSide()) {
 			for (int i = 0; i < contents.size(); i++) {
-				ItemStack itemstack = ItemHandlerHelpers.getStackInSlot(contents, i);
+				ItemStack itemstack = ItemUtil.getStack(contents, i);
 				if (itemstack.isEmpty())
 					continue;
 

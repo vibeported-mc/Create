@@ -1,7 +1,7 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.core.UUIDUtil;
@@ -41,7 +41,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.Containers;
@@ -265,7 +264,7 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 
 		InventorySummary summary = new InventorySummary();
 		for (int i = 0; i < receivedPayments.size(); i++)
-			summary.add(ItemHandlerHelpers.getStackInSlot(receivedPayments, i));
+			summary.add(ItemUtil.getStack(receivedPayments, i));
 		for (BigItemStack entry : summary.getStacksByCount())
 			CreateLang.builder()
 				.text(entry.stack.getHoverName()

@@ -1,12 +1,14 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.content.kinetics.base.RotatedPillarKineticBlock;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTest;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
@@ -115,10 +117,17 @@ public class TestTransferFluids {
 
 			int before = count(chest);
 
-			net.minecraft.world.item.ItemStack remainder =
-				com.simibubi.create.foundation.item.ItemHandlerHelpers.insertItemStacked(
-					helper.itemStorageAt(chestPos),
-					new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND, 10), false);
+			net.minecraft.world.item.ItemStack offered =
+				new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.DIAMOND, 10);
+			int accepted;
+
+			try (Transaction transaction = Transaction.openRoot()) {
+				accepted = ResourceHandlerUtil.insertStacking(helper.itemStorageAt(chestPos),
+					ItemResource.of(offered), offered.getCount(), transaction);
+				transaction.commit();
+			}
+
+			net.minecraft.world.item.ItemStack remainder = offered.copyWithCount(offered.getCount() - accepted);
 
 			int after = count(chest);
 
@@ -158,8 +167,12 @@ public class TestTransferFluids {
 
 			long before = helper.getTankContents(tank)
 				.getAmount();
-			int accepted = FluidHandlerHelpers.fill(helper.fluidStorageAt(tank),
-				new FluidStack(Fluids.WATER, 500), false);
+			int accepted;
+			try (Transaction transaction = Transaction.openRoot()) {
+				int transferred = helper.fluidStorageAt(tank).insert(FluidResource.of(new FluidStack(Fluids.WATER, 500)), new FluidStack(Fluids.WATER, 500).getAmount(), transaction);
+				accepted = transferred;
+				transaction.commit();
+			}
 			long after = helper.getTankContents(tank)
 				.getAmount();
 
@@ -209,8 +222,14 @@ public class TestTransferFluids {
 
 			// Twice what the recipe asks for, so a basin that consumed nothing and a basin that
 			// consumed everything both read differently from a basin that consumed the right amount.
-			FluidHandlerHelpers.fill(helper.fluidStorageAt(basin), new FluidStack(Fluids.WATER, 500), false);
-			ItemHandlerHelpers.insertItemStacked(helper.itemStorageAt(basin), new ItemStack(Items.DIRT), false);
+			try (Transaction transaction = Transaction.openRoot()) {
+				helper.fluidStorageAt(basin).insert(FluidResource.of(new FluidStack(Fluids.WATER, 500)), new FluidStack(Fluids.WATER, 500).getAmount(), transaction);
+				transaction.commit();
+			}
+			try (Transaction transaction = Transaction.openRoot()) {
+				ResourceHandlerUtil.insertStacking(helper.itemStorageAt(basin), ItemResource.of(new ItemStack(Items.DIRT)), new ItemStack(Items.DIRT).getCount(), transaction);
+				transaction.commit();
+			}
 		});
 
 		// Dirt and 250mB of water make mud.
@@ -225,7 +244,10 @@ public class TestTransferFluids {
 	}
 
 	private static void fill(CreateGameTestHelper helper, BlockPos tank, int amount) {
-		FluidHandlerHelpers.fill(helper.fluidStorageAt(tank), new FluidStack(Fluids.WATER, amount), false);
+		try (Transaction transaction = Transaction.openRoot()) {
+			helper.fluidStorageAt(tank).insert(FluidResource.of(new FluidStack(Fluids.WATER, amount)), new FluidStack(Fluids.WATER, amount).getAmount(), transaction);
+			transaction.commit();
+		}
 	}
 
 	/**

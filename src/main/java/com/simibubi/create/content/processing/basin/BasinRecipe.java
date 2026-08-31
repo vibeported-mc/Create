@@ -1,10 +1,11 @@
 package com.simibubi.create.content.processing.basin;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
@@ -96,14 +97,23 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 			Ingredients:
 			for (Ingredient ingredient : ingredients) {
 				for (int slot = 0; slot < availableItems.size(); slot++) {
-					if (simulate && ItemHandlerHelpers.getStackInSlot(availableItems, slot)
+					if (simulate && ItemUtil.getStack(availableItems, slot)
 						.getCount() <= extractedItemsFromSlot[slot])
 						continue;
-					ItemStack extracted = ItemHandlerHelpers.extractItem(availableItems, slot, 1, true);
+					ItemStack extracted;
+					try (Transaction transaction = Transaction.openRoot()) {
+						ItemResource transferredResource = availableItems.getResource(slot);
+						int transferred = transferredResource.isEmpty() ? 0 : availableItems.extract(slot, transferredResource, 1, transaction);
+						extracted = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+					}
 					if (!ingredient.test(extracted))
 						continue;
 					if (!simulate)
-						ItemHandlerHelpers.extractItem(availableItems, slot, 1, false);
+						try (Transaction transaction = Transaction.openRoot()) {
+							ItemResource transferredResource = availableItems.getResource(slot);
+							int transferred = transferredResource.isEmpty() ? 0 : availableItems.extract(slot, transferredResource, 1, transaction);
+							transaction.commit();
+						}
 					extractedItemsFromSlot[slot]++;
 					continue Ingredients;
 				}
@@ -118,14 +128,17 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 				int amountRequired = fluidIngredient.amount();
 
 				for (int tank = 0; tank < availableFluids.size(); tank++) {
-					FluidStack fluidStack = FluidHandlerHelpers.getFluidInTank(availableFluids, tank);
+					FluidStack fluidStack = FluidUtil.getStack(availableFluids, tank);
 					if (simulate && fluidStack.getAmount() <= extractedFluidsFromTank[tank])
 						continue;
 					if (!fluidIngredient.test(fluidStack))
 						continue;
 					int drainedAmount = Math.min(amountRequired, fluidStack.getAmount());
 					if (!simulate) {
-						FluidHandlerHelpers.drainFrom(availableFluids, tank, fluidStack, drainedAmount);
+						try (Transaction transaction = Transaction.openRoot()) {
+							availableFluids.extract(tank, FluidResource.of(fluidStack), drainedAmount, transaction);
+							transaction.commit();
+						}
 						fluidsAffected = true;
 					}
 					amountRequired -= drainedAmount;

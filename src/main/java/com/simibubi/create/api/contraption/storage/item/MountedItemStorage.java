@@ -1,6 +1,8 @@
 package com.simibubi.create.api.contraption.storage.item;
 
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
@@ -32,7 +34,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class MountedItemStorage implements ModifiableItemHandler {
+public abstract class MountedItemStorage implements ResourceHandler<ItemResource>, IndexModifier<ItemResource> {
 	public static final Codec<MountedItemStorage> CODEC = MountedItemStorageType.CODEC.dispatch(
 		storage -> storage.type, type -> type.codec
 	);
@@ -70,13 +72,23 @@ public abstract class MountedItemStorage implements ModifiableItemHandler {
 			return this.isMenuValid(player, contraption, currentPos);
 		};
 		Component menuName = this.getMenuName(info, contraption);
-		ModifiableItemHandler handler = this.getHandlerForMenu(info, contraption);
+		ResourceHandler<ItemResource> handler = this.getHandlerForMenu(info, contraption);
+
+		// Every mounted storage provides both halves of the API - it is what MountedItemStorage
+		// declares - and so does the combined handler a double chest hands back. There is no type in
+		// 26.2 that says "both", so the writable half is picked out here, once, rather than at each
+		// menu that needs it.
+		if (!(handler instanceof IndexModifier<?> modifier))
+			return false;
+
+		@SuppressWarnings("unchecked")
+		IndexModifier<ItemResource> writable = (IndexModifier<ItemResource>) modifier;
 		Consumer<Player> onClose = p -> {
 			Vec3 newPos = contraption.entity.toGlobalVector(localPosVec, 0);
 			this.playClosingSound(level, newPos);
 		};
 
-		OptionalInt id = player.openMenu(this.createMenuProvider(menuName, handler, stillValid, onClose));
+		OptionalInt id = player.openMenu(this.createMenuProvider(menuName, handler, writable, stillValid, onClose));
 		if (id.isPresent()) {
 			Vec3 globalPos = contraption.entity.toGlobalVector(localPosVec, 0);
 			this.playOpeningSound(level, globalPos);
@@ -90,7 +102,7 @@ public abstract class MountedItemStorage implements ModifiableItemHandler {
 	 * Get the item handler that will be used by this storage's menu. This is useful for
 	 * handling multi-blocks, such as double chests.
 	 */
-	protected ModifiableItemHandler getHandlerForMenu(StructureBlockInfo info, Contraption contraption) {
+	protected ResourceHandler<ItemResource> getHandlerForMenu(StructureBlockInfo info, Contraption contraption) {
 		return this;
 	}
 
@@ -115,9 +127,10 @@ public abstract class MountedItemStorage implements ModifiableItemHandler {
 	 * @return a MenuProvider that provides the menu players will see when opening this storage
 	 */
 	@Nullable
-	protected MenuProvider createMenuProvider(Component name, ModifiableItemHandler handler,
+	protected MenuProvider createMenuProvider(Component name, ResourceHandler<ItemResource> handler,
+											  IndexModifier<ItemResource> writable,
 											  Predicate<Player> stillValid, Consumer<Player> onClose) {
-		return MountedStorageMenus.createGeneric(name, handler, stillValid, onClose);
+		return MountedStorageMenus.createGeneric(name, handler, writable, stillValid, onClose);
 	}
 
 	/**

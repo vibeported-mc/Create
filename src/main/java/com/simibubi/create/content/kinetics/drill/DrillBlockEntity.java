@@ -1,6 +1,7 @@
 package com.simibubi.create.content.kinetics.drill;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.content.kinetics.base.BlockBreakingKineticBlockEntity;
@@ -76,7 +77,10 @@ public class DrillBlockEntity extends BlockBreakingKineticBlockEntity {
 			ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, hbe.getBlockPos(), null);
 			if (handler != null)
 				for (ItemStack stack : Block.getDrops(stateToBreak, sl, breakingPos, null))
-					ItemHandlerHelpers.insertItemStacked(handler, stack, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						int transferred = stack.isEmpty() ? 0 : ResourceHandlerUtil.insertStacking(handler, ItemResource.of(stack), stack.getCount(), transaction);
+						transaction.commit();
+					}
 		} else if (blockEntityAbove instanceof ChuteBlockEntity chute && chute.getItemMotion() > 0) {
 			for (ItemStack stack : Block.getDrops(stateToBreak, sl, breakingPos, null))
 				if (chute.getItem()

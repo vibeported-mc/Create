@@ -1,8 +1,8 @@
 package com.simibubi.create.content.fluids.tank;
 
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.util.RandomSource;
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllBlockEntityTypes;
@@ -29,7 +29,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -37,13 +36,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
@@ -171,7 +168,7 @@ public class FluidTankBlock extends Block implements IWrenchable, IBE<FluidTankB
 		ResourceHandler<FluidResource> tankCapability = level.getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 		if (tankCapability == null)
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
-		FluidStack prevFluidInTank = FluidHandlerHelpers.getFluidInTank(tankCapability, 0)
+		FluidStack prevFluidInTank = FluidUtil.getStack(tankCapability, 0)
 			.copy();
 
 		if (FluidHelper.tryEmptyItemIntoBE(level, player, hand, stack, be))
@@ -188,7 +185,7 @@ public class FluidTankBlock extends Block implements IWrenchable, IBE<FluidTankB
 
 		SoundEvent soundevent = null;
 		BlockState fluidState = null;
-		FluidStack fluidInTank = FluidHandlerHelpers.getFluidInTank(tankCapability, 0);
+		FluidStack fluidInTank = FluidUtil.getStack(tankCapability, 0);
 
 		if (exchange == FluidExchange.ITEM_TO_TANK) {
 			if (creative && !onClient) {
@@ -231,7 +228,7 @@ public class FluidTankBlock extends Block implements IWrenchable, IBE<FluidTankB
 					if (fluidState != null && onClient) {
 						BlockParticleOption blockParticleData =
 							new BlockParticleOption(ParticleTypes.BLOCK, fluidState);
-						float fluidLevel = (float) fluidInTank.getAmount() / FluidHandlerHelpers.getTankCapacity(tankCapability, 0);
+						float fluidLevel = (float) fluidInTank.getAmount() / tankCapability.getCapacityAsInt(0, FluidResource.EMPTY);
 
 						boolean reversed = fluidInTank.getFluid()
 							.getFluidType()

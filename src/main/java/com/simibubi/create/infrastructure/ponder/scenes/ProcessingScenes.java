@@ -1,9 +1,9 @@
 package com.simibubi.create.infrastructure.ponder.scenes;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.world.item.DyeColor;
 import com.simibubi.create.foundation.item.ItemHelper;
 import net.minecraft.world.item.ItemStackTemplate;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import com.google.common.collect.ImmutableList;
@@ -40,7 +40,6 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.item.ItemStack;
@@ -103,7 +102,7 @@ public class ProcessingScenes {
 		scene.idle(18);
 		scene.world().modifyEntity(entity1, Entity::discard);
 		scene.world().modifyBlockEntity(millstone, MillstoneBlockEntity.class,
-			ms -> ItemHandlerHelpers.setStackInSlot(ms.inputInv, 0, itemStack));
+			ms -> ms.inputInv.set(0, ItemResource.of(itemStack), itemStack.getCount()));
 		scene.idle(10);
 		scene.overlay().showControls(millstoneTop, Pointing.DOWN, 30).withItem(itemStack);
 		scene.idle(7);
@@ -116,7 +115,7 @@ public class ProcessingScenes {
 		scene.idle(60);
 
 		scene.world().modifyBlockEntity(millstone, MillstoneBlockEntity.class,
-			ms -> ItemHandlerHelpers.setStackInSlot(ms.inputInv, 0, ItemStack.EMPTY));
+			ms -> ms.inputInv.set(0, ItemResource.EMPTY, 0));
 
 		scene.overlay().showText(50)
 			.text("After some time, the result can be obtained via Right-click")

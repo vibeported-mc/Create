@@ -1,8 +1,8 @@
 package com.simibubi.create.content.kinetics.mixer;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import net.minecraft.world.item.ItemStackTemplate;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.List;
@@ -246,7 +246,7 @@ public class MechanicalMixerBlockEntity extends BasinOperatingBlockEntity {
 			return matchingRecipes;
 
 		for (int i = 0; i < availableItems.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(availableItems, i);
+			ItemStack stack = ItemUtil.getStack(availableItems, i);
 			if (stack.isEmpty())
 				continue;
 

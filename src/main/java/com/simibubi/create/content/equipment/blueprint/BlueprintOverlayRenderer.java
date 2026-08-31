@@ -1,9 +1,12 @@
 package com.simibubi.create.content.equipment.blueprint;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -11,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.blueprint.BlueprintEntity.BlueprintCraftingInventory;
 import com.simibubi.create.content.equipment.blueprint.BlueprintEntity.BlueprintSection;
@@ -194,10 +196,10 @@ public class BlueprintOverlayRenderer {
 
 	public static void rebuild(BlueprintSection sectionAt, boolean sneak) {
 		cachedRenderedFilters.clear();
-		ItemStackHandler items = sectionAt.getItems();
+		ItemStacksResourceHandler items = sectionAt.getItems();
 		boolean empty = true;
 		for (int i = 0; i < 9; i++) {
-			if (!ItemHandlerHelpers.getStackInSlot(items, i)
+			if (!ItemUtil.getStack(items, i)
 				.isEmpty()) {
 				empty = false;
 				break;
@@ -213,19 +215,21 @@ public class BlueprintOverlayRenderer {
 		boolean firstPass = true;
 		boolean success = true;
 		Minecraft mc = Minecraft.getInstance();
-		ItemStackHandler playerInv = new ItemStackHandler(mc.player.getInventory()
+		ItemStacksResourceHandler playerInv = new ItemStacksResourceHandler(mc.player.getInventory()
 			.getContainerSize());
-		for (int i = 0; i < playerInv.size(); i++)
-			ItemHandlerHelpers.setStackInSlot(playerInv, i, mc.player.getInventory()
+		for (int i = 0; i < playerInv.size(); i++) {
+			ItemStack stack = mc.player.getInventory()
 				.getItem(i)
-				.copy());
+				.copy();
+			playerInv.set(i, ItemResource.of(stack), stack.getCount());
+		}
 
 		int amountCrafted = 0;
 		Optional<RecipeHolder<CraftingRecipe>> recipe = Optional.empty();
 		Map<Integer, ItemStack> craftingGrid = new HashMap<>();
 		ingredients.clear();
-		ItemStackHandler missingItems = new ItemStackHandler(64);
-		ItemStackHandler availableItems = new ItemStackHandler(64);
+		ItemStacksResourceHandler missingItems = new ItemStacksResourceHandler(64);
+		ItemStacksResourceHandler availableItems = new ItemStacksResourceHandler(64);
 		List<ItemStack> newlyAdded = new ArrayList<>();
 		List<ItemStack> newlyMissing = new ArrayList<>();
 		boolean invalid = false;
@@ -237,16 +241,22 @@ public class BlueprintOverlayRenderer {
 
 			Search:
 			for (int i = 0; i < 9; i++) {
-				FilterItemStack requestedItem = FilterItemStack.of(ItemHandlerHelpers.getStackInSlot(items, i));
+				FilterItemStack requestedItem = FilterItemStack.of(ItemUtil.getStack(items, i));
 				if (requestedItem.isEmpty()) {
 					craftingGrid.put(i, ItemStack.EMPTY);
 					continue;
 				}
 
 				for (int slot = 0; slot < playerInv.size(); slot++) {
-					if (!requestedItem.test(mc.level, ItemHandlerHelpers.getStackInSlot(playerInv, slot)))
+					if (!requestedItem.test(mc.level, ItemUtil.getStack(playerInv, slot)))
 						continue;
-					ItemStack currentItem = ItemHandlerHelpers.extractItem(playerInv, slot, 1, false);
+					ItemStack currentItem;
+					try (Transaction transaction = Transaction.openRoot()) {
+						ItemResource transferredResource = playerInv.getResource(slot);
+						int transferred = transferredResource.isEmpty() ? 0 : playerInv.extract(slot, transferredResource, 1, transaction);
+						currentItem = transferred <= 0 ? ItemStack.EMPTY : transferredResource.toStack(transferred);
+						transaction.commit();
+					}
 					craftingGrid.put(i, currentItem);
 					newlyAdded.add(currentItem);
 					continue Search;
@@ -283,15 +293,22 @@ public class BlueprintOverlayRenderer {
 			}
 
 			if (success || firstPass) {
-				newlyAdded.forEach(s -> ItemHandlerHelpers.insertItemStacked(availableItems, s, false));
-				newlyMissing.forEach(s -> ItemHandlerHelpers.insertItemStacked(missingItems, s, false));
+				try (Transaction transaction = Transaction.openRoot()) {
+					for (ItemStack added : newlyAdded)
+						ResourceHandlerUtil.insertStacking(availableItems, ItemResource.of(added), added.getCount(),
+							transaction);
+					for (ItemStack missing : newlyMissing)
+						ResourceHandlerUtil.insertStacking(missingItems, ItemResource.of(missing), missing.getCount(),
+							transaction);
+					transaction.commit();
+				}
 			}
 
 			if (!success) {
 				if (firstPass) {
 					results.clear();
 					if (!invalid)
-						results.add(ItemHandlerHelpers.getStackInSlot(items, 9));
+						results.add(ItemUtil.getStack(items, 9));
 					resultCraftable = false;
 				}
 				break;
@@ -303,13 +320,13 @@ public class BlueprintOverlayRenderer {
 		} while (success);
 
 		for (int i = 0; i < 9; i++) {
-			ItemStack available = ItemHandlerHelpers.getStackInSlot(availableItems, i);
+			ItemStack available = ItemUtil.getStack(availableItems, i);
 			if (available.isEmpty())
 				continue;
 			ingredients.add(Pair.of(available, true));
 		}
 		for (int i = 0; i < 9; i++) {
-			ItemStack missing = ItemHandlerHelpers.getStackInSlot(missingItems, i);
+			ItemStack missing = ItemUtil.getStack(missingItems, i);
 			if (missing.isEmpty())
 				continue;
 			ingredients.add(Pair.of(missing, false));

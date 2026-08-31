@@ -1,6 +1,7 @@
 package com.simibubi.create.infrastructure.ponder.scenes.fluid;
 
-import com.simibubi.create.foundation.fluid.FluidHandlerHelpers;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import com.simibubi.create.AllBlocks;
@@ -88,7 +89,13 @@ public class FluidTankScenes {
 		scene.idle(5);
 		FluidStack content = new FluidStack(AllFluids.CHOCOLATE.get()
 			.getSource(), 16000);
-		scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), content, false));
+		scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> {
+			try (Transaction transaction = Transaction.openRoot()) {
+				if (!content.isEmpty())
+					be.getTankInventory().insert(FluidResource.of(content), content.getAmount(), transaction);
+				transaction.commit();
+			}
+		});
 		scene.idle(25);
 
 		scene.world().moveSection(tankLink, util.vector().of(0, 0, 1), 10);
@@ -105,11 +112,22 @@ public class FluidTankScenes {
 
 		scene.idle(5);
 		scene.world().propagatePipeChange(pumpPos);
-		scene.world().modifyBlockEntity(util.grid().at(2, 0, 5), FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), content, false));
+		scene.world().modifyBlockEntity(util.grid().at(2, 0, 5), FluidTankBlockEntity.class, be -> {
+			try (Transaction transaction = Transaction.openRoot()) {
+				if (!content.isEmpty())
+					be.getTankInventory().insert(FluidResource.of(content), content.getAmount(), transaction);
+				transaction.commit();
+			}
+		});
 		scene.idle(20);
 
 		for (int i = 0; i < 4; i++) {
-			scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> FluidHandlerHelpers.drain(be.getTankInventory(), 2000, false));
+			scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> {
+				try (Transaction transaction = Transaction.openRoot()) {
+					ResourceHandlerUtil.extractFirst(be.getTankInventory(), resource -> true, 2000, transaction);
+					transaction.commit();
+				}
+			});
 			scene.idle(5);
 		}
 
@@ -123,7 +141,12 @@ public class FluidTankScenes {
 		scene.world().modifyBlock(pumpPos, s -> s.setValue(PumpBlock.FACING, Direction.NORTH), true);
 		scene.world().propagatePipeChange(pumpPos);
 		for (int i = 0; i < 4; i++) {
-			scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> FluidHandlerHelpers.fill(be.getTankInventory(), FluidHelper.copyStackWithAmount(content, 2000), false));
+			scene.world().modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> {
+				try (Transaction transaction = Transaction.openRoot()) {
+					be.getTankInventory().insert(FluidResource.of(FluidHelper.copyStackWithAmount(content, 2000)), FluidHelper.copyStackWithAmount(content, 2000).getAmount(), transaction);
+					transaction.commit();
+				}
+			});
 			scene.idle(5);
 		}
 		scene.idle(40);
@@ -167,7 +190,11 @@ public class FluidTankScenes {
 			be -> {
 				ResourceHandler<FluidResource> handler = be.getLevel().getCapability(Capabilities.Fluid.BLOCK, be.getBlockPos(), null);
 				if (handler != null)
-					FluidHandlerHelpers.fill(handler, content, false);
+					try (Transaction transaction = Transaction.openRoot()) {
+						if (!content.isEmpty())
+							handler.insert(FluidResource.of(content), content.getAmount(), transaction);
+						transaction.commit();
+					}
 			});
 
 		scene.world().moveSection(tankLink, util.vector().of(0, 0, 1), 7);

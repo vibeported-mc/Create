@@ -1,7 +1,7 @@
 package com.simibubi.create.compat.jei;
 
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import org.jspecify.annotations.NullMarked;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,7 +77,7 @@ public class GhostIngredientHandler<T extends GhostItemMenu<?>>
 		public void accept(I ingredient) {
 			ItemStack stack = ((ItemStack) ingredient).copy();
 			stack.setCount(1);
-			ItemHandlerHelpers.setStackInSlot(gui.getMenu().ghostInventory, slotIndex, stack);
+			gui.getMenu().ghostInventory.set(slotIndex, ItemResource.of(stack), stack.getCount());
 
 			if (isAttributeFilter)
 				return;

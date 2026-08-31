@@ -1,6 +1,8 @@
 package com.simibubi.create.foundation.item;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
@@ -17,7 +19,7 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class SmartInventory extends ItemHandlerContainer implements ModifiableItemHandler {
+public class SmartInventory extends ItemHandlerContainer implements ResourceHandler<ItemResource>, IndexModifier<ItemResource> {
 
 	protected boolean extractionAllowed;
 	protected boolean insertionAllowed;
@@ -42,7 +44,7 @@ public class SmartInventory extends ItemHandlerContainer implements ModifiableIt
 		this(new SyncedStackHandler(slots, be, stackNonStackables, stackSize, isValid), stackSize, stackNonStackables);
 	}
 
-	public SmartInventory(ModifiableItemHandler inv, int stackSize, boolean stackNonStackables) {
+	public <H extends ResourceHandler<ItemResource> & IndexModifier<ItemResource>> SmartInventory(H inv, int stackSize, boolean stackNonStackables) {
 		super(inv);
 		this.stackNonStackables = stackNonStackables;
 		insertionAllowed = true;
@@ -130,7 +132,7 @@ public class SmartInventory extends ItemHandlerContainer implements ModifiableIt
 
 	@Override
 	public void set(int index, ItemResource resource, int amount) {
-		inv.set(index, resource, amount);
+		writable.set(index, resource, amount);
 	}
 
 	public int getStackLimit(int slot, ItemStack stack) {
@@ -151,7 +153,8 @@ public class SmartInventory extends ItemHandlerContainer implements ModifiableIt
 		wrapped.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, nbt));
 	}
 
-	protected static class SyncedStackHandler extends ItemStackHandler {
+	protected static class SyncedStackHandler extends ItemStacksResourceHandler
+		implements IndexModifier<ItemResource> {
 
 		private SyncedBlockEntity blockEntity;
 		private boolean stackNonStackables;

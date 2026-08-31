@@ -1,6 +1,5 @@
 package com.simibubi.create.compat.thresholdSwitch;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.compat.Mods;
@@ -18,6 +17,6 @@ public class FunctionalStorage implements ThresholdSwitchCompat {
 
 	@Override
 	public long getSpaceInSlot(ResourceHandler<ItemResource> inv, int slot) {
-		return ItemHandlerHelpers.getSlotLimit(inv, slot);
+		return inv.getCapacityAsInt(slot, ItemResource.EMPTY);
 	}
 }

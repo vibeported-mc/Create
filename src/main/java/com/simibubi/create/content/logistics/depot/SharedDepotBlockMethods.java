@@ -1,10 +1,10 @@
 package com.simibubi.create.content.logistics.depot;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllSoundEvents;
-import com.simibubi.create.Create;
 import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.logistics.box.PackageEntity;
@@ -18,7 +18,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -59,10 +58,20 @@ public class SharedDepotBlockMethods {
 			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f,
 				1f + level.getRandom().nextFloat());
 		}
-		ItemStackHandler outputs = behaviour.processingOutputBuffer;
-		for (int i = 0; i < outputs.size(); i++)
+		ItemStacksResourceHandler outputs = behaviour.processingOutputBuffer;
+		for (int i = 0; i < outputs.size(); i++) {
+			ItemStack taken;
+
+			try (Transaction transaction = Transaction.openRoot()) {
+				ItemResource held = outputs.getResource(i);
+				int extracted = held.isEmpty() ? 0 : outputs.extract(i, held, 64, transaction);
+				taken = extracted <= 0 ? ItemStack.EMPTY : held.toStack(extracted);
+				transaction.commit();
+			}
+
 			player.getInventory()
-				.placeItemBackInInventory(ItemHandlerHelpers.extractItem(outputs, i, 64, false));
+				.placeItemBackInInventory(taken);
+		}
 
 		if (!wasEmptyHanded && !shouldntPlaceItem) {
 			TransportedItemStack transported = new TransportedItemStack(stack);

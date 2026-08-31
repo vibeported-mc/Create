@@ -1,6 +1,8 @@
 package com.simibubi.create.impl.unpacking;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -48,14 +50,22 @@ public enum CrafterUnpackingHandler implements UnpackingHandler {
 
 			Inventory inventory = inventories.get(i);
 			// if there's already an item here, no point in trying
-			if (!ItemHandlerHelpers.getStackInSlot(inventory, 0).isEmpty())
+			if (!ItemUtil.getStack(inventory, 0).isEmpty())
 				continue;
 
 			// go through each item in the box and try insert if it matches the target
 			for (ItemStack stack : items) {
 				if (ItemStack.isSameItemSameComponents(stack, targetStack.stack)) {
 					ItemStack toInsert = stack.copyWithCount(1);
-					if (ItemHandlerHelpers.insertItem(inventory, 0, toInsert, simulate).isEmpty()) {
+					int inserted;
+
+					try (Transaction transaction = Transaction.openRoot()) {
+						inserted = inventory.insert(0, ItemResource.of(toInsert), toInsert.getCount(), transaction);
+						if (!simulate)
+							transaction.commit();
+					}
+
+					if (inserted == toInsert.getCount()) {
 						stack.shrink(1);
 						// one item per crafter, move to next once successful
 						continue outer;

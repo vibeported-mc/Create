@@ -1,6 +1,6 @@
 package com.simibubi.create.content.kinetics.mechanicalArm;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,6 @@ import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -116,14 +115,25 @@ public class ArmInteractionPoint {
 		ResourceHandler<ItemResource> handler = getHandler(armBlockEntity);
 		if (handler == null)
 			return stack;
-		return ItemHandlerHelpers.insertItem(handler, stack, simulate);
+		try (Transaction transaction = Transaction.openRoot()) {
+			int transferred = stack.isEmpty() ? 0 : handler.insert(ItemResource.of(stack), stack.getCount(), transaction);
+			if (!simulate)
+				transaction.commit();
+			return transferred == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - transferred);
+		}
 	}
 
 	public ItemStack extract(ArmBlockEntity armBlockEntity, int slot, int amount, boolean simulate) {
 		ResourceHandler<ItemResource> handler = getHandler(armBlockEntity);
 		if (handler == null)
 			return ItemStack.EMPTY;
-		return ItemHandlerHelpers.extractItem(handler, slot, amount, simulate);
+		try (Transaction transaction = Transaction.openRoot()) {
+			ItemResource transferred2Resource = handler.getResource(slot);
+			int transferred2 = transferred2Resource.isEmpty() ? 0 : handler.extract(slot, transferred2Resource, amount, transaction);
+			if (!simulate)
+				transaction.commit();
+			return transferred2 <= 0 ? ItemStack.EMPTY : transferred2Resource.toStack(transferred2);
+		}
 	}
 
 	public ItemStack extract(ArmBlockEntity armBlockEntity, int slot, boolean simulate) {

@@ -1,7 +1,7 @@
 package com.simibubi.create.compat.computercraft.implementation.luaObjects;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,11 +73,11 @@ public class PackageLuaObject implements LuaComparable {
 	}
 
 	public final List<LuaItemStack> getLuaItemStacks() {
-		ItemStackHandler results = PackageItem.getContents(box);
+		ItemStacksResourceHandler results = PackageItem.getContents(box);
 		List<LuaItemStack> result = new ArrayList<>();
 
 		for (int i = 0; i < results.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(results, i);
+			ItemStack stack = ItemUtil.getStack(results, i);
 			if (!stack.isEmpty()) {
 				result.add(new LuaItemStack(stack));
 			}

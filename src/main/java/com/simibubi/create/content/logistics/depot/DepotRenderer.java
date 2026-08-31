@@ -1,6 +1,6 @@
 package com.simibubi.create.content.logistics.depot;
 
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -118,7 +118,7 @@ public class DepotRenderer extends SafeBlockEntityRenderer<DepotBlockEntity, Dep
 			depotBehaviour.incoming.remove(transported);
 
 		for (int i = 0; i < depotBehaviour.processingOutputBuffer.size(); i++) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(depotBehaviour.processingOutputBuffer, i);
+			ItemStack stack = ItemUtil.getStack(depotBehaviour.processingOutputBuffer, i);
 			if (stack.isEmpty())
 				continue;
 			boolean renderUpright = BeltHelper.isItemUpright(stack);

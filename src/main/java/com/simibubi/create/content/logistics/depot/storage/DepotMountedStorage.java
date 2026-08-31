@@ -1,8 +1,10 @@
 package com.simibubi.create.content.logistics.depot.storage;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import com.simibubi.create.foundation.utility.NbtValueIO;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
@@ -43,7 +45,7 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 	@Override
 	public void unmount(Level level, BlockState state, BlockPos pos, @Nullable BlockEntity be) {
 		if (be instanceof DepotBlockEntity depot) {
-			depot.setHeldItem(ItemHandlerHelpers.getStackInSlot(this, 0));
+			depot.setHeldItem(ItemUtil.getStack(this, 0));
 		}
 	}
 
@@ -72,11 +74,11 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 	}
 
 	public void setItem(ItemStack stack) {
-		ItemHandlerHelpers.setStackInSlot(this, 0, stack);
+		this.set(0, ItemResource.of(stack), stack.getCount());
 	}
 
 	public ItemStack getItem() {
-		return ItemHandlerHelpers.getStackInSlot(this, 0);
+		return ItemUtil.getStack(this, 0);
 	}
 
 	public static DepotMountedStorage fromDepot(DepotBlockEntity depot) {
@@ -85,22 +87,22 @@ public class DepotMountedStorage extends WrapperMountedItemStorage<Handler> impl
 	}
 
 	public static DepotMountedStorage fromLegacy(HolderLookup.Provider registries, CompoundTag nbt) {
-		ItemStackHandler handler = new ItemStackHandler(0);
-		ItemHandlerHelpers.deserializeNBT(handler, registries, nbt);
+		ItemStacksResourceHandler handler = new ItemStacksResourceHandler(0);
+		NbtValueIO.deserialize(handler, nbt, registries);
 		if (handler.size() == 1) {
-			ItemStack stack = ItemHandlerHelpers.getStackInSlot(handler, 0);
+			ItemStack stack = ItemUtil.getStack(handler, 0);
 			return new DepotMountedStorage(stack);
 		} else {
 			return new DepotMountedStorage(ItemStack.EMPTY);
 		}
 	}
 
-	public static final class Handler extends ItemStackHandler {
+	public static final class Handler extends ItemStacksResourceHandler {
 		private Runnable onChange = () -> {};
 
 		private Handler(ItemStack stack) {
 			super(1);
-			ItemHandlerHelpers.setStackInSlot(this, 0, stack);
+			this.set(0, ItemResource.of(stack), stack.getCount());
 		}
 
 		@Override

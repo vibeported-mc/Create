@@ -1,9 +1,9 @@
 package com.simibubi.create.content.kinetics.crafter;
 
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
 import net.minecraft.world.level.redstone.Orientation;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.AllBlockEntityTypes;
@@ -27,7 +27,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -181,8 +180,13 @@ public class MechanicalCrafterBlock extends HorizontalKineticBlock
 				ResourceHandler<ItemResource> capability = level.getCapability(Capabilities.Item.BLOCK, crafter.getBlockPos(), null);
 				if (capability == null)
 					return InteractionResult.TRY_WITH_EMPTY_HAND;
-				ItemStack remainder =
-					ItemHandlerHelpers.insertItem(capability, stack.copy(), false);
+				ItemStack remainder;
+				try (Transaction transaction = Transaction.openRoot()) {
+					int transferred = stack.isEmpty() ? 0 : capability.insert(ItemResource.of(stack), stack.getCount(), transaction);
+					remainder = transferred == stack.getCount() ? ItemStack.EMPTY
+						: stack.copyWithCount(stack.getCount() - transferred);
+					transaction.commit();
+				}
 				if (remainder.getCount() != stack.getCount())
 					player.setItemInHand(hand, remainder);
 				return InteractionResult.SUCCESS;
@@ -210,7 +214,7 @@ public class MechanicalCrafterBlock extends HorizontalKineticBlock
 				return InteractionResult.SUCCESS;
 			player.getInventory()
 				.placeItemBackInInventory(inSlot);
-			ItemHandlerHelpers.setStackInSlot(crafter.getInventory(), 0, ItemStack.EMPTY);
+			crafter.getInventory().set(0, ItemResource.EMPTY, 0);
 			return InteractionResult.SUCCESS;
 		}
 

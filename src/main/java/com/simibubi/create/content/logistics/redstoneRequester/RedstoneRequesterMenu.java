@@ -1,8 +1,7 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
-import com.simibubi.create.foundation.item.ItemStackHandler;
-import com.simibubi.create.foundation.item.ItemHandlerHelpers;
-import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +38,13 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 	}
 
 	@Override
-	protected ItemStackHandler createGhostInventory() {
-		ItemStackHandler inventory = new ItemStackHandler(9);
+	protected ItemStacksResourceHandler createGhostInventory() {
+		ItemStacksResourceHandler inventory = new ItemStacksResourceHandler(9);
 		List<BigItemStack> stacks = contentHolder.encodedRequest.stacks();
-		for (int i = 0; i < stacks.size(); i++)
-			ItemHandlerHelpers.setStackInSlot(inventory, i, stacks.get(i).stack.copyWithCount(1));
+		for (int i = 0; i < stacks.size(); i++) {
+			ItemStack stack = stacks.get(i).stack.copyWithCount(1);
+			inventory.set(i, ItemResource.of(stack), stack.getCount());
+		}
 		return inventory;
 	}
 
@@ -77,7 +78,7 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 		List<BigItemStack> stacks = contentHolder.encodedRequest.stacks();
 		ArrayList<BigItemStack> list = new ArrayList<>();
 		for (int i = 0; i < ghostInventory.size(); i++) {
-			ItemStack stackInSlot = ItemHandlerHelpers.getStackInSlot(ghostInventory, i);
+			ItemStack stackInSlot = ItemUtil.getStack(ghostInventory, i);
 			if (stackInSlot.isEmpty())
 				continue;
 			list.add(new BigItemStack(stackInSlot.copyWithCount(1), i < stacks.size() ? stacks.get(i).count : 1));
@@ -93,7 +94,7 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 	// this is used to prevent InventorySorter from interfering with scrolling on the slots.
 	// we just need a class to use as a marker, see InventorySorterCompat
 	public static class SorterProofSlot extends ResourceHandlerSlot {
-		public SorterProofSlot(ItemStackHandler itemHandler, int index, int xPosition, int yPosition) {
+		public SorterProofSlot(ItemStacksResourceHandler itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, itemHandler::set, index, xPosition, yPosition);
 		}
 	}

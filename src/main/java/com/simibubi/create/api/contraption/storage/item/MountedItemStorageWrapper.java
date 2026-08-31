@@ -2,7 +2,6 @@ package com.simibubi.create.api.contraption.storage.item;
 
 import com.google.common.collect.ImmutableMap;
 import com.simibubi.create.foundation.item.CombinedItemHandler;
-import com.simibubi.create.foundation.item.ModifiableItemHandler;
 
 import net.minecraft.core.BlockPos;
 
@@ -15,7 +14,7 @@ public class MountedItemStorageWrapper extends CombinedItemHandler {
 
 	public MountedItemStorageWrapper(ImmutableMap<BlockPos, MountedItemStorage> storages) {
 		super(storages.values()
-			.toArray(ModifiableItemHandler[]::new));
+			.asList());
 		this.storages = storages;
 	}
 }
