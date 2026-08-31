@@ -22,6 +22,7 @@ import com.simibubi.create.foundation.mixin.accessor.FlowingFluidAccessor;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.math.BlockFace;
+import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.core.BlockPos;
@@ -106,13 +107,24 @@ public class OpenEndedPipe extends FlowSource {
 	}
 
 	public static OpenEndedPipe fromNBT(CompoundTag compound, HolderLookup.Provider registries, BlockPos blockEntityPos) {
-		BlockFace stored = compound.read("Location", BlockFace.CODEC)
-			.orElse(new BlockFace(blockEntityPos, Direction.UP));
-		OpenEndedPipe oep = new OpenEndedPipe(new BlockFace(blockEntityPos, stored.getFace()));
+		// GAMETEST FIX - which way the open end points. Written before there was a codec for it, it is a
+		// "Location" holding "Pos" and "Face"; the codec spells those "pos" and "direction", so reading one
+		// of the old ones simply fails - and failing here does not leave the pipe unset, it aims it
+		// upwards. A pipe that was drawing from the water beside it comes back sucking at the air above.
+		Direction face = compound.read("Location", BlockFace.CODEC)
+			.map(BlockFace::getFace)
+			.orElseGet(() -> legacyFace(compound.getCompoundOrEmpty("Location")));
+		OpenEndedPipe oep = new OpenEndedPipe(new BlockFace(blockEntityPos, face));
 
 		NbtValueIO.deserialize(oep.fluidHandler, compound, registries);
 		oep.wasPulling = compound.getBooleanOr("Pulling", false);
 		return oep;
+	}
+
+	/** The way an open end was pointed before the face was written down through a codec. */
+	private static Direction legacyFace(CompoundTag location) {
+		return location.contains("Face") ? NBTHelper.readEnum(location, "Face", Direction.class)
+			: Direction.UP;
 	}
 
 	private FluidStack removeFluidFromSpace(boolean simulate) {
@@ -246,6 +258,25 @@ public class OpenEndedPipe extends FlowSource {
 
 		private FluidStack contained() {
 			return FluidUtil.getStack(this, 0);
+		}
+
+		/**
+		 * GAMETEST FIX - what this pipe can hand over, which is mostly not in the pipe.
+		 * <p>
+		 * A handler used to be asked to give up whatever it had, and this one answered by taking a block of
+		 * fluid out of the world. The asking is done by resource now: whoever wants some reads what a tank
+		 * holds and then asks for that by name. An open end holds nothing - what it can give is the block in
+		 * front of its mouth - so it read as empty, was never asked, and a pipe pointed at water pumped
+		 * nothing. Saying what is in front of it puts it back in the conversation.
+		 */
+		@Override
+		public FluidResource getResource(int index) {
+			FluidResource buffered = super.getResource(index);
+
+			if (!buffered.isEmpty() || world == null || outputPos == null || !world.isLoaded(outputPos))
+				return buffered;
+
+			return FluidResource.of(removeFluidFromSpace(true));
 		}
 
 		@Override
