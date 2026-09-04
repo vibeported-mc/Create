@@ -24,12 +24,23 @@ import net.minecraft.client.resources.model.sprite.Material;
 
 public class FunnelGenerator extends SpecialBlockStateGen {
 
-	private static final TextureSlot BASE = TextureSlot.create("base");
-	private static final TextureSlot REDSTONE = TextureSlot.create("redstone");
-	private static final TextureSlot DIRECTION = TextureSlot.create("direction");
-	private static final TextureSlot BLOCK = TextureSlot.create("block");
-	private static final TextureSlot FRAME = TextureSlot.create("frame");
-	private static final TextureSlot OPEN = TextureSlot.create("open");
+	/**
+	 * The client-only constants this class builds its models from.
+	 *
+	 * A nested class is initialised on first use rather than with its owner, which is the whole
+	 * point of the indirection: these are client types, this class is reached from common
+	 * registration code, and a static field here would be initialised on a dedicated server that
+	 * has no such class. Only the datagen methods below touch them, and a server runs none.
+	 */
+	private static final class Client {
+		static final TextureSlot BASE = TextureSlot.create("base");
+		static final TextureSlot REDSTONE = TextureSlot.create("redstone");
+		static final TextureSlot DIRECTION = TextureSlot.create("direction");
+		static final TextureSlot BLOCK = TextureSlot.create("block");
+		static final TextureSlot FRAME = TextureSlot.create("frame");
+		static final TextureSlot OPEN = TextureSlot.create("open");
+	}
+
 
 	private String type;
 	private Identifier blockTexture;
@@ -65,25 +76,25 @@ public class FunnelGenerator extends SpecialBlockStateGen {
 
 		TextureMapping textures = new TextureMapping()
 			.put(TextureSlot.PARTICLE, new Material(blockTexture))
-			.put(BASE, new Material(p.modLoc(prefix + type + "_funnel")))
-			.put(REDSTONE, new Material(p.modLoc(prefix + type + "_funnel" + powered)))
-			.put(DIRECTION, new Material(p.modLoc(prefix + type + "_funnel" + extracting)));
+			.put(Client.BASE, new Material(p.modLoc(prefix + type + "_funnel")))
+			.put(Client.REDSTONE, new Material(p.modLoc(prefix + type + "_funnel" + powered)))
+			.put(Client.DIRECTION, new Material(p.modLoc(prefix + type + "_funnel" + extracting)));
 
 		TextureSlot[] extra;
 		if (horizontal) {
-			textures.put(BLOCK, new Material(blockTexture));
-			extra = new TextureSlot[] { BLOCK };
+			textures.put(Client.BLOCK, new Material(blockTexture));
+			extra = new TextureSlot[] { Client.BLOCK };
 		} else {
-			textures.put(FRAME, new Material(p.modLoc(prefix + type + "_funnel_frame")));
-			textures.put(OPEN, new Material(p.modLoc(prefix + "funnel" + closed)));
-			extra = new TextureSlot[] { FRAME, OPEN };
+			textures.put(Client.FRAME, new Material(p.modLoc(prefix + type + "_funnel_frame")));
+			textures.put(Client.OPEN, new Material(p.modLoc(prefix + "funnel" + closed)));
+			extra = new TextureSlot[] { Client.FRAME, Client.OPEN };
 		}
 
 		TextureSlot[] slots = new TextureSlot[4 + extra.length];
 		slots[0] = TextureSlot.PARTICLE;
-		slots[1] = BASE;
-		slots[2] = REDSTONE;
-		slots[3] = DIRECTION;
+		slots[1] = Client.BASE;
+		slots[2] = Client.REDSTONE;
+		slots[3] = Client.DIRECTION;
 		System.arraycopy(extra, 0, slots, 4, extra.length);
 
 		ModelTemplate template =
@@ -98,13 +109,13 @@ public class FunnelGenerator extends SpecialBlockStateGen {
 		Identifier blockTexture = Create.asResource("block/" + type + "_block");
 		return (c, p) -> {
 			ModelTemplate template = new ModelTemplate(Optional.of(p.modLoc("block/funnel/item")), Optional.empty(),
-				TextureSlot.PARTICLE, BLOCK, BASE, DIRECTION, REDSTONE);
+				TextureSlot.PARTICLE, Client.BLOCK, Client.BASE, Client.DIRECTION, Client.REDSTONE);
 			p.generateWithTemplate(c.getEntry(), template, new TextureMapping()
 				.put(TextureSlot.PARTICLE, new Material(blockTexture))
-				.put(BLOCK, new Material(blockTexture))
-				.put(BASE, new Material(p.modLoc(prefix + type + "_funnel")))
-				.put(DIRECTION, new Material(p.modLoc(prefix + type + "_funnel_neutral")))
-				.put(REDSTONE, new Material(p.modLoc(prefix + type + "_funnel_unpowered"))));
+				.put(Client.BLOCK, new Material(blockTexture))
+				.put(Client.BASE, new Material(p.modLoc(prefix + type + "_funnel")))
+				.put(Client.DIRECTION, new Material(p.modLoc(prefix + type + "_funnel_neutral")))
+				.put(Client.REDSTONE, new Material(p.modLoc(prefix + type + "_funnel_unpowered"))));
 		};
 	}
 

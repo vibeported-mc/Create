@@ -293,6 +293,6 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 	private static void registerCTBehviour(Block entry, Supplier<ConnectedTextureBehaviour> behaviorSupplier) {
 		ConnectedTextureBehaviour behavior = behaviorSupplier.get();
 		CreateClient.MODEL_SWAPPER.getCustomBlockModels()
-			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), model -> new CTModel(model, behavior));
+			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), CTModel.swapper(behavior));
 	}
 }

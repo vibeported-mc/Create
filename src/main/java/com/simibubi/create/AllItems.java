@@ -1,5 +1,6 @@
 package com.simibubi.create;
 
+import com.simibubi.create.foundation.data.AllItemModels;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
@@ -208,9 +209,7 @@ public class AllItems {
 			.properties(p -> p.rarity(Rarity.UNCOMMON))
 			// The shifting colour is a tint source per layer now, named by the model itself, rather
 			// than a colour handler bound to the item.
-			.model(() -> (c, p) -> p.itemModelOutput.accept(c.getEntry(),
-				ItemModelUtils.tintedModel(p.modLoc("item/" + c.getName()), new ChromaticCompoundColor(0),
-					new ChromaticCompoundColor(1), new ChromaticCompoundColor(2))))
+			.model(() -> AllItemModels::chromaticCompound)
 			.register();
 
 	public static final ItemEntry<ShadowSteelItem> SHADOW_STEEL = REGISTRATE.item("shadow_steel", ShadowSteelItem::new)
@@ -274,14 +273,7 @@ public class AllItems {
 			.equippable(EquipmentSlot.HEAD))
 		// Worn on the head the goggles are a block model rather than the flat item sprite. A model
 		// cannot choose per display context in code any more, so this is a select on display_context.
-		.model(() -> (c, p) -> {
-			Identifier flat = ModelTemplates.FLAT_ITEM.create(c.getEntry(),
-				TextureMapping.layer0(p.modItemTexture(c.getName())), p.modelOutput);
-			p.itemModelOutput.accept(c.getEntry(), ItemModelUtils.select(new DisplayContext(),
-				ItemModelUtils.plainModel(flat),
-				ItemModelUtils.when(ItemDisplayContext.HEAD,
-					ItemModelUtils.plainModel(p.modLoc("block/goggles")))));
-		})
+		.model(() -> AllItemModels::goggles)
 		.lang("Engineer's Goggles")
 		.register();
 

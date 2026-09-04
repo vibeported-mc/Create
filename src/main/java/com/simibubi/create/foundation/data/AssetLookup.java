@@ -27,7 +27,18 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
  */
 public class AssetLookup {
 
-	private static final TextureSlot INDICATOR = TextureSlot.create("indicator");
+	/**
+	 * The client-only constants this class builds its models from.
+	 *
+	 * A nested class is initialised on first use rather than with its owner, which is the whole
+	 * point of the indirection: these are client types, this class is reached from common
+	 * registration code, and a static field here would be initialised on a dedicated server that
+	 * has no such class. Only the datagen methods below touch them, and a server runs none.
+	 */
+	private static final class Client {
+		static final TextureSlot INDICATOR = TextureSlot.create("indicator");
+	}
+
 
 	/**
 	 * Custom block models packaged with other partials. Example:
@@ -123,7 +134,7 @@ public class AssetLookup {
 			Integer integer = state.getValue(property);
 			return BlockModelGenerators.plainVariant(prov.getBuilder()
 				.parent(baseModel)
-				.texture(INDICATOR, prov.modBlockTexture("indicator/" + integer))
+				.texture(Client.INDICATOR, prov.modBlockTexture("indicator/" + integer))
 				.build(prov.modLoc("block/" + ctx.getName() + "_" + integer)));
 		};
 	}

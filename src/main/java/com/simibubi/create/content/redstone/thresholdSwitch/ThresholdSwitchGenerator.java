@@ -16,7 +16,18 @@ import net.minecraft.client.resources.model.sprite.Material;
 
 public class ThresholdSwitchGenerator extends SpecialBlockStateGen {
 
-	private static final TextureSlot LEVEL = TextureSlot.create("level");
+	/**
+	 * The client-only constants this class builds its models from.
+	 *
+	 * A nested class is initialised on first use rather than with its owner, which is the whole
+	 * point of the indirection: these are client types, this class is reached from common
+	 * registration code, and a static field here would be initialised on a dedicated server that
+	 * has no such class. Only the datagen methods below touch them, and a server runs none.
+	 */
+	private static final class Client {
+		static final TextureSlot LEVEL = TextureSlot.create("level");
+	}
+
 
 	@Override
 	protected int getXRotation(BlockState state) {
@@ -36,7 +47,7 @@ public class ThresholdSwitchGenerator extends SpecialBlockStateGen {
 			.name());
 		return BlockModelGenerators.plainVariant(prov.getBuilder()
 			.parent(Create.asResource(path))
-			.texture(LEVEL, new Material(Create.asResource("block/threshold_switch/level_" + level)))
+			.texture(Client.LEVEL, new Material(Create.asResource("block/threshold_switch/level_" + level)))
 			.build(prov.modLoc(path + "_" + level)));
 	}
 

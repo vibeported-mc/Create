@@ -26,6 +26,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
+import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
@@ -198,10 +199,9 @@ public class WindowGen {
 
 	public static BlockEntry<GlassPaneBlock> standardGlassPane(String name, Supplier<? extends Block> parent,
 															   Identifier sideTexture, Identifier topTexture) {
-		NonNullBiConsumer<DataGenContext<Block, GlassPaneBlock>, RegistrateBlockModelGenerator> stateProvider =
-			(c, p) -> p.generatePaneBlock(c.get(), new Material(sideTexture), new Material(topTexture));
 		return glassPane(name, parent, sideTexture, topTexture, GlassPaneBlock::new, $ -> {
-		}, stateProvider, true).register();
+		}, () -> (c, p) -> p.generatePaneBlock(c.get(), new Material(sideTexture), new Material(topTexture)), true)
+			.register();
 	}
 
 	private static BlockBuilder<ConnectedGlassPaneBlock, CreateRegistrate> connectedGlassPane(String name,
@@ -212,21 +212,21 @@ public class WindowGen {
 		String CGPparents = "block/connected_glass_pane/";
 		String prefix = name + "_pane_";
 
-		Function<RegistrateBlockModelGenerator, Identifier> post =
-			getPaneModelProvider(CGPparents, prefix, "post", sideTexture, topTexture),
-			side = getPaneModelProvider(CGPparents, prefix, "side", sideTexture, topTexture),
-			sideAlt = getPaneModelProvider(CGPparents, prefix, "side_alt", sideTexture, topTexture),
-			noSide = getPaneModelProvider(CGPparents, prefix, "noside", sideTexture, topTexture),
-			noSideAlt = getPaneModelProvider(CGPparents, prefix, "noside_alt", sideTexture, topTexture);
+		return glassPane(name, parent, itemSideTexture, topTexture, ConnectedGlassPaneBlock::new, connectedTextures,
+			() -> (c, p) -> {
+				Function<RegistrateBlockModelGenerator, Identifier> post =
+					getPaneModelProvider(CGPparents, prefix, "post", sideTexture, topTexture),
+					side = getPaneModelProvider(CGPparents, prefix, "side", sideTexture, topTexture),
+					sideAlt = getPaneModelProvider(CGPparents, prefix, "side_alt", sideTexture, topTexture),
+					noSide = getPaneModelProvider(CGPparents, prefix, "noside", sideTexture, topTexture),
+					noSideAlt = getPaneModelProvider(CGPparents, prefix, "noside_alt", sideTexture, topTexture);
 
-		NonNullBiConsumer<DataGenContext<Block, ConnectedGlassPaneBlock>, RegistrateBlockModelGenerator> stateProvider =
-			(c, p) -> p.generatePaneBlock(c.get(), BlockModelGenerators.plainVariant(post.apply(p)),
-				BlockModelGenerators.plainVariant(side.apply(p)), BlockModelGenerators.plainVariant(sideAlt.apply(p)),
-				BlockModelGenerators.plainVariant(noSide.apply(p)),
-				BlockModelGenerators.plainVariant(noSideAlt.apply(p)));
-
-		return glassPane(name, parent, itemSideTexture, topTexture, ConnectedGlassPaneBlock::new,
-			connectedTextures, stateProvider, colorless);
+				p.generatePaneBlock(c.get(), BlockModelGenerators.plainVariant(post.apply(p)),
+					BlockModelGenerators.plainVariant(side.apply(p)),
+					BlockModelGenerators.plainVariant(sideAlt.apply(p)),
+					BlockModelGenerators.plainVariant(noSide.apply(p)),
+					BlockModelGenerators.plainVariant(noSideAlt.apply(p)));
+			}, colorless);
 	}
 
 	private static Function<RegistrateBlockModelGenerator, Identifier> getPaneModelProvider(String CGPparents,
@@ -242,7 +242,7 @@ public class WindowGen {
 																						  Supplier<? extends Block> parent, Identifier sideTexture, Identifier topTexture,
 																						  NonNullFunction<Properties, G> factory,
 																						  NonNullConsumer<? super G> connectedTextures,
-																						  NonNullBiConsumer<DataGenContext<Block, G>, RegistrateBlockModelGenerator> stateProvider,
+																						  NonNullSupplier<NonNullBiConsumer<DataGenContext<Block, G>, RegistrateBlockModelGenerator>> stateProvider,
 																						  boolean colorless) {
 		name += "_pane";
 
@@ -252,7 +252,7 @@ public class WindowGen {
 			.initialProperties(() -> Blocks.GLASS_PANE)
 			.properties(p -> p.mapColor(parent.get()
 				.defaultMapColor()))
-			.blockstate(() -> stateProvider)
+			.blockstate(stateProvider)
 			
 			.recipe((c, p) -> {
 				p.shaped(RecipeCategory.BUILDING_BLOCKS, c.get(), 16)

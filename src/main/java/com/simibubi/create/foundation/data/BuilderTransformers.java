@@ -113,20 +113,31 @@ import net.neoforged.neoforge.common.Tags;
 
 public class BuilderTransformers {
 
-	private static final TextureSlot CASING = TextureSlot.create("casing");
+	/**
+	 * The client-only constants this class builds its models from.
+	 *
+	 * A nested class is initialised on first use rather than with its owner, which is the whole
+	 * point of the indirection: these are client types, this class is reached from common
+	 * registration code, and a static field here would be initialised on a dedicated server that
+	 * has no such class. Only the datagen methods below touch them, and a server runs none.
+	 */
+	private static final class Client {
+		static final TextureSlot CASING = TextureSlot.create("casing");
+		static final TextureSlot SLOT_0 = TextureSlot.create("0");
+		static final TextureSlot SLOT_1 = TextureSlot.create("1");
+		static final TextureSlot SLOT_2 = TextureSlot.create("2");
+		static final TextureSlot SLOT_3 = TextureSlot.create("3");
+		static final TextureSlot SLOT_4 = TextureSlot.create("4");
+		static final TextureSlot INSIDE = TextureSlot.create("inside");
+		static final TextureSlot TUNNEL = TextureSlot.create("tunnel");
+		static final TextureSlot DIRECTION = TextureSlot.create("direction");
+		static final TextureSlot FRAME = TextureSlot.create("frame");
+		static final TextureSlot BACK = TextureSlot.create("back");
+		static final TextureSlot CRATE = TextureSlot.create("crate");
+	}
+
 	// Several models name their textures by number. A template and its texture mapping have to hand
 	// around the same TextureSlot instance, which is compared by identity, so keep one of each.
-	private static final TextureSlot SLOT_0 = TextureSlot.create("0");
-	private static final TextureSlot SLOT_1 = TextureSlot.create("1");
-	private static final TextureSlot SLOT_2 = TextureSlot.create("2");
-	private static final TextureSlot SLOT_3 = TextureSlot.create("3");
-	private static final TextureSlot SLOT_4 = TextureSlot.create("4");
-	private static final TextureSlot INSIDE = TextureSlot.create("inside");
-	private static final TextureSlot TUNNEL = TextureSlot.create("tunnel");
-	private static final TextureSlot DIRECTION = TextureSlot.create("direction");
-	private static final TextureSlot FRAME = TextureSlot.create("frame");
-	private static final TextureSlot BACK = TextureSlot.create("back");
-	private static final TextureSlot CRATE = TextureSlot.create("crate");
 	public static <B extends EncasedShaftBlock, P> NonNullUnaryOperator<BlockBuilder<B, P>> encasedShaft(String casing,
 																										 Supplier<CTSpriteShiftEntry> casingShift) {
 		return builder -> encasedBase(builder, () -> AllBlocks.SHAFT.get())
@@ -245,10 +256,10 @@ public class BuilderTransformers {
 				String modelName = c.getName() + suffix;
 				return BlockModelGenerators.plainVariant(p.getBuilder()
 					.parent(p.modLoc("block/" + blockFolder + "/block" + suffix))
-					.texture(CASING, new Material(Create.asResource("block/" + casing + "_casing")))
+					.texture(Client.CASING, new Material(Create.asResource("block/" + casing + "_casing")))
 					.texture(TextureSlot.PARTICLE, new Material(Create.asResource("block/" + casing + "_casing")))
-					.texture(SLOT_4, new Material(Create.asResource("block/" + gearbox)))
-					.texture(SLOT_1,
+					.texture(Client.SLOT_4, new Material(Create.asResource("block/" + gearbox)))
+					.texture(Client.SLOT_1,
 						new Material(Identifier.withDefaultNamespace("block/stripped_" + wood + "_log_top")))
 					.texture(TextureSlot.SIDE, new Material(Create.asResource("block/" + casing + encasedSuffix)))
 					.build(p.modLoc("block/" + modelName)));
@@ -256,11 +267,11 @@ public class BuilderTransformers {
 			.item()
 			.model(() -> (c, p) -> {
 				ModelTemplate template = new ModelTemplate(Optional.of(p.modLoc("block/" + blockFolder + "/item")),
-					Optional.empty(), CASING, TextureSlot.PARTICLE, SLOT_1, TextureSlot.SIDE);
+					Optional.empty(), Client.CASING, TextureSlot.PARTICLE, Client.SLOT_1, TextureSlot.SIDE);
 				p.generateWithTemplate(c.getEntry(), template, new TextureMapping()
-					.put(CASING, new Material(Create.asResource("block/" + casing + "_casing")))
+					.put(Client.CASING, new Material(Create.asResource("block/" + casing + "_casing")))
 					.put(TextureSlot.PARTICLE, new Material(Create.asResource("block/" + casing + "_casing")))
-					.put(SLOT_1,
+					.put(Client.SLOT_1,
 						new Material(Identifier.withDefaultNamespace("block/stripped_" + wood + "_log_top")))
 					.put(TextureSlot.SIDE, new Material(Create.asResource("block/" + casing + encasedSuffix))));
 			})
@@ -291,8 +302,8 @@ public class BuilderTransformers {
 			.blockstate(() -> (c, p) -> BlockStateGen.horizontalBlock(c, p,
 				$ -> BlockModelGenerators.plainVariant(p.getBuilder()
 					.parent(p.modLoc("block/ladder"))
-					.texture(SLOT_0, new Material(p.modLoc("block/ladder_" + name + "_hoop")))
-					.texture(SLOT_1, new Material(p.modLoc("block/ladder_" + name)))
+					.texture(Client.SLOT_0, new Material(p.modLoc("block/ladder_" + name + "_hoop")))
+					.texture(Client.SLOT_1, new Material(p.modLoc("block/ladder_" + name)))
 					.texture(TextureSlot.PARTICLE, new Material(p.modLoc("block/ladder_" + name)))
 					.build(p.modLoc("block/" + c.getName())))))
 			.properties(p -> p.sound(SoundType.COPPER))
@@ -317,9 +328,9 @@ public class BuilderTransformers {
 						return BlockModelGenerators.plainVariant(p.getBuilder()
 							.parent(p.modLoc("block/scaffold/block" + suffix))
 							.texture(TextureSlot.TOP, new Material(p.modLoc("block/funnel/" + name + "_funnel_frame")))
-							.texture(INSIDE, new Material(p.modLoc("block/scaffold/" + name + "_scaffold_inside")))
+							.texture(Client.INSIDE, new Material(p.modLoc("block/scaffold/" + name + "_scaffold_inside")))
 							.texture(TextureSlot.SIDE, new Material(p.modLoc("block/scaffold/" + name + "_scaffold")))
-							.texture(CASING, new Material(p.modLoc("block/" + name + "_casing")))
+							.texture(Client.CASING, new Material(p.modLoc("block/" + name + "_casing")))
 							.texture(TextureSlot.PARTICLE,
 								new Material(p.modLoc("block/scaffold/" + name + "_scaffold")))
 							.build(p.modLoc("block/" + c.getName() + suffix)));
@@ -341,7 +352,7 @@ public class BuilderTransformers {
 				String variant = color == null ? "copper" : color.getSerializedName();
 				BlockStateGen.directionalBlock(c, p, $ -> BlockModelGenerators.plainVariant(p.getBuilder()
 					.parent(p.modLoc("block/valve_handle"))
-					.texture(SLOT_3,
+					.texture(Client.SLOT_3,
 						new Material(p.modLoc("block/valve_handle/valve_handle_" + variant)))
 					.build(p.modLoc("block/" + variant + "_valve_handle"))));
 			})
@@ -403,9 +414,9 @@ public class BuilderTransformers {
 						MultiVariant variant = BlockModelGenerators.plainVariant(p.getBuilder()
 							.parent(p.modLoc("block/belt_tunnel/" + shapeName))
 							.texture(TextureSlot.TOP, new Material(p.modLoc(prefix + "_top" + window)))
-							.texture(TUNNEL, new Material(p.modLoc(prefix)))
-							.texture(DIRECTION, new Material(p.modLoc(funnel_prefix + "_neutral")))
-							.texture(FRAME, new Material(p.modLoc(funnel_prefix + "_frame")))
+							.texture(Client.TUNNEL, new Material(p.modLoc(prefix)))
+							.texture(Client.DIRECTION, new Material(p.modLoc(funnel_prefix + "_neutral")))
+							.texture(Client.FRAME, new Material(p.modLoc(funnel_prefix + "_frame")))
 							.texture(TextureSlot.PARTICLE, new Material(particleTexture))
 							.build(p.modLoc(prefix + "/" + shapeName)));
 						return BlockStateGen.rotateY(variant, axis == Axis.X ? 0 : 90);
@@ -413,12 +424,12 @@ public class BuilderTransformers {
 			.item(BeltTunnelItem::new)
 			.model(() -> (c, p) -> {
 				ModelTemplate template = new ModelTemplate(Optional.of(p.modLoc("block/belt_tunnel/item")),
-					Optional.empty(), TextureSlot.TOP, TUNNEL, DIRECTION, FRAME, TextureSlot.PARTICLE);
+					Optional.empty(), TextureSlot.TOP, Client.TUNNEL, Client.DIRECTION, Client.FRAME, TextureSlot.PARTICLE);
 				p.generateWithTemplate(c.getEntry(), template, new TextureMapping()
 					.put(TextureSlot.TOP, new Material(p.modLoc(prefix + "_top")))
-					.put(TUNNEL, new Material(p.modLoc(prefix)))
-					.put(DIRECTION, new Material(p.modLoc(funnel_prefix + "_neutral")))
-					.put(FRAME, new Material(p.modLoc(funnel_prefix + "_frame")))
+					.put(Client.TUNNEL, new Material(p.modLoc(prefix)))
+					.put(Client.DIRECTION, new Material(p.modLoc(funnel_prefix + "_neutral")))
+					.put(Client.FRAME, new Material(p.modLoc(funnel_prefix + "_frame")))
 					.put(TextureSlot.PARTICLE, new Material(particleTexture)));
 			})
 			.build();
@@ -446,16 +457,16 @@ public class BuilderTransformers {
 				$ -> BlockModelGenerators.plainVariant(p.getBuilder()
 					.parent(baseBlockModelLocation)
 					.texture(TextureSlot.SIDE, new Material(sideTextureLocation))
-					.texture(BACK, new Material(backTextureLocation))
+					.texture(Client.BACK, new Material(backTextureLocation))
 					.build(p.modLoc("block/" + c.getName())))))
 			.item()
 			.model(() -> (c, p) -> {
 				ModelTemplate template = new ModelTemplate(Optional.of(baseItemModelLocation), Optional.empty(),
-					TextureSlot.TOP, TextureSlot.SIDE, BACK);
+					TextureSlot.TOP, TextureSlot.SIDE, Client.BACK);
 				p.generateWithTemplate(c.getEntry(), template, new TextureMapping()
 					.put(TextureSlot.TOP, new Material(topTextureLocation))
 					.put(TextureSlot.SIDE, new Material(sideTextureLocation))
-					.put(BACK, new Material(backTextureLocation)));
+					.put(Client.BACK, new Material(backTextureLocation)));
 			})
 			.build();
 	}
@@ -474,9 +485,9 @@ public class BuilderTransformers {
 				for (String variant : new String[] { "single", "top", "bottom", "left", "right" }) {
 					Identifier model = p.getBuilder()
 						.parent(p.modLoc("block/crate/" + variant))
-						.texture(CRATE, new Material(crate))
+						.texture(Client.CRATE, new Material(crate))
 						.texture(TextureSlot.SIDE, new Material(side))
-						.texture(CASING, new Material(casing))
+						.texture(Client.CASING, new Material(casing))
 						.build(p.modLoc("block/crate/" + type + "/" + variant));
 					if (variant.equals("single"))
 						single = model;
@@ -541,8 +552,8 @@ public class BuilderTransformers {
 				if (style.rare())
 					p.generateWithTemplate(c.getEntry(),
 						new ModelTemplate(Optional.of(p.modLoc("item/package/custom" + size)), Optional.empty(),
-							SLOT_2),
-						new TextureMapping().put(SLOT_2,
+							Client.SLOT_2),
+						new TextureMapping().put(Client.SLOT_2,
 							new Material(p.modLoc("block/package/" + style.type()))));
 				else
 					p.createWithExistingModel(c.getEntry(), p.modLoc("item/package/" + style.type() + size));
@@ -565,7 +576,7 @@ public class BuilderTransformers {
 				.blockstate(() -> (c, p) -> p.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(c.get(),
 					BlockModelGenerators.plainVariant(p.getBuilder()
 						.parent(p.modLoc("block/table_cloth/block"))
-						.texture(SLOT_0, new Material(p.modLoc("block/table_cloth/" + name)))
+						.texture(Client.SLOT_0, new Material(p.modLoc("block/table_cloth/" + name)))
 						.build(p.modLoc("block/" + name + "_table_cloth"))))))
 				.onRegister(CreateRegistrate.blockModel(() -> TableClothModel::new))
 				.tag(AllBlockTags.TABLE_CLOTHS.tag, soundTag)
@@ -577,8 +588,8 @@ public class BuilderTransformers {
 
 			return item
 				.model(() -> (c, p) -> p.generateWithTemplate(c.getEntry(),
-					new ModelTemplate(Optional.of(p.modLoc("block/table_cloth/item")), Optional.empty(), SLOT_0),
-					new TextureMapping().put(SLOT_0, new Material(p.modLoc("block/table_cloth/" + name)))))
+					new ModelTemplate(Optional.of(p.modLoc("block/table_cloth/item")), Optional.empty(), Client.SLOT_0),
+					new TextureMapping().put(Client.SLOT_0, new Material(p.modLoc("block/table_cloth/" + name)))))
 				.tag(AllItemTags.TABLE_CLOTHS.tag)
 				.recipe((c, p) -> p.shapeless(RecipeCategory.MISC, c.get())
 					.requires(c.get())

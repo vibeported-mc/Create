@@ -21,10 +21,21 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class BeltFunnelGenerator extends SpecialBlockStateGen {
 
-	private static final TextureSlot BLOCK = TextureSlot.create("block");
-	private static final TextureSlot DIRECTION = TextureSlot.create("direction");
-	private static final TextureSlot REDSTONE = TextureSlot.create("redstone");
-	private static final TextureSlot BASE = TextureSlot.create("base");
+	/**
+	 * The client-only constants this class builds its models from.
+	 *
+	 * A nested class is initialised on first use rather than with its owner, which is the whole
+	 * point of the indirection: these are client types, this class is reached from common
+	 * registration code, and a static field here would be initialised on a dedicated server that
+	 * has no such class. Only the datagen methods below touch them, and a server runs none.
+	 */
+	private static final class Client {
+		static final TextureSlot BLOCK = TextureSlot.create("block");
+		static final TextureSlot DIRECTION = TextureSlot.create("direction");
+		static final TextureSlot REDSTONE = TextureSlot.create("redstone");
+		static final TextureSlot BASE = TextureSlot.create("base");
+	}
+
 
 	private String type;
 	private Identifier materialBlockTexture;
@@ -58,13 +69,13 @@ public class BeltFunnelGenerator extends SpecialBlockStateGen {
 
 		ModelTemplate template =
 			new ModelTemplate(Optional.of(prov.modLoc("block/belt_funnel/block_" + shapeName)), Optional.empty(),
-				TextureSlot.PARTICLE, BLOCK, DIRECTION, REDSTONE, BASE);
+				TextureSlot.PARTICLE, Client.BLOCK, Client.DIRECTION, Client.REDSTONE, Client.BASE);
 		return BlockModelGenerators.plainVariant(template.create(prov.modLoc("block/" + name), new TextureMapping()
 			.put(TextureSlot.PARTICLE, new Material(materialBlockTexture))
-			.put(BLOCK, new Material(materialBlockTexture))
-			.put(DIRECTION, new Material(prov.modLoc(prefix + type + "_funnel" + shapeSuffix)))
-			.put(REDSTONE, new Material(prov.modLoc(prefix + type + "_funnel" + poweredSuffix)))
-			.put(BASE, new Material(prov.modLoc(prefix + type + "_funnel"))), prov.modelOutput));
+			.put(Client.BLOCK, new Material(materialBlockTexture))
+			.put(Client.DIRECTION, new Material(prov.modLoc(prefix + type + "_funnel" + shapeSuffix)))
+			.put(Client.REDSTONE, new Material(prov.modLoc(prefix + type + "_funnel" + poweredSuffix)))
+			.put(Client.BASE, new Material(prov.modLoc(prefix + type + "_funnel"))), prov.modelOutput));
 	}
 
 }

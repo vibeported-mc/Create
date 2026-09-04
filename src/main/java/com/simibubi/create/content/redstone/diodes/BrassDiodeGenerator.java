@@ -16,8 +16,19 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class BrassDiodeGenerator extends AbstractDiodeGenerator {
 
-	private static final TextureSlot TOP = TextureSlot.create("top");
-	private static final TextureSlot TORCH = TextureSlot.create("torch");
+	/**
+	 * The client-only constants this class builds its models from.
+	 *
+	 * A nested class is initialised on first use rather than with its owner, which is the whole
+	 * point of the indirection: these are client types, this class is reached from common
+	 * registration code, and a static field here would be initialised on a dedicated server that
+	 * has no such class. Only the datagen methods below touch them, and a server runs none.
+	 */
+	private static final class Client {
+		static final TextureSlot TOP = TextureSlot.create("top");
+		static final TextureSlot TORCH = TextureSlot.create("torch");
+	}
+
 
 	@Override
 	protected <T extends Block> List<MultiVariant> createModels(DataGenContext<Block, T> ctx,
@@ -29,17 +40,17 @@ public class BrassDiodeGenerator extends AbstractDiodeGenerator {
 		models.add(BlockModelGenerators.plainVariant(template));
 		models.add(BlockModelGenerators.plainVariant(prov.getBuilder()
 			.parent(template)
-			.texture(TOP, new Material(texture(ctx, "powered")))
+			.texture(Client.TOP, new Material(texture(ctx, "powered")))
 			.build(prov.modLoc("block/" + name + "_powered"))));
 		models.add(BlockModelGenerators.plainVariant(prov.getBuilder()
 			.parent(template)
-			.texture(TORCH, new Material(poweredTorch()))
-			.texture(TOP, new Material(texture(ctx, "powering")))
+			.texture(Client.TORCH, new Material(poweredTorch()))
+			.texture(Client.TOP, new Material(texture(ctx, "powering")))
 			.build(prov.modLoc("block/" + name + "_powering"))));
 		models.add(BlockModelGenerators.plainVariant(prov.getBuilder()
 			.parent(template)
-			.texture(TORCH, new Material(poweredTorch()))
-			.texture(TOP, new Material(texture(ctx, "powered_powering")))
+			.texture(Client.TORCH, new Material(poweredTorch()))
+			.texture(Client.TOP, new Material(texture(ctx, "powered_powering")))
 			.build(prov.modLoc("block/" + name + "_powered_powering"))));
 
 		return models;

@@ -24,16 +24,27 @@ import net.minecraft.client.resources.model.sprite.Material;
 
 public abstract class AbstractDiodeGenerator extends SpecialBlockStateGen {
 
+	/**
+	 * The client-only constants this class builds its models from.
+	 *
+	 * A nested class is initialised on first use rather than with its owner, which is the whole
+	 * point of the indirection: these are client types, this class is reached from common
+	 * registration code, and a static field here would be initialised on a dedicated server that
+	 * has no such class. Only the datagen methods below touch them, and a server runs none.
+	 */
+	private static final class Client {
+		static final TextureSlot TOP = TextureSlot.create("top");
+	}
+
 	private List<MultiVariant> models;
 
-	private static final TextureSlot TOP = TextureSlot.create("top");
 
 	public static <I extends BlockItem> void diodeItemModel(DataGenContext<Item, I> c, RegistrateItemModelGenerator p) {
 		String name = c.getName();
 		String path = "block/diodes/";
-		ModelTemplate template = new ModelTemplate(Optional.of(p.modLoc(path + name)), Optional.empty(), TOP);
+		ModelTemplate template = new ModelTemplate(Optional.of(p.modLoc(path + name)), Optional.empty(), Client.TOP);
 		p.generateWithTemplate(c.getEntry(), template,
-			new TextureMapping().put(TOP, new Material(p.modLoc(path + name + "/item"))));
+			new TextureMapping().put(Client.TOP, new Material(p.modLoc(path + name + "/item"))));
 	}
 
 	@Override

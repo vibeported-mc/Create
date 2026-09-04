@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import com.simibubi.create.foundation.model.TransformedModelPart;
+import com.tterrag.registrate.util.nullness.NonNullFunction;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +30,22 @@ public class CTModel extends DelegateBlockStateModel {
 	public CTModel(BlockStateModel originalModel, ConnectedTextureBehaviour behaviour) {
 		super(originalModel);
 		this.behaviour = behaviour;
+	}
+
+	/**
+	 * Wraps a block's model in a {@link CTModel} carrying this behaviour.
+	 * <p>
+	 * Here rather than at the call site in {@code CreateRegistrate}, and that placement is
+	 * load-bearing. A lambda capturing the behaviour compiles to a synthetic method on whichever
+	 * class writes it, and that method's descriptor names {@link BlockStateModel} - a class the
+	 * dedicated server does not have. The JVM verifies a class as a whole when it is linked, so a
+	 * common class carrying such a method cannot be loaded on a server at all, whether or not the
+	 * method is ever called. Until 26.2 {@code @OnlyIn} stripped those members and the question did
+	 * not arise; NeoForge no longer strips them, so the code has to sit where it belongs instead.
+	 */
+	public static NonNullFunction<BlockStateModel, ? extends BlockStateModel> swapper(
+		ConnectedTextureBehaviour behaviour) {
+		return model -> new CTModel(model, behaviour);
 	}
 
 	protected CTData createCTData(BlockAndTintGetter world, BlockPos pos, BlockState state) {

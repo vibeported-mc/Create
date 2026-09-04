@@ -282,6 +282,7 @@ import static com.simibubi.create.foundation.data.BlockStateGen.simpleCubeAll;
 import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 import com.simibubi.create.foundation.data.BuilderTransformers;
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.foundation.data.ModelSlots;
 import com.simibubi.create.foundation.data.MetalBarsGen;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.simibubi.create.foundation.data.recipe.CommonMetal;
@@ -343,13 +344,6 @@ import net.neoforged.neoforge.common.util.DeferredSoundType;
 @SuppressWarnings("removal")
 public class AllBlocks {
 
-	// Several of Create's hand-written models name their textures by number; a template and its
-	// mapping have to hand around the same TextureSlot instance, which is compared by identity.
-	private static final TextureSlot SLOT_0 = TextureSlot.create("0");
-	private static final TextureSlot SLOT_1 = TextureSlot.create("1");
-	private static final TextureSlot SLOT_2 = TextureSlot.create("2");
-	private static final TextureSlot SLOT_4 = TextureSlot.create("4");
-	private static final TextureSlot SLOT_5 = TextureSlot.create("5");
 	private static final CreateRegistrate REGISTRATE = Create.registrate();
 
 	static {
@@ -873,7 +867,8 @@ public class AllBlocks {
 		.transform(axeOrPickaxe())
 		.item(BracketBlockItem::new)
 		.tag(AllItemTags.INVALID_FOR_TRACK_PAVING.tag)
-		.transform(BracketGenerator.itemModel("wooden"))
+		.model(() -> BracketGenerator.itemModel("wooden"))
+		.build()
 		.register();
 
 	public static final BlockEntry<BracketBlock> METAL_BRACKET = REGISTRATE.block("metal_bracket", BracketBlock::new)
@@ -882,7 +877,8 @@ public class AllBlocks {
 		.transform(pickaxeOnly())
 		.item(BracketBlockItem::new)
 		.tag(AllItemTags.INVALID_FOR_TRACK_PAVING.tag)
-		.transform(BracketGenerator.itemModel("metal"))
+		.model(() -> BracketGenerator.itemModel("metal"))
+		.build()
 		.register();
 
 	// Fluids
@@ -1010,12 +1006,12 @@ public class AllBlocks {
 			.properties(p -> p.rarity(Rarity.EPIC))
 			.model(() -> (c, p) -> p.generateWithTemplate(c.getEntry(),
 				new ModelTemplate(Optional.of(p.modLoc("block/fluid_tank/block_single_window")), Optional.empty(),
-					SLOT_5, SLOT_1, TextureSlot.PARTICLE, SLOT_4, SLOT_0),
-				new TextureMapping().put(SLOT_5, new Material(p.modLoc("block/creative_fluid_tank_window_single")))
-					.put(SLOT_1, new Material(p.modLoc("block/creative_fluid_tank")))
+					ModelSlots.SLOT_5, ModelSlots.SLOT_1, TextureSlot.PARTICLE, ModelSlots.SLOT_4, ModelSlots.SLOT_0),
+				new TextureMapping().put(ModelSlots.SLOT_5, new Material(p.modLoc("block/creative_fluid_tank_window_single")))
+					.put(ModelSlots.SLOT_1, new Material(p.modLoc("block/creative_fluid_tank")))
 					.put(TextureSlot.PARTICLE, new Material(p.modLoc("block/creative_fluid_tank")))
-					.put(SLOT_4, new Material(p.modLoc("block/creative_casing")))
-					.put(SLOT_0, new Material(p.modLoc("block/creative_casing")))))
+					.put(ModelSlots.SLOT_4, new Material(p.modLoc("block/creative_casing")))
+					.put(ModelSlots.SLOT_0, new Material(p.modLoc("block/creative_casing")))))
 			.build()
 			.register();
 
@@ -1494,7 +1490,7 @@ public class AllBlocks {
 			.blockstate(() -> (c, p) -> BlockStateGen.directionalBlock(c, p,
 				$ -> BlockModelGenerators.plainVariant(p.getBuilder()
 					.parent(p.modLoc("block/white_sail"))
-					.texture(SLOT_0, new Material(p.modLoc("block/sail/canvas_" + colourName)))
+					.texture(ModelSlots.SLOT_0, new Material(p.modLoc("block/sail/canvas_" + colourName)))
 					.build(p.modLoc("block/" + colourName + "_sail")))))
 			.tag(AllBlockTags.WINDMILL_SAILS.tag)
 			.loot((p, b) -> p.dropOther(b, SAIL.get()))
@@ -1870,8 +1866,8 @@ public class AllBlocks {
 				String suffix = s.getValue(PostboxBlock.OPEN) ? "open" : "closed";
 				return BlockModelGenerators.plainVariant(p.getBuilder()
 					.parent(p.modLoc("block/package_postbox/block_" + suffix))
-					.texture(SLOT_0, new Material(p.modLoc("block/post_box/post_box_" + colourName)))
-					.texture(SLOT_1,
+					.texture(ModelSlots.SLOT_0, new Material(p.modLoc("block/post_box/post_box_" + colourName)))
+					.texture(ModelSlots.SLOT_1,
 						new Material(p.modLoc("block/post_box/post_box_" + colourName + "_" + suffix)))
 					.build(p.modLoc("block/" + colourName + "_postbox_" + suffix)));
 			}))
@@ -1898,10 +1894,10 @@ public class AllBlocks {
 			})
 			
 			.model(() -> (c, p) -> p.generateWithTemplate(c.getEntry(),
-				new ModelTemplate(Optional.of(p.modLoc("block/package_postbox/item")), Optional.empty(), SLOT_0,
-					SLOT_1),
-				new TextureMapping().put(SLOT_0, new Material(p.modLoc("block/post_box/post_box_" + colourName)))
-					.put(SLOT_1,
+				new ModelTemplate(Optional.of(p.modLoc("block/package_postbox/item")), Optional.empty(), ModelSlots.SLOT_0,
+					ModelSlots.SLOT_1),
+				new TextureMapping().put(ModelSlots.SLOT_0, new Material(p.modLoc("block/post_box/post_box_" + colourName)))
+					.put(ModelSlots.SLOT_1,
 						new Material(p.modLoc("block/post_box/post_box_" + colourName + "_closed")))))
 			.tag(AllItemTags.POSTBOXES.tag)
 			.build()
@@ -2221,15 +2217,15 @@ public class AllBlocks {
 			.blockstate(() -> (c, p) -> BlockStateGen.horizontalBlock(c, p,
 				$ -> BlockModelGenerators.plainVariant(p.getBuilder()
 					.parent(p.modLoc("block/toolbox/block"))
-					.texture(SLOT_0, new Material(p.modLoc("block/toolbox/" + colourName)))
+					.texture(ModelSlots.SLOT_0, new Material(p.modLoc("block/toolbox/" + colourName)))
 					.build(p.modLoc("block/" + colourName + "_toolbox")))))
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "block.create.toolbox"))
 			.transform(mountedItemStorage(AllMountedStorageTypes.TOOLBOX))
 			.tag(AllBlockTags.TOOLBOXES.tag)
 			.item(UncontainableBlockItem::new)
 			.model(() -> (c, p) -> p.generateWithTemplate(c.getEntry(),
-				new ModelTemplate(Optional.of(p.modLoc("block/toolbox/item")), Optional.empty(), SLOT_0),
-				new TextureMapping().put(SLOT_0, new Material(p.modLoc("block/toolbox/" + colourName)))))
+				new ModelTemplate(Optional.of(p.modLoc("block/toolbox/item")), Optional.empty(), ModelSlots.SLOT_0),
+				new TextureMapping().put(ModelSlots.SLOT_0, new Material(p.modLoc("block/toolbox/" + colourName)))))
 			.tag(AllItemTags.TOOLBOXES.tag)
 			.build()
 			.register();
@@ -2377,8 +2373,8 @@ public class AllBlocks {
 			.transform(displaySource(AllDisplaySources.ENTITY_NAME))
 			.blockstate(() -> (c, p) -> p.create(c.get(), p.getBuilder()
 				.parent(p.modLoc("block/seat"))
-				.texture(SLOT_1, new Material(p.modLoc("block/seat/top_" + colourName)))
-				.texture(SLOT_2, new Material(p.modLoc("block/seat/side_" + colourName)))
+				.texture(ModelSlots.SLOT_1, new Material(p.modLoc("block/seat/top_" + colourName)))
+				.texture(ModelSlots.SLOT_2, new Material(p.modLoc("block/seat/side_" + colourName)))
 				.build(p.modLoc("block/" + colourName + "_seat"))))
 			.recipe((c, p) -> {
 				p.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())

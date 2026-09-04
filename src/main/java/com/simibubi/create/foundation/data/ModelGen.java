@@ -15,7 +15,18 @@ import net.minecraft.client.resources.model.sprite.Material;
 
 public class ModelGen {
 
-	private static final TextureSlot OVERLAY = TextureSlot.create("overlay");
+	/**
+	 * The client-only constants this class builds its models from.
+	 *
+	 * A nested class is initialised on first use rather than with its owner, which is the whole
+	 * point of the indirection: these are client types, this class is reached from common
+	 * registration code, and a static field here would be initialised on a dedicated server that
+	 * has no such class. Only the datagen methods below touch them, and a server runs none.
+	 */
+	private static final class Client {
+		static final TextureSlot OVERLAY = TextureSlot.create("overlay");
+	}
+
 
 	public static Identifier createOvergrown(DataGenContext<Block, ? extends Block> ctx,
 		RegistrateBlockModelGenerator prov, Identifier block, Identifier overlay) {
@@ -30,7 +41,7 @@ public class ModelGen {
 			.texture(TextureSlot.SIDE, new Material(side))
 			.texture(TextureSlot.TOP, new Material(top))
 			.texture(TextureSlot.BOTTOM, new Material(bottom))
-			.texture(OVERLAY, new Material(overlay))
+			.texture(Client.OVERLAY, new Material(overlay))
 			.build(prov.modLoc("block/" + ctx.getName()));
 	}
 
