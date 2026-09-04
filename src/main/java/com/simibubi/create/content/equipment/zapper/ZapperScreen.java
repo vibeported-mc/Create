@@ -73,7 +73,7 @@ public abstract class ZapperScreen extends AbstractSimiScreen {
 			for (int col = 0; col <= 2; col++) {
 				int id = patternButtons.size();
 				PlacementPatterns pattern = PlacementPatterns.values()[id];
-				IconButton patternButton = new IconButton(x + background.getWidth() - 76 + col * 18, y + 21 + row * 18, pattern.icon);
+				IconButton patternButton = new IconButton(x + background.getWidth() - 76 + col * 18, y + 21 + row * 18, PlacementPatternsClient.iconFor(pattern));
 				patternButton.withCallback(() -> {
 					patternButtons.forEach(b -> b.green = false);
 					patternButton.green = true;

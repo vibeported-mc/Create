@@ -123,21 +123,22 @@ public class WindmillBearingBlockEntity extends MechanicalBearingBlockEntity {
 
 	public static enum RotationDirection implements INamedIconOptions {
 
-		CLOCKWISE(AllIcons.I_REFRESH), COUNTER_CLOCKWISE(AllIcons.I_ROTATE_CCW),
+		CLOCKWISE, COUNTER_CLOCKWISE,
 
 		;
 
 		private String translationKey;
-		private AllIcons icon;
 
-		private RotationDirection(AllIcons icon) {
-			this.icon = icon;
+		private RotationDirection() {
 			translationKey = "create.generic." + Lang.asId(name());
 		}
 
 		@Override
 		public AllIcons getIcon() {
-			return icon;
+			return switch (this) {
+				case CLOCKWISE -> AllIcons.I_REFRESH;
+				case COUNTER_CLOCKWISE -> AllIcons.I_ROTATE_CCW;
+			};
 		}
 
 		@Override

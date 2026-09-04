@@ -273,23 +273,25 @@ public class CartAssemblerBlockEntity extends SmartBlockEntity implements IDispl
 
 	public enum CartMovementMode implements INamedIconOptions {
 
-		ROTATE(AllIcons.I_CART_ROTATE),
-		ROTATE_PAUSED(AllIcons.I_CART_ROTATE_PAUSED),
-		ROTATION_LOCKED(AllIcons.I_CART_ROTATE_LOCKED),
+		ROTATE,
+		ROTATE_PAUSED,
+		ROTATION_LOCKED,
 
 		;
 
 		private String translationKey;
-		private AllIcons icon;
 
-		CartMovementMode(AllIcons icon) {
-			this.icon = icon;
+		CartMovementMode() {
 			translationKey = "create.contraptions.cart_movement_mode." + Lang.asId(name());
 		}
 
 		@Override
 		public AllIcons getIcon() {
-			return icon;
+			return switch (this) {
+			case ROTATE -> AllIcons.I_CART_ROTATE;
+			case ROTATE_PAUSED -> AllIcons.I_CART_ROTATE_PAUSED;
+			case ROTATION_LOCKED -> AllIcons.I_CART_ROTATE_LOCKED;
+			};
 		}
 
 		@Override

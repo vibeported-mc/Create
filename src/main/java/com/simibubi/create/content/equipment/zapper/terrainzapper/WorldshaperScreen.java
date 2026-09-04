@@ -187,7 +187,7 @@ public class WorldshaperScreen extends ZapperScreen {
 		toolButtons = new ArrayList<>(toolValues.length);
 		for (int id = 0; id < toolValues.length; id++) {
 			TerrainTools tool = toolValues[id];
-			IconButton toolButton = new IconButton(x + 7 + id * 18, y + 79, tool.icon);
+			IconButton toolButton = new IconButton(x + 7 + id * 18, y + 79, TerrainZapperIcons.of(tool));
 			toolButton.withCallback(() -> {
 				toolButtons.forEach(b -> b.green = false);
 				toolButton.green = true;
@@ -219,7 +219,7 @@ public class WorldshaperScreen extends ZapperScreen {
 			placementButtons = new ArrayList<>(placementValues.length);
 			for (int id = 0; id < placementValues.length; id++) {
 				PlacementOptions option = placementValues[id];
-				IconButton placementButton = new IconButton(x + 136 + id * 18, y + 79, option.icon);
+				IconButton placementButton = new IconButton(x + 136 + id * 18, y + 79, TerrainZapperIcons.of(option));
 				placementButton.withCallback(() -> {
 					placementButtons.forEach(b -> b.green = false);
 					placementButton.green = true;

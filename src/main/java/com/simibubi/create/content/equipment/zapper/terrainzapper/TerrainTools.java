@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
 import com.simibubi.create.content.equipment.zapper.ZapperItem;
-import com.simibubi.create.foundation.gui.AllIcons;
 
 import net.createmod.catnip.api.lang.Lang;
 
@@ -25,22 +24,27 @@ import io.netty.buffer.ByteBuf;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * What a worldshaper does to the blocks its brush covers.
+ * <p>
+ * Both sides run this -- the server applies the edit -- so its button's {@code AllIcons} lives in
+ * {@link TerrainZapperIcons} rather than on the constants, which would make the server load a GUI
+ * class while registering Create's packets.
+ */
 public enum TerrainTools implements StringRepresentable {
-	Fill(AllIcons.I_FILL),
-	Place(AllIcons.I_PLACE),
-	Replace(AllIcons.I_REPLACE),
-	Clear(AllIcons.I_CLEAR),
-	Overlay(AllIcons.I_OVERLAY),
-	Flatten(AllIcons.I_FLATTEN);
+	Fill,
+	Place,
+	Replace,
+	Clear,
+	Overlay,
+	Flatten;
 
 	public static final Codec<TerrainTools> CODEC = StringRepresentable.fromValues(TerrainTools::values);
 	public static final StreamCodec<ByteBuf, TerrainTools> STREAM_CODEC = CatnipStreamCodecBuilders.ofEnum(TerrainTools.class);
 	public String translationKey;
-	public AllIcons icon;
 
-	TerrainTools(AllIcons icon) {
+	TerrainTools() {
 		this.translationKey = Lang.asId(name());
-		this.icon = icon;
 	}
 
 	@Override

@@ -392,23 +392,25 @@ public class ClockworkBearingBlockEntity extends KineticBlockEntity
 
 	static enum ClockHands implements INamedIconOptions {
 
-		HOUR_FIRST(AllIcons.I_HOUR_HAND_FIRST),
-		MINUTE_FIRST(AllIcons.I_MINUTE_HAND_FIRST),
-		HOUR_FIRST_24(AllIcons.I_HOUR_HAND_FIRST_24),
+		HOUR_FIRST,
+		MINUTE_FIRST,
+		HOUR_FIRST_24,
 
 		;
 
 		private String translationKey;
-		private AllIcons icon;
 
-		private ClockHands(AllIcons icon) {
-			this.icon = icon;
+		private ClockHands() {
 			translationKey = "create.contraptions.clockwork." + Lang.asId(name());
 		}
 
 		@Override
 		public AllIcons getIcon() {
-			return icon;
+			return switch (this) {
+			case HOUR_FIRST -> AllIcons.I_HOUR_HAND_FIRST;
+			case MINUTE_FIRST -> AllIcons.I_MINUTE_HAND_FIRST;
+			case HOUR_FIRST_24 -> AllIcons.I_HOUR_HAND_FIRST_24;
+			};
 		}
 
 		@Override

@@ -635,23 +635,25 @@ public class ArmBlockEntity extends KineticBlockEntity implements TransformableB
 	}
 
 	public enum SelectionMode implements INamedIconOptions {
-		ROUND_ROBIN(AllIcons.I_ARM_ROUND_ROBIN),
-		FORCED_ROUND_ROBIN(AllIcons.I_ARM_FORCED_ROUND_ROBIN),
-		PREFER_FIRST(AllIcons.I_ARM_PREFER_FIRST),
+		ROUND_ROBIN,
+		FORCED_ROUND_ROBIN,
+		PREFER_FIRST,
 
 		;
 
 		private final String translationKey;
-		private final AllIcons icon;
 
-		SelectionMode(AllIcons icon) {
-			this.icon = icon;
+		SelectionMode() {
 			this.translationKey = "create.mechanical_arm.selection_mode." + Lang.asId(name());
 		}
 
 		@Override
 		public AllIcons getIcon() {
-			return icon;
+			return switch (this) {
+			case ROUND_ROBIN -> AllIcons.I_ARM_ROUND_ROBIN;
+			case FORCED_ROUND_ROBIN -> AllIcons.I_ARM_FORCED_ROUND_ROBIN;
+			case PREFER_FIRST -> AllIcons.I_ARM_PREFER_FIRST;
+			};
 		}
 
 		@Override

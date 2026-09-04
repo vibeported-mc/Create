@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import com.google.common.base.Predicates;
 import com.mojang.serialization.Codec;
 import com.simibubi.create.AllDataComponents;
-import com.simibubi.create.foundation.gui.AllIcons;
 
 import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
@@ -19,23 +18,29 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * How a zapper spreads its blocks over the area it affects.
+ * <p>
+ * The pattern travels in a data component and over the network, so it is loaded wherever a zapper is
+ * -- including on a dedicated server. It used to carry the {@link AllIcons} its button is drawn
+ * with, which made its {@code <clinit>} load a GUI class; the icon lives in
+ * {@link PlacementPatternsClient} instead.
+ */
 public enum PlacementPatterns implements StringRepresentable {
-	Solid(AllIcons.I_PATTERN_SOLID),
-	Checkered(AllIcons.I_PATTERN_CHECKERED),
-	InverseCheckered(AllIcons.I_PATTERN_CHECKERED_INVERSED),
-	Chance25(AllIcons.I_PATTERN_CHANCE_25),
-	Chance50(AllIcons.I_PATTERN_CHANCE_50),
-	Chance75(AllIcons.I_PATTERN_CHANCE_75);
+	Solid,
+	Checkered,
+	InverseCheckered,
+	Chance25,
+	Chance50,
+	Chance75;
 
 	public static final Codec<PlacementPatterns> CODEC = StringRepresentable.fromValues(PlacementPatterns::values);
 	public static final StreamCodec<ByteBuf, PlacementPatterns> STREAM_CODEC = CatnipStreamCodecBuilders.ofEnum(PlacementPatterns.class);
 
 	public final String translationKey;
-	public final AllIcons icon;
 
-	private PlacementPatterns(AllIcons icon) {
+	private PlacementPatterns() {
 		this.translationKey = Lang.asId(name());
-		this.icon = icon;
 	}
 
 	public static void applyPattern(List<BlockPos> blocksIn, ItemStack stack, RandomSource random) {

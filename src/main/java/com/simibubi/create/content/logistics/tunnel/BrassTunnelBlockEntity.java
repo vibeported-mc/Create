@@ -761,27 +761,33 @@ public class BrassTunnelBlockEntity extends BeltTunnelBlockEntity implements IHa
 	}
 
 	public enum SelectionMode implements INamedIconOptions {
-		SPLIT(AllIcons.I_TUNNEL_SPLIT),
-		FORCED_SPLIT(AllIcons.I_TUNNEL_FORCED_SPLIT),
-		ROUND_ROBIN(AllIcons.I_TUNNEL_ROUND_ROBIN),
-		FORCED_ROUND_ROBIN(AllIcons.I_TUNNEL_FORCED_ROUND_ROBIN),
-		PREFER_NEAREST(AllIcons.I_TUNNEL_PREFER_NEAREST),
-		RANDOMIZE(AllIcons.I_TUNNEL_RANDOMIZE),
-		SYNCHRONIZE(AllIcons.I_TUNNEL_SYNCHRONIZE),
+		SPLIT,
+		FORCED_SPLIT,
+		ROUND_ROBIN,
+		FORCED_ROUND_ROBIN,
+		PREFER_NEAREST,
+		RANDOMIZE,
+		SYNCHRONIZE,
 
 		;
 
 		private final String translationKey;
-		private final AllIcons icon;
 
-		SelectionMode(AllIcons icon) {
-			this.icon = icon;
+		SelectionMode() {
 			this.translationKey = "create.tunnel.selection_mode." + Lang.asId(name());
 		}
 
 		@Override
 		public AllIcons getIcon() {
-			return icon;
+			return switch (this) {
+			case SPLIT -> AllIcons.I_TUNNEL_SPLIT;
+			case FORCED_SPLIT -> AllIcons.I_TUNNEL_FORCED_SPLIT;
+			case ROUND_ROBIN -> AllIcons.I_TUNNEL_ROUND_ROBIN;
+			case FORCED_ROUND_ROBIN -> AllIcons.I_TUNNEL_FORCED_ROUND_ROBIN;
+			case PREFER_NEAREST -> AllIcons.I_TUNNEL_PREFER_NEAREST;
+			case RANDOMIZE -> AllIcons.I_TUNNEL_RANDOMIZE;
+			case SYNCHRONIZE -> AllIcons.I_TUNNEL_SYNCHRONIZE;
+			};
 		}
 
 		@Override
