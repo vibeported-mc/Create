@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.render;
 
+import com.simibubi.create.api.behaviour.movement.MovementBehaviourClient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -181,7 +182,9 @@ public class ContraptionVisual<E extends AbstractContraptionEntity> extends Abst
 		if (movementBehaviour == null) {
 			return;
 		}
-		var visual = movementBehaviour.createVisual(this.embedding, renderLevel, context);
+		MovementBehaviourClient client = ActorClients.of(movementBehaviour);
+		var visual = client == null ? null
+			: client.createVisual(movementBehaviour, this.embedding, renderLevel, context);
 
 		if (visual == null) {
 			return;

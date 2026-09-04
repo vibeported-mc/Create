@@ -43,46 +43,7 @@ public class StabilizedBearingMovementBehaviour implements MovementBehaviour {
 		return true;
 	}
 
-	@Override
-	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-									ContraptionMatrices matrices, List<ActorGeometry> out) {
-		if (VisualizationManager.supportsVisualization(context.world))
-			return;
 
-		Direction facing = context.state.getValue(BlockStateProperties.FACING);
-		PartialModel top = AllPartialModels.BEARING_TOP;
-		SuperByteBuffer superBuffer = CachedBufferer.partial(top, context.state);
-		float renderPartialTicks = AnimationTickHolder.getPartialTicks();
-
-		// rotate to match blockstate
-		Quaternionf orientation = BearingVisual.getBlockStateOrientation(facing);
-
-		// rotate against parent
-		float angle = getCounterRotationAngle(context, facing, renderPartialTicks) * facing.getAxisDirection()
-			.getStep();
-
-		Quaternionf rotation = Axis.of(facing.step())
-			.rotationDegrees(angle);
-
-		rotation.mul(orientation);
-
-		orientation = rotation;
-
-		superBuffer.transform(matrices.getModel());
-		superBuffer.rotateCentered(orientation);
-
-		// render
-		superBuffer.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
-			.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
-		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.solidMovingBlock()));
-	}
-
-	@Nullable
-	@Override
-	public ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld,
-									MovementContext movementContext) {
-		return new StabilizedBearingVisual(visualizationContext, simulationWorld, movementContext);
-	}
 
 	static float getCounterRotationAngle(MovementContext context, Direction facing, float renderPartialTicks) {
 		if (!context.contraption.canBeStabilized(facing, context.localPos))

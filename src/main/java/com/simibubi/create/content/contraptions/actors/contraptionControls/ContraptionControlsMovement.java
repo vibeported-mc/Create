@@ -140,10 +140,6 @@ public class ContraptionControlsMovement implements MovementBehaviour {
 				.string();
 	}
 
-	@Override
-	public void extractInContraption(MovementContext ctx, VirtualRenderWorld renderWorld, ContraptionMatrices matrices, List<ActorGeometry> out) {
-		ContraptionControlsRenderer.extractInContraption(ctx, renderWorld, matrices, out);
-	}
 
 	public static class ElevatorFloorSelection {
 		public int currentIndex = 0;

@@ -1,5 +1,6 @@
 package com.simibubi.create.content.contraptions.render;
 
+import com.simibubi.create.api.behaviour.movement.MovementBehaviourClient;
 import com.simibubi.create.foundation.render.RenderLevels;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -190,7 +191,9 @@ public class ContraptionEntityRenderer<C extends AbstractContraptionEntity, S ex
 				m.pushPose();
 				TransformStack.of(m)
 					.translate(blockInfo.pos());
-				movementBehaviour.extractInContraption(context, renderWorld, matrices, out);
+				MovementBehaviourClient client = ActorClients.of(movementBehaviour);
+				if (client != null)
+					client.extractInContraption(movementBehaviour, context, renderWorld, matrices, out);
 				m.popPose();
 			}
 		}

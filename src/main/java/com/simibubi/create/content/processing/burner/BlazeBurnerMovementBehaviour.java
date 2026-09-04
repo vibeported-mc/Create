@@ -60,12 +60,12 @@ public class BlazeBurnerMovementBehaviour implements MovementBehaviour {
 		context.data.remove("Conductor");
 	}
 
-	private boolean shouldRender(MovementContext context) {
+	boolean shouldRender(MovementContext context) {
 		return context.state.getOptionalValue(BlazeBurnerBlock.HEAT_LEVEL)
 			.orElse(HeatLevel.NONE) != HeatLevel.NONE;
 	}
 
-	private LerpedFloat getHeadAngle(MovementContext context) {
+	LerpedFloat getHeadAngle(MovementContext context) {
 		if (!(context.temporaryData instanceof LerpedFloat))
 			context.temporaryData = LerpedFloat.angular()
 				.startWithValue(getTargetAngle(context));
@@ -92,7 +92,7 @@ public class BlazeBurnerMovementBehaviour implements MovementBehaviour {
 		return 0;
 	}
 
-	private boolean shouldRenderHat(MovementContext context) {
+	boolean shouldRenderHat(MovementContext context) {
 		CompoundTag data = context.data;
 		if (!data.contains("Conductor"))
 			data.putBoolean("Conductor", determineIfConducting(context));
@@ -116,13 +116,5 @@ public class BlazeBurnerMovementBehaviour implements MovementBehaviour {
 		return true;
 	}
 
-	@Override
-	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, List<ActorGeometry> out) {
-		if (!shouldRender(context))
-			return;
-		BlazeBurnerRenderer.extractInContraption(context, renderWorld, matrices, out, getHeadAngle(context),
-			shouldRenderHat(context));
-	}
 
 }

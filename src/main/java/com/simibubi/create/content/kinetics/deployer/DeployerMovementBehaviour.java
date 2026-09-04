@@ -310,17 +310,5 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 		return true;
 	}
 
-	@Override
-	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, List<ActorGeometry> out) {
-		if (!VisualizationManager.supportsVisualization(context.world))
-			DeployerRenderer.extractInContraption(context, renderWorld, matrices, out);
-	}
 
-	@Nullable
-	@Override
-	public ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld,
-		MovementContext movementContext) {
-		return new DeployerActorVisual(visualizationContext, simulationWorld, movementContext);
-	}
 }

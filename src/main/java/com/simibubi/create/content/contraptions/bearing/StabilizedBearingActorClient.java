@@ -1,0 +1,80 @@
+package com.simibubi.create.content.contraptions.bearing;
+
+import com.mojang.math.Axis;
+import com.simibubi.create.AllPartialModels;
+import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
+import com.simibubi.create.api.behaviour.movement.MovementBehaviourClient;
+import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
+import com.simibubi.create.content.contraptions.ControlledContraptionEntity;
+import com.simibubi.create.content.contraptions.OrientedContraptionEntity;
+import com.simibubi.create.content.contraptions.behaviour.MovementContext;
+import com.simibubi.create.content.contraptions.render.ActorGeometry;
+import com.simibubi.create.content.contraptions.render.ActorVisual;
+import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
+import com.simibubi.create.foundation.render.CachedBufferer;
+import com.simibubi.create.foundation.render.RenderLevels;
+import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
+import dev.engine_room.flywheel.api.visualization.VisualizationContext;
+import dev.engine_room.flywheel.api.visualization.VisualizationManager;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
+import java.util.List;
+import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.createmod.catnip.api.client.render.SuperByteBuffer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.core.Direction;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+
+/**
+ * How this actor draws itself, kept out of its behaviour so a dedicated server never loads it.
+ *
+ * @see com.simibubi.create.api.behaviour.movement.MovementBehaviourClient
+ */
+public class StabilizedBearingActorClient implements MovementBehaviourClient {
+
+	@Override
+	public void extractInContraption(MovementBehaviour behaviour, MovementContext context, VirtualRenderWorld renderWorld,
+									ContraptionMatrices matrices, List<ActorGeometry> out) {
+		if (VisualizationManager.supportsVisualization(context.world))
+			return;
+
+		Direction facing = context.state.getValue(BlockStateProperties.FACING);
+		PartialModel top = AllPartialModels.BEARING_TOP;
+		SuperByteBuffer superBuffer = CachedBufferer.partial(top, context.state);
+		float renderPartialTicks = AnimationTickHolder.getPartialTicks();
+
+		// rotate to match blockstate
+		Quaternionf orientation = BearingVisual.getBlockStateOrientation(facing);
+
+		// rotate against parent
+		float angle = StabilizedBearingMovementBehaviour.getCounterRotationAngle(context, facing, renderPartialTicks) * facing.getAxisDirection()
+			.getStep();
+
+		Quaternionf rotation = Axis.of(facing.step())
+			.rotationDegrees(angle);
+
+		rotation.mul(orientation);
+
+		orientation = rotation;
+
+		superBuffer.transform(matrices.getModel());
+		superBuffer.rotateCentered(orientation);
+
+		// render
+		superBuffer.light(LightCoordsUtil.getLightCoords(renderWorld, context.localPos))
+			.useLevelLight(RenderLevels.lightSource(context.world, renderWorld), matrices.getWorld());
+		out.add(ActorGeometry.of(matrices.getViewProjection(), superBuffer, RenderTypes.solidMovingBlock()));
+	}
+
+	@Override
+	@Nullable
+	public ActorVisual createVisual(MovementBehaviour behaviour, VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld,
+									MovementContext movementContext) {
+		return new StabilizedBearingVisual(visualizationContext, simulationWorld, movementContext);
+	}
+
+}

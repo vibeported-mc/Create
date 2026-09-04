@@ -44,19 +44,7 @@ public class PortableStorageInterfaceMovement implements MovementBehaviour {
 		return true;
 	}
 
-	@Nullable
-	@Override
-	public ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld,
-		MovementContext movementContext) {
-		return new PSIActorVisual(visualizationContext, simulationWorld, movementContext);
-	}
 
-	@Override
-	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, List<ActorGeometry> out) {
-		if (!VisualizationManager.supportsVisualization(context.world))
-			PortableStorageInterfaceRenderer.extractInContraption(context, renderWorld, matrices, out);
-	}
 
 	@Override
 	public void visitNewPosition(MovementContext context, BlockPos pos) {

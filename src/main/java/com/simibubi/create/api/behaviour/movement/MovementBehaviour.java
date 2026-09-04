@@ -2,20 +2,15 @@ package com.simibubi.create.api.behaviour.movement;
 
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import com.simibubi.create.content.contraptions.render.ActorGeometry;
 import java.util.List;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.api.registry.SimpleRegistry;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
-import com.simibubi.create.content.contraptions.render.ActorVisual;
-import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
-import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
 
-import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -115,16 +110,4 @@ public interface MovementBehaviour {
 		return false;
 	}
 
-	/**
-	 * Collect this actor's geometry. 26.2 runs this on the client thread, ahead of submission, so
-	 * this is the only place the contraption and its virtual level may be read.
-	 */
-	default void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, List<ActorGeometry> out) {}
-
-	@Nullable
-	default ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld,
-		MovementContext movementContext) {
-		return null;
-	}
 }

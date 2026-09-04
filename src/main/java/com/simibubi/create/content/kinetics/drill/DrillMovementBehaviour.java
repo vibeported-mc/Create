@@ -41,18 +41,7 @@ public class DrillMovementBehaviour extends BlockBreakingMovementBehaviour {
 		return true;
 	}
 
-	@Override
-	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, List<ActorGeometry> out) {
-        if (!VisualizationManager.supportsVisualization(context.world))
-			DrillRenderer.extractInContraption(context, renderWorld, matrices, out);
-	}
 
-	@Nullable
-	@Override
-	public ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld, MovementContext movementContext) {
-		return new DrillActorVisual(visualizationContext, simulationWorld, movementContext);
-	}
 
 	@Override
 	protected DamageSource getDamageSource(Level level) {

@@ -103,16 +103,7 @@ public class SawMovementBehaviour extends BlockBreakingMovementBehaviour {
 		return true;
 	}
 
-	@Override
-	public @Nullable ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld, MovementContext movementContext) {
-		return new SawActorVisual(visualizationContext, simulationWorld, movementContext);
-	}
 
-	@Override
-	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, List<ActorGeometry> out) {
-		SawRenderer.extractInContraption(context, renderWorld, matrices, out);
-	}
 
 	@Override
 	protected boolean shouldDestroyStartBlock(BlockState stateToBreak) {

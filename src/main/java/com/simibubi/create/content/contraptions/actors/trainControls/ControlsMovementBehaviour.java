@@ -51,42 +51,5 @@ public class ControlsMovementBehaviour implements MovementBehaviour {
 		angles.equipAnimation.tickChaser();
 	}
 
-	@Override
-	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, List<ActorGeometry> out) {
-		if (!(context.temporaryData instanceof LeverAngles angles))
-			return;
-
-		AbstractContraptionEntity entity = context.contraption.entity;
-		if (!(entity instanceof CarriageContraptionEntity cce))
-			return;
-
-		StructureBlockInfo info = context.contraption.getBlocks()
-			.get(context.localPos);
-		Direction initialOrientation = cce.getInitialOrientation()
-			.getCounterClockWise();
-		boolean inverted = false;
-		if (info != null && info.state().hasProperty(ControlsBlock.FACING))
-			inverted = !info.state().getValue(ControlsBlock.FACING)
-				.equals(initialOrientation);
-
-		if (ControlsHandler.getContraption() == entity && ControlsHandler.getControlsPos() != null
-			&& ControlsHandler.getControlsPos().equals(context.localPos)) {
-			Collection<Integer> pressed = ControlsHandler.currentlyPressed;
-			angles.equipAnimation.chase(1, .2f, Chaser.EXP);
-			angles.steering.chase((pressed.contains(3) ? 1 : 0) + (pressed.contains(2) ? -1 : 0), 0.2f, Chaser.EXP);
-			float f = cce.movingBackwards ^ inverted ? -1 : 1;
-			angles.speed.chase(Math.min(context.motion.length(), 0.5f) * f, 0.2f, Chaser.EXP);
-
-		} else {
-			angles.equipAnimation.chase(0, .2f, Chaser.EXP);
-			angles.steering.chase(0, 0, Chaser.EXP);
-			angles.speed.chase(0, 0, Chaser.EXP);
-		}
-
-		float pt = AnimationTickHolder.getPartialTicks(context.world);
-		ControlsRenderer.extract(context, renderWorld, matrices, out, angles.equipAnimation.getValue(pt),
-			angles.speed.getValue(pt), angles.steering.getValue(pt));
-	}
 
 }

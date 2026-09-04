@@ -76,19 +76,7 @@ public class RollerMovementBehaviour extends BlockBreakingMovementBehaviour {
 		return true;
 	}
 
-	@Nullable
-	@Override
-	public ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld,
-		MovementContext movementContext) {
-		return new RollerActorVisual(visualizationContext, simulationWorld, movementContext);
-	}
 
-	@Override
-	public void extractInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, List<ActorGeometry> out) {
-		if (!VisualizationManager.supportsVisualization(context.world))
-			RollerRenderer.extractInContraption(context, renderWorld, matrices, out);
-	}
 
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
