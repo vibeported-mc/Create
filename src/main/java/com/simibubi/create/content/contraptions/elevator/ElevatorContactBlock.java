@@ -239,15 +239,10 @@ public class ElevatorContactBlock extends WrenchableDirectionalBlock
 	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (player != null && AllItems.WRENCH.isIn(stack))
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
-		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> this.displayScreen(be, player)));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> ElevatorContactBlockClient.displayScreen(be, player)));
 		return InteractionResult.SUCCESS;
 	}
 
-	protected void displayScreen(ElevatorContactBlockEntity be, Player player) {
-		if (player instanceof LocalPlayer)
-			ScreenOpener
-				.open(new ElevatorContactScreen(be.getBlockPos(), be.shortName, be.longName, be.doorControls.mode));
-	}
 
 	public static int getLight(BlockState state) {
 		return state.getValue(POWERING) ? 10 : 0;

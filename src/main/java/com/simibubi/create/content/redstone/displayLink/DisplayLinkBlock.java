@@ -146,19 +146,10 @@ public class DisplayLinkBlock extends WrenchableDirectionalBlock implements IBE<
 			return InteractionResult.PASS;
 		if (player.isShiftKeyDown())
 			return InteractionResult.PASS;
-		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> this.displayScreen(be, player)));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> DisplayLinkBlockClient.displayScreen(be, player)));
 		return InteractionResult.SUCCESS;
 	}
 
-	protected void displayScreen(DisplayLinkBlockEntity be, Player player) {
-		if (!(player instanceof LocalPlayer))
-			return;
-		if (be.targetOffset.equals(BlockPos.ZERO)) {
-			player.sendOverlayMessage(CreateLang.translateDirect("display_link.invalid"));
-			return;
-		}
-		ScreenOpener.open(new DisplayLinkScreen(be));
-	}
 
 	@Override
 	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {

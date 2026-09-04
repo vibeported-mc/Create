@@ -30,7 +30,7 @@ public class WorldshaperItem extends ZapperItem {
 
 	@Override
 	protected void openHandgunGUI(ItemStack item, InteractionHand hand) {
-		ScreenOpener.open(new WorldshaperScreen(item, hand));
+		WorldshaperItemClient.openHandgunGUI(item, hand);
 	}
 
 	@Override

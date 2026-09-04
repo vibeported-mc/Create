@@ -656,7 +656,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 
 		// Open configuration screen
 		if (isClientSide)
-			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> displayScreen(player));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> FactoryPanelBehaviourClient.displayScreen(this, player));
 	}
 
 	public void enable() {
@@ -1059,10 +1059,6 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 		};
 	}
 
-	public void displayScreen(Player player) {
-		if (player instanceof LocalPlayer)
-			ScreenOpener.open(new FactoryPanelScreen(this));
-	}
 
 	public int getIngredientStatusColor() {
 		return count == 0 || isMissingAddress() || redstonePowered ? 0x888898

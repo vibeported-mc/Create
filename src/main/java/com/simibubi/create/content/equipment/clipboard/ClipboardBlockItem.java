@@ -59,17 +59,13 @@ public class ClipboardBlockItem extends BlockItem implements SupportsItemCopying
 		player.getCooldowns()
 			.addCooldown(heldItem, 10);
 		if (world.isClientSide())
-			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> openScreen(player, heldItem.getComponents()));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> ClipboardBlockItemClient.openScreen(player, heldItem.getComponents()));
 		ClipboardContent content = heldItem.getOrDefault(AllDataComponents.CLIPBOARD_CONTENT, ClipboardContent.EMPTY);
 		heldItem.set(AllDataComponents.CLIPBOARD_CONTENT, content.setType(ClipboardType.EDITING));
 
 		return InteractionResult.SUCCESS.heldItemTransformedTo(heldItem);
 	}
 
-	private void openScreen(Player player, DataComponentMap components) {
-		if (Minecraft.getInstance().player == player)
-			ScreenOpener.open(new ClipboardScreen(player.getInventory().getSelectedSlot(), components, null));
-	}
 
 	public void registerModelOverrides() {
 	}

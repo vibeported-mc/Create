@@ -152,12 +152,9 @@ public class SchematicItem extends Item {
 			return false;
 		if (!player.level().isClientSide())
 			return true;
-		PlatformHelper.INSTANCE.executeOnClientOnly(() -> this::displayBlueprintScreen);
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> SchematicItemClient::displayBlueprintScreen);
 		return true;
 	}
 
-	protected void displayBlueprintScreen() {
-		ScreenOpener.open(new SchematicEditScreen());
-	}
 
 }

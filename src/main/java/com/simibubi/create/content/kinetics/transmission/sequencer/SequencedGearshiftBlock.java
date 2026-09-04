@@ -95,14 +95,10 @@ public class SequencedGearshiftBlock extends HorizontalAxisKineticBlock implemen
 				return InteractionResult.TRY_WITH_EMPTY_HAND;
 		}
 
-		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> this.displayScreen(be, player)));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> SequencedGearshiftBlockClient.displayScreen(be, player)));
 		return InteractionResult.SUCCESS;
 	}
 
-	protected void displayScreen(SequencedGearshiftBlockEntity be, Player player) {
-		if (player instanceof LocalPlayer)
-			ScreenOpener.open(new SequencedGearshiftScreen(be));
-	}
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {

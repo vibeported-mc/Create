@@ -99,15 +99,11 @@ public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 
 		return onBlockEntityUse(level, pos, cbe -> {
 			if (level.isClientSide())
-				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> openScreen(player, cbe.components(), pos));
+				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> ClipboardBlockClient.openScreen(player, cbe.components(), pos));
 			return InteractionResult.SUCCESS;
 		});
 	}
 
-	private void openScreen(Player player, DataComponentMap components, BlockPos pos) {
-		if (Minecraft.getInstance().player == player)
-			ScreenOpener.open(new ClipboardScreen(player.getInventory().getSelectedSlot(), components, pos));
-	}
 
 	@Override
 	public void attack(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer) {

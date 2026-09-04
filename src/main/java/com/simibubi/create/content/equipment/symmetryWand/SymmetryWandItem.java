@@ -69,7 +69,7 @@ public class SymmetryWandItem extends Item {
 		if (player.isShiftKeyDown()) {
 			if (player.level().isClientSide()) {
 				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
-					openWandGUI(wand, context.getHand());
+					SymmetryWandItemClient.openWandGUI(wand, context.getHand());
 				});
 				player.getCooldowns()
 					.addCooldown(wand, 5);
@@ -131,7 +131,7 @@ public class SymmetryWandItem extends Item {
 		if (playerIn.isShiftKeyDown()) {
 			if (worldIn.isClientSide()) {
 				PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> {
-					openWandGUI(playerIn.getItemInHand(handIn), handIn);
+					SymmetryWandItemClient.openWandGUI(playerIn.getItemInHand(handIn), handIn);
 				});
 				playerIn.getCooldowns()
 					.addCooldown(wand, 5);
@@ -144,9 +144,6 @@ public class SymmetryWandItem extends Item {
 		return InteractionResult.SUCCESS.heldItemTransformedTo(wand);
 	}
 
-	private void openWandGUI(ItemStack wand, InteractionHand hand) {
-		ScreenOpener.open(new SymmetryWandScreen(wand, hand));
-	}
 
 	private static void checkComponents(ItemStack wand) {
 		if (!wand.has(AllDataComponents.SYMMETRY_WAND)) {

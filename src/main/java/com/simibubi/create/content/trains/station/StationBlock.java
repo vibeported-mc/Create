@@ -138,20 +138,10 @@ public class StationBlock extends Block implements EntityRestingOnBlock, IBE<Sta
 		});
 
 		if (result == InteractionResult.PASS)
-			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> this.displayScreen(be, player)));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> withBlockEntityDo(level, pos, be -> StationBlockClient.displayScreen(this, be, player)));
 		return InteractionResult.SUCCESS;
 	}
 
-	protected void displayScreen(StationBlockEntity be, Player player) {
-		if (!(player instanceof LocalPlayer))
-			return;
-		GlobalStation station = be.getStation();
-		BlockState blockState = be.getBlockState();
-		if (station == null || blockState == null)
-			return;
-		boolean assembling = blockState.getBlock() == this && blockState.getValue(ASSEMBLING);
-		ScreenOpener.open(assembling ? new AssemblyScreen(be, station) : new StationScreen(be, station));
-	}
 
 	@Override
 	public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
