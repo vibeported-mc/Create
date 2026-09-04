@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 
 import net.createmod.catnip.api.data.Couple;
 import net.createmod.catnip.api.data.IntAttached;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,7 +29,7 @@ public record ElevatorFloorListPacket(int entityId, List<IntAttached<Couple<Stri
 		this(entity.getId(), floors);
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		Entity entityByID = player.level().getEntity(entityId);
 		if (!(entityByID instanceof AbstractContraptionEntity ace))
 			return;

@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.minecraft.world.entity.InterpolationHandler;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -48,7 +50,6 @@ import com.simibubi.create.foundation.mixin.accessor.ServerLevelAccessor;
 import io.netty.handler.codec.DecoderException;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.math.VecHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -748,17 +749,17 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	}
 
 	static void handleStallPacket(ContraptionStallPacket packet) {
-		if (Minecraft.getInstance().level.getEntity(packet.entityId()) instanceof AbstractContraptionEntity ce)
+		if (ClientAccess.level().getEntity(packet.entityId()) instanceof AbstractContraptionEntity ce)
 			ce.handleStallInformation(packet.x(), packet.y(), packet.z(), packet.angle());
 	}
 
 	static void handleBlockChangedPacket(ContraptionBlockChangedPacket packet) {
-		if (Minecraft.getInstance().level.getEntity(packet.entityId()) instanceof AbstractContraptionEntity ce)
+		if (ClientAccess.level().getEntity(packet.entityId()) instanceof AbstractContraptionEntity ce)
 			ce.handleBlockChange(packet.localPos(), packet.newState());
 	}
 
 	static void handleDisassemblyPacket(ContraptionDisassemblyPacket packet) {
-		if (Minecraft.getInstance().level.getEntity(packet.entityId()) instanceof AbstractContraptionEntity ce)
+		if (ClientAccess.level().getEntity(packet.entityId()) instanceof AbstractContraptionEntity ce)
 			ce.moveCollidedEntitiesOnDisassembly(packet.transform());
 	}
 

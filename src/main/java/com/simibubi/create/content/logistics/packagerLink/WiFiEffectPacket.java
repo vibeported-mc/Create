@@ -1,13 +1,14 @@
 package com.simibubi.create.content.logistics.packagerLink;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.createmod.catnip.api.network.NetworkHelper;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
@@ -23,8 +24,8 @@ public record WiFiEffectPacket(BlockPos pos) implements CustomPacketPayload {
 		return AllPackets.PACKAGER_LINK_EFFECT.getType();
 	}
 
-	public void handle(LocalPlayer player) {
-		BlockEntity blockEntity = Minecraft.getInstance().level.getBlockEntity(pos);
+	public void handle(Player player) {
+		BlockEntity blockEntity = ClientAccess.level().getBlockEntity(pos);
 			if (blockEntity instanceof PackagerLinkBlockEntity plbe)
 				plbe.playEffect();
 			if (blockEntity instanceof StockTickerBlockEntity plbe)

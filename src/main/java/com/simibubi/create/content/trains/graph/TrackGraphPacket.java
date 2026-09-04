@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.trains.GlobalRailwayManager;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public abstract class TrackGraphPacket implements CustomPacketPayload {
 
@@ -13,7 +13,7 @@ public abstract class TrackGraphPacket implements CustomPacketPayload {
 	public int netId;
 	public boolean packetDeletesGraph;
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		this.handle(CreateClient.RAILWAYS, CreateClient.RAILWAYS.getOrCreateGraph(graphId, netId));
 	}
 

@@ -4,7 +4,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.CreateClient;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,7 +17,7 @@ public record SoulPulseEffectPacket(BlockPos pos, int distance, boolean canOverl
 	        SoulPulseEffectPacket::new
 	);
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		CreateClient.SOUL_PULSE_EFFECT_HANDLER.addPulse(new SoulPulseEffect(pos, distance, canOverlap));
 	}
 

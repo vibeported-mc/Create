@@ -6,7 +6,7 @@ import com.simibubi.create.AllPackets;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -60,7 +60,7 @@ public record PackagePortPlacementPacket(PackagePortTarget target, BlockPos pos)
 			return AllPackets.S_PLACE_PACKAGE_PORT.getType();
 		}
 
-		public void handle(LocalPlayer player) {
+		public void handle(Player player) {
 			PackagePortTargetSelectionHandler.flushSettings(pos);
 		}
 	}

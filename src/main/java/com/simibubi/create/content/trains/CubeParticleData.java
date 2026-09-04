@@ -68,7 +68,7 @@ public class CubeParticleData implements ParticleOptions, ICustomParticleData<Cu
 
 	@Override
 	public ParticleProvider<CubeParticleData> getFactory() {
-		return new CubeParticle.Factory();
+		return CubeParticle.factory();
 	}
 
 	@Override

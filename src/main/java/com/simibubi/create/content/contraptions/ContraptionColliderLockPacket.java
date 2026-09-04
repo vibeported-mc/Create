@@ -5,7 +5,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,7 +18,7 @@ public record ContraptionColliderLockPacket(int contraption, double offset, int 
 	        ContraptionColliderLockPacket::new
 	);
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		ContraptionCollider.lockPacketReceived(contraption, sender, offset);
 	}
 

@@ -1,14 +1,16 @@
 package com.simibubi.create.content.logistics.box;
 
+import net.minecraft.world.level.Level;
+
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecs;
 import net.createmod.catnip.api.math.VecHelper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,8 +30,8 @@ public record PackageDestroyPacket(Vec3 location, ItemStack box) implements Cust
 		return AllPackets.PACKAGE_DESTROYED.getType();
 	}
 
-	public void handle(LocalPlayer player) {
-		ClientLevel level = Minecraft.getInstance().level;
+	public void handle(Player player) {
+		Level level = ClientAccess.level();
 		Vec3 motion = VecHelper.offsetRandomly(Vec3.ZERO, level.getRandom(), .125f);
 		Vec3 pos = location.add(motion.scale(4));
 		level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromStack(box)), pos.x, pos.y,

@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -12,7 +12,7 @@ public record ContraptionRelocationPacket(int entityId) implements CustomPacketP
 			ContraptionRelocationPacket::new, ContraptionRelocationPacket::entityId
 	);
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		OrientedContraptionEntity.handleRelocationPacket(this);
 	}
 

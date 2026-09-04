@@ -5,7 +5,7 @@ import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPackets;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -52,7 +52,7 @@ public record EjectorPlacementPacket(int h, int v, BlockPos pos, Direction facin
 			return AllPackets.S_PLACE_EJECTOR.getType();
 		}
 
-		public void handle(LocalPlayer player) {
+		public void handle(Player player) {
 			EjectorTargetHandler.flushSettings(pos);
 		}
 	}

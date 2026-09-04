@@ -1,5 +1,7 @@
 package com.simibubi.create.content.fluids.potion;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import com.simibubi.create.foundation.item.ItemHelper;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,7 +14,6 @@ import com.simibubi.create.foundation.fluid.FluidHelper;
 
 import net.createmod.catnip.api.data.Pair;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
@@ -124,7 +125,7 @@ public class PotionFluidHandler {
 
 			if (!mobeffectinstance.endsWithin(20)) {
 				mutablecomponent.append(" (")
-					.append(MobEffectUtil.formatDuration(mobeffectinstance, durationFactor, Minecraft.getInstance().level.tickRateManager().tickrate()))
+					.append(MobEffectUtil.formatDuration(mobeffectinstance, durationFactor, ClientAccess.level().tickRateManager().tickrate()))
 					.append(")");
 			}
 

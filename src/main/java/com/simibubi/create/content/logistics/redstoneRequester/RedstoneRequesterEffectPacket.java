@@ -1,11 +1,12 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,8 +23,8 @@ public record RedstoneRequesterEffectPacket(BlockPos pos, boolean success) imple
 		return AllPackets.REDSTONE_REQUESTER_EFFECT.getType();
 	}
 
-	public void handle(LocalPlayer player) {
-		if (Minecraft.getInstance().level.getBlockEntity(pos) instanceof RedstoneRequesterBlockEntity plbe)
+	public void handle(Player player) {
+		if (ClientAccess.level().getBlockEntity(pos) instanceof RedstoneRequesterBlockEntity plbe)
 			plbe.playEffect(success);
 	}
 }

@@ -5,7 +5,6 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import com.simibubi.create.foundation.item.BlockBreakingItem;
 import com.simibubi.create.AllRecipeTypes;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import com.simibubi.create.AllMapDecorationTypes;
 import com.simibubi.create.Create;
 import com.simibubi.create.compat.trainmap.TrainMapSync;
 import com.simibubi.create.content.contraptions.ContraptionHandler;
@@ -62,7 +61,6 @@ import com.simibubi.create.content.trains.entity.CarriageEntityHandler;
 import com.simibubi.create.content.trains.observer.TrackObserverBlockEntity;
 import com.simibubi.create.content.trains.signal.SignalBlockEntity;
 import com.simibubi.create.content.trains.station.StationBlockEntity;
-import com.simibubi.create.foundation.map.StationMapDecorationRenderer;
 import com.simibubi.create.foundation.pack.DynamicPack;
 import com.simibubi.create.foundation.pack.DynamicPackSource;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
@@ -85,7 +83,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.client.gui.map.RegisterMapDecorationRenderersEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -291,11 +288,6 @@ public class CommonEvents {
 				RuntimeDataGenerator.insertIntoPack(dynamicPack);
 				event.addRepositorySource(new DynamicPackSource("create:dynamic_data", PackType.SERVER_DATA, Pack.Position.BOTTOM, dynamicPack));
 			}
-		}
-
-		@net.neoforged.bus.api.SubscribeEvent
-		public static void onRegisterMapDecorationRenderers(RegisterMapDecorationRenderersEvent event) {
-			event.register(AllMapDecorationTypes.STATION_MAP_DECORATION.value(), new StationMapDecorationRenderer());
 		}
 
 		@net.neoforged.bus.api.SubscribeEvent

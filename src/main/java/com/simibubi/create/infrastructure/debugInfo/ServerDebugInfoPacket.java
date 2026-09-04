@@ -10,7 +10,6 @@ import com.simibubi.create.infrastructure.debugInfo.element.DebugInfoSection;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
@@ -25,7 +24,7 @@ public record ServerDebugInfoPacket(String serverInfo) implements CustomPacketPa
 		this(printServerInfo(target));
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		StringBuilder output = new StringBuilder();
 		List<DebugInfoSection> clientInfo = DebugInformation.getClientInfo();
 

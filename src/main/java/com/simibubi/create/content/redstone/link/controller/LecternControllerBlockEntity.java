@@ -1,5 +1,7 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import net.minecraft.core.UUIDUtil;
 import java.util.List;
@@ -12,7 +14,6 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
 import net.createmod.catnip.api.data.codec.CatnipCodecUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -136,9 +137,9 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 	}
 
 	private void tryToggleActive() {
-		if (user == null && Minecraft.getInstance().player.getUUID().equals(prevUser)) {
+		if (user == null && ClientAccess.player().getUUID().equals(prevUser)) {
 			LinkedControllerClientHandler.deactivateInLectern();
-		} else if (prevUser == null && Minecraft.getInstance().player.getUUID().equals(user)) {
+		} else if (prevUser == null && ClientAccess.player().getUUID().equals(user)) {
 			LinkedControllerClientHandler.activateInLectern(worldPosition);
 		}
 	}

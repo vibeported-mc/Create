@@ -1,6 +1,5 @@
 package com.simibubi.create.content.equipment.extendoGrip;
 
-import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -13,9 +12,6 @@ import com.simibubi.create.content.equipment.armor.BacktankUtil;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.api.client.animation.AnimationTickHolder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -26,29 +22,18 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult.Type;
-import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.BlockEvent.EntityPlaceEvent;
 
@@ -132,43 +117,6 @@ public class ExtendoGripItem extends Item {
 		else if (persistentData.contains(EXTENDO_MARKER))
 			player.getAttributes()
 				.addTransientAttributeModifiers(rangeModifier.get());
-	}
-
-	@SubscribeEvent
-	public static void dontMissEntitiesWhenYouHaveHighReachDistance(InputEvent.InteractionKeyMappingTriggered event) {
-		Minecraft mc = Minecraft.getInstance();
-		LocalPlayer player = mc.player;
-		if (mc.level == null || player == null)
-			return;
-		if (!isHoldingExtendoGrip(player))
-			return;
-		if (mc.hitResult instanceof BlockHitResult && mc.hitResult.getType() != Type.MISS)
-			return;
-
-		// Modified version of GameRenderer#getMouseOver
-		double d0 = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);
-		if (!player.isCreative())
-			d0 -= 0.5f;
-		Vec3 Vector3d = player.getEyePosition(AnimationTickHolder.getPartialTicks());
-		Vec3 Vector3d1 = player.getViewVector(1.0F);
-		Vec3 Vector3d2 = Vector3d.add(Vector3d1.x * d0, Vector3d1.y * d0, Vector3d1.z * d0);
-		AABB AABB = player.getBoundingBox()
-			.expandTowards(Vector3d1.scale(d0))
-			.inflate(1.0D, 1.0D, 1.0D);
-		EntityHitResult entityraytraceresult =
-			ProjectileUtil.getEntityHitResult(player, Vector3d, Vector3d2, AABB, (e) -> {
-				return !e.isSpectator() && e.isPickable();
-			}, d0 * d0);
-		if (entityraytraceresult != null) {
-			Entity entity1 = entityraytraceresult.getEntity();
-			Vec3 Vector3d3 = entityraytraceresult.getLocation();
-			double d2 = Vector3d.distanceToSqr(Vector3d3);
-			if (d2 < d0 * d0 || mc.hitResult == null || mc.hitResult.getType() == Type.MISS) {
-				mc.hitResult = entityraytraceresult;
-				if (entity1 instanceof LivingEntity || entity1 instanceof ItemFrame)
-					mc.crosshairPickEntity = entity1;
-			}
-		}
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
@@ -255,7 +203,7 @@ public class ExtendoGripItem extends Item {
 		event.setStrength(event.getStrength() + 2);
 	}
 
-	private static boolean isUncaughtClientInteraction(Entity entity, Entity target) {
+	static boolean isUncaughtClientInteraction(Entity entity, Entity target) {
 		// Server ignores entity interaction further than 6m
 		if (entity.distanceToSqr(target) < 36)
 			return false;
@@ -264,29 +212,6 @@ public class ExtendoGripItem extends Item {
 		if (!(entity instanceof Player))
 			return false;
 		return true;
-	}
-
-	@SubscribeEvent
-	public static void notifyServerOfLongRangeAttacks(AttackEntityEvent event) {
-		Entity entity = event.getEntity();
-		Entity target = event.getTarget();
-		if (!isUncaughtClientInteraction(entity, target))
-			return;
-		Player player = (Player) entity;
-		if (isHoldingExtendoGrip(player))
-			ClientNetworkHelper.INSTANCE.sendToServer(new ExtendoGripInteractionPacket(target));
-	}
-
-	@SubscribeEvent
-	public static void notifyServerOfLongRangeInteractions(PlayerInteractEvent.EntityInteract event) {
-		Entity entity = event.getEntity();
-		Entity target = event.getTarget();
-		if (!isUncaughtClientInteraction(entity, target))
-			return;
-		Player player = (Player) entity;
-		if (isHoldingExtendoGrip(player))
-			ClientNetworkHelper.INSTANCE
-				.sendToServer(new ExtendoGripInteractionPacket(target, event.getHand(), event.getLocation()));
 	}
 
 	public static boolean isHoldingExtendoGrip(Player player) {

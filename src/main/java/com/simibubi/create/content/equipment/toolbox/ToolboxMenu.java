@@ -1,5 +1,9 @@
 package com.simibubi.create.content.equipment.toolbox;
 
+import net.minecraft.world.level.Level;
+
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import static com.simibubi.create.content.equipment.toolbox.ToolboxInventory.STACKS_PER_COMPARTMENT;
 
 import com.simibubi.create.AllMenuTypes;
@@ -7,8 +11,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.animatedContainer.AnimatedContainerBehaviour;
 import com.simibubi.create.foundation.gui.menu.MenuBase;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -41,7 +43,7 @@ public class ToolboxMenu extends MenuBase<ToolboxBlockEntity> {
 		BlockPos readBlockPos = extraData.readBlockPos();
 		CompoundTag readNbt = extraData.readNbt();
 
-		ClientLevel world = Minecraft.getInstance().level;
+		Level world = ClientAccess.level();
 		BlockEntity blockEntity = world.getBlockEntity(readBlockPos);
 		if (blockEntity instanceof ToolboxBlockEntity toolbox) {
 			toolbox.readClient(readNbt, extraData.registryAccess());

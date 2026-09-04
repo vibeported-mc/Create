@@ -1,5 +1,7 @@
 package com.simibubi.create.content.trains.schedule.condition;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -15,7 +17,6 @@ import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.createmod.catnip.api.lang.Lang;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -77,7 +78,7 @@ public class FluidThresholdCondition extends CargoThresholdCondition {
 	}
 
 	private FluidStack loadFluid() {
-		return compareStack.fluid(Minecraft.getInstance().level);
+		return compareStack.fluid(ClientAccess.level());
 	}
 
 	@Override

@@ -1,5 +1,9 @@
 package com.simibubi.create.content.logistics.packagePort;
 
+import net.minecraft.world.level.Level;
+
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import com.simibubi.create.AllMenuTypes;
@@ -8,8 +12,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.animatedContainer.An
 import com.simibubi.create.foundation.gui.menu.MenuBase;
 import com.simibubi.create.foundation.item.SmartInventory;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -40,7 +42,7 @@ public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 	@Override
 	protected PackagePortBlockEntity createOnClient(RegistryFriendlyByteBuf extraData) {
 		BlockPos readBlockPos = extraData.readBlockPos();
-		ClientLevel world = Minecraft.getInstance().level;
+		Level world = ClientAccess.level();
 		BlockEntity blockEntity = world.getBlockEntity(readBlockPos);
 		if (blockEntity instanceof PackagePortBlockEntity ppbe)
 			return ppbe;

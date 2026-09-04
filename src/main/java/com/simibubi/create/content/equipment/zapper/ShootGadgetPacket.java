@@ -2,7 +2,7 @@ package com.simibubi.create.content.equipment.zapper;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -23,7 +23,7 @@ public abstract class ShootGadgetPacket implements CustomPacketPayload {
 
 	protected abstract ShootableGadgetRenderHandler getHandler();
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		Entity renderViewEntity = Minecraft.getInstance()
 				.getCameraEntity();
 		if (renderViewEntity == null)

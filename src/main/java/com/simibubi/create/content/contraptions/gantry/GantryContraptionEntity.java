@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.gantry;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.createmod.catnip.api.network.NetworkHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
@@ -14,7 +16,6 @@ import com.simibubi.create.foundation.utility.ServerSpeedProvider;
 
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.nbt.NBTHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -226,7 +227,7 @@ public class GantryContraptionEntity extends AbstractContraptionEntity {
 	}
 
 	public static void handlePacket(GantryContraptionUpdatePacket packet) {
-		Entity entity = Minecraft.getInstance().level.getEntity(packet.entityID());
+		Entity entity = ClientAccess.level().getEntity(packet.entityID());
 		if (!(entity instanceof GantryContraptionEntity ce))
 			return;
 		ce.axisMotion = packet.motion();

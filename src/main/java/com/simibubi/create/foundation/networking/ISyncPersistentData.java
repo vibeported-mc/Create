@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 import com.simibubi.create.AllPackets;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -32,7 +32,7 @@ public interface ISyncPersistentData {
 			this(entity.getId(), entity.getPersistentData());
 		}
 
-		public void handle(LocalPlayer player) {
+		public void handle(Player player) {
 			Entity entityByID = player.level().getEntity(entityId);
 			CompoundTag data = entityByID.getPersistentData();
 			new HashSet<>(data.keySet()).forEach(data::remove);

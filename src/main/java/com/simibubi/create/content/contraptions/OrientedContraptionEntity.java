@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.minecraft.world.entity.vehicle.minecart.OldMinecartBehavior;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -30,7 +32,6 @@ import net.createmod.catnip.api.data.Couple;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.nbt.NBTHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -598,7 +599,7 @@ public class OrientedContraptionEntity extends AbstractContraptionEntity {
 	}
 
 	public static void handleRelocationPacket(ContraptionRelocationPacket packet) {
-		if (Minecraft.getInstance().level.getEntity(packet.entityId()) instanceof OrientedContraptionEntity oce)
+		if (ClientAccess.level().getEntity(packet.entityId()) instanceof OrientedContraptionEntity oce)
 			oce.nonDamageTicks = 10;
 	}
 }

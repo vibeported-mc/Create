@@ -12,7 +12,7 @@ import com.simibubi.create.content.trains.entity.Train;
 
 import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -55,7 +55,7 @@ public abstract class TrainHUDUpdatePacket implements CustomPacketPayload {
 			super(trainId, throttle, speed, fuelTicks);
 		}
 
-		public void handle(LocalPlayer player) {
+		public void handle(Player player) {
 			Train train = Create.RAILWAYS.sided(null).trains.get(trainId);
 			if (train == null)
 				return;

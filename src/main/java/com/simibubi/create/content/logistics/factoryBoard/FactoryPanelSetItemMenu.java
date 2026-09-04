@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.factoryBoard;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.AllMenuTypes;
@@ -7,7 +9,6 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -43,7 +44,7 @@ public class FactoryPanelSetItemMenu extends GhostItemMenu<FactoryPanelBehaviour
 	@Override
 	protected FactoryPanelBehaviour createOnClient(RegistryFriendlyByteBuf extraData) {
 		FactoryPanelPosition pos = FactoryPanelPosition.STREAM_CODEC.decode(extraData);
-		return FactoryPanelBehaviour.at(Minecraft.getInstance().level, pos);
+		return FactoryPanelBehaviour.at(ClientAccess.level(), pos);
 	}
 
 	@Override

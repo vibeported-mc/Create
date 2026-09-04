@@ -14,14 +14,11 @@ import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.AllTags.AllBlockTags;
 import com.simibubi.create.CreateClient;
-import com.simibubi.create.foundation.item.CustomArmPoseItem;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.createmod.catnip.api.nbt.NBTProcessors;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.model.HumanoidModel.ArmPose;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -45,7 +42,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class ZapperItem extends Item implements CustomArmPoseItem, BlockBreakingItem {
+public abstract class ZapperItem extends Item implements BlockBreakingItem {
 
 	public ZapperItem(Properties properties) {
 		super(properties.stacksTo(1));
@@ -196,15 +193,6 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem, Bloc
 	@Override
 	public ItemUseAnimation getUseAnimation(ItemStack stack) {
 		return ItemUseAnimation.NONE;
-	}
-
-	@Override
-	@Nullable
-	public ArmPose getArmPose(ItemStack stack, AbstractClientPlayer player, InteractionHand hand) {
-		if (!player.swinging) {
-			return ArmPose.CROSSBOW_HOLD;
-		}
-		return null;
 	}
 
 	public static void setBlockEntityData(Level world, BlockPos pos, BlockState state, CompoundTag data, Player player) {

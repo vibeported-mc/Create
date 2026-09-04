@@ -9,7 +9,7 @@ import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.codec.StreamCodec;
 
 public class ServerSpeedProvider {
@@ -50,7 +50,7 @@ public class ServerSpeedProvider {
 
 		public static final StreamCodec<ByteBuf, Packet> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
-		public void handle(LocalPlayer player) {
+		public void handle(Player player) {
 			if (!initialized) {
 				initialized = true;
 				clientTimer = 0;

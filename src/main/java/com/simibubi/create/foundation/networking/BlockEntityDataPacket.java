@@ -3,7 +3,7 @@ package com.simibubi.create.foundation.networking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.foundation.blockEntity.SyncedBlockEntity;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -17,7 +17,7 @@ public abstract class BlockEntityDataPacket<BE extends SyncedBlockEntity> implem
 		this.pos = pos;
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		BlockEntity blockEntity = player.level().getBlockEntity(pos);
 
 		if (blockEntity instanceof SyncedBlockEntity) {

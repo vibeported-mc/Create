@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.chassis;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.createmod.catnip.api.platform.services.PlatformHelper;
 import java.util.List;
 
@@ -18,7 +20,6 @@ import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dev.engine_room.flywheel.lib.visualization.VisualizationHelper;
 import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -114,7 +115,7 @@ public class StickerBlockEntity extends SmartBlockEntity {
 	}
 
 	public void playSound(boolean attach) {
-		AllSoundEvents.SLIME_ADDED.play(level, Minecraft.getInstance().player, worldPosition, 0.35f, attach ? 0.75f : 0.2f);
+		AllSoundEvents.SLIME_ADDED.play(level, ClientAccess.player(), worldPosition, 0.35f, attach ? 0.75f : 0.2f);
 	}
 
 	@Override

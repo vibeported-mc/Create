@@ -1,5 +1,7 @@
 package com.simibubi.create.content.processing.basin;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
@@ -26,7 +28,6 @@ import com.simibubi.create.foundation.recipe.DummyCraftingContainer;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
 import net.createmod.catnip.api.data.Iterate;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -200,7 +201,7 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 	public static RecipeHolder<BasinRecipe> convertShapeless(RecipeHolder<?> recipe) {
 		BasinRecipe basinRecipe = new Builder<>(BasinRecipe::new, recipe.id()
 			.identifier()).withItemIngredients(RecipeAccessors.ingredients(recipe.value()))
-				.withSingleItemOutput(RecipeAccessors.result(recipe.value(), Minecraft.getInstance().level))
+				.withSingleItemOutput(RecipeAccessors.result(recipe.value(), ClientAccess.level()))
 				.build();
 		return new RecipeHolder<>(recipe.id(), basinRecipe);
 	}

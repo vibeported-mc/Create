@@ -11,7 +11,6 @@ import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.content.trains.entity.TrainIconType;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -84,7 +83,7 @@ public abstract class TrainEditPacket implements CustomPacketPayload {
 			super(id, name, iconType, mapColor);
 		}
 
-		public void handle(LocalPlayer player) {
+		public void handle(Player player) {
 			handleSided(null);
 		}
 

@@ -3,7 +3,7 @@ package com.simibubi.create.content.trains.entity;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.trains.TrainHUD;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -17,7 +17,7 @@ public record TrainPromptPacket(Component text, boolean shadow) implements Custo
 	        TrainPromptPacket::new
 	);
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		TrainHUD.currentPrompt = text;
 		TrainHUD.currentPromptShadow = shadow;
 		TrainHUD.promptKeepAlive = 30;

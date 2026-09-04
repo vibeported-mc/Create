@@ -9,7 +9,7 @@ import com.simibubi.create.AllPackets;
 
 import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,7 +27,7 @@ public record MinecartControllerUpdatePacket(int entityId, @Nullable CompoundTag
 		this(controller.cart().getId(), controller.isEmpty() ? null : controller.serializeNBT(registries));
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		Entity entityByID = player.level().getEntity(entityId);
 		if (entityByID == null)
 			return;

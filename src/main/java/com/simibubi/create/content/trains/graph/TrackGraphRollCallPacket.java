@@ -16,7 +16,7 @@ import com.simibubi.create.content.trains.GlobalRailwayManager;
 
 import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -33,7 +33,7 @@ public record TrackGraphRollCallPacket(List<Entry> entries) implements CustomPac
 		return new TrackGraphRollCallPacket(entries);
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		GlobalRailwayManager manager = Create.RAILWAYS.sided(null);
 		Set<UUID> unusedIds = new HashSet<>(manager.trackNetworks.keySet());
 		List<Integer> failedIds = new ArrayList<>();

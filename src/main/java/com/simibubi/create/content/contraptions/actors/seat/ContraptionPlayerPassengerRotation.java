@@ -1,5 +1,7 @@
 package com.simibubi.create.content.contraptions.actors.seat;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity.ContraptionRotationState;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
@@ -7,7 +9,6 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.math.AngleHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -24,7 +25,7 @@ public class ContraptionPlayerPassengerRotation {
 	}
 
 	public static void frame() {
-		Player player = Minecraft.getInstance().player;
+		Player player = ClientAccess.player();
 		if (!active)
 			return;
 		if (player == null || !player.isPassenger()) {

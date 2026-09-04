@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +10,6 @@ import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.foundation.gui.menu.MenuBase;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
@@ -48,7 +49,7 @@ public class StockKeeperCategoryMenu extends MenuBase<StockTickerBlockEntity> {
 	protected StockTickerBlockEntity createOnClient(RegistryFriendlyByteBuf extraData) {
 		BlockPos blockPos = extraData.readBlockPos();
 		return AllBlocks.STOCK_TICKER.get()
-			.getBlockEntity(Minecraft.getInstance().level, blockPos);
+			.getBlockEntity(ClientAccess.level(), blockPos);
 	}
 
 	@Override

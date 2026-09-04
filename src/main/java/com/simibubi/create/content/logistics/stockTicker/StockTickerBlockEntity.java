@@ -1,5 +1,7 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -36,7 +38,6 @@ import dan200.computercraft.api.peripheral.PeripheralCapability;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.nbt.NBTHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -252,7 +253,7 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 	public boolean addToTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		if (receivedPayments.isEmpty())
 			return false;
-		if (!behaviour.mayAdministrate(Minecraft.getInstance().player))
+		if (!behaviour.mayAdministrate(ClientAccess.player()))
 			return false;
 
 		CreateLang.translate("stock_ticker.contains_payments")

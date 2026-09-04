@@ -1,5 +1,7 @@
 package com.simibubi.create.content.processing.sequenced;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
@@ -24,7 +26,6 @@ import com.simibubi.create.foundation.utility.CreateLang;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -235,7 +236,7 @@ public class SequencedAssemblyRecipe implements Recipe<RecipeWrapper> {
 		SequencedAssembly sequencedAssembly = stack.get(AllDataComponents.SEQUENCED_ASSEMBLY);
 		List<Component> tooltip = event.getToolTip();
 
-		RecipeManager recipeManager = RecipeFinder.getManager(Minecraft.getInstance().level);
+		RecipeManager recipeManager = RecipeFinder.getManager(ClientAccess.level());
 		if (recipeManager == null) {
 			// 26.2 keeps the loaded recipes server-side, so an unopened world's client cannot resolve
 			// the recipe behind this item. The component carries its own progress, which is enough for

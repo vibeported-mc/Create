@@ -14,17 +14,13 @@ import com.simibubi.create.CreateClient;
 import com.simibubi.create.api.equipment.potatoCannon.PotatoCannonProjectileType;
 import com.simibubi.create.content.equipment.armor.BacktankUtil;
 import com.simibubi.create.content.equipment.zapper.ShootableGadgetItemMethods;
-import com.simibubi.create.foundation.item.CustomArmPoseItem;
+import com.simibubi.create.foundation.utility.ClientAccess;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.foundation.utility.GlobalRegistryAccess;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.math.VecHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HumanoidModel.ArmPose;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Holder;
@@ -53,7 +49,7 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
-public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmPoseItem, BlockBreakingItem {
+public class PotatoCannonItem extends ProjectileWeaponItem implements BlockBreakingItem {
 	private static final Predicate<ItemStack> AMMO_PREDICATE = s ->
 		PotatoCannonProjectileType.getTypeForItem(GlobalRegistryAccess.getOrThrow(), s.getItem()).isPresent();
 
@@ -168,7 +164,7 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
 		Consumer<Component> tooltip, TooltipFlag flag) {
-		LocalPlayer player = Minecraft.getInstance().player;
+		Player player = ClientAccess.player();
 		if (player == null) {
 			super.appendHoverText(stack, context, display, tooltip, flag);
 			return;
@@ -281,15 +277,6 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 	@Override
 	public ItemUseAnimation getUseAnimation(ItemStack stack) {
 		return ItemUseAnimation.NONE;
-	}
-
-	@Override
-	@Nullable
-	public ArmPose getArmPose(ItemStack stack, AbstractClientPlayer player, InteractionHand hand) {
-		if (!player.swinging) {
-			return ArmPose.CROSSBOW_HOLD;
-		}
-		return null;
 	}
 
 	public record Ammo(ItemStack stack, PotatoCannonProjectileType type) {

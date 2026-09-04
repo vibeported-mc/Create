@@ -8,7 +8,7 @@ import java.util.UUID;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.compat.trainmap.TrainMapSync.TrainMapSyncEntry;
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.UUIDUtil;
 import net.createmod.catnip.api.data.Pair;
 import net.minecraft.network.FriendlyByteBuf;
@@ -39,7 +39,7 @@ public class TrainMapSyncPacket implements CustomPacketPayload {
 		entries.add(Pair.of(trainId, data));
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		TrainMapSyncClient.receive(this);
 	}
 

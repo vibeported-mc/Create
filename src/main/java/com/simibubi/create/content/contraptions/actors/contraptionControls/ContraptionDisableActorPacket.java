@@ -6,7 +6,7 @@ import java.util.List;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.Contraption;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,7 +21,7 @@ public record ContraptionDisableActorPacket(int entityId, ItemStack filter, bool
 	        ContraptionDisableActorPacket::new
 	);
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		Entity entityByID = player.level().getEntity(entityId);
 		if (!(entityByID instanceof AbstractContraptionEntity ace))
 			return;

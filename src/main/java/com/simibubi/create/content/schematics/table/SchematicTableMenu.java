@@ -1,11 +1,13 @@
 package com.simibubi.create.content.schematics.table;
 
+import net.minecraft.world.level.Level;
+
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.foundation.gui.menu.MenuBase;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -54,7 +56,7 @@ public class SchematicTableMenu extends MenuBase<SchematicTableBlockEntity> {
 
 	@Override
 	protected SchematicTableBlockEntity createOnClient(RegistryFriendlyByteBuf extraData) {
-		ClientLevel world = Minecraft.getInstance().level;
+		Level world = ClientAccess.level();
 		BlockEntity blockEntity = world.getBlockEntity(extraData.readBlockPos());
 		if (blockEntity instanceof SchematicTableBlockEntity schematicTable) {
 			schematicTable.readClient(extraData.readNbt(), extraData.registryAccess());

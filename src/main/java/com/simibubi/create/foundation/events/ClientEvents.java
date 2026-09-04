@@ -1,11 +1,17 @@
 package com.simibubi.create.foundation.events;
 
+import net.neoforged.neoforge.client.gui.map.RegisterMapDecorationRenderersEvent;
+
+import com.simibubi.create.foundation.map.StationMapDecorationRenderer;
+
+import com.simibubi.create.AllMapDecorationTypes;
+
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import com.simibubi.create.foundation.recipe.ClientRecipes;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import com.simibubi.create.content.equipment.symmetryWand.SymmetryHandler;
+import com.simibubi.create.content.equipment.symmetryWand.SymmetryHandlerClient;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import java.util.function.Supplier;
 
@@ -31,7 +37,7 @@ import com.simibubi.create.content.equipment.armor.NetheriteBacktankFirstPersonR
 import com.simibubi.create.content.equipment.armor.NetheriteDivingHandler;
 import com.simibubi.create.content.equipment.armor.RemainingAirOverlay;
 import com.simibubi.create.content.equipment.blueprint.BlueprintOverlayRenderer;
-import com.simibubi.create.content.equipment.clipboard.ClipboardValueSettingsHandler;
+import com.simibubi.create.content.equipment.clipboard.ClipboardValueSettingsHandlerClient;
 import com.simibubi.create.content.equipment.extendoGrip.ExtendoGripRenderHandler;
 import com.simibubi.create.content.equipment.goggles.GoggleOverlayRenderer;
 import com.simibubi.create.content.equipment.hats.CreateHatArmorLayer;
@@ -122,6 +128,22 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class ClientEvents {
+
+	/**
+	 * Client-side registrations Create makes on the mod bus.
+	 * <p>
+	 * The station map decoration used to be registered from {@code CommonEvents.ModBusEvents}, which
+	 * a dedicated server loads -- and the renderer it registers is a client class, so the server
+	 * could not construct the mod. The event is client-only anyway.
+	 */
+	@EventBusSubscriber(Dist.CLIENT)
+	public static class ModBusEvents {
+
+		@SubscribeEvent
+		public static void onRegisterMapDecorationRenderers(RegisterMapDecorationRenderersEvent event) {
+			event.register(AllMapDecorationTypes.STATION_MAP_DECORATION.value(), new StationMapDecorationRenderer());
+		}
+	}
 	@SubscribeEvent
 	public static void onTickPre(ClientTickEvent.Pre event) {
 		onTick(true);
@@ -188,7 +210,7 @@ public class ClientEvents {
 		CameraDistanceModifier.tick();
 		CameraAngleAnimationService.tick();
 		TrainHUD.tick();
-		ClipboardValueSettingsHandler.clientTick();
+		ClipboardValueSettingsHandlerClient.clientTick();
 		CreateClient.VALUE_SETTINGS_HANDLER.tick();
 		ScrollValueHandler.tick();
 		NetheriteBacktankFirstPersonRenderer.clientTick();
@@ -261,7 +283,7 @@ public class ClientEvents {
 		CarriageCouplingRenderer.submitAll(ms, queue, camera);
 		CreateClient.SCHEMATIC_HANDLER.submit(ms, queue, camera, state.cameraRenderState);
 		ChainConveyorInteractionHandler.submitCustomBlockSelection(ms, queue, camera);
-		SymmetryHandler.onSubmitFeatures(state, queue, ms);
+		SymmetryHandlerClient.onSubmitFeatures(state, queue, ms);
 
 		ms.popPose();
 

@@ -1,13 +1,5 @@
 package com.simibubi.create;
 
-import net.neoforged.neoforge.client.fluid.FluidTintSource;
-import net.minecraft.client.resources.model.sprite.Material;
-import net.minecraft.client.renderer.block.FluidModel;
-import java.util.List;
-import net.minecraft.client.renderer.fog.environment.FogEnvironment;
-import net.minecraft.client.renderer.fog.FogData;
-import org.joml.Vector4f;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.NotNull;
@@ -26,9 +18,6 @@ import com.tterrag.registrate.builders.FluidBuilder.FluidTypeFactory;
 import com.tterrag.registrate.util.entry.FluidEntry;
 
 import net.createmod.catnip.api.theme.Color;
-import net.minecraft.client.Camera;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.fog.FogRenderer.FogMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -65,12 +54,12 @@ public class AllFluids {
 
 	public static final FluidEntry<PotionFluid> POTION =
 		REGISTRATE.virtualFluid("potion", PotionFluidType::new, PotionFluid::createSource, PotionFluid::createFlowing)
-			.model(() -> tintedModel("potion", () -> AllFluids.POTION.get()))
+			.model(() -> AllFluidsClient.tintedModel("potion", () -> AllFluids.POTION.get()))
 			.lang("Potion")
 			.register();
 
 	public static final FluidEntry<VirtualFluid> TEA = REGISTRATE.virtualFluid("tea")
-		.model(() -> tintedModel("tea", () -> AllFluids.TEA.get()))
+		.model(() -> AllFluidsClient.tintedModel("tea", () -> AllFluids.TEA.get()))
 		.lang("Builder's Tea")
 		.tag(AllFluidTags.TEA.tag)
 		.register();
@@ -79,7 +68,7 @@ public class AllFluids {
 		REGISTRATE.standardFluid("honey",
 				SolidRenderedPlaceableFluidType.create(0xEAAE2F,
 					() -> 1f / 8f * AllConfigs.client().honeyTransparencyMultiplier.getF()))
-			.model(() -> tintedModel("honey", () -> AllFluids.HONEY.get()))
+			.model(() -> AllFluidsClient.tintedModel("honey", () -> AllFluids.HONEY.get()))
 			.lang("Honey")
 			.properties(b -> b.viscosity(2000)
 				.density(1400))
@@ -102,7 +91,7 @@ public class AllFluids {
 		REGISTRATE.standardFluid("chocolate",
 				SolidRenderedPlaceableFluidType.create(0x622020,
 					() -> 1f / 32f * AllConfigs.client().chocolateTransparencyMultiplier.getF()))
-			.model(() -> tintedModel("chocolate", () -> AllFluids.CHOCOLATE.get()))
+			.model(() -> AllFluidsClient.tintedModel("chocolate", () -> AllFluids.CHOCOLATE.get()))
 			.lang("Chocolate")
 			.tag(AllFluidTags.CHOCOLATE.tag)
 			.properties(b -> b.viscosity(1500)
@@ -124,38 +113,6 @@ public class AllFluids {
 	// Load this class
 
 	public static void register() {
-	}
-
-	/**
-	 * The models Create's own fluids are drawn from.
-	 * <p>
-	 * The textures follow the same naming the fluid builders use, and the tint is whatever the fluid
-	 * type reports.
-	 */
-	/**
-	 * Registrate already registers a model for every fluid it builds, and 26.2 rejects a second
-	 * registration for the same fluid, so the tint 26.2 moved out of the fluid type travels with that
-	 * model rather than through a registration of Create's own.
-	 */
-	private static Supplier<FluidModel.Unbaked> tintedModel(String name, Supplier<? extends Fluid> fluid) {
-		return () -> {
-			FluidTintSource tint = null;
-			if (fluid.get()
-				.getFluidType() instanceof TintedFluidType tinted)
-				tint = new FluidTintSource() {
-					@Override
-					public int color(FluidState state) {
-						return tinted.getTintColor(new FluidStack(state.getType(), 1));
-					}
-
-					@Override
-					public int colorAsStack(FluidStack stack) {
-						return tinted.getTintColor(stack);
-					}
-				};
-			return new FluidModel.Unbaked(new Material(Create.asResource("fluid/" + name + "_still")),
-				new Material(Create.asResource("fluid/" + name + "_flow")), null, tint);
-		};
 	}
 
 	public static void registerFluidInteractions() {
@@ -222,7 +179,7 @@ public class AllFluids {
 	 * A fluid Create tints itself.
 	 * <p>
 	 * 26.2 moved a fluid's textures and tint into a baked model held by the model manager, so the
-	 * type no longer carries them; {@link AllFluids#registerFluidModels} builds the model from the
+	 * type no longer carries them; {@link AllFluidsClient#tintedModel} builds the model from the
 	 * fluid's name and hands the tint back through it.
 	 */
 	public static abstract class TintedFluidType extends FluidType {
@@ -237,28 +194,7 @@ public class AllFluids {
 		 * client extension.
 		 */
 		public IClientFluidTypeExtensions clientExtensions() {
-			return new IClientFluidTypeExtensions() {
-
-				@Override
-				public void modifyFogColor(Camera camera, float partialTick, ClientLevel level, int renderDistance,
-					float darkenWorldAmount, Vector4f fluidFogColor) {
-					Vector3f customFogColor = TintedFluidType.this.getCustomFogColor();
-					if (customFogColor != null)
-						fluidFogColor.set(customFogColor.x, customFogColor.y, customFogColor.z, fluidFogColor.w);
-				}
-
-				@Override
-				public void modifyFogRender(Camera camera, @Nullable FogEnvironment environment, float renderDistance,
-					float partialTick, FogData fogData) {
-					float modifier = TintedFluidType.this.getFogDistanceModifier();
-					float baseWaterFog = 96.0f;
-					if (modifier != 1f) {
-						fogData.environmentalStart = -8;
-						fogData.environmentalEnd = baseWaterFog * modifier;
-					}
-				}
-
-			};
+			return AllFluidsClient.fluidExtensions(this);
 		}
 
 		protected abstract int getTintColor(FluidStack stack);

@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.CreateClient;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -17,7 +17,7 @@ public record RemoveTrainPacket(UUID id) implements CustomPacketPayload {
 		this(train.id);
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		CreateClient.RAILWAYS.trains.remove(this.id);
 	}
 

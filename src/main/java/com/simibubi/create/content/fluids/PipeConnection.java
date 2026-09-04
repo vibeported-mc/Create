@@ -1,5 +1,7 @@
 package com.simibubi.create.content.fluids;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import com.simibubi.create.foundation.utility.RegistryNbt;
 import com.simibubi.create.foundation.utility.NbtValueIO;
 import com.simibubi.create.foundation.fluid.FluidHelper;
@@ -372,7 +374,7 @@ public class PipeConnection {
 	}
 
 	private void spawnParticlesInner(Level level, BlockPos pos, FluidStack fluid) {
-		if (level == Minecraft.getInstance().level)
+		if (level == ClientAccess.level())
 			if (!isRenderEntityWithinDistance(pos))
 				return;
 		if (hasOpenEnd())
@@ -382,7 +384,7 @@ public class PipeConnection {
 	}
 
 	private void spawnSplashOnRimInner(Level world, BlockPos pos, FluidStack fluid) {
-		if (world == Minecraft.getInstance().level)
+		if (world == ClientAccess.level())
 			if (!isRenderEntityWithinDistance(pos))
 				return;
 		spawnRimParticles(world, pos, fluid, SPLASH_PARTICLE_AMOUNT);

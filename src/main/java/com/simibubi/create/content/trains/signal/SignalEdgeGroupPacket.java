@@ -10,7 +10,7 @@ import com.simibubi.create.AllPackets;
 import com.simibubi.create.CreateClient;
 
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -28,7 +28,7 @@ public record SignalEdgeGroupPacket(List<UUID> ids, List<EdgeGroupColor> colors,
 		this(ImmutableList.of(id), ImmutableList.of(color), true);
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		Map<UUID, SignalEdgeGroup> signalEdgeGroups = CreateClient.RAILWAYS.signalEdgeGroups;
 		for (int i = 0; i < ids.size(); i++) {
 			UUID id = ids.get(i);

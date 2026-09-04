@@ -117,6 +117,18 @@ public class CubeParticle extends Particle {
 		return CubeParticleGroup.TYPE;
 	}
 
+	/**
+	 * The provider, reached without {@link CubeParticleData} naming a client class.
+	 * <p>
+	 * {@code CubeParticleData#getFactory} used to write {@code new Factory()}, and the JVM checks
+	 * that against the declared {@link ParticleProvider} return type when it verifies the particle
+	 * data -- which a dedicated server cannot do. Through a static whose return type is already
+	 * {@code ParticleProvider}, there is nothing to check and the class loads only where it runs.
+	 */
+	public static ParticleProvider<CubeParticleData> factory() {
+		return new Factory();
+	}
+
 	public static class Factory implements ParticleProvider<CubeParticleData> {
 
 		@Override

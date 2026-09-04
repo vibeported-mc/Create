@@ -3,7 +3,7 @@ package com.simibubi.create.content.contraptions.glue;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import com.simibubi.create.AllPackets;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -17,7 +17,7 @@ public record GlueEffectPacket(BlockPos pos, Direction direction, boolean fullBl
 			GlueEffectPacket::new
 	);
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		if (!player.blockPosition().closerThan(pos, 100))
 			return;
 		SuperGlueItem.spawnParticles(player.level(), pos, direction, fullBlock);

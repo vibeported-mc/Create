@@ -20,7 +20,6 @@ import net.createmod.catnip.api.animation.LerpedFloat;
 import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.math.VecHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -89,7 +88,8 @@ public class WhistleBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 			|| isVirtual());
 		animation.chase(powered ? 1 : 0, powered ? .5f : .4f, powered ? Chaser.EXP : Chaser.LINEAR);
 		animation.tickChaser();
-		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> this.tickAudio(getOctave(), powered));
+		PlatformHelper.INSTANCE.executeOnClientOnly(
+			() -> () -> WhistleBlockEntityClient.tickAudio(this, getOctave(), powered));
 	}
 
 	@Override
@@ -123,49 +123,15 @@ public class WhistleBlockEntity extends SmartBlockEntity implements IHaveGoggleI
 			.orElse(WhistleSize.MEDIUM);
 	}
 
-	protected WhistleSoundInstance soundInstance;
-
-	protected void tickAudio(WhistleSize size, boolean powered) {
-		if (!powered) {
-			if (soundInstance != null) {
-				soundInstance.fadeOut();
-				soundInstance = null;
-			}
-			return;
-		}
-
-		float f = (float) Math.pow(2, -pitch / 12.0);
-		boolean particle = level.getGameTime() % 8 == 0;
-		Vec3 eyePosition = Minecraft.getInstance().getCameraEntity().getEyePosition();
-		float maxVolume = (float) Mth.clamp((64 - eyePosition.distanceTo(Vec3.atCenterOf(worldPosition))) / 64, 0, 1);
-
-		if (soundInstance == null || soundInstance.isStopped() || soundInstance.getOctave() != size) {
-			Minecraft.getInstance()
-				.getSoundManager()
-				.play(soundInstance = new WhistleSoundInstance(size, worldPosition));
-			AllSoundEvents.WHISTLE_CHIFF.playAt(level, worldPosition, maxVolume * .175f,
-				size == WhistleSize.SMALL ? f + .75f : f, false);
-			particle = true;
-		}
-
-		soundInstance.keepAlive();
-		soundInstance.setPitch(f);
-
-		if (!particle)
-			return;
-
-		Direction facing = getBlockState().getOptionalValue(WhistleBlock.FACING)
-			.orElse(Direction.SOUTH);
-		float angle = 180 + AngleHelper.horizontalAngle(facing);
-		Vec3 sizeOffset = VecHelper.rotate(new Vec3(0, -0.4f, 1 / 16f * size.ordinal()), angle, Axis.Y);
-		Vec3 offset = VecHelper.rotate(new Vec3(0, 1, 0.75f), angle, Axis.Y);
-		Vec3 v = offset.scale(.45f)
-			.add(sizeOffset)
-			.add(Vec3.atCenterOf(worldPosition));
-		Vec3 m = offset.subtract(Vec3.atLowerCornerOf(facing.getUnitVec3i())
-			.scale(.75f));
-		level.addParticle(new SteamJetParticleData(1), v.x, v.y, v.z, m.x, m.y, m.z);
-	}
+	/**
+	 * The sound this whistle is currently playing, if a client is playing one.
+	 * <p>
+	 * Kept here because it is per-whistle state, but only ever touched by
+	 * {@link WhistleBlockEntityClient} -- a field's type is resolved when it is first read, not when
+	 * the block entity is loaded, so naming a client class here is safe where naming one in a method
+	 * body would not be.
+	 */
+	WhistleSoundInstance soundInstance;
 
 	public int getPitchId() {
 		return pitch + 100 * getBlockState().getOptionalValue(WhistleBlock.SIZE)

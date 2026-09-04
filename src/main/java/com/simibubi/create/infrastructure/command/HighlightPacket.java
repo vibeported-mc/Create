@@ -6,7 +6,7 @@ import com.simibubi.create.AllSpecialTextures;
 
 import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.api.client.outliner.Outliner;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -14,7 +14,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 public record HighlightPacket(BlockPos pos) implements CustomPacketPayload {
 	public static final StreamCodec<ByteBuf, HighlightPacket> STREAM_CODEC = BlockPos.STREAM_CODEC.map(HighlightPacket::new, p -> p.pos);
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		if (!player.level().isLoaded(pos)) {
 			return;
 		}

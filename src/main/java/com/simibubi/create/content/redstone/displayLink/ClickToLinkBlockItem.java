@@ -1,5 +1,6 @@
 package com.simibubi.create.content.redstone.displayLink;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
 import com.simibubi.create.foundation.item.BlockEntityDataHelper;
 import net.minecraft.util.TriState;
 import com.mojang.serialization.Codec;
@@ -13,7 +14,6 @@ import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.api.nbt.NBTHelper;
 import net.createmod.catnip.api.client.outliner.Outliner;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -145,7 +145,7 @@ public abstract class ClickToLinkBlockItem extends BlockItem {
 	private static AABB lastShownAABB = null;
 
 	public static void clientTick() {
-		Player player = Minecraft.getInstance().player;
+		Player player = ClientAccess.player();
 		if (player == null)
 			return;
 		ItemStack heldItemMainhand = player.getMainHandItem();
@@ -180,7 +180,7 @@ public abstract class ClickToLinkBlockItem extends BlockItem {
 	}
 
 	public AABB getSelectionBounds(BlockPos pos) {
-		Level world = Minecraft.getInstance().level;
+		Level world = ClientAccess.level();
 		BlockState state = world.getBlockState(pos);
 		VoxelShape shape = state.getShape(world, pos);
 		return shape.isEmpty() ? new AABB(BlockPos.ZERO)

@@ -6,7 +6,7 @@ import java.util.List;
 import com.simibubi.create.AllPackets;
 import net.createmod.catnip.api.data.codec.stream.CatnipStreamCodecBuilders;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
@@ -23,10 +23,10 @@ public record SymmetryEffectPacket(BlockPos mirror, List<BlockPos> positions) im
 		return AllPackets.SYMMETRY_EFFECT.getType();
 	}
 
-	public void handle(LocalPlayer player) {
+	public void handle(Player player) {
 		if (player.position().distanceTo(Vec3.atLowerCornerOf(mirror)) > 100)
 			return;
 		for (BlockPos to : positions)
-			SymmetryHandler.drawEffect(mirror, to);
+			SymmetryHandlerClient.drawEffect(mirror, to);
 	}
 }

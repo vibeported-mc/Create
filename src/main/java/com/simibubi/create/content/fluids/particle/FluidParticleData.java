@@ -29,8 +29,15 @@ public class FluidParticleData implements ParticleOptions, ICustomParticleData<F
 
 	@Override
 	public ParticleProvider<FluidParticleData> getFactory() {
-		return (data, world, x, y, z, vx, vy, vz, random) -> FluidStackParticle.create(data.type, world, data.fluid, x, y, z,
-			vx, vy, vz);
+		return FluidStackParticle.provider();
+	}
+
+	ParticleType<FluidParticleData> getParticleType() {
+		return type;
+	}
+
+	FluidStack getFluid() {
+		return fluid;
 	}
 
 	@Override

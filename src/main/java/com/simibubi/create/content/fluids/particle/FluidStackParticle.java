@@ -11,6 +11,7 @@ import com.simibubi.create.content.fluids.potion.PotionFluid;
 import net.createmod.catnip.api.theme.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
@@ -22,6 +23,19 @@ public class FluidStackParticle extends SingleQuadParticle {
 	private final float uo;
 	private final float vo;
 	private final FluidStack fluid;
+
+	/**
+	 * The provider, reached without {@link FluidParticleData} naming a client class.
+	 * <p>
+	 * The lambda that builds these used to sit in {@code FluidParticleData#getFactory}, and its body
+	 * returns a {@link net.minecraft.client.particle.Particle} -- which the JVM resolves when it
+	 * verifies the particle data, so a dedicated server could not load it. Behind a static returning
+	 * the interface, nothing client-side is named until a client calls it.
+	 */
+	public static ParticleProvider<FluidParticleData> provider() {
+		return (data, world, x, y, z, vx, vy, vz, random) -> create(data.getParticleType(), world, data.getFluid(), x,
+			y, z, vx, vy, vz);
+	}
 
 	public static FluidStackParticle create(ParticleType<FluidParticleData> type, ClientLevel world, FluidStack fluid,
 		double x, double y, double z, double vx, double vy, double vz) {

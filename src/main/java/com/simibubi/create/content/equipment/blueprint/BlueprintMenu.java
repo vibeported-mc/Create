@@ -1,5 +1,7 @@
 package com.simibubi.create.content.equipment.blueprint;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
@@ -9,7 +11,6 @@ import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.content.equipment.blueprint.BlueprintEntity.BlueprintSection;
 import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -123,7 +124,7 @@ public class BlueprintMenu extends GhostItemMenu<BlueprintSection> {
 	protected BlueprintSection createOnClient(RegistryFriendlyByteBuf extraData) {
 		int entityID = extraData.readVarInt();
 		int section = extraData.readVarInt();
-		Entity entityByID = Minecraft.getInstance().level.getEntity(entityID);
+		Entity entityByID = ClientAccess.level().getEntity(entityID);
 		if (!(entityByID instanceof BlueprintEntity blueprintEntity))
 			return null;
 		BlueprintSection blueprintSection = blueprintEntity.getSection(section);

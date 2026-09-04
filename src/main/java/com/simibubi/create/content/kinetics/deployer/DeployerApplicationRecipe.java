@@ -1,5 +1,7 @@
 package com.simibubi.create.content.kinetics.deployer;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import java.util.List;
@@ -15,7 +17,6 @@ import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +43,7 @@ public class DeployerApplicationRecipe extends ItemApplicationRecipe implements 
 				.require(RecipeAccessors.ingredients(sandpaperRecipe.value())
 						.get(0))
 						.require(AllItemTags.SANDPAPER.tag)
-						.output(RecipeAccessors.result(sandpaperRecipe.value(), Minecraft.getInstance().level))
+						.output(RecipeAccessors.result(sandpaperRecipe.value(), ClientAccess.level()))
 						.build();
 
 		return new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, id), recipe);

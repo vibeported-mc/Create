@@ -1,11 +1,12 @@
 package com.simibubi.create.content.logistics.stockTicker;
 
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import java.util.List;
 
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.foundation.gui.menu.MenuBase;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -38,7 +39,7 @@ public class StockKeeperRequestMenu extends MenuBase<StockTickerBlockEntity> {
 	protected StockTickerBlockEntity createOnClient(RegistryFriendlyByteBuf extraData) {
 		isAdmin = extraData.readBoolean();
 		isLocked = extraData.readBoolean();
-		if (Minecraft.getInstance().level
+		if (ClientAccess.level()
 			.getBlockEntity(extraData.readBlockPos()) instanceof StockTickerBlockEntity stbe)
 			return stbe;
 		return null;

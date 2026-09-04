@@ -1,5 +1,9 @@
 package com.simibubi.create.content.processing.burner;
 
+import net.minecraft.world.entity.player.Player;
+
+import com.simibubi.create.foundation.utility.ClientAccess;
+
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +26,6 @@ import net.createmod.catnip.api.animation.LerpedFloat.Chaser;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.math.VecHelper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -145,7 +147,7 @@ public class BlazeBurnerBlockEntity extends SmartBlockEntity {
 
 		if (!active) {
 			float target = 0;
-			LocalPlayer player = Minecraft.getInstance().player;
+			Player player = ClientAccess.player();
 			if (player != null && !player.isInvisible()) {
 				double x;
 				double z;
