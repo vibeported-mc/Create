@@ -22,7 +22,6 @@ import com.simibubi.create.content.logistics.chute.ChuteBlock;
 
 import net.createmod.catnip.api.math.AngleHelper;
 import net.createmod.catnip.api.math.VecHelper;
-import net.createmod.ponder.api.client.level.PonderLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -174,11 +173,12 @@ public class PackageEntity extends LivingEntity implements IEntityWithComplexSpa
 			originalEntity = null;
 		}
 
-		if (level() instanceof PonderLevel) {
-			setDeltaMovement(getDeltaMovement().add(0, -0.06, 0));
-			if (position().y < 0.125)
-				discard();
-		}
+		// Behind a side check, and the check is what keeps a dedicated server up. Ponder is a client
+		// thing: asking whether this level is one means loading a class the server does not have, and
+		// the first package to tick there brought the whole server down with a crash report naming a
+		// rendering class. @see PackageEntityClient
+		if (level().isClientSide())
+			PackageEntityClient.tickInPonder(this);
 
 		insertionDelay = Math.min(insertionDelay + 1, 30);
 		super.tick();
