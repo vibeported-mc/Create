@@ -55,13 +55,8 @@ neoForge {
             jvmArgument("-XX:+IgnoreUnrecognizedVMOptions")
             jvmArgument("-XX:+AllowEnhancedClassRedefinition")
 
-            // -PserverGameTestSelect=<part of a name> runs only the server gametests whose names contain
-            // it, for looking at one on its own.
-            if(project.hasProperty("serverGameTestSelect"))
-                systemProperty("create.gametest.server.select", project.property("serverGameTestSelect"))
-
             // -Pjdwp=<port> waits for a debugger to attach before the game starts, which is the only
-            // way to have breakpoints in place before a gametest has been and gone.
+            // way to have breakpoints in place before whatever is being looked at has happened.
             if(project.hasProperty("jdwp"))
                 jvmArgument("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:"
                     + project.property("jdwp"))
