@@ -19,7 +19,7 @@ public record ContraptionColliderLockPacket(int contraption, double offset, int 
 	);
 
 	public void handle(Player player) {
-		ContraptionCollider.lockPacketReceived(contraption, sender, offset);
+		ContraptionColliderClient.lockPacketReceived(contraption, sender, offset);
 	}
 
 	@Override

@@ -33,11 +33,6 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.api.math.VecHelper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -69,8 +64,8 @@ public class ContraptionCollider {
 		NONE, CLIENT, REMOTE, SERVER
 	}
 
-	private static MutablePair<WeakReference<AbstractContraptionEntity>, Double> safetyLock = new MutablePair<>();
-	private static Map<AbstractContraptionEntity, Map<Player, Double>> remoteSafetyLocks = new WeakHashMap<>();
+	static MutablePair<WeakReference<AbstractContraptionEntity>, Double> safetyLock = new MutablePair<>();
+	static Map<AbstractContraptionEntity, Map<Player, Double>> remoteSafetyLocks = new WeakHashMap<>();
 
 	static void collideEntities(AbstractContraptionEntity contraptionEntity) {
 		Level world = contraptionEntity.level();
@@ -88,7 +83,7 @@ public class ContraptionCollider {
 		ContraptionRotationState rotation = null;
 
 		if (world.isClientSide() && safetyLock.left != null && safetyLock.left.get() == contraptionEntity)
-			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> saveClientPlayerFromClipping(contraptionEntity, contraptionMotion));
+			PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> ContraptionColliderClient.saveClientPlayerFromClipping(contraptionEntity, contraptionMotion));
 
 		// After death, multiple refs to the client player may show up in the area
 		boolean skipClientPlayer = false;
@@ -328,56 +323,6 @@ public class ContraptionCollider {
 
 	}
 
-	private static int packetCooldown = 0;
-
-	private static void saveClientPlayerFromClipping(AbstractContraptionEntity contraptionEntity,
-		Vec3 contraptionMotion) {
-		LocalPlayer entity = Minecraft.getInstance().player;
-		if (entity.isPassenger())
-			return;
-
-		double prevDiff = safetyLock.right;
-		double currentDiff = entity.getY() - contraptionEntity.getY();
-		double motion = contraptionMotion.subtract(entity.getDeltaMovement()).y;
-		double trend = Math.signum(currentDiff - prevDiff);
-
-		ClientPacketListener handler = entity.connection;
-		if (handler.getOnlinePlayers()
-			.size() > 1) {
-			if (packetCooldown > 0)
-				packetCooldown--;
-			if (packetCooldown == 0) {
-				ClientNetworkHelper.INSTANCE.sendToServer(new ContraptionColliderLockPacketRequest(contraptionEntity.getId(), currentDiff));
-				packetCooldown = 3;
-			}
-		}
-
-		if (trend == 0)
-			return;
-		if (trend == Math.signum(motion))
-			return;
-
-		double speed = contraptionMotion.multiply(0, 1, 0)
-			.lengthSqr();
-		if (trend > 0 && speed < 0.1)
-			return;
-		if (speed < 0.05)
-			return;
-
-		if (!savePlayerFromClipping(entity, contraptionEntity, contraptionMotion, prevDiff))
-			safetyLock.setLeft(null);
-	}
-
-	public static void lockPacketReceived(int contraptionId, int remotePlayerId, double suggestedOffset) {
-		ClientLevel level = Minecraft.getInstance().level;
-		if (!(level.getEntity(contraptionId) instanceof ControlledContraptionEntity contraptionEntity))
-			return;
-		if (!(level.getEntity(remotePlayerId) instanceof RemotePlayer player))
-			return;
-		remoteSafetyLocks.computeIfAbsent(contraptionEntity, $ -> new WeakHashMap<>())
-			.put(player, suggestedOffset);
-	}
-
 	private static void saveRemotePlayerFromClipping(Player entity, AbstractContraptionEntity contraptionEntity,
 		Vec3 contraptionMotion) {
 		if (entity.isPassenger())
@@ -391,7 +336,7 @@ public class ContraptionCollider {
 				locksOnThisContraption.remove(entity);
 	}
 
-	private static boolean savePlayerFromClipping(Player entity, AbstractContraptionEntity contraptionEntity,
+	static boolean savePlayerFromClipping(Player entity, AbstractContraptionEntity contraptionEntity,
 		Vec3 contraptionMotion, double yStartOffset) {
 		AABB bb = entity.getBoundingBox()
 			.deflate(1 / 4f, 0, 1 / 4f);
@@ -564,12 +509,8 @@ public class ContraptionCollider {
 		if (!entity.level().isClientSide())
 			return PlayerType.SERVER;
 		MutableBoolean isClient = new MutableBoolean(false);
-		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> isClient.setValue(isClientPlayerEntity(entity)));
+		PlatformHelper.INSTANCE.executeOnClientOnly(() -> () -> isClient.setValue(ContraptionColliderClient.isClientPlayerEntity(entity)));
 		return isClient.booleanValue() ? PlayerType.CLIENT : PlayerType.REMOTE;
-	}
-
-	private static boolean isClientPlayerEntity(Entity entity) {
-		return entity instanceof LocalPlayer;
 	}
 
 	private static void getPotentiallyCollidedShapes(Level world, Contraption contraption, AABB localBB, DoubleLineConsumer out) {
