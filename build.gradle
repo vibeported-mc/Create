@@ -55,12 +55,6 @@ neoForge {
             jvmArgument("-XX:+IgnoreUnrecognizedVMOptions")
             jvmArgument("-XX:+AllowEnhancedClassRedefinition")
 
-            // -Pjdwp=<port> waits for a debugger to attach before the game starts, which is the only
-            // way to have breakpoints in place before whatever is being looked at has happened.
-            if(project.hasProperty("jdwp"))
-                jvmArgument("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:"
-                    + project.property("jdwp"))
-
             //jvmArgument("-XX:-OmitStackTraceInFastThrow") // uncomment when you get exceptions with null messages etc
             //jvmArgument("-XX:+UnlockCommercialFeatures") // uncomment for profiling
 
@@ -74,13 +68,6 @@ neoForge {
 
         client {
             client()
-
-            // -PquickPlay=<world folder> boots straight into that singleplayer world, which saves
-            // walking the menus on every launch when testing a render change.
-            if (project.hasProperty("quickPlay")) {
-                programArgument("--quickPlaySingleplayer")
-                programArgument(project.property("quickPlay") as String)
-            }
         }
 
         server {
