@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.foundation.utility.CreateLang;
@@ -114,13 +113,15 @@ public abstract class SymmetryMirror {
 
 	public abstract PartialModel getModel();
 
-	public void applyModelTransform(PoseStack ms) {}
-
 	/**
-	 * How far the model is turned about its own Y axis when drawn in a GUI.
+	 * How far the model is turned about its own Y axis when it is drawn.
 	 * <p>
-	 * The GUI pose is two-dimensional in 26.2, so a screen cannot apply {@link #applyModelTransform}
-	 * itself; it hands the angle to the element builder instead.
+	 * An angle rather than a transform, and that is the whole of the fix it represents: a mirror
+	 * travels in a data component, and NeoForge validates one by reflecting over the class -- which
+	 * resolves every method's parameter types at once. A {@code PoseStack} in any signature here was
+	 * therefore loaded on a dedicated server the moment a wand was used, and brought the server down
+	 * in its tick loop. Both subclasses that turned their model were turning it by exactly this
+	 * angle, so the caller applies it and the client type stays on the client.
 	 */
 	public float getModelYRotation() {
 		return 0;

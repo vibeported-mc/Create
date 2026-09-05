@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.foundation.utility.CreateLang;
 
@@ -96,14 +95,6 @@ public class CrossPlaneMirror extends SymmetryMirror {
 		return ((Align) orientation) == Align.Y ? 0 : 45;
 	}
 
-	@Override
-	public void applyModelTransform(PoseStack ms) {
-		super.applyModelTransform(ms);
-		TransformStack.of(ms)
-			.center()
-			.rotateYDegrees(((Align) orientation) == Align.Y ? 0 : 45)
-			.uncenter();
-	}
 
 	@Override
 	public List<Component> getAlignToolTips() {

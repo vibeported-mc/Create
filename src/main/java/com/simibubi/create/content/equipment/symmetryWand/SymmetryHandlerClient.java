@@ -7,6 +7,7 @@ import com.simibubi.create.content.equipment.symmetryWand.mirror.SymmetryMirror;
 import com.simibubi.create.foundation.render.CachedBufferer;
 
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import dev.engine_room.flywheel.lib.transform.TransformStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -76,7 +77,15 @@ public class SymmetryHandlerClient {
 			ms.pushPose();
 			ms.translate(pos.getX() - view.x(), pos.getY() - view.y(), pos.getZ() - view.z());
 			ms.translate(0, yShift + .2f, 0);
-			mirror.applyModelTransform(ms);
+
+			// The turn the mirror used to apply to the pose itself. It cannot any more: a mirror is a
+			// data component, and naming a PoseStack in one of its methods made a dedicated server
+			// resolve that class while validating the component. So it says how far, and this -- which
+			// only a client runs -- does the turning.
+			TransformStack.of(ms)
+				.center()
+				.rotateYDegrees(mirror.getModelYRotation())
+				.uncenter();
 
 			CachedBufferer.partial(mirror.getModel(), Blocks.AIR.defaultBlockState())
 				.light(LightCoordsUtil.FULL_BRIGHT)
