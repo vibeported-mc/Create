@@ -1,15 +1,11 @@
 package com.simibubi.create.content.trains.track;
 
-import com.simibubi.create.foundation.render.CachedBufferer;
-import net.minecraft.util.LightCoordsUtil;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.UUIDUtil;
 import java.util.List;
 import java.util.UUID;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
@@ -26,15 +22,9 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.data.Iterate;
 import net.createmod.catnip.api.math.VecHelper;
 import net.createmod.catnip.api.nbt.NBTHelper;
-import net.createmod.catnip.api.level.wrapper.SchematicLevel;
-import net.createmod.catnip.api.client.render.SuperByteBuffer;
-import net.createmod.ponder.api.client.level.PonderLevel;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
@@ -43,7 +33,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -307,36 +296,6 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 
 	public static enum RenderedTrackOverlayType {
 		STATION, SIGNAL, DUAL_SIGNAL, OBSERVER;
-	}
-
-	/**
-	 * The overlay's placement comes from {@code prepareTrackOverlay}, which walks the PoseStack, so
-	 * this stays a submit-time operation rather than being split into an extracted state.
-	 */
-	public static void submit(LevelAccessor level, BlockPos pos, AxisDirection direction,
-							  BezierTrackPointLocation bezier, PoseStack ms, SubmitNodeCollector queue,
-							  RenderedTrackOverlayType type, float scale) {
-		if (level instanceof SchematicLevel && !(level instanceof PonderLevel))
-			return;
-
-		BlockState trackState = level.getBlockState(pos);
-		Block block = trackState.getBlock();
-		if (!(block instanceof ITrackBlock track))
-			return;
-
-		ms.pushPose();
-		var msr = TransformStack.of(ms);
-		PartialModel partial = track.prepareTrackOverlay(msr, level, pos, trackState, bezier, direction, type);
-		if (partial != null) {
-			SuperByteBuffer buffer = CachedBufferer.partial(partial, trackState);
-			TransformStack.of(buffer.getTransforms())
-				.translate(.5, 0, .5)
-				.scale(scale)
-				.translate(-.5, 0, -.5);
-			buffer.light(LightCoordsUtil.getLightCoords(level, pos))
-				.submit(ms, RenderTypes.cutoutMovingBlock(), queue);
-		}
-		ms.popPose();
 	}
 
 	public void transform(BlockEntity be, StructureTransform transform) {

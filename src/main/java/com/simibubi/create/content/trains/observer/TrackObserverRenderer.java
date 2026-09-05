@@ -7,6 +7,7 @@ import com.simibubi.create.content.trains.track.BezierTrackPointLocation;
 import com.simibubi.create.content.trains.track.ITrackBlock;
 import com.simibubi.create.content.trains.track.TrackTargetingBehaviour;
 import com.simibubi.create.content.trains.track.TrackTargetingBehaviour.RenderedTrackOverlayType;
+import com.simibubi.create.content.trains.track.TrackTargetingClient;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
 
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
@@ -82,7 +83,7 @@ public class TrackObserverRenderer
 		ms.pushPose();
 		TransformStack.of(ms)
 			.translate(state.offset);
-		TrackTargetingBehaviour.submit(state.level, state.targetPosition, state.targetDirection, state.targetBezier,
+		TrackTargetingClient.submitOverlay(state.level, state.targetPosition, state.targetDirection, state.targetBezier,
 			ms, queue, RenderedTrackOverlayType.OBSERVER, 1);
 		ms.popPose();
 	}

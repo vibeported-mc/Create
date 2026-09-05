@@ -70,7 +70,7 @@ import com.simibubi.create.content.trains.entity.TrainRelocator;
 import com.simibubi.create.content.trains.schedule.hat.TrainHatInfoReloadListener;
 import com.simibubi.create.content.trains.track.CurvedTrackInteraction;
 import com.simibubi.create.content.trains.track.TrackBlockOutline;
-import com.simibubi.create.content.trains.track.TrackPlacement;
+import com.simibubi.create.content.trains.track.TrackPlacementClient;
 import com.simibubi.create.content.trains.track.TrackPlacementOverlay;
 import com.simibubi.create.content.trains.track.TrackTargetingClient;
 import com.simibubi.create.foundation.blockEntity.behaviour.edgeInteraction.EdgeInteractionRenderer;
@@ -203,7 +203,7 @@ public class ClientEvents {
 		ToolboxHandlerClient.clientTick();
 		RadialWrenchHandler.clientTick();
 		TrackTargetingClient.clientTick();
-		TrackPlacement.clientTick();
+		TrackPlacementClient.clientTick();
 		TrainRelocator.clientTick();
 		ClickToLinkBlockItem.clientTick();
 		CurvedTrackInteraction.clientTick();
