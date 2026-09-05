@@ -1,15 +1,11 @@
 plugins {
     id("idea")
     id("eclipse")
-    id("jacoco")
     id("maven-publish")
     id("net.kyori.blossom") version "2.2.0" // https://github.com/KyoriPowered/blossom
     id("dev.ithundxr.silk") version "1.0.1" // https://github.com/ithundxr/silk
     id("net.neoforged.moddev") version "2.0.144" // https://projects.neoforged.net/neoforged/ModDevGradle
     id("me.modmuss50.mod-publish-plugin") version "1.1.0" // https://github.com/modmuss50/mod-publish-plugin
-    // Client gametests: builds src/gametest as its own mod and adds the runClientGameTest run.
-    // Built from Wurst-Imperium/neoforge-client-gametest-api branch 26.2 and published to mavenLocal.
-    id("net.wimods.neoforge-client-gametest-api") version "0.1.0+26.2"
 }
 
 boolean dev = System.getenv("RELEASE") == null || System.getenv("RELEASE") == "false"
@@ -31,40 +27,6 @@ idea {
         downloadJavadoc = true
         downloadSources = true
     }
-}
-
-// Coverage is opt-in, through -Pcoverage on a run. The recording a run leaves behind, and the
-// version of the tool that both writes and reads it.
-jacoco {
-    toolVersion = "0.8.13"
-}
-
-def coverageRecording = layout.buildDirectory.file("jacoco/clientGameTest.exec")
-
-configurations {
-    // The agent as a jar that can be handed straight to -javaagent, which is the "runtime" flavour
-    // rather than the one the jacoco plugin unpacks for its own tasks.
-    jacocoAgentRuntime
-}
-
-// Declared up here rather than with the rest, since the run configuration below asks for the jar
-// while this file is still being read and would otherwise find nothing.
-//
-// Both the tool and the bytecode library it reads with are fetched from one place and one place only:
-// the game's own library host is asked first otherwise, and does not have them, which costs a long
-// timeout before anything else is tried.
-repositories {
-    exclusiveContent {
-        forRepository { mavenCentral() }
-        filter {
-            includeGroup("org.jacoco")
-            includeGroup("org.ow2.asm")
-        }
-    }
-}
-
-dependencies {
-    jacocoAgentRuntime("org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime")
 }
 
 neoForge {
@@ -93,11 +55,6 @@ neoForge {
             jvmArgument("-XX:+IgnoreUnrecognizedVMOptions")
             jvmArgument("-XX:+AllowEnhancedClassRedefinition")
 
-            // -PguiBeat=<millis> rests that long after every click and scroll a gui test makes, so a
-            // run can be watched and followed. Off by default: a full run has nobody watching it.
-            if(project.hasProperty("guiBeat"))
-                systemProperty("create.gametest.gui.beatMillis", project.property("guiBeat"))
-
             // -PserverGameTestSelect=<part of a name> runs only the server gametests whose names contain
             // it, for looking at one on its own.
             if(project.hasProperty("serverGameTestSelect"))
@@ -109,14 +66,6 @@ neoForge {
                 jvmArgument("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:"
                     + project.property("jdwp"))
 
-            // -Pcoverage records which of Create's own classes a run reaches, into build/jacoco. Off by
-            // default: instrumenting every class as it loads costs time nobody wants to pay on a normal
-            // run. Only Create is watched - the game's own classes and the mixins that rewrite them are
-            // left alone, since instrumenting a class that is about to be rewritten tends to end badly.
-            if(project.hasProperty("coverage"))
-                jvmArgument("-javaagent:" + configurations.jacocoAgentRuntime.singleFile
-                    + "=destfile=" + coverageRecording.get().asFile
-                    + ",append=false,includes=com.simibubi.create.*,excludes=*.mixin.*:*.mixins.*")
             //jvmArgument("-XX:-OmitStackTraceInFastThrow") // uncomment when you get exceptions with null messages etc
             //jvmArgument("-XX:+UnlockCommercialFeatures") // uncomment for profiling
 
@@ -425,26 +374,5 @@ tasks.register("printCompileClasspath") {
     doLast {
         var cp = sourceSets.main.compileClasspath.files.collect { it.absolutePath }.join(File.pathSeparator)
         new File(project.layout.buildDirectory.get().asFile, "compile-classpath.txt").text = cp
-    }
-}
-
-// Turns what a -Pcoverage run recorded into something readable. Run it after the tests:
-//   ./gradlew runClientGameTest -Pcoverage && ./gradlew clientGameTestCoverage
-tasks.register("clientGameTestCoverage", JacocoReport) {
-    group = "verification"
-    description = "Reports which of Create's classes the last -Pcoverage run reached"
-
-    executionData(coverageRecording)
-    sourceSets(sourceSets.main)
-
-    reports {
-        html.required = true
-        xml.required = true
-        csv.required = false
-
-        // Named for what reads it: the Coverage Gutters extension looks for a file called jacoco.xml
-        // and paints the editor's margins from it.
-        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/jacoco.xml")
-        html.outputLocation = layout.buildDirectory.dir("reports/jacoco/html")
     }
 }
