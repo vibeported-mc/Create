@@ -159,16 +159,22 @@ var extractSodiumApi = tasks.register("extractSodiumApi", Copy) {
 }
 
 dependencies {
-    // Required dependencies. These are all built from source for 26.2 and published to mavenLocal;
-    // none of them are jarJar'd yet because the published coordinates do not exist upstream.
-    api("com.tterrag.registrate:Registrate:$registrate_version")
+    // Required dependencies. These are all built from source for 26.2 and published to mavenLocal,
+    // and all four are nested into the built jar the way 1.21.1 nested its three.
+    //
+    // Nesting is not a nicety here. Registrate carries no `neoforge.mods.toml` -- it is a library
+    // rather than a mod -- so a loader ignores it in the mods folder entirely, and a Create installed
+    // beside it dies on `NoClassDefFoundError: com/tterrag/registrate/AbstractRegistrate` before it
+    // reaches anything of its own. Nothing in development notices, because the dev runs and the e2e
+    // suite take all four off the Gradle classpath, where the distinction does not exist.
+    jarJar(api("com.tterrag.registrate:Registrate:$registrate_version"))
 
     compileOnlyApi("dev.engine-room.flywheel:flywheel-neoforge-api-$minecraft_version:$flywheel_version")
-    runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-$minecraft_version:$flywheel_version")
+    jarJar(runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-$minecraft_version:$flywheel_version"))
 
-    api("net.createmod.ponder:ponder-neoforge:$ponder_version")
+    jarJar(api("net.createmod.ponder:ponder-neoforge:$ponder_version"))
     // Catnip used to come along with Ponder; on the 26.x branches it is published separately.
-    api("net.createmod.catnip:catnip-neoforge:$ponder_version")
+    jarJar(api("net.createmod.catnip:catnip-neoforge:$ponder_version"))
 
     // Local dependencies - not published to consumers
     localImplementation("mezz.jei:jei-$minecraft_version-neoforge:$jei_version")
