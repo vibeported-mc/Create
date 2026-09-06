@@ -47,7 +47,14 @@ public class FakeTrackBlock extends Block implements EntityBlock, ProperWaterlog
 
 	@Override
 	public RenderShape getRenderShape(BlockState pState) {
-		return RenderShape.INVISIBLE;
+		// MODEL, for a block that draws nothing at all. Its model is parented to `block/air`, so the
+		// world renders no geometry either way -- but map mods take INVISIBLE as "there is nothing
+		// here" and skip the block before they ever build metadata for it. JourneyMap does exactly
+		// that: with INVISIBLE there is no `BlockMD` for `create:fake_track` at all, so its own
+		// Create handler -- which exists, and which would force the marker to be drawn in the
+		// track's grey -- is never called. The straights are ordinary blocks and come out fine,
+		// which is why a railway shows on a minimap with its corners missing.
+		return RenderShape.MODEL;
 	}
 
 	@Override
