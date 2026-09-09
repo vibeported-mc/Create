@@ -79,8 +79,15 @@ public class ThresholdSwitchBlockEntity extends SmartBlockEntity implements Clea
 
 	@Override
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		onWhenAbove = compound.getIntOr("OnAboveAmount", 0);
-		offWhenBelow = compound.getIntOr("OffBelowAmount", 0);
+		// Falling back to what the switch already has, not to zero. Zero is the one threshold that
+		// makes `currentLevel >= onWhenAbove` true for an empty container, so a tag that has lost
+		// these keys -- an older structure, a hand-written one, anything saved before they were
+		// renamed from OnAbove/OffBelow -- turns the switch into one that is on until something
+		// fills the chest, which is backwards and looks like the block being broken rather than the
+		// data being old. A fresh block entity carries the real defaults, and a saved one that
+		// genuinely holds zero still reads zero, because the key is there.
+		onWhenAbove = compound.getIntOr("OnAboveAmount", onWhenAbove);
+		offWhenBelow = compound.getIntOr("OffBelowAmount", offWhenBelow);
 		currentLevel = compound.getIntOr("CurrentAmount", 0);
 		currentMinLevel = compound.getIntOr("CurrentMinAmount", 0);
 		currentMaxLevel = compound.getIntOr("CurrentMaxAmount", 0);
@@ -92,8 +99,11 @@ public class ThresholdSwitchBlockEntity extends SmartBlockEntity implements Clea
 	}
 
 	protected void writeCommon(CompoundTag compound) {
-		compound.putFloat("OnAboveAmount", onWhenAbove);
-		compound.putFloat("OffBelowAmount", offWhenBelow);
+		// Written as ints, which is what they are and what `read` asks for. They were floats, left
+		// over from when the thresholds were fractions; `getIntOr` takes any numeric tag so it did
+		// no harm, but a field that reads int and writes float is an invitation to a real mismatch.
+		compound.putInt("OnAboveAmount", onWhenAbove);
+		compound.putInt("OffBelowAmount", offWhenBelow);
 		compound.putBoolean("Inverted", inverted);
 	}
 
