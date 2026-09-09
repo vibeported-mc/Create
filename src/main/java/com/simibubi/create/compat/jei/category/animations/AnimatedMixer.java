@@ -6,6 +6,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 
@@ -19,34 +20,18 @@ public class AnimatedMixer extends AnimatedKinetics {
 		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = 23;
 
-		blockElement(cogwheel())
-			.rotateBlock(0, getCurrentAngle() * 2, 0)
-			.atLocal(0, 0, 0)
-			.scale(scale)
-			.submit(graphics);
-
-		blockElement(AllBlocks.MECHANICAL_MIXER.getDefaultState())
-			.atLocal(0, 0, 0)
-			.scale(scale)
-			.submit(graphics);
-
 		float animation = ((Mth.sin(AnimationTickHolder.getRenderTime() / 32f) + 1) / 5) + .5f;
+		float angle = getCurrentAngle();
+		BlockState mixer = AllBlocks.MECHANICAL_MIXER.getDefaultState();
+		BlockState basinState = AllBlocks.BASIN.getDefaultState();
 
-		blockElement(AllPartialModels.MECHANICAL_MIXER_POLE)
-			.atLocal(0, animation, 0)
-			.scale(scale)
-			.submit(graphics);
-
-		blockElement(AllPartialModels.MECHANICAL_MIXER_HEAD)
-			.rotateBlock(0, getCurrentAngle() * 4, 0)
-			.atLocal(0, animation, 0)
-			.scale(scale)
-			.submit(graphics);
-
-		blockElement(AllBlocks.BASIN.getDefaultState())
-			.atLocal(0, 1.65, 0)
-			.scale(scale)
-			.submit(graphics);
+		scene(graphics, scale, (ps, col) -> {
+			part(ps, col, cogwheel().get(), null, 0, 0, 0, 0, angle * 2, 0);
+			part(ps, col, modelOf(mixer), mixer, 0, 0, 0, 0, 0, 0);
+			part(ps, col, AllPartialModels.MECHANICAL_MIXER_POLE.get(), null, 0, animation, 0, 0, 0, 0);
+			part(ps, col, AllPartialModels.MECHANICAL_MIXER_HEAD.get(), null, 0, animation, 0, 0, angle * 4, 0);
+			part(ps, col, modelOf(basinState), basinState, 0, 1.65, 0, 0, 0, 0);
+		});
 
 		matrixStack.popMatrix();
 	}

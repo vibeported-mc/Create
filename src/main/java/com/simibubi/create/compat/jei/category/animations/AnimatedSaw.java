@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.saw.SawBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Direction;
 
@@ -20,21 +21,16 @@ public class AnimatedSaw extends AnimatedKinetics {
 		matrixStack.translate((float) (2), (float) (22));
 		int scale = 25;
 
-		blockElement(shaft(Direction.Axis.X))
-			.rotateBlock(-getCurrentAngle(), 0, 0)
-			.scale(scale)
-			.submit(graphics);
+		BlockState shaft = shaft(Direction.Axis.X);
+		BlockState saw = AllBlocks.MECHANICAL_SAW.getDefaultState()
+			.setValue(SawBlock.FACING, Direction.UP);
+		float angle = getCurrentAngle();
 
-		blockElement(AllBlocks.MECHANICAL_SAW.getDefaultState()
-			.setValue(SawBlock.FACING, Direction.UP))
-			.rotateBlock(0, 0, 0)
-			.scale(scale)
-			.submit(graphics);
-
-		blockElement(AllPartialModels.SAW_BLADE_VERTICAL_ACTIVE)
-			.rotateBlock(0, -90, -90)
-			.scale(scale)
-			.submit(graphics);
+		scene(graphics, scale, (ps, col) -> {
+			part(ps, col, modelOf(shaft), shaft, 0, 0, 0, -angle, 0, 0);
+			part(ps, col, modelOf(saw), saw, 0, 0, 0, 0, 0, 0);
+			part(ps, col, AllPartialModels.SAW_BLADE_VERTICAL_ACTIVE.get(), null, 0, 0, 0, 0, -90, -90);
+		});
 
 		matrixStack.popMatrix();
 	}

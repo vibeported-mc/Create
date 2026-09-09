@@ -6,6 +6,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Direction;
 
@@ -25,25 +26,19 @@ public class AnimatedPress extends AnimatedKinetics {
 		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = basin ? 23 : 24;
 
-		blockElement(shaft(Direction.Axis.Z))
-				.rotateBlock(0, 0, getCurrentAngle())
-				.scale(scale)
-				.submit(graphics);
+		BlockState shaft = shaft(Direction.Axis.Z);
+		BlockState press = AllBlocks.MECHANICAL_PRESS.getDefaultState();
+		BlockState basinState = AllBlocks.BASIN.getDefaultState();
+		float angle = getCurrentAngle();
+		float headOffset = getAnimatedHeadOffset();
 
-		blockElement(AllBlocks.MECHANICAL_PRESS.getDefaultState())
-				.scale(scale)
-				.submit(graphics);
-
-		blockElement(AllPartialModels.MECHANICAL_PRESS_HEAD)
-				.atLocal(0, -getAnimatedHeadOffset(), 0)
-				.scale(scale)
-				.submit(graphics);
-
-		if (basin)
-			blockElement(AllBlocks.BASIN.getDefaultState())
-					.atLocal(0, 1.65, 0)
-					.scale(scale)
-					.submit(graphics);
+		scene(graphics, scale, (ps, col) -> {
+			part(ps, col, modelOf(shaft), shaft, 0, 0, 0, 0, 0, angle);
+			part(ps, col, modelOf(press), press, 0, 0, 0, 0, 0, 0);
+			part(ps, col, AllPartialModels.MECHANICAL_PRESS_HEAD.get(), null, 0, -headOffset, 0, 0, 0, 0);
+			if (basin)
+				part(ps, col, modelOf(basinState), basinState, 0, 1.65, 0, 0, 0, 0);
+		});
 
 		matrixStack.popMatrix();
 	}

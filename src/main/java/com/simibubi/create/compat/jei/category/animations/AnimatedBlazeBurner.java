@@ -12,6 +12,7 @@ import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.api.client.animation.AnimationTickHolder;
 import net.createmod.catnip.api.client.render.SpriteShiftEntry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
@@ -35,23 +36,17 @@ public class AnimatedBlazeBurner extends AnimatedKinetics {
 
 		float offset = (Mth.sin(AnimationTickHolder.getRenderTime() / 16f) + 0.5f) / 16f;
 
-		blockElement(AllBlocks.BLAZE_BURNER.getDefaultState()).atLocal(0, 1.65, 0)
-			.scale(scale)
-			.submit(graphics);
-
 		PartialModel blaze =
 			heatLevel == HeatLevel.SEETHING ? AllPartialModels.BLAZE_SUPER : AllPartialModels.BLAZE_ACTIVE;
 		PartialModel rods2 = heatLevel == HeatLevel.SEETHING ? AllPartialModels.BLAZE_BURNER_SUPER_RODS_2
 			: AllPartialModels.BLAZE_BURNER_RODS_2;
+		BlockState burner = AllBlocks.BLAZE_BURNER.getDefaultState();
 
-		blockElement(blaze).atLocal(1, 1.8, 1)
-			.rotate(0, 180, 0)
-			.scale(scale)
-			.submit(graphics);
-		blockElement(rods2).atLocal(1, 1.7 + offset, 1)
-			.rotate(0, 180, 0)
-			.scale(scale)
-			.submit(graphics);
+		scene(graphics, scale, (ps, col) -> {
+			part(ps, col, modelOf(burner), burner, 0, 1.65, 0, 0, 0, 0);
+			partSpun(ps, col, blaze.get(), null, 1, 1.8, 1, 0, 180, 0);
+			partSpun(ps, col, rods2.get(), null, 1, 1.7 + offset, 1, 0, 180, 0);
+		});
 
 		SpriteShiftEntry spriteShift =
 			heatLevel == HeatLevel.SEETHING ? AllSpriteShifts.SUPER_BURNER_FLAME : AllSpriteShifts.BURNER_FLAME;

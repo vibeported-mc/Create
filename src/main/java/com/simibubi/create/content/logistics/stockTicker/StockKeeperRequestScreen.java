@@ -2,6 +2,7 @@ package com.simibubi.create.content.logistics.stockTicker;
 
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.Level;
+import net.createmod.catnip.api.client.gui.ILightingSettings;
 import net.createmod.catnip.api.client.gui.render.pip.GuiElementTransform;
 import com.simibubi.create.foundation.gui.render.GuiCustomGeometryRenderState;
 import org.joml.Matrix3x2f;
@@ -533,7 +534,10 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			// 48-pixel burner is drawn at three times that.
 			ms.pushMatrix();
 			ms.translate((float) (entityX), (float) (entityY));
-			ms.scale(3, 3);
+			// 48 pixels to the block: what scaling a sixteen-unit box by three used to come to.
+			float burnerScale = 48;
+			float burnerUnit = GuiElementTransform.unitsPerBlock(burnerScale);
+			ms.scale(burnerScale / burnerUnit, burnerScale / burnerUnit);
 			graphics.guiRenderState.addPicturesInPictureState(new GuiCustomGeometryRenderState((poseStack, queue) -> {
 				CachedBufferer.partial(AllPartialModels.BLAZE_CAGE, burnerState)
 					.rotateCentered(horizontalAngle + Mth.PI, Direction.UP)
@@ -541,8 +545,10 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 					.submit(poseStack, RenderTypes.cutoutMovingBlock(), queue);
 				BlazeBurnerRenderer.submitShared(poseStack, null, queue, burnerLevel, burnerState, heatLevel,
 					animation, horizontalAngle, canDrawFlame, drawGoggles, drawHat, hashCode);
-			}, new Matrix3x2f(ms), new GuiElementTransform(0, 0, 0, -22.5f, -45, 0, 0, 0, 0, 0, 0, 0), 0, 0, 16, 16, 1,
-				null, null));
+			}, new Matrix3x2f(ms), new GuiElementTransform(0, 0, 0, -22.5f, -45, 0, 0, 0, 0, 0, 0, 0,
+				ILightingSettings.ITEMS_3D), GuiElementTransform.boxMin(burnerScale), GuiElementTransform.boxMin(burnerScale),
+				GuiElementTransform.boxMax(burnerScale), GuiElementTransform.boxMax(burnerScale),
+				burnerUnit, false, null, null));
 			ms.popMatrix();
 		}
 

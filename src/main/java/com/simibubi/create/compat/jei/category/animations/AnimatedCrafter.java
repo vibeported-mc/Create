@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class AnimatedCrafter extends AnimatedKinetics {
@@ -20,15 +21,13 @@ public class AnimatedCrafter extends AnimatedKinetics {
 		matrixStack.translate((float) (3), (float) (16));
 		int scale = 22;
 
-		blockElement(cogwheel())
-			.rotateBlock(90, 0, getCurrentAngle())
-			.scale(scale)
-			.submit(graphics);
+		BlockState crafter = AllBlocks.MECHANICAL_CRAFTER.getDefaultState();
+		float angle = getCurrentAngle();
 
-		blockElement(AllBlocks.MECHANICAL_CRAFTER.getDefaultState())
-			.rotateBlock(0, 180, 0)
-			.scale(scale)
-			.submit(graphics);
+		scene(graphics, scale, (ps, col) -> {
+			part(ps, col, cogwheel().get(), null, 0, 0, 0, 90, 0, angle);
+			part(ps, col, modelOf(crafter), crafter, 0, 0, 0, 0, 180, 0);
+		});
 
 		matrixStack.popMatrix();
 	}

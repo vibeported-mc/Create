@@ -18,6 +18,11 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.api.client.gui.element.GuiGameElement;
 import net.createmod.catnip.api.data.Iterate;
+import com.mojang.math.Axis;
+import com.simibubi.create.foundation.gui.render.GuiScene;
+import net.createmod.catnip.api.client.gui.ILightingSettings;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
@@ -129,27 +134,33 @@ public class ToolboxScreen extends AbstractSimiContainerScreen<ToolboxMenu> {
 		ms.pushMatrix();
 		ms.translate(x, y);
 
-		GuiGameElement.of(AllBlocks.TOOLBOXES.get(color)
-			.getDefaultState())
-			.viewRotate(-22, -202, 0)
-			.scale(50)
-			.submit(graphics);
-
+		BlockState box = AllBlocks.TOOLBOXES.get(color)
+			.getDefaultState();
+		BlockStateModel lidModel = AllPartialModels.TOOLBOX_LIDS.get(color)
+			.get();
+		BlockStateModel drawerModel = AllPartialModels.TOOLBOX_DRAWER.get();
 		float lid = menu.contentHolder.lid.getValue(partialTicks);
-		GuiGameElement.of(AllPartialModels.TOOLBOX_LIDS.get(color).get())
-			.viewRotate(-22, -202, 0)
-			.rotate(-105 * lid, 0, 0)
-			.withRotationOffset(0, -6 / 16f, 12 / 16f)
-			.scale(50)
-			.submit(graphics);
-
 		float drawers = menu.contentHolder.drawers.getValue(partialTicks);
-		for (int offset : Iterate.zeroAndOne)
-			GuiGameElement.of(AllPartialModels.TOOLBOX_DRAWER.get())
-				.viewRotate(-22, -202, 0)
-				.atLocal(0, -offset * 1 / 8f, drawers * -.175f * (2 - offset))
-				.scale(50)
-				.submit(graphics);
+
+		// Body, lid and both drawers in one pass. Drawn as four elements they became four separate
+		// pictures composited over each other, which is why the lid came away from the box.
+		GuiScene.submit(graphics, 50, -22, -202, ILightingSettings.ITEMS_3D, (ps, col) -> {
+			GuiScene.part(ps, col, GuiScene.modelOf(box), box, 0, 0, 0, 0, 0, 0);
+
+			ps.pushPose();
+			ps.translate(0, -6 / 16f, 12 / 16f);
+			ps.mulPose(Axis.XP.rotationDegrees(-105 * lid));
+			ps.translate(0, 6 / 16f, -12 / 16f);
+			GuiScene.part(ps, col, lidModel, null, 0, 0, 0, 0, 0, 0);
+			ps.popPose();
+
+			for (int offset : Iterate.zeroAndOne) {
+				ps.pushPose();
+				ps.translate(0, -offset * 1 / 8f, drawers * -.175f * (2 - offset));
+				GuiScene.part(ps, col, drawerModel, null, 0, 0, 0, 0, 0, 0);
+				ps.popPose();
+			}
+		});
 
 		ms.popMatrix();
 	}

@@ -5,6 +5,8 @@ import org.joml.Matrix3x2fStack;
 import com.simibubi.create.AllBlocks;
 
 import net.createmod.catnip.api.client.render.FluidRenderHelper;
+import net.minecraft.world.level.block.state.BlockState;
+import net.createmod.catnip.api.client.gui.render.pip.GuiElementTransform;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.LightCoordsUtil;
 
@@ -27,16 +29,21 @@ public class AnimatedItemDrain extends AnimatedKinetics {
 		matrixStack.translate((float) (xOffset), (float) (yOffset));
 		int scale = 20;
 
-		blockElement(AllBlocks.ITEM_DRAIN.getDefaultState())
-			.scale(scale)
-			.submit(graphics);
-
-		// The flip and the scale to block units are what a picture-in-picture pass already does for
-		// the geometry it draws, so only the widget's pixels-per-block is left to hand over.
+		BlockState drain = AllBlocks.ITEM_DRAIN.getDefaultState();
 		float from = 2 / 16f;
 		float to = 1f - from;
-		sceneGeometry(graphics, scale, 0, 0, 0, (poseStack, queue) -> FluidRenderHelper.submitFluidBox(queue, fluid,
-			from, from, from, to, 3 / 4f, to, poseStack, LightCoordsUtil.FULL_BRIGHT, false, true));
+
+		// The fluid goes in the same pass as the drain so that the rim occludes it on depth, the way
+		// it did when both rode one pose stack.
+		scene(graphics, scale, (ps, col) -> {
+			part(ps, col, modelOf(drain), drain, 0, 0, 0, 0, 0, 0);
+
+			ps.pushPose();
+			GuiElementTransform.flipForGuiRender(ps);
+			FluidRenderHelper.submitFluidBox(col, fluid, from, from, from, to, 3 / 4f, to, ps,
+				LightCoordsUtil.FULL_BRIGHT, false, true);
+			ps.popPose();
+		});
 
 		matrixStack.popMatrix();
 	}
