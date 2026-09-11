@@ -51,7 +51,7 @@ public class AnimatedSpout extends AnimatedKinetics {
 		// blocks, so the same nudge is that many of the widget's pixels to the block.
 		float nudge = -3 * squeeze / 32f / scale;
 
-		scene(graphics, scale, (ps, col) -> {
+		scene(graphics, scale, TALL_ROOM, (ps, col) -> {
 			part(ps, col, modelOf(spout), spout, 0, 0, 0, 0, 0, 0);
 
 			ps.pushPose();

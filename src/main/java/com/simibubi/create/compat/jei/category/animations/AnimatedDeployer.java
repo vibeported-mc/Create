@@ -34,7 +34,7 @@ public class AnimatedDeployer extends AnimatedKinetics {
 		// scaled itself. A scene works in blocks, so it is seventeen of the widget's pixels per block.
 		float reachInBlocks = reach * 17 / scale;
 
-		scene(graphics, scale, (ps, col) -> {
+		scene(graphics, scale, TALL_ROOM, (ps, col) -> {
 			part(ps, col, modelOf(shaft), shaft, 0, 0, 0, 0, 0, angle);
 			part(ps, col, modelOf(deployer), deployer, 0, 0, 0, 0, 0, 0);
 

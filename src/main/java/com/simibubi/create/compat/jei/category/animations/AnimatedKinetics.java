@@ -120,6 +120,16 @@ public abstract class AnimatedKinetics implements IDrawable {
 
 
 	/**
+	 * Room for a machine drawn over a depot or basin two blocks below it.
+	 *
+	 * <p>That lower block's far corner, tilted by the view, lands 2.17 blocks from the anchor -- just
+	 * past the default two, so the box cut the bottom off every deployer and spout. Measured by
+	 * projecting every part's vertices through the view rotation, across every Create category: these
+	 * two were the only widgets that reached past their box.
+	 */
+	protected static final int TALL_ROOM = 3;
+
+	/**
 	 * Draws a whole widget in one picture-in-picture pass.
 	 *
 	 * <p>Every part a widget is made of has to go into the same pass. Submitted one at a time they
