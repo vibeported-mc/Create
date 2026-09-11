@@ -49,7 +49,6 @@ import net.createmod.catnip.api.config.ConfigBase.ConfigBool;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -168,11 +167,12 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 		return CHANCE_SLOT;
 	}
 
+	/**
+	 * What the recipe makes. The level may be absent; {@link RecipeAccessors#result} decides whether
+	 * it needs one, since Create's own recipes carry their result and only vanilla displays do not.
+	 */
 	public static ItemStack getResultItem(Recipe<?> recipe) {
-		ClientLevel level = Minecraft.getInstance().level;
-		if (level == null)
-			return ItemStack.EMPTY;
-		return RecipeAccessors.result(recipe, level);
+		return RecipeAccessors.result(recipe, Minecraft.getInstance().level);
 	}
 
 	public static IRecipeSlotRichTooltipCallback addStochasticTooltip(ProcessingOutput output) {

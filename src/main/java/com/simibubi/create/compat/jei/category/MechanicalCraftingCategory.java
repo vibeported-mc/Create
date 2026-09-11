@@ -1,5 +1,9 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.content.kinetics.crafter.MechanicalCraftingRecipe;
+
+import java.util.Optional;
+
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NullMarked;
@@ -55,14 +59,15 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		IIngredientRenderer<ItemStack> renderer = new CrafterIngredientRenderer(recipe);
 		int i = 0;
 
-		for (Ingredient ingredient : RecipeAccessors.ingredients(recipe)) {
+		for (Optional<Ingredient> cell : grid(recipe)) {
 			float f = 19 * scale;
 			int xPosition = (int) (x + 1 + (i % getWidth(recipe)) * f);
 			int yPosition = (int) (y + 1 + (i / getWidth(recipe)) * f);
 
-			builder.addSlot(RecipeIngredientRole.INPUT, xPosition, yPosition)
+			// A gap in the pattern still takes its place in the grid; it just holds no slot.
+			cell.ifPresent(ingredient -> builder.addSlot(RecipeIngredientRole.INPUT, xPosition, yPosition)
 				.setCustomRenderer(VanillaTypes.ITEM_STACK, renderer)
-				.addIngredients(ingredient);
+				.addIngredients(ingredient));
 
 			i++;
 		}
@@ -85,12 +90,35 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		return 3 + 50 - (int) (getScale(recipe) * getWidth(recipe) * 19 * .5);
 	}
 
+	/**
+	 * The recipe's grid, one entry per cell and empty where the pattern has a gap - which is what
+	 * positions each ingredient, so the flat list {@link RecipeAccessors#ingredients} gives will not do.
+	 *
+	 * <p>1.21.1 had this from {@code getIngredients}, with an empty ingredient in each gap. 26.2 has
+	 * no empty ingredient, and a mechanical crafting recipe is no longer a {@link ShapedRecipe}; both
+	 * kinds still hand out their pattern's cells, as optionals.
+	 */
+	private static List<Optional<Ingredient>> grid(CraftingRecipe recipe) {
+		if (recipe instanceof MechanicalCraftingRecipe mechanical)
+			return mechanical.getIngredients();
+		if (recipe instanceof ShapedRecipe shaped)
+			return shaped.getIngredients();
+		return RecipeAccessors.ingredients(recipe)
+			.stream()
+			.map(Optional::of)
+			.toList();
+	}
+
 	private static int getWidth(CraftingRecipe recipe) {
-		return recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getWidth() : 1;
+		if (recipe instanceof MechanicalCraftingRecipe mechanical)
+			return mechanical.getWidth();
+		return recipe instanceof ShapedRecipe shaped ? shaped.getWidth() : 1;
 	}
 
 	private static int getHeight(CraftingRecipe recipe) {
-		return recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getHeight() : 1;
+		if (recipe instanceof MechanicalCraftingRecipe mechanical)
+			return mechanical.getHeight();
+		return recipe instanceof ShapedRecipe shaped ? shaped.getHeight() : 1;
 	}
 
 	@Override
@@ -99,16 +127,15 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		Matrix3x2fStack matrixStack = graphics.pose();
 		matrixStack.pushMatrix();
 		float scale = getScale(recipe);
+		List<Optional<Ingredient>> grid = grid(recipe);
 		matrixStack.translate(getXPadding(recipe), getYPadding(recipe));
 
 		for (int row = 0; row < getHeight(recipe); row++)
 			for (int col = 0; col < getWidth(recipe); col++) {
 				int pIndex = row * getWidth(recipe) + col;
-				if (pIndex >= RecipeAccessors.ingredients(recipe)
-					.size())
+				if (pIndex >= grid.size())
 					break;
-				if (RecipeAccessors.ingredients(recipe)
-					.get(pIndex)
+				if (grid.get(pIndex)
 					.isEmpty())
 					continue;
 				matrixStack.pushMatrix();
@@ -127,12 +154,10 @@ public class MechanicalCraftingCategory extends CreateRecipeCategory<CraftingRec
 		matrixStack.pushMatrix();
 		matrixStack.translate((float) (0), (float) (0));
 
-		int amount = 0;
-		for (Ingredient ingredient : RecipeAccessors.ingredients(recipe)) {
-			if (ingredient.isEmpty())
-				continue;
-			amount++;
-		}
+		// One crafter per filled cell.
+		long amount = grid.stream()
+			.filter(Optional::isPresent)
+			.count();
 
 		graphics.text(Minecraft.getInstance().font, amount + "", 142, 39, 0xFFFFFFFF);
 		matrixStack.popMatrix();

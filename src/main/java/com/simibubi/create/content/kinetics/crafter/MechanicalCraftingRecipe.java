@@ -109,6 +109,17 @@ public class MechanicalCraftingRecipe extends NormalCraftingRecipe {
 		return result.create();
 	}
 
+	/**
+	 * What the recipe makes, without a crafting input to make it from.
+	 *
+	 * <p>The recipe has no vanilla display to read this from - it keeps itself out of the recipe
+	 * book, which only knows 3x3 grids - so anything showing it, JEI above all, asks here.
+	 */
+	public ItemStack getResultItem() {
+		return result.create();
+	}
+
+	/** The grid, one entry per cell and empty where the pattern has a gap. */
 	public List<Optional<Ingredient>> getIngredients() {
 		return pattern.ingredients();
 	}
