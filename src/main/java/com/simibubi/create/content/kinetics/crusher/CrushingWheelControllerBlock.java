@@ -73,6 +73,7 @@ public class CrushingWheelControllerBlock extends DirectionalBlock implements En
 		super.createBlockStateDefinition(builder);
 	}
 
+	@Override
 	public void entityInside(BlockState state, Level worldIn, BlockPos pos, Entity entityIn,
 		InsideBlockEffectApplier effectApplier, boolean isPrecise) {
 		if (!state.getValue(VALID))
@@ -169,6 +170,20 @@ public class CrushingWheelControllerBlock extends DirectionalBlock implements En
 				break;
 			}
 		});
+	}
+
+	/**
+	 * No outline, so nothing can target the controller: not the crosshair, not a click to break it.
+	 * <p>
+	 * The block used to be {@code air()}, and air was what kept players off it - both the client and
+	 * the server refuse to start breaking an air block. It had to stop being air (see
+	 * {@code AllBlocks.CRUSHING_WHEEL_CONTROLLER}), and without this it would be a full-block target
+	 * with no hardness, breaking the crusher in one click. An empty outline also lets skylight through
+	 * the gap, as air did.
+	 */
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+		return Shapes.empty();
 	}
 
 	@Override

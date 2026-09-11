@@ -708,13 +708,18 @@ public class AllBlocks {
 			.transform(customItemModel())
 			.register();
 
+	// Not .air(), which 1.21.1 had. 26.2's Entity.checkInsideBlocks skips air blocks outright, so an
+	// air controller is never given entityInside - and that is the only way a dropped item or a mob
+	// gets into a crusher. Everything air did for it is kept by other means: the block has no
+	// outline, so it cannot be targeted or broken (see CrushingWheelControllerBlock.getShape), and
+	// it shrugs off explosions, which used to pass over air without touching it.
 	public static final BlockEntry<CrushingWheelControllerBlock> CRUSHING_WHEEL_CONTROLLER =
 		REGISTRATE.block("crushing_wheel_controller", CrushingWheelControllerBlock::new)
 			.properties(p -> p.mapColor(MapColor.STONE)
 				.noOcclusion()
 				.noLootTable()
-				.air()
 				.noCollision()
+				.explosionResistance(3_600_000f)
 				.pushReaction(PushReaction.BLOCK))
 			.blockstate(() -> (c, p) -> BlockStateGen.forAllStates(c, p, BlockStateGen.mapToAir(p), BlockStateProperties.FACING))
 			.register();
