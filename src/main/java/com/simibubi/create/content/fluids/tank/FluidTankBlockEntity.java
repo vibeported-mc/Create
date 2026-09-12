@@ -663,6 +663,14 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 	@Override
 	public void destroy() {
 		super.destroy();
+		// 1.21.1's block removed the block entity before splitting the multiblock. 26.2 calls this
+		// hook while it is still registered, and a split walks the multiblock through
+		// ConnectivityHandler.partAt, which would find this one and have removeController re-place
+		// its own block - so the block never came away at all: setBlockState sees the section no
+		// longer holding the air it placed, reports the removal as failed, and nothing drops. What
+		// came back was a standalone block with the wrong shape. Marked removed, partAt passes over
+		// it, and its contents go to the rest of the multiblock as they did before.
+		setRemoved();
 		ConnectivityHandler.splitMulti(this);
 	}
 }
