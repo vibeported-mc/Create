@@ -133,6 +133,19 @@ public abstract class AbstractFunnelBlock extends Block
 
 	protected abstract Direction getFacing(BlockState state);
 
+	/**
+	 * A funnel becomes a belt funnel when a belt is built under it, and back when the belt goes, and
+	 * keeps its filter across both. They are different blocks sharing one block entity type.
+	 * <p>
+	 * 1.21.1 kept the block entity by declining to remove it in {@code onRemove}. 26.2 has no
+	 * {@code onRemove}: the chunk removes a block entity itself whenever the block changes, unless the
+	 * <em>new</em> block asks to keep it here.
+	 */
+	@Override
+	protected boolean shouldChangedStateKeepBlockEntity(BlockState oldState) {
+		return AllBlockEntityTypes.FUNNEL.get().isValid(oldState);
+	}
+
 	@Override
 	public Class<FunnelBlockEntity> getBlockEntityClass() {
 		return FunnelBlockEntity.class;

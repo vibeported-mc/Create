@@ -166,6 +166,19 @@ public class ToolboxBlock extends HorizontalDirectionalBlock implements SimpleWa
 			.setValue(WATERLOGGED, Boolean.valueOf(ifluidstate.getType() == Fluids.WATER));
 	}
 
+	/**
+	 * Dyeing a toolbox swaps it for the toolbox of that colour, a different block, and what is inside
+	 * has to come along.
+	 * <p>
+	 * 1.21.1 kept the block entity by declining to remove it in {@code onRemove}. 26.2 has no
+	 * {@code onRemove}: the chunk removes a block entity itself whenever the block changes, unless the
+	 * <em>new</em> block asks to keep it here.
+	 */
+	@Override
+	protected boolean shouldChangedStateKeepBlockEntity(BlockState oldState) {
+		return AllBlockEntityTypes.TOOLBOX.get().isValid(oldState);
+	}
+
 	@Override
 	public Class<ToolboxBlockEntity> getBlockEntityClass() {
 		return ToolboxBlockEntity.class;

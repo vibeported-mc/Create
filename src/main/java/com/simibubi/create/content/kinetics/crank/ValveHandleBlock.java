@@ -37,6 +37,19 @@ public class ValveHandleBlock extends HandCrankBlock {
 		return new ValveHandleBlock(properties, null);
 	}
 
+	/**
+	 * Dyeing a valve handle swaps it for the handle of that colour, a different block, which should not
+	 * cost it its block entity and its place in the kinetic network.
+	 * <p>
+	 * 1.21.1 kept the block entity by declining to remove it in {@code onRemove}. 26.2 has no
+	 * {@code onRemove}: the chunk removes a block entity itself whenever the block changes, unless the
+	 * <em>new</em> block asks to keep it here.
+	 */
+	@Override
+	protected boolean shouldChangedStateKeepBlockEntity(BlockState oldState) {
+		return AllBlockEntityTypes.VALVE_HANDLE.get().isValid(oldState);
+	}
+
 	public static ValveHandleBlock dyed(Properties properties, DyeColor color) {
 		return new ValveHandleBlock(properties, color);
 	}

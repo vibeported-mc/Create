@@ -152,8 +152,13 @@ public class TrackBlockEntity extends SmartBlockEntity implements TransformableB
 			return;
 
 		BlockState blockState = level.getBlockState(worldPosition);
-		if (blockState.hasProperty(TrackBlock.HAS_BE))
+		if (blockState.hasProperty(TrackBlock.HAS_BE)) {
 			level.setBlockAndUpdate(worldPosition, blockState.setValue(TrackBlock.HAS_BE, false));
+			// 1.21.1 removed this block entity from TrackBlock#onRemove when HAS_BE went false. 26.2
+			// only removes a block entity when the block itself changes, so without this the server
+			// keeps it -- the packet below only clears it on clients -- and saves it with the chunk.
+			level.removeBlockEntity(worldPosition);
+		}
 		if (level instanceof ServerLevel serverLevel)
 			NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, ChunkPos.containing(worldPosition), new RemoveBlockEntityPacket(worldPosition));
 	}

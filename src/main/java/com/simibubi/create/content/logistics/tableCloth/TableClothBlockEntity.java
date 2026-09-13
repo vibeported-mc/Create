@@ -152,6 +152,11 @@ public class TableClothBlockEntity extends SmartBlockEntity implements Transform
 
 			if (manuallyAddedItems.isEmpty() && !computerBehaviour.hasAttachedComputer()) {
 				level.setBlock(worldPosition, getBlockState().setValue(TableClothBlock.HAS_BE, false), Block.UPDATE_ALL);
+				// 1.21.1 destroyed and removed this block entity from TableClothBlock#onRemove when HAS_BE
+				// went false. 26.2 only removes a block entity when the block itself changes, so without
+				// this the server keeps it -- the packet below only clears it on clients.
+				destroy();
+				level.removeBlockEntity(worldPosition);
 				if (level instanceof ServerLevel serverLevel)
 					NetworkHelper.INSTANCE.sendToClientsTrackingChunk(serverLevel, ChunkPos.containing(worldPosition), new RemoveBlockEntityPacket(worldPosition));
 			} else

@@ -379,6 +379,19 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 		return side != null;
 	}
 
+	/**
+	 * Dyeing a nixie tube swaps it for the tube of that colour, a different block, and the text it shows
+	 * has to come along.
+	 * <p>
+	 * 1.21.1 kept the block entity by declining to remove it in {@code onRemove}. 26.2 has no
+	 * {@code onRemove}: the chunk removes a block entity itself whenever the block changes, unless the
+	 * <em>new</em> block asks to keep it here.
+	 */
+	@Override
+	protected boolean shouldChangedStateKeepBlockEntity(BlockState oldState) {
+		return AllBlockEntityTypes.NIXIE_TUBE.get().isValid(oldState);
+	}
+
 	@Override
 	public Class<NixieTubeBlockEntity> getBlockEntityClass() {
 		return NixieTubeBlockEntity.class;
