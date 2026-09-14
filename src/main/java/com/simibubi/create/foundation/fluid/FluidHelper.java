@@ -1,5 +1,10 @@
 package com.simibubi.create.foundation.fluid;
 
+import net.neoforged.neoforge.fluids.crafting.display.FluidStackContentsFactory;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
+import net.minecraft.util.context.ContextMap;
+import java.util.List;
 import net.neoforged.neoforge.transfer.resource.ResourceStack;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -47,6 +52,35 @@ public class FluidHelper {
 
 	public static boolean isLava(Fluid fluid) {
 		return convertToStill(fluid) == Fluids.LAVA;
+	}
+
+	/**
+	 * The fluid stacks an ingredient accepts, each with the ingredient's amount and whatever components
+	 * the ingredient asks for.
+	 *
+	 * <p>1.21.1's {@code SizedFluidIngredient#getFluids} gave whole stacks. 26.2's
+	 * {@code FluidIngredient#fluids} gives the fluids alone, so a stack built from one loses its
+	 * components: every potion a recipe wanted showed as an uncraftable potion. The stacks, components
+	 * included, are in the ingredient's display, which is resolved here. A display that resolves to
+	 * nothing without registries -- a tag, when there are none to give -- falls back to the bare fluids.
+	 */
+	public static List<FluidStack> matchingStacks(SizedFluidIngredient ingredient, @Nullable HolderLookup.Provider registries) {
+		ContextMap.Builder context = new ContextMap.Builder();
+		if (registries != null)
+			context.withParameter(SlotDisplayContext.REGISTRIES, registries);
+		List<FluidStack> stacks = ingredient.ingredient()
+			.display()
+			.resolve(context.create(SlotDisplayContext.CONTEXT), FluidStackContentsFactory.INSTANCE)
+			.filter(stack -> !stack.isEmpty())
+			.map(stack -> stack.copyWithAmount(ingredient.amount()))
+			.toList();
+		if (!stacks.isEmpty())
+			return stacks;
+		return ingredient.ingredient()
+			.fluids()
+			.stream()
+			.map(fluid -> new FluidStack(fluid, ingredient.amount()))
+			.toList();
 	}
 
 	public static boolean isSame(FluidStack fluidStack, FluidStack fluidStack2) {

@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.jei.category;
 
+import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.recipe.RecipeAccessors;
 import org.jspecify.annotations.NullMarked;
 import static mezz.jei.api.recipe.RecipeType.createRecipeHolderType;
@@ -145,11 +146,8 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements IReci
 	 * ingredient's own stream.
 	 */
 	public static List<FluidStack> fluidsOf(SizedFluidIngredient ingredient) {
-		return ingredient.ingredient()
-			.fluids()
-			.stream()
-			.map(fluid -> new FluidStack(fluid, ingredient.amount()))
-			.toList();
+		var level = Minecraft.getInstance().level;
+		return FluidHelper.matchingStacks(ingredient, level == null ? null : level.registryAccess());
 	}
 
 	public static IDrawable getRenderedSlot() {
