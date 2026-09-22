@@ -177,7 +177,15 @@ dependencies {
     jarJar(api("net.createmod.catnip:catnip-neoforge:$ponder_version"))
 
     // Local dependencies - not published to consumers
-    localImplementation("mezz.jei:jei-$minecraft_version-neoforge:$jei_version")
+    if (project.hasProperty("emi")) {
+        // -Pemi runs the client with EMI and TooManyRecipeViewers instead of JEI, as players with EMI
+        // have it: TMRV is JEI's API for EMI, so Create's JEI plugin still loads, through it.
+        compileOnly("mezz.jei:jei-$minecraft_version-neoforge:$jei_version")
+        localRuntimeOnly("dev.emi:emi-neoforge:$emi_version")
+        localRuntimeOnly(files("../TooManyRecipeViewers/build/libs/toomanyrecipeviewers-0.9.jar"))
+    } else {
+        localImplementation("mezz.jei:jei-$minecraft_version-neoforge:$jei_version")
+    }
 
     compileOnly("top.theillusivec4.curios:curios-neoforge:$curios_version+$minecraft_version:api")
     localRuntimeOnly("top.theillusivec4.curios:curios-neoforge:$curios_version+$minecraft_version")
