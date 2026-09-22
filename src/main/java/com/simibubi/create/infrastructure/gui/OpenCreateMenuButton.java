@@ -22,6 +22,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.util.ARGB;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -41,7 +42,8 @@ public class OpenCreateMenuButton extends Button {
 		extractDefaultSprite(graphics);
 		// 26.2 binds an item's components when world data loads, so no stack can be built while the
 		// title screen is up. The goggles are a flat item model, so their texture draws the same thing.
-		graphics.blit(RenderPipelines.GUI_TEXTURED, GOGGLES_TEXTURE, getX() + 2, getY() + 2, 0, 0, 16, 16, 16, 16);
+		// The tint carries the widget's alpha so the icon fades in with the title screen's buttons.
+		graphics.blit(RenderPipelines.GUI_TEXTURED, GOGGLES_TEXTURE, getX() + 2, getY() + 2, 0, 0, 16, 16, 16, 16, ARGB.white(alpha));
 	}
 
 	public static void click(Button b) {
@@ -62,11 +64,14 @@ public class OpenCreateMenuButton extends Button {
 			new SingleMenuRow("narrator.button.language", "narrator.button.accessibility")
 		));
 
+		// 26.2's pause menu turned the feedback row into a row of 20-wide icon buttons -- mods, report
+		// bugs, send feedback, friends, player reporting -- so its ends are the first and last of those.
+		// Naming send feedback, which now sits third, put the button over report bugs.
 		public static final MenuRows INGAME_MENU = new MenuRows(Arrays.asList(
 			new SingleMenuRow("menu.returnToGame"),
 			new SingleMenuRow("gui.advancements", "gui.stats"),
-			new SingleMenuRow("menu.sendFeedback", "menu.reportBugs"),
-			new SingleMenuRow("menu.options", "menu.shareToLan"),
+			new SingleMenuRow("fml.menu.mods", "menu.playerReporting"),
+			new SingleMenuRow("menu.options", "menu.multiplayerOptions.button"),
 			new SingleMenuRow("menu.returnToMenu")
 		));
 
