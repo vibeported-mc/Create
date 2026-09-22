@@ -3,6 +3,7 @@ package com.simibubi.create.infrastructure.gui;
 import org.joml.Matrix3x2fStack;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
+import net.createmod.catnip.api.client.config.BaseConfigScreen;
 import com.simibubi.create.CreateBuildInfo;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.utility.CreateLang;
@@ -134,11 +135,10 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 		addRenderableWidget(Button.builder(CreateLang.translateDirect("menu.return"), $ -> linkTo(parent))
 			.bounds(center - 100, yStart + 92, bLongWidth, bHeight)
 			.build());
-		// TODO 26.2: restore once Catnip's config screens are ported.
-		// addRenderableWidget(Button.builder(CreateLang.translateDirect("menu.configure"),
-		//     $ -> linkTo(new BaseConfigScreen(this, Create.ID)))
-		//     .bounds(center - 100, yStart + 24 + -16, bLongWidth, bHeight)
-		//     .build());
+		addRenderableWidget(Button.builder(CreateLang.translateDirect("menu.configure"),
+			$ -> linkTo(new BaseConfigScreen(this, Create.ID)))
+			.bounds(center - 100, yStart + 24 + -16, bLongWidth, bHeight)
+			.build());
 
 		gettingStarted = Button.builder(CreateLang.translateDirect("menu.ponder_index"), $ -> linkTo(new PonderTagIndexScreen()))
 			.bounds(center + 2, yStart + 48 + -16, bShortWidth, bHeight)

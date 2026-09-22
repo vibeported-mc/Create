@@ -19,6 +19,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
+import net.createmod.catnip.api.client.config.BaseConfigScreen;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.contraptions.ContraptionHandler;
 import com.simibubi.create.content.contraptions.actors.seat.ContraptionPlayerPassengerRotation;
@@ -437,8 +438,7 @@ public class ClientEvents {
 		ModContainer createContainer = ModList.get()
 			.getModContainerById(Create.ID)
 			.orElseThrow(() -> new IllegalStateException("Create mod container missing on LoadComplete"));
-		// TODO 26.2: re-enable once Catnip's config UI is ported.
-		// Supplier<IConfigScreenFactory> configScreen = () -> (mc, previousScreen) -> new BaseConfigScreen(previousScreen, Create.ID);
-		// createContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
+		createContainer.registerExtensionPoint(IConfigScreenFactory.class,
+			(mc, previousScreen) -> new BaseConfigScreen(previousScreen, Create.ID));
 	}
 }
