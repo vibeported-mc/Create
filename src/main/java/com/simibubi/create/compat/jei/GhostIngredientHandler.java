@@ -1,6 +1,5 @@
 package com.simibubi.create.compat.jei;
 
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.createmod.catnip.api.client.network.ClientNetworkHelper;
 import org.jspecify.annotations.NullMarked;
 import java.util.LinkedList;
@@ -77,7 +76,8 @@ public class GhostIngredientHandler<T extends GhostItemMenu<?>>
 		public void accept(I ingredient) {
 			ItemStack stack = ((ItemStack) ingredient).copy();
 			stack.setCount(1);
-			gui.getMenu().ghostInventory.set(slotIndex, ItemResource.of(stack), stack.getCount());
+			// through the slot, as GhostItemMenu#setGhost does: a direct write is undone by the slot
+			gui.getMenu().getSlot(slotIndex + 36).set(stack);
 
 			if (isAttributeFilter)
 				return;

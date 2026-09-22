@@ -1,6 +1,5 @@
 package com.simibubi.create.foundation.gui.menu;
 
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.createmod.catnip.api.network.SelfHandlingPayload;
 import com.simibubi.create.AllPackets;
@@ -20,18 +19,22 @@ public record GhostItemSubmitPacket(ItemStack item, int slot) implements SelfHan
 	        GhostItemSubmitPacket::new
 	);
 
+	/**
+	 * Through the slot, not into the handler behind it: a slot over a resource handler writes the
+	 * stack it last handed out back over the handler when told something changed, so setting the
+	 * handler and then calling {@code setChanged} undid the submission straight away - an item
+	 * dragged in from JEI or EMI showed on the client and was never kept.
+	 */
 	@Override
 	public void handle(ServerPlayer player) {
 		if (player.containerMenu instanceof GhostItemMenu<?> menu) {
-			menu.ghostInventory.set(slot, ItemResource.of(item), item.getCount());
 			menu.getSlot(36 + slot)
-					.setChanged();
-			}
-			if (player.containerMenu instanceof StockKeeperCategoryMenu menu
-				&& (item.isEmpty() || item.getItem() instanceof FilterItem)) {
-				menu.proxyInventory.set(slot, ItemResource.of(item), item.getCount());
-				menu.getSlot(36 + slot)
-					.setChanged();
+				.set(item);
+		}
+		if (player.containerMenu instanceof StockKeeperCategoryMenu menu
+			&& (item.isEmpty() || item.getItem() instanceof FilterItem)) {
+			menu.getSlot(36 + slot)
+				.set(item);
 		}
 	}
 
