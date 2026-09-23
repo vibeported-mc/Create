@@ -9,8 +9,6 @@ import com.simibubi.create.foundation.render.CachedBufferer;
 import net.createmod.catnip.api.client.event.LevelRenderCallback;
 import com.simibubi.create.foundation.events.ClientEvents;
 import com.simibubi.create.foundation.networking.CreateClientPayloadHandlers;
-import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.simibubi.create.compat.Mods;
 import com.simibubi.create.compat.ftb.FTBIntegration;
 import com.simibubi.create.compat.pojav.PojavChecker;

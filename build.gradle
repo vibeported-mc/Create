@@ -70,6 +70,22 @@ neoForge {
             client()
         }
 
+        // The same client on Minecraft's Vulkan backend, in its own game directory so a Vulkan run
+        // and an OpenGL one do not fight over one set of options and configs.
+        //
+        // --graphicsBackend alone is not enough: FML's early loading screen creates a GL context on
+        // the window before Minecraft's backend loop runs, so Vulkan cannot get GLFW_NO_API and
+        // PreferredGraphicsApi quietly falls back to OpenGL. The game then starts, plays and looks
+        // correct while not being on Vulkan at all. disableEarlyWindowForVulkan turns that screen
+        // off, and is wired as a dependency below because a run directory regenerates with it on.
+        clientVulkan {
+            client()
+
+            gameDirectory = project.file("run/vulkan")
+
+            programArguments.addAll("--graphicsBackend", "vulkan")
+        }
+
         server {
             server()
 
@@ -110,6 +126,38 @@ neoForge {
             type = "gameTestServer"
         }
     }
+}
+
+// Turn off FML's early loading screen for the Vulkan run directory.
+//
+// It is the one setting that decides whether a "Vulkan" run is actually on Vulkan, and nothing
+// reports when it is wrong: FMLConfig reads earlyWindowControl from config/fml.toml only -- there is
+// no system property and no launch argument for it -- and a failed Vulkan device just falls through
+// to OpenGL. Hence a task rather than a note in the README.
+tasks.register("disableEarlyWindowForVulkan") {
+    description = "Disables FML's early loading screen so the Vulkan backend can start."
+
+    def configFile = project.file("run/vulkan/config/fml.toml")
+    outputs.upToDateWhen { configFile.isFile() && configFile.text.contains("earlyWindowControl = false") }
+
+    doLast {
+        configFile.parentFile.mkdirs()
+        if (!configFile.isFile()) {
+            // FML writes the rest of its defaults on first launch; it only needs to not overwrite
+            // the key we care about, and it does not.
+            configFile.text = "earlyWindowControl = false\n"
+        } else if (configFile.text =~ /(?m)^\s*earlyWindowControl\s*=/) {
+            configFile.text = configFile.text.replaceAll(/(?m)^(\s*earlyWindowControl\s*=\s*).*$/, '$1false')
+        } else {
+            // A bare key before any table header belongs to the root table, which is where FML
+            // keeps this one.
+            configFile.text = "earlyWindowControl = false\n" + configFile.text
+        }
+    }
+}
+
+tasks.matching { it.name == "runClientVulkan" }.configureEach {
+    dependsOn("disableEarlyWindowForVulkan")
 }
 
 repositories {
