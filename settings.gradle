@@ -5,13 +5,21 @@ pluginManagement {
     }
 }
 
-// Flywheel and Ponder are built from source beside this one rather than taken from mavenLocal, so a
-// change in either shows up here on the next build with nothing published in between. That matters
-// most for Flywheel, which is being given a Vulkan-capable backend: publishToMavenLocal between
-// every iteration is a step that silently tests the previous jar whenever it is forgotten.
+// Flywheel, Ponder and Catnip come from mavenLocal, and are published there from the checkouts
+// beside this one. `-PfromSource` swaps in composite builds instead, so a change shows up without
+// publishing -- useful while iterating, and off by default for a reason.
 //
-// Both are checked for rather than assumed, so a tree with only Create in it still builds.
-if (file("../Flywheel/settings.gradle.kts").exists()) {
+// Off by default because the two paths are not equivalent, and the difference is not academic.
+// Built as composite projects, block interaction breaks: MultiblockTest finds that breaking a vault
+// out of a machine drops nothing, and TrainCircuitTest that the crosshair is not on the block the
+// player is looking at. The same source published to mavenLocal and consumed as a jar passes both.
+// So the composite path changes behaviour by itself, and anything measured under it is suspect.
+//
+// The workflow this settles on: publishToMavenLocal in Flywheel and Ponder, then build here. It is
+// a step to remember, but it is the one that tests what will ship.
+def fromSource = providers.gradleProperty("fromSource").isPresent()
+
+if (fromSource && file("../Flywheel/settings.gradle.kts").exists()) {
     includeBuild("../Flywheel") {
         dependencySubstitution {
             // One project publishes both artifacts -- the full jar and an api-only jar cut from the
@@ -24,7 +32,7 @@ if (file("../Flywheel/settings.gradle.kts").exists()) {
     }
 }
 
-if (file("../Ponder/settings.gradle").exists() || file("../Ponder/settings.gradle.kts").exists()) {
+if (fromSource && file("../Ponder/settings.gradle.kts").exists()) {
     includeBuild("../Ponder") {
         dependencySubstitution {
             substitute(module("net.createmod.ponder:ponder-neoforge")).using(project(":neoforge"))
