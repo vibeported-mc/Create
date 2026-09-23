@@ -5,12 +5,32 @@ pluginManagement {
     }
 }
 
-if (file("Ponder").exists()) {
-    includeBuild(".")
-    includeBuild("Ponder") {
+// Flywheel and Ponder are built from source beside this one rather than taken from mavenLocal, so a
+// change in either shows up here on the next build with nothing published in between. That matters
+// most for Flywheel, which is being given a Vulkan-capable backend: publishToMavenLocal between
+// every iteration is a step that silently tests the previous jar whenever it is forgotten.
+//
+// Both are checked for rather than assumed, so a tree with only Create in it still builds.
+if (file("../Flywheel/settings.gradle.kts").exists()) {
+    includeBuild("../Flywheel") {
+        dependencySubstitution {
+            // One project publishes both artifacts -- the full jar and an api-only jar cut from the
+            // same classes -- so both names resolve to it.
+            substitute(module("dev.engine-room.flywheel:flywheel-neoforge-$minecraft_version"))
+                .using(project(":neoforge"))
+            substitute(module("dev.engine-room.flywheel:flywheel-neoforge-api-$minecraft_version"))
+                .using(project(":neoforge"))
+        }
+    }
+}
+
+if (file("../Ponder/settings.gradle").exists() || file("../Ponder/settings.gradle.kts").exists()) {
+    includeBuild("../Ponder") {
         dependencySubstitution {
             substitute(module("net.createmod.ponder:ponder-neoforge")).using(project(":neoforge"))
             substitute(module("net.createmod.ponder:ponder-common")).using(project(":common"))
+            substitute(module("net.createmod.catnip:catnip-neoforge")).using(project(":catnip:neoforge"))
+            substitute(module("net.createmod.catnip:catnip-common")).using(project(":catnip:common"))
         }
     }
 }
